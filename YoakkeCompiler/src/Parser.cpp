@@ -183,14 +183,14 @@ namespace yk
 			Next();
 			if (lhs == nullptr)
 			{
-				lhs = ParseSubExpr1(nullptr, op->Precedence);
+				lhs = ParseSubExpr1(nullptr, 0);
 			}
 			if (!lhs)
 			{
 				std::cout << "Error (code: 0)" << std::endl;
 				return nullptr;
 			}
-			rhs = ParseSubExpr1(nullptr, op->Precedence);
+			rhs = ParseSubExpr1(nullptr, 0);
 			if (!rhs)
 			{
 				std::cout << "Error (code: 1)" << std::endl;
@@ -210,7 +210,7 @@ namespace yk
 			if (lhs != nullptr)
 			{
 				auto state = SaveState();
-				rhs = ParseSubExpr1(nullptr, min_prec);
+				rhs = ParseSubExpr1(nullptr, 0);
 				if (rhs != nullptr)
 				{
 					lookahead = Peek();
