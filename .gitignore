@@ -1,0 +1,10 @@
+*.obj
+*.db
+*.tlog
+*.opendb
+*.suo
+*.exe
+*.idb
+*.ilk
+*.pdb
+*.log
