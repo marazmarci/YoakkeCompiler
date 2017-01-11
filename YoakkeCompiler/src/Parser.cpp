@@ -214,7 +214,7 @@ namespace yk
 				if (rhs != nullptr)
 				{
 					lookahead = Peek();
-					if ((op = PostfixBinaryOp(lookahead)) && op->Precedence >= min_prec && lhs != nullptr)
+					if ((op = PostfixBinaryOp(lookahead))/* && op->Precedence >= min_prec*/ && lhs != nullptr)
 					{
 						Next();
 						lhs = new BinExpr(lhs, rhs, op);
