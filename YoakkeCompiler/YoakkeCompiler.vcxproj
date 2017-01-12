@@ -112,8 +112,10 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\AST.cpp" />
+    <ClCompile Include="src\Expr.cpp" />
     <ClCompile Include="src\Lexer.cpp" />
     <ClCompile Include="src\Parser.cpp" />
+    <ClCompile Include="src\Stmt.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AST.h" />
@@ -121,7 +123,9 @@
     <ClInclude Include="src\Lexer.h" />
     <ClInclude Include="src\Operator.h" />
     <ClInclude Include="src\Parser.h" />
+    <ClInclude Include="src\Stmt.h" />
     <ClInclude Include="src\Token.h" />
+    <ClInclude Include="src\TypeDesc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

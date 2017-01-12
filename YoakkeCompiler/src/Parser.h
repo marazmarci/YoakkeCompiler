@@ -3,8 +3,10 @@
 #include <map>
 #include <vector>
 #include "Lexer.h"
+#include "Stmt.h"
 #include "AST.h"
 #include "Expr.h"
+#include "TypeDesc.h"
 #include "Token.h"
 #include "Operator.h"
 
@@ -64,10 +66,15 @@ namespace yk
 		Parser();
 		void Init();
 		node_list Parse(std::string const& src);
-		Expr* ParseExpr();
 
 	private:
+		Stmt* ParseGlobal();
+		Stmt* ParseSingleAssignment();
+
+		Expr* ParseExpr();
 		Expr* ParseSubExpr();
 		Expr* ParseAtom();
+
+		TypeDesc* ParseTypeDesc();
 	};
 }

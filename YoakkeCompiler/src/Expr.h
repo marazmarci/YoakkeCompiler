@@ -21,24 +21,11 @@ namespace yk
 		Operator* OP;
 
 	public:
-		BinExpr(Expr* lhs, Expr* rhs, Operator* op)
-			: LHS(lhs), RHS(rhs), OP(op)
-		{
-		}
-
-		~BinExpr()
-		{
-			delete LHS;
-			delete RHS;
-		}
+		BinExpr(Expr* lhs, Expr* rhs, Operator* op);
+		~BinExpr();
 
 	public:
-		virtual std::string ToString() override
-		{
-			return "<BinaryExpr op=\"" + OP->Symbol + "\">" + 
-				LHS->ToString() + RHS->ToString() +
-				"</BinaryExpr>";
-		}
+		virtual std::string ToString() override;
 	};
 
 	template <typename T>
@@ -69,14 +56,9 @@ namespace yk
 		std::string Identifier;
 
 	public:
-		VarExpr(std::string const& id)
-			: Identifier(id)
-		{
-		}
+		VarExpr(std::string const& id);
 
-		virtual std::string ToString() override
-		{
-			return "<VarExpr>" + Identifier + "</VarExpr>";
-		}
+	public:
+		virtual std::string ToString() override;
 	};
 }

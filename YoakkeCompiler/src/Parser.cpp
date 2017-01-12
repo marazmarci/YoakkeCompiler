@@ -158,10 +158,48 @@ namespace yk
 		m_Tokens = m_Lexer.Tokenize(src.c_str());
 		Next();
 		node_list ls;
-
-		ls.push_back(ParseExpr());
+		Stmt* st = nullptr;
+		while (st = ParseGlobal()) ls.push_back(st);
 
 		return ls;
+	}
+
+	Stmt* Parser::ParseGlobal()
+	{
+		Stmt* st = nullptr;
+		if (st = ParseSingleAssignment()) return st;
+
+		return nullptr;
+	}
+
+	Stmt* Parser::ParseSingleAssignment()
+	{
+		auto state = SaveState();
+
+		if (IsIdent())
+		{
+			auto val = Value();
+			Next();
+			if (Match("::"))
+			{
+				TypeDesc* type = ParseTypeDesc();
+				if (Match("="))
+				{
+					Expr* exp = ParseExpr();
+					if (exp)
+					{
+						return new SingleAsgnStmt(val, type, exp);
+					}
+					else
+					{
+						std::cout << "Parse error" << std::endl;
+					}
+				}
+			}
+		}
+
+		LoadState(state);
+		return nullptr;
 	}
 
 	// EXPRESSION PARSING ////////////////////////////////////////////////////////
@@ -260,6 +298,11 @@ namespace yk
 			std::cout << "')' is missing!" << std::endl;
 		}
 
+		return nullptr;
+	}
+
+	TypeDesc* Parser::ParseTypeDesc()
+	{
 		return nullptr;
 	}
 }
