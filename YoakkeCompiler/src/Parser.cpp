@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "Parser.h"
 
 namespace yk
@@ -203,10 +204,33 @@ namespace yk
 			lhs = ParseAtom();
 			if (!lhs) return nullptr;
 		}
-		lookahead = Peek();
+		
 		while (true)
 		{
 			lookahead = Peek();
+			if ((op = InfixBinaryOp(lookahead)) && op->Precedence >= min_prec)
+			{
+				Next();
+				//rhs = ParseAtom();
+				rhs = ParseSubExpr1(nullptr, op->Precedence + 99999);
+				if (rhs == nullptr)
+				{
+					continue;
+					std::cout << "Error (code: 2)" << std::endl;
+					return nullptr;
+				}
+				lookahead = Peek();
+				while ((op2 = InfixBinaryOp(lookahead)) &&
+					((op2->Precedence > op->Precedence)
+						|| (op2->Associativity == AssocT::Right && op2->Precedence == op->Precedence)))
+				{
+					rhs = ParseSubExpr1(rhs, op2->Precedence);
+					lookahead = Peek();
+				}
+				lhs = new BinExpr(lhs, rhs, op);
+				continue;
+			}
+
 			if (lhs != nullptr)
 			{
 				auto state = SaveState();
@@ -230,28 +254,6 @@ namespace yk
 				{
 					LoadState(state);
 				}
-			}
-			
-			if ((op = InfixBinaryOp(lookahead)) && op->Precedence >= min_prec)
-			{
-				Next();
-				//rhs = ParseAtom();
-				rhs = ParseSubExpr1(nullptr, op->Precedence + 1);
-				if (rhs == nullptr)
-				{
-					std::cout << "Error (code: 2)" << std::endl;
-					return nullptr;
-				}
-				lookahead = Peek();
-				while ((op2 = InfixBinaryOp(lookahead)) &&
-						((op2->Precedence > op->Precedence)
-						|| (op2->Associativity == AssocT::Right && op2->Precedence == op->Precedence)))
-				{
-					rhs = ParseSubExpr1(rhs, op2->Precedence);
-					lookahead = Peek();
-				}
-				lhs = new BinExpr(lhs, rhs, op);
-				continue;
 			}
 			
 			break;
