@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <stack>
 #include "Parser.h"
 
 namespace yk
@@ -163,100 +164,73 @@ namespace yk
 		return ls;
 	}
 
+	// EXPRESSION PARSING ////////////////////////////////////////////////////////
 	Expr* Parser::ParseExpr()
 	{
 		return ParseSubExpr();
 	}
 
-	Expr* Parser::ParseSubExpr()
+	static Expr* reduce(std::stack<Expr*>& operands, std::stack<Operator*>& ops)
 	{
-		return ParseSubExpr1(nullptr, 0);
+		Expr* r = operands.top();
+		operands.pop();
+		Expr* l = operands.top();
+		operands.pop();
+
+		Operator* op = ops.top();
+		ops.pop();
+
+		return new BinExpr(l, r, op);
 	}
 
-	Expr* Parser::ParseSubExpr1(Expr* lhs, std::uint32_t min_prec)
+	Expr* Parser::ParseSubExpr()
 	{
-		Expr* rhs;
-		Operator* op;
-		Operator* op2;
-		Token lookahead = Peek();
-		if ((op = PrefixBinaryOp(lookahead)))
-		{
-			Next();
-			if (lhs == nullptr)
-			{
-				lhs = ParseSubExpr1(nullptr, 0);
-			}
-			if (!lhs)
-			{
-				std::cout << "Error (code: 0)" << std::endl;
-				return nullptr;
-			}
-			rhs = ParseSubExpr1(nullptr, 0);
-			if (!rhs)
-			{
-				std::cout << "Error (code: 1)" << std::endl;
-				return nullptr;
-			}
-			lhs = new BinExpr(lhs, rhs, op);
-		}
-		if (lhs == nullptr)
-		{
-			lhs = ParseAtom();
-			if (!lhs) return nullptr;
-		}
+		std::stack<Expr*> operands;
+		std::stack<Operator*> operators;
 		
+		Operator* op = nullptr;
+		Expr* lhs = nullptr;
+		Token lookahead = Peek();
+
+		lhs = ParseAtom();
+		if (!lhs) return nullptr;
+		operands.push(lhs);
 		while (true)
 		{
 			lookahead = Peek();
-			if ((op = InfixBinaryOp(lookahead)) && op->Precedence >= min_prec)
+			if (op = InfixBinaryOp(lookahead))
 			{
-				Next();
-				//rhs = ParseAtom();
-				rhs = ParseSubExpr1(nullptr, op->Precedence + 99999);
-				if (rhs == nullptr)
-				{
-					continue;
-					std::cout << "Error (code: 2)" << std::endl;
-					return nullptr;
-				}
-				lookahead = Peek();
-				while ((op2 = InfixBinaryOp(lookahead)) &&
-					((op2->Precedence > op->Precedence)
-						|| (op2->Associativity == AssocT::Right && op2->Precedence == op->Precedence)))
-				{
-					rhs = ParseSubExpr1(rhs, op2->Precedence);
-					lookahead = Peek();
-				}
-				lhs = new BinExpr(lhs, rhs, op);
-				continue;
-			}
+				auto prec = op->Precedence;
+				auto assoc = op->Associativity;
 
-			if (lhs != nullptr)
-			{
-				auto state = SaveState();
-				rhs = ParseSubExpr1(nullptr, 0);
-				if (rhs != nullptr)
+				if (operators.empty() || (prec > operators.top()->Precedence
+					|| (prec == operators.top()->Precedence && assoc == AssocT::Right)))
 				{
-					lookahead = Peek();
-					if ((op = PostfixBinaryOp(lookahead))/* && op->Precedence >= min_prec*/ && lhs != nullptr)
+					Next();
+					operators.push(op);
+					Expr* rhs = ParseAtom();
+					if (!rhs)
 					{
-						Next();
-						lhs = new BinExpr(lhs, rhs, op);
-						continue;
+						std::cout << "ERROR" << std::endl;
+						return nullptr;
 					}
-					else
-					{
-						LoadState(state);
-						//break;
-					}
+					operands.push(rhs);
 				}
 				else
 				{
-					LoadState(state);
+					while (!operators.empty() && prec <= operators.top()->Precedence)
+					{
+						operands.push(lhs = reduce(operands, operators));
+					}
 				}
 			}
-			
-			break;
+			else
+				break;
+		}
+
+		while (!operators.empty())
+		{
+			operands.push(lhs = reduce(operands, operators));
 		}
 
 		return lhs;

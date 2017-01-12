@@ -68,7 +68,6 @@ namespace yk
 
 	private:
 		Expr* ParseSubExpr();
-		Expr* ParseSubExpr1(Expr* lhs, std::uint32_t prec);
 		Expr* ParseAtom();
 	};
 }
