@@ -1,19 +1,18 @@
 #include <iostream>
-#include "src\Parser.h"
+#include "src\Parsing\Parser.h"
 
 int main(void)
 {
-	for (;;)
-	{
-		std::string line;
-		std::getline(std::cin, line);
-		yk::Parser parser;
-		auto prog = parser.Parse(line);
-		for (auto n : prog)
-		{
-			
-		}
-	}
+	yk::Parser parser;
+	char src[] = "foo :: (a: i32, b: i32, c, d, e: i32) -> asd;";
+	auto ast = parser.ParseProgram(src);
 
+	for (auto t : ast)
+	{
+		std::cout << t->ToString();
+	}
+	std::cout << std::endl;
+
+	system("PAUSE");
 	return 0;
 }

@@ -18,45 +18,48 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Lexer.cpp">
+    <ClCompile Include="src\Parsing\Token.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Parser.cpp">
+    <ClCompile Include="src\Parsing\Lexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\AST.cpp">
+    <ClCompile Include="src\Parsing\Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Expr.cpp">
+    <ClCompile Include="src\AST\Stmt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Stmt.cpp">
+    <ClCompile Include="src\AST\Expr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AST\FuncPrototype.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AST\TypeDesc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Lexer.h">
+    <ClInclude Include="src\Parsing\Lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Token.h">
+    <ClInclude Include="src\Parsing\Token.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Parser.h">
+    <ClInclude Include="src\Parsing\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\AST.h">
+    <ClInclude Include="src\AST\Expr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Expr.h">
+    <ClInclude Include="src\AST\Stmt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Operator.h">
+    <ClInclude Include="src\AST\FuncPrototype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Stmt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TypeDesc.h">
+    <ClInclude Include="src\AST\TypeDesc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
