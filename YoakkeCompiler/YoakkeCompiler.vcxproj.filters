@@ -62,5 +62,8 @@
     <ClInclude Include="src\AST\TypeDesc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Parsing\OperDesc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

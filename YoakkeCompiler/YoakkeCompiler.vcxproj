@@ -127,6 +127,7 @@
     <ClInclude Include="src\Parsing\Lexer.h" />
     <ClInclude Include="src\Parsing\Parser.h" />
     <ClInclude Include="src\Parsing\Token.h" />
+    <ClInclude Include="src\Parsing\OperDesc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

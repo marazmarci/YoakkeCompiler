@@ -51,4 +51,20 @@ namespace yk
 	{
 		return "<FuncExpr>" + Prototype->ToString() + Body->ToString() + "</FuncExpr>";
 	}
+
+	BinExpr::BinExpr(Expr* l, Expr* r, std::string o)
+		: LHS(l), RHS(r), OP(o)
+	{
+	}
+
+	BinExpr::~BinExpr()
+	{
+		delete LHS;
+		delete RHS;
+	}
+
+	std::string BinExpr::ToString()
+	{
+		return "<BinExpr op=\"" + OP + "\">" + LHS->ToString() + RHS->ToString() + "</BinExpr>";
+	}
 }

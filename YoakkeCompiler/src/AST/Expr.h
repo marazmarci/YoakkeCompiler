@@ -18,6 +18,27 @@ namespace yk
 		virtual std::string ToString() = 0;
 	};
 
+	template <typename T>
+	class LiteralExpr : public Expr
+	{
+	public:
+		T Value;
+
+	public:
+		LiteralExpr(T const& v)
+			: Value(v)
+		{
+		}
+
+	public:
+		virtual std::string ToString() override
+		{
+			std::string name = std::string(typeid(T).name()) + "Literal";
+			return "<" + name + ">" + std::to_string(Value) + "</" + name + ">";
+		}
+	};
+	typedef LiteralExpr<int> IntLiteralExpr;
+
 	class BlockExpr : public Expr
 	{
 	public:
@@ -53,6 +74,21 @@ namespace yk
 	public:
 		FuncExpr(FuncPrototype* proto, BlockExpr* body);
 		virtual ~FuncExpr();
+
+	public:
+		virtual std::string ToString() override;
+	};
+
+	class BinExpr : public Expr
+	{
+	public:
+		Expr* LHS;
+		Expr* RHS;
+		std::string OP;
+
+	public:
+		BinExpr(Expr* l, Expr* r, std::string o);
+		virtual ~BinExpr();
 
 	public:
 		virtual std::string ToString() override;
