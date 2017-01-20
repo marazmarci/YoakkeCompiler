@@ -7,6 +7,7 @@ namespace yk
 	{
 		m_Lexer.AddLexeme(";", TokenT::Keyword);
 		m_Lexer.AddLexeme(":", TokenT::Keyword);
+		m_Lexer.AddLexeme("::", TokenT::Keyword);
 		m_Lexer.AddLexeme("(", TokenT::Keyword);
 		m_Lexer.AddLexeme(")", TokenT::Keyword);
 		m_Lexer.AddLexeme("{", TokenT::Keyword);
@@ -14,7 +15,20 @@ namespace yk
 		m_Lexer.AddLexeme(",", TokenT::Keyword);
 		m_Lexer.AddLexeme("->", TokenT::Keyword);
 
-		AddOperator("::", OperDesc(0, AssocT::Right));
+		AddOperator(":=", OperDesc(0.5, AssocT::Right));
+
+		AddOperator("pre+", OperDesc(1, FixityT::Prefix));
+		AddOperator("pre-", OperDesc(1, FixityT::Prefix));
+		AddOperator("pre*", OperDesc(1, FixityT::Prefix));
+		AddOperator("pre/", OperDesc(1, FixityT::Prefix));
+		AddOperator("post+", OperDesc(2, FixityT::Postfix));
+		AddOperator("post-", OperDesc(2, FixityT::Postfix));
+		AddOperator("post*", OperDesc(2, FixityT::Postfix));
+		AddOperator("post/", OperDesc(2, FixityT::Postfix));
+		AddOperator("+", OperDesc(3, AssocT::Left));
+		AddOperator("-", OperDesc(3, AssocT::Left));
+		AddOperator("*", OperDesc(4, AssocT::Left));
+		AddOperator("/", OperDesc(4, AssocT::Left));
 	}
 
 	void Parser::Next()
@@ -99,8 +113,33 @@ namespace yk
 	Stmt* Parser::ParseStmt()
 	{
 		Stmt* st = nullptr;
-		//if (st = ParseConstDecl()) return st;
+		if (st = ParseConstDecl()) return st;
 
+		return nullptr;
+	}
+
+	Stmt* Parser::ParseConstDecl()
+	{
+		auto state = SaveState();
+		if (IsIdent())
+		{
+			std::string id = GetValue();
+			Next();
+			if (Match("::"))
+			{
+				if (Expr* exp = ParseExpr())
+				{
+					return new ConstDeclStmt(id, exp);
+				}
+				else
+				{
+					std::cout << "Expression expected!" << std::endl;
+					return nullptr;
+				}
+			}
+		}
+
+		LoadState(state);
 		return nullptr;
 	}
 
@@ -231,7 +270,7 @@ namespace yk
 			if (idx - 1 == stack.size())
 				stack.push_back(StackElem(nexp));
 			else
-				stack.insert(stack.begin() + (idx - 1), StackElem(nexp));
+				stack.insert(stack.begin() + idx - 1, StackElem(nexp));
 		}
 		else
 		{
@@ -363,7 +402,7 @@ namespace yk
 						if (idx - 2 == stack.size())
 							stack.push_back(StackElem(nexp));
 						else
-							stack.insert(stack.begin() + (idx - 2), StackElem(nexp));
+							stack.insert(stack.begin() + idx - 2, StackElem(nexp));
 					}
 					return;
 				}
@@ -456,7 +495,7 @@ namespace yk
 			Expr* exp = ParseExpr();
 			if (Match(")"))
 			{
-				return exp;
+
 			}
 			else
 			{
@@ -548,6 +587,22 @@ namespace yk
 		return nullptr;
 	}
 
+	Expr* Parser::ParseFuncHeaderExpr()
+	{
+		auto state = SaveState();
+		FuncPrototype* proto = ParseFuncPrototype();
+		if (proto)
+		{
+			if (Match(";"))
+			{
+				return new FuncHeaderExpr(proto);
+			}
+		}
+
+		LoadState(state);
+		return nullptr;
+	}
+
 	Expr* Parser::ParseFuncExpr()
 	{
 		auto state = SaveState();
@@ -558,10 +613,13 @@ namespace yk
 			{
 				return new FuncExpr(proto, block);
 			}
-			else
+			if (Match(";"))
 			{
 				return new FuncHeaderExpr(proto);
 			}
+
+			std::cout << "Expected block or ';'!" << std::endl;
+			return nullptr;
 		}
 
 		LoadState(state);

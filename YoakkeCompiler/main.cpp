@@ -4,7 +4,7 @@
 int main(void)
 {
 	yk::Parser parser;
-	char src[] = "999 := pre+ 2 + 3 3 4 post+";
+	char src[] = "2 3 4 post+ post+";
 	auto ast = parser.ParseProgram(src);
 
 	for (auto t : ast)

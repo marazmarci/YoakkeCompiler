@@ -75,7 +75,6 @@ namespace yk
 
 	private:
 		Stmt* ParseStmt();
-		Stmt* ParseConstDecl();
 
 		ParamPair ParseParameter();
 		FuncPrototype* ParseFuncPrototype();
@@ -90,7 +89,6 @@ namespace yk
 
 		Expr* ParseAtom();
 
-		Expr* ParseFuncHeaderExpr();
 		Expr* ParseFuncExpr();
 		BlockExpr* ParseBlockExpr();
 
