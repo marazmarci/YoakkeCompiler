@@ -3,6 +3,16 @@
 
 namespace yk
 {
+	IdentExpr::IdentExpr(std::string const& id)
+		: Ident(id)
+	{
+	}
+
+	std::string IdentExpr::ToString()
+	{
+		return "<IdentExpr id=\"" + Ident + "\" />";
+	}
+
 	BlockExpr::BlockExpr(std::vector<Stmt*> const& st)
 		: Statements(st)
 	{
@@ -52,7 +62,7 @@ namespace yk
 		return "<FuncExpr>" + Prototype->ToString() + Body->ToString() + "</FuncExpr>";
 	}
 
-	BinExpr::BinExpr(Expr* l, Expr* r, std::string o)
+	BinExpr::BinExpr(Expr* l, Expr* r, OperDesc* o)
 		: LHS(l), RHS(r), OP(o)
 	{
 	}
@@ -65,6 +75,6 @@ namespace yk
 
 	std::string BinExpr::ToString()
 	{
-		return "<BinExpr op=\"" + OP + "\">" + LHS->ToString() + RHS->ToString() + "</BinExpr>";
+		return "<BinExpr op=\"" + OP->Symbol + "\">" + LHS->ToString() + RHS->ToString() + "</BinExpr>";
 	}
 }

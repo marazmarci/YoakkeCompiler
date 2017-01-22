@@ -1,18 +1,31 @@
+#include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <iostream>
+#include <sstream>
 #include "Lexer.h"
 
 namespace yk
 {
+	Lexer::Lexer()
+	{
+	}
+
 	void Lexer::AddLexeme(std::string const& l, TokenT tt)
 	{
-		m_Lexemes.insert(std::make_pair(l, tt));
+		if (ValidLexeme(l))
+			m_Lexemes.insert(std::make_pair(l, tt));
+		else
+			std::cout << "INVALID" << std::endl;
 	}
 
 	void Lexer::SetSource(const char* buf)
 	{
 		m_Buffer = buf;
 		m_Ptr = buf;
+
+		m_RowCount = 1;
+		m_ColCount = 0;
 	}
 
 	Token Lexer::Next()
@@ -20,105 +33,126 @@ namespace yk
 		begin:
 
 		// EOF
-		if (!*m_Ptr) return Token::EPSILON;
+		if (!*m_Ptr) 
+			return Token(TokenT::Epsilon, "", m_RowCount, m_ColCount);
 
 		// Comment
-		if (*m_Ptr == '/')
+		if (Match("//"))
 		{
-			if (*(m_Ptr + 1) == '/')
+			ConsumeUntil("\n");
+			goto begin;
+		}
+
+		if (Match("/*"))
+		{
+			std::size_t depth = 1;
+			while (*m_Ptr)
 			{
-				m_Ptr += 2;
-				while (*m_Ptr && *m_Ptr != '\n') m_Ptr++;
-				goto begin;
+				if (Match("/*"))
+				{
+					depth++;
+					continue;
+				}
+				if (Match("*/"))
+				{
+					depth--;
+					if (depth == 0) break;
+					continue;
+				}
+				IncPtr();
 			}
 
-			if (*(m_Ptr + 1) == '*')
-			{
-				m_Ptr += 2;
-				std::size_t depth = 1;
-				while (*m_Ptr)
-				{
-					if (*m_Ptr == '/' && *(m_Ptr + 1) == '*')
-					{
-						m_Ptr += 2;
-						depth++;
-						continue;
-					}
-					if (*m_Ptr == '*' && *(m_Ptr + 1) == '/')
-					{
-						m_Ptr += 2;
-						depth--;
-						if (depth == 0) break;
-						continue;
-					}
-					m_Ptr++;
-				}
-				goto begin;
-			}
+			goto begin;
 		}
 
 
 		// Skip whitespace
 		if (std::isspace(*m_Ptr))
 		{
-			while (std::isspace(*m_Ptr)) m_Ptr++;
+			while (std::isspace(*m_Ptr)) IncPtr();
 			goto begin;
 		}
 
 		// Custom token
-		std::string longest = "";
 		TokenT type = TokenT::Epsilon;
-		for (auto it = m_Lexemes.begin(); it != m_Lexemes.end(); it++)
+		for (auto it = m_Lexemes.rbegin(); it != m_Lexemes.rend(); ++it)
 		{
 			std::string const& lex = it->first;
-			if (std::strncmp(lex.c_str(), m_Ptr, lex.length()) == 0 && lex.length() > longest.length())
+			std::size_t len = lex.length();
+			if (std::strncmp(lex.c_str(), m_Ptr, len) == 0)
 			{
-				longest = lex;
-				type = it->second;
+				IncPtrSBy(len);
+				return Token(it->second, lex, m_RowCount, m_ColCount);
 			}
-		}
-		if (type != TokenT::Epsilon)
-		{
-			m_Ptr += longest.length();
-			return Token(type, longest);
 		}
 
 		// Number literal
 		{
-			bool real = false;
 			std::string num = "";
 			while (std::isdigit(*m_Ptr))
 			{
-				num += *m_Ptr++;
+				num += IncPtrS();
 			}
 			if (*m_Ptr == '.' && (num.length() || std::isdigit(*(m_Ptr + 1))))
 			{
-				m_Ptr++;
+				IncPtrS();
 				num += '.';
-				real = true;
 
-				while (std::isdigit(*m_Ptr)) num += *m_Ptr++;
+				while (std::isdigit(*m_Ptr))
+				{
+					num += IncPtrS();
+				}
+
+				return Token(TokenT::Real, num, m_RowCount, m_ColCount);
 			}
 
 			if (num.length())
-			{
-				if (real) return Token(TokenT::Real, num);
-				return Token(TokenT::Integer, num);
-			}
+				return Token(TokenT::Integer, num, m_RowCount, m_ColCount);
 		}
 
 		// Identifier
 		if (std::isalpha(*m_Ptr) || *m_Ptr == '_')
 		{
 			std::string ident = "";
-			while (std::isalnum(*m_Ptr) || *m_Ptr == '_') ident += *m_Ptr++;
-			return Token(TokenT::Identifier, ident);
+			while (std::isalnum(*m_Ptr) || *m_Ptr == '_')
+			{
+				ident += IncPtrS();
+			}
+			return Token(TokenT::Identifier, ident, m_RowCount, m_ColCount);
 		}
 
-		char unknown = *m_Ptr++;
-		std::string uk = "";
-		uk += unknown;
-		std::cout << "Unknown token: " << unknown << " (ASCII: " << +unknown << ")" << std::endl;
-		return Token(TokenT::Unknown, uk);
+		char unknown = IncPtrS();
+		std::stringstream ss;
+		ss << "Unknown token: '" << unknown << "' (ASCII: " << +unknown << ')';
+		Error(ss.str());
+		return Token(TokenT::Unknown, std::string(1, unknown), m_RowCount, m_ColCount);
+	}
+
+	void Lexer::ConsumeUntil(std::string const& c)
+	{
+		while (*m_Ptr && std::strncmp(m_Ptr, c.c_str(), c.length()) != 0)
+		{
+			IncPtrS();
+		}
+	}
+
+	bool Lexer::Match(std::string const& c)
+	{
+		if (*m_Ptr && std::strncmp(m_Ptr, c.c_str(), c.length()) == 0)
+		{
+			IncPtrSBy(c.length());
+			return true;
+		}
+		return false;
+	}
+
+	bool Lexer::ValidLexeme(std::string const& v)
+	{
+		return v.find_first_of(' ') == std::string::npos;
+	}
+
+	void Lexer::Error(std::string const& msg)
+	{
+		std::cout << msg << " at line " << m_RowCount << ", column " << m_ColCount << std::endl;
 	}
 }

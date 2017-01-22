@@ -3,18 +3,18 @@
 
 namespace yk
 {
-	ConstDeclStmt::ConstDeclStmt(std::string const& id, Expr* v)
-		: Identifier(id), Value(v)
+	ExprStmt::ExprStmt(Expr* s)
+		: Sub(s)
 	{
 	}
 
-	ConstDeclStmt::~ConstDeclStmt()
+	ExprStmt::~ExprStmt()
 	{
-		delete Value;
+		delete Sub;
 	}
 
-	std::string ConstDeclStmt::ToString()
+	std::string ExprStmt::ToString()
 	{
-		return "<ConstDeclStmt id=\"" + Identifier + "\">" + Value->ToString() + "</ConstDeclStmt>";
+		return "<ExprStmt>" + Sub->ToString() + "</ExprStmt>";
 	}
 }

@@ -3,7 +3,7 @@
 namespace yk
 {
 	Parser::Parser()
-		: m_CurrentToken(Token::EPSILON)
+		: m_CurrentToken(Token(TokenT::Epsilon, "", 0, 0))
 	{
 		m_Lexer.AddLexeme(";", TokenT::Keyword);
 		m_Lexer.AddLexeme(":", TokenT::Keyword);
@@ -14,7 +14,12 @@ namespace yk
 		m_Lexer.AddLexeme(",", TokenT::Keyword);
 		m_Lexer.AddLexeme("->", TokenT::Keyword);
 
-		AddOperator("::", OperDesc(0, AssocT::Right));
+		AddOperator(OperDesc("::", 0, AssocT::Right));
+	}
+
+	void Parser::Error(std::string const& msg)
+	{
+		std::cout << "Error: " << msg << std::endl;
 	}
 
 	void Parser::Next()
@@ -58,22 +63,17 @@ namespace yk
 		m_CurrentToken = st.CurrentToken;
 	}
 
-	void Parser::AddOperator(std::string sym, OperDesc desc)
+	void Parser::AddOperator(OperDesc desc)
 	{
-		m_Lexer.AddLexeme(sym, TokenT::Operator);
-		m_Operators.insert(std::make_pair(sym, desc));
+		m_Lexer.AddLexeme(desc.Symbol, TokenT::Operator);
+		m_BinOps.insert(std::make_pair(desc.Symbol, desc));
 	}
 
-	OperDesc* Parser::GetOperator(Token t)
+	OperDesc* Parser::GetBinOp(Token t)
 	{
 		if (t.Type == TokenT::Operator)
 		{
-			auto it = m_Operators.find(t.Value);
-			if (it == m_Operators.end())
-			{
-				std::cout << "OPERATOR ASSERTION" << std::endl;
-				return nullptr;
-			}
+			auto it = m_BinOps.find(t.Value);
 			return &it->second;
 		}
 
@@ -86,12 +86,8 @@ namespace yk
 		Next();
 
 		std::vector<Stmt*> prog;
-		//Stmt* st = nullptr;
-		//while (st = ParseConstDecl()) prog.push_back(st);
-
-		Expr* exp = ParseExpr();
-		std::cout << exp->ToString() << std::endl;
-		for (;;);
+		Stmt* st = nullptr;
+		while (st = ParseStmt()) prog.push_back(st);
 
 		return prog;
 	}
@@ -99,118 +95,123 @@ namespace yk
 	Stmt* Parser::ParseStmt()
 	{
 		Stmt* st = nullptr;
-		//if (st = ParseConstDecl()) return st;
+		if (st = ParseExprStmt()) return st;
 
+		return nullptr;
+	}
+
+	Stmt* Parser::ParseExprStmt()
+	{
+		auto state = SaveState();
+		bool need_semicol = true;
+		Expr* exp = ParseExpr();
+		if (exp)
+		{
+			if (BinExpr* be = dynamic_cast<BinExpr*>(exp))
+			{
+				if (be->OP->Symbol == "::" && dynamic_cast<FuncExpr*>(be->RHS))
+				{
+					need_semicol = false;
+				}
+			}
+			if (need_semicol)
+			{
+				if (Match(";"))
+				{
+					return new ExprStmt(exp);
+				}
+				else
+				{
+					Error("';' expected!");
+					return nullptr;
+				}
+			}
+			else
+			{
+				return new ExprStmt(exp);
+			}
+		}
+
+		LoadState(state);
 		return nullptr;
 	}
 
 	Expr* Parser::ParseExpr()
 	{
-		return ParsePrecedence();
-	}
-
-	static void debug_stack(std::vector<StackElem> const& st)
-	{
-		std::cout << "--------STACK TRACE----------" << std::endl;
-		for (auto& t : st)
-		{
-			if (t.Tag == StackElemT::Expr)
-			{
-				std::cout << t.Exp->ToString() << std::endl;
-			}
-			else
-			{
-				std::cout << "OP: '" << t.Oper.Value << "'" << std::endl;
-			}
-
-			std::cout << "-----------------------------" << std::endl;
-		}
-		std::cout << "=============================" << std::endl;
-	}
-
-	Expr* Parser::ParsePrecedence()
-	{
 		std::vector<StackElem> stack;
 
+		// Parse atomic expressions and operators onto the stack /////
 		OperDesc* op = nullptr;
 		Expr* exp = nullptr;
 		while (true)
 		{
-			if (op = GetOperator(m_CurrentToken))
+			if (op = GetBinOp(m_CurrentToken))
 			{
 				Token t = m_CurrentToken;
 				Next();
-				stack.push_back(StackElem(t));
+				stack.push_back(StackElem(op, SaveState()));
 			}
 			else if (exp = ParseAtom())
 			{
-				stack.push_back(StackElem(exp));
+				stack.push_back(StackElem(exp, SaveState()));
 			}
 			else
 			{
+				// Add a top save
+				stack.push_back(StackElem(SaveState()));
 				break;
 			}
 		}
+		//////////////////////////////////////////////////////////////
 
+		// Reduce until no further reduce is possible ////////////////
 		while (true)
 		{
 			auto prevsz = stack.size();
 			Reduce(0, stack.size(), stack);
 			if (stack.size() == prevsz)
 			{
-				if (stack.size() == 1 && stack[0].Tag == StackElemT::Expr)
-				{
-					return stack[0].Exp;
-				}
-				else
-				{
-					std::cout << "EXPR ERROR" << std::endl;
+				if (stack.size() == 0)
 					return nullptr;
-				}
+
+				if (stack.size() > 1)
+					LoadState(stack[1].State);
+
+				if (stack[0].Tag == StackElemT::Expr)
+					return stack[0].Get<Expr>();
+
+				LoadState(stack[0].State);
+				return nullptr;
 			}
 		}
-
-		return nullptr;
+		//////////////////////////////////////////////////////////////
 	}
 
 	double Parser::GetHighestPrecedence(std::size_t from, std::size_t to, std::vector<StackElem>& stack)
 	{
 		double max = -1;
-
-		OperDesc* op = nullptr;
 		for (std::size_t i = from; i < to; i++)
 		{
 			auto& el = stack[i];
-
-			if (el.Tag == StackElemT::Oper && (op = GetOperator(el.Oper)))
+			if (el.Tag == StackElemT::Oper && el.Get<OperDesc>()->Precedence > max)
 			{
-				if (op->Precedence > max)
-				{
-					max = op->Precedence;
-				}
+				max = el.Get<OperDesc>()->Precedence;
 			}
 		}
-
 		return max;
 	}
 
 	std::vector<std::size_t> Parser::GetAllPrecedenceIndex(std::size_t from, std::size_t to, double p, std::vector<StackElem>& stack)
 	{
 		std::vector<std::size_t> idxes;
-		OperDesc* op = nullptr;
 		for (std::size_t i = from; i < to; i++)
 		{
 			StackElem& e = stack[i];
-
-			if (e.Tag == StackElemT::Oper && (op = GetOperator(e.Oper)))
+			if (e.Tag == StackElemT::Oper && e.Get<OperDesc>()->Precedence == p)
 			{
-				if (op->Precedence == p)
-				{
-					idxes.push_back(i);
-				}
+				idxes.push_back(i);
 			}
 		}
-
 		return idxes;
 	}
 
@@ -219,9 +220,11 @@ namespace yk
 		if (stack[idx - 1].Tag == StackElemT::Expr &&
 			stack[idx + 1].Tag == StackElemT::Expr)
 		{
-			Expr* lhs = stack[idx - 1].Exp;
-			Expr* rhs = stack[idx + 1].Exp;
-			Expr* nexp = new BinExpr(lhs, rhs, stack[idx].Oper.Value);
+			ParseState save = stack[idx - 1].State;
+
+			Expr* lhs = stack[idx - 1].Get<Expr>();
+			Expr* rhs = stack[idx + 1].Get<Expr>();
+			Expr* nexp = new BinExpr(lhs, rhs, stack[idx].Get<OperDesc>());
 
 			// Delete LHS, operator and RHS
 			stack.erase(stack.begin() + (idx - 1));
@@ -229,13 +232,13 @@ namespace yk
 			stack.erase(stack.begin() + (idx - 1));
 			// Insert new element
 			if (idx - 1 == stack.size())
-				stack.push_back(StackElem(nexp));
+				stack.push_back(StackElem(nexp, save));
 			else
-				stack.insert(stack.begin() + (idx - 1), StackElem(nexp));
+				stack.insert(stack.begin() + (idx - 1), StackElem(nexp, save));
 		}
 		else
 		{
-			std::cout << "Not operands around infix op!" << std::endl;
+			Error("Not operands around infix op!");
 			return;
 		}
 	}
@@ -251,12 +254,12 @@ namespace yk
 			for (std::size_t i = 0; i < list.size(); i++)
 			{
 				std::size_t idx = list[i];
-				OperDesc* op = GetOperator(stack[idx].Oper);
+				OperDesc* op = stack[idx].Get<OperDesc>();
 				if (op->Fixity == FixityT::Infix && op->Assoc == AssocT::Left)
 				{
 					if (idx == 0 || idx == stack.size() - 1)
 					{
-						std::cout << "Infix at end or beginning!" << std::endl;
+						Error("Infix at end or beginning!");
 						return;
 					}
 
@@ -276,12 +279,12 @@ namespace yk
 			for (int i = list.size() - 1; i >= 0; i--)
 			{
 				std::size_t idx = list[i];
-				OperDesc* op = GetOperator(stack[idx].Oper);
+				OperDesc* op = stack[idx].Get<OperDesc>();
 				if (op->Fixity == FixityT::Infix && op->Assoc == AssocT::Right)
 				{
 					if (idx == 0 || idx == stack.size() - 1)
 					{
-						std::cout << "Infix at end or beginning!" << std::endl;
+						Error("Infix at end or beginning!");
 						return;
 					}
 
@@ -301,12 +304,12 @@ namespace yk
 			for (std::size_t i = 0; i < list.size(); i++)
 			{
 				std::size_t idx = list[i];
-				OperDesc* op = GetOperator(stack[idx].Oper);
+				OperDesc* op = stack[idx].Get<OperDesc>();
 				if (op->Fixity == FixityT::Postfix)
 				{
 					if (idx == 0)
 					{
-						std::cout << "Postfix at beginning!" << std::endl;
+						Error("Postfix at beginning!");
 						return;
 					}
 
@@ -324,7 +327,7 @@ namespace yk
 					}
 					if (!found)
 					{
-						std::cout << "No operands for postfix operator!" << std::endl;
+						Error("No operands for postfix operator!");
 						return;
 					}
 
@@ -335,7 +338,7 @@ namespace yk
 							(stack[j].Tag == StackElemT::Oper &&
 								stack[j - 1].Tag == StackElemT::Expr))
 						{
-							op2 = GetOperator(stack[j].Oper);
+							op2 = stack[j].Get<OperDesc>();
 							if (op2->Precedence >= op->Precedence)
 								break;
 						}
@@ -350,9 +353,11 @@ namespace yk
 					//debug_stack(stack);
 					if (stack.size() == prevsz)
 					{
-						Expr* lhs = stack[idx - 2].Exp;
-						Expr* rhs = stack[idx - 1].Exp;
-						Expr* nexp = new BinExpr(lhs, rhs, stack[idx].Oper.Value);
+						ParseState save = stack[idx - 2].State;
+
+						Expr* lhs = stack[idx - 2].Get<Expr>();
+						Expr* rhs = stack[idx - 1].Get<Expr>();
+						Expr* nexp = new BinExpr(lhs, rhs, stack[idx].Get<OperDesc>());
 
 						// Delete LHS, RHS and operator
 						stack.erase(stack.begin() + (idx - 2));
@@ -361,24 +366,24 @@ namespace yk
 
 						// Insert new
 						if (idx - 2 == stack.size())
-							stack.push_back(StackElem(nexp));
+							stack.push_back(StackElem(nexp, save));
 						else
-							stack.insert(stack.begin() + (idx - 2), StackElem(nexp));
+							stack.insert(stack.begin() + (idx - 2), StackElem(nexp, save));
 					}
 					return;
 				}
 			}
 
 			// Reduce PREFIX
-			for (std::size_t i = 0; i < list.size(); i++)
+			for (int i = list.size() - 1; i >= 0; i--)
 			{
 				std::size_t idx = list[i];
-				OperDesc* op = GetOperator(stack[idx].Oper);
+				OperDesc* op = stack[idx].Get<OperDesc>();
 				if (op->Fixity == FixityT::Prefix)
 				{
 					if (idx == stack.size() - 1)
 					{
-						std::cout << "Prefix at end!" << std::endl;
+						Error("Prefix at end!");
 						return;
 					}
 
@@ -396,7 +401,7 @@ namespace yk
 					}
 					if (!found)
 					{
-						std::cout << "No operands for prefix operator!" << std::endl;
+						Error("No operands for prefix operator!");
 						return;
 					}
 
@@ -407,7 +412,7 @@ namespace yk
 							(stack[j].Tag == StackElemT::Oper &&
 								stack[j + 1].Tag == StackElemT::Expr))
 						{
-							op2 = GetOperator(stack[j].Oper);
+							op2 = stack[j].Get<OperDesc>();
 							if (op2->Precedence >= op->Precedence)
 								break;
 						}
@@ -422,9 +427,11 @@ namespace yk
 					//debug_stack(stack);
 					if (stack.size() == prevsz)
 					{
-						Expr* lhs = stack[idx + 1].Exp;
-						Expr* rhs = stack[idx + 2].Exp;
-						Expr* nexp = new BinExpr(lhs, rhs, stack[idx].Oper.Value);
+						ParseState save = stack[idx + 1].State;
+
+						Expr* lhs = stack[idx + 1].Get<Expr>();
+						Expr* rhs = stack[idx + 2].Get<Expr>();
+						Expr* nexp = new BinExpr(lhs, rhs, stack[idx].Get<OperDesc>());
 
 						// Delete LHS, RHS and operator
 						stack.erase(stack.begin() + (idx));
@@ -433,9 +440,9 @@ namespace yk
 
 						// Insert new
 						if (idx == stack.size())
-							stack.push_back(StackElem(nexp));
+							stack.push_back(StackElem(nexp, save));
 						else
-							stack.insert(stack.begin() + idx, StackElem(nexp));
+							stack.insert(stack.begin() + idx, StackElem(nexp, save));
 					}
 					return;
 				}
@@ -460,7 +467,7 @@ namespace yk
 			}
 			else
 			{
-				std::cout << "')' expected!" << std::endl;
+				Error("')' expected!");
 				return nullptr;
 			}
 		}
@@ -485,7 +492,7 @@ namespace yk
 				}
 				else
 				{
-					std::cout << "Type expected!" << std::endl;
+					Error("Type expected!");
 					return std::make_pair("", nullptr);
 				}
 			}
@@ -515,7 +522,7 @@ namespace yk
 					}
 					else
 					{
-						std::cout << "Parameter expected!" << std::endl;
+						Error("Parameter expected!");
 						return nullptr;
 					}
 				}
@@ -530,7 +537,7 @@ namespace yk
 					rettype = ParseType();
 					if (!rettype)
 					{
-						std::cout << "Return type expected after '->'!" << std::endl;
+						Error("Return type expected after '->'!");
 						return nullptr;
 					}
 				}
@@ -539,7 +546,7 @@ namespace yk
 			}
 			else
 			{
-				std::cout << "')' exprected" << std::endl;
+				Error("')' exprected");
 				return nullptr;
 			}
 		}
@@ -581,7 +588,7 @@ namespace yk
 			}
 			else
 			{
-				std::cout << "'}' expected!" << std::endl;
+				Error("'}' expected!");
 			}
 		}
 

@@ -13,16 +13,12 @@ namespace yk
 	class Token
 	{
 	public:
-		static Token EPSILON;
-
-	public:
 		TokenT Type;
 		std::string Value;
+		std::size_t Row;
+		std::size_t Column;
 
 	public:
-		Token(TokenT tt, std::string const& v);
-
-	public:
-		friend std::ostream& operator<<(std::ostream& stream, Token const& tok);
+		Token(TokenT tt, std::string const& v, std::size_t r, std::size_t c);
 	};
 }

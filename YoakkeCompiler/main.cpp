@@ -1,11 +1,26 @@
+#include <fstream>
 #include <iostream>
 #include "src\Parsing\Parser.h"
+
+static std::string read_file(const char* name)
+{
+	std::ifstream t(name);
+	if (t.good())
+	{
+		std::string str((std::istreambuf_iterator<char>(t)),
+			std::istreambuf_iterator<char>());
+		t.close();
+		return str;
+	}
+
+	return "";
+}
 
 int main(void)
 {
 	yk::Parser parser;
-	char src[] = "2 3 4 post+ post+";
-	auto ast = parser.ParseProgram(src);
+	std::string const& src = read_file("C:\\TMP\\YoakkeTest\\tokenizer.txt");
+	auto ast = parser.ParseProgram(src.c_str());
 
 	for (auto t : ast)
 	{

@@ -126,6 +126,7 @@
     <ClInclude Include="src\AST\TypeDesc.h" />
     <ClInclude Include="src\Parsing\Lexer.h" />
     <ClInclude Include="src\Parsing\Parser.h" />
+    <ClInclude Include="src\Parsing\ParseState.h" />
     <ClInclude Include="src\Parsing\Token.h" />
     <ClInclude Include="src\Parsing\OperDesc.h" />
   </ItemGroup>

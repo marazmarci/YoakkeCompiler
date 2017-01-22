@@ -15,15 +15,14 @@ namespace yk
 		virtual std::string ToString() = 0;
 	};
 
-	class ConstDeclStmt : public Stmt
+	class ExprStmt : public Stmt
 	{
 	public:
-		std::string Identifier;
-		Expr* Value;
+		Expr* Sub;
 
 	public:
-		ConstDeclStmt(std::string const& id, Expr* v);
-		virtual ~ConstDeclStmt();
+		ExprStmt(Expr* s);
+		virtual ~ExprStmt();
 
 	public:
 		virtual std::string ToString() override;

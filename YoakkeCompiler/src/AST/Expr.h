@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "FuncPrototype.h"
+#include "../Parsing/OperDesc.h"
 
 namespace yk
 {
@@ -38,6 +39,18 @@ namespace yk
 		}
 	};
 	typedef LiteralExpr<int> IntLiteralExpr;
+
+	class IdentExpr : public Expr
+	{
+	public:
+		std::string Ident;
+
+	public:
+		IdentExpr(std::string const& id);
+
+	public:
+		virtual std::string ToString() override;
+	};
 
 	class BlockExpr : public Expr
 	{
@@ -84,10 +97,10 @@ namespace yk
 	public:
 		Expr* LHS;
 		Expr* RHS;
-		std::string OP;
+		OperDesc* OP;
 
 	public:
-		BinExpr(Expr* l, Expr* r, std::string o);
+		BinExpr(Expr* l, Expr* r, OperDesc* o);
 		virtual ~BinExpr();
 
 	public:

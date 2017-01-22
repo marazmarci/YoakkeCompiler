@@ -15,18 +15,19 @@ namespace yk
 	class OperDesc
 	{
 	public:
+		std::string Symbol;
 		double Precedence;
 		AssocT Assoc;
 		FixityT Fixity;
 
 	public:
-		OperDesc(double prec, AssocT asc)
-			: Precedence(prec), Assoc(asc), Fixity(FixityT::Infix)
+		OperDesc(std::string const& sym,  double prec, AssocT asc)
+			: Symbol(sym), Precedence(prec), Assoc(asc), Fixity(FixityT::Infix)
 		{
 		}
 
-		OperDesc(double prec, FixityT fx)
-			: Precedence(prec), Assoc(AssocT::Noassoc), Fixity(fx)
+		OperDesc(std::string const& sym, double prec, FixityT fx)
+			: Symbol(sym), Precedence(prec), Assoc(AssocT::Noassoc), Fixity(fx)
 		{
 		}
 	};
