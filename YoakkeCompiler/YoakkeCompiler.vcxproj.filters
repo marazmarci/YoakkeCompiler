@@ -39,6 +39,9 @@
     <ClCompile Include="src\AST\TypeDesc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Semantics\SemanticChecker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Parsing\Lexer.h">
@@ -66,6 +69,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Parsing\ParseState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Semantics\SemanticChecker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

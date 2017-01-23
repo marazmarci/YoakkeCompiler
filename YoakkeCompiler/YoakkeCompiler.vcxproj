@@ -118,6 +118,7 @@
     <ClCompile Include="src\Parsing\Lexer.cpp" />
     <ClCompile Include="src\Parsing\Parser.cpp" />
     <ClCompile Include="src\Parsing\Token.cpp" />
+    <ClCompile Include="src\Semantics\SemanticChecker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AST\Expr.h" />
@@ -129,6 +130,7 @@
     <ClInclude Include="src\Parsing\ParseState.h" />
     <ClInclude Include="src\Parsing\Token.h" />
     <ClInclude Include="src\Parsing\OperDesc.h" />
+    <ClInclude Include="src\Semantics\SemanticChecker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

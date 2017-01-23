@@ -84,6 +84,7 @@ namespace yk
 		Expr* ParseExpr();
 		double GetHighestPrecedence(std::size_t from, std::size_t to, std::vector<StackElem>& stack);
 		std::vector<std::size_t> GetAllPrecedenceIndex(std::size_t from, std::size_t to, double p, std::vector<StackElem>& stack);
+		bool NoassocSanity(std::vector<std::size_t> const& idxes, std::vector<StackElem>& stack);
 		void ReduceInfixAt(std::size_t idx, std::vector<StackElem>& stack);
 		void Reduce(std::size_t from, std::size_t to, std::vector<StackElem>& stack);
 

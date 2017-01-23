@@ -19,9 +19,10 @@ namespace yk
 	{
 	public:
 		Expr* Sub;
+		bool Semicol;
 
 	public:
-		ExprStmt(Expr* s);
+		ExprStmt(Expr* s, bool sc);
 		virtual ~ExprStmt();
 
 	public:

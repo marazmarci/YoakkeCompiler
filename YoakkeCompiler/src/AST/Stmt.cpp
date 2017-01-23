@@ -3,8 +3,8 @@
 
 namespace yk
 {
-	ExprStmt::ExprStmt(Expr* s)
-		: Sub(s)
+	ExprStmt::ExprStmt(Expr* s, bool sc)
+		: Sub(s), Semicol(sc)
 	{
 	}
 

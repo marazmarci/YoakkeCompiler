@@ -14,12 +14,12 @@ namespace yk
 		m_Lexer.AddLexeme(",", TokenT::Keyword);
 		m_Lexer.AddLexeme("->", TokenT::Keyword);
 
-		AddOperator(OperDesc("::", 0, AssocT::Right));
+		AddOperator(OperDesc("::", 0, AssocT::Noassoc));
 	}
 
 	void Parser::Error(std::string const& msg)
 	{
-		std::cout << "Error: " << msg << std::endl;
+		std::cout << "Syntax error: " << msg << std::endl;
 	}
 
 	void Parser::Next()
@@ -103,33 +103,28 @@ namespace yk
 	Stmt* Parser::ParseExprStmt()
 	{
 		auto state = SaveState();
-		bool need_semicol = true;
 		Expr* exp = ParseExpr();
+		bool need_semicol = true;
 		if (exp)
 		{
 			if (BinExpr* be = dynamic_cast<BinExpr*>(exp))
 			{
-				if (be->OP->Symbol == "::" && dynamic_cast<FuncExpr*>(be->RHS))
+				if (dynamic_cast<FuncExpr*>(be->RHS))
 				{
 					need_semicol = false;
 				}
 			}
+
 			if (need_semicol)
 			{
-				if (Match(";"))
-				{
-					return new ExprStmt(exp);
-				}
-				else
+				if (!Match(";"))
 				{
 					Error("';' expected!");
 					return nullptr;
 				}
 			}
-			else
-			{
-				return new ExprStmt(exp);
-			}
+
+			return new ExprStmt(exp, Match(";"));
 		}
 
 		LoadState(state);
@@ -215,6 +210,29 @@ namespace yk
 		return idxes;
 	}
 
+	bool Parser::NoassocSanity(std::vector<std::size_t> const& idxes, std::vector<StackElem>& stack)
+	{
+		std::vector<OperDesc*> noassoc;
+		for (auto i : idxes)
+		{
+			StackElem& el = stack[i];
+			OperDesc* op = el.Get<OperDesc>();
+			if (op->Assoc == AssocT::Noassoc)
+				noassoc.push_back(op);
+		}
+
+		for (std::size_t i = 0; i < noassoc.size(); i++)
+		{
+			for (std::size_t j = i + 1; j < noassoc.size(); j++)
+			{
+				if (noassoc[i]->Symbol == noassoc[j]->Symbol)
+					return false;
+			}
+		}
+
+		return true;
+	}
+
 	void Parser::ReduceInfixAt(std::size_t idx, std::vector<StackElem>& stack)
 	{
 		if (stack[idx - 1].Tag == StackElemT::Expr &&
@@ -249,6 +267,37 @@ namespace yk
 		if (maxprec >= 0)
 		{
 			auto list = GetAllPrecedenceIndex(from, to, maxprec, stack);
+
+			if (!NoassocSanity(list, stack))
+			{
+				Error("Cannot chain non-associative operators of the same kind!");
+				return;
+			}
+
+			// Reduce noassoc
+			for (std::size_t i = 0; i < list.size(); i++)
+			{
+				std::size_t idx = list[i];
+				OperDesc* op = stack[idx].Get<OperDesc>();
+				if (op->Fixity == FixityT::Infix && op->Assoc == AssocT::Noassoc)
+				{
+					if (idx == 0 || idx == stack.size() - 1)
+					{
+						Error("Infix at end or beginning!");
+						return;
+					}
+
+					ReduceInfixAt(idx, stack);
+					//debug_stack(m_Stack);
+					list.erase(list.begin() + i);
+					for (std::size_t j = i; j < list.size(); j++)
+					{
+						list[j] -= 2;
+					}
+					i = -1;
+					continue;
+				}
+			}
 
 			// Reduce INFIX LEFT
 			for (std::size_t i = 0; i < list.size(); i++)
@@ -452,7 +501,11 @@ namespace yk
 
 	Expr* Parser::ParseAtom()
 	{
-		if (m_CurrentToken.Type == TokenT::Integer)
+		if (Expr* e = ParseFuncExpr())
+		{
+			return e;
+		}
+		else if (m_CurrentToken.Type == TokenT::Integer)
 		{
 			int v = std::atoi(GetValue().c_str());
 			Next();
@@ -471,7 +524,33 @@ namespace yk
 				return nullptr;
 			}
 		}
+		else if (IsIdent())
+		{
+			std::string id = GetValue();
+			Next();
+			return new IdentExpr(id);
+		}
 
+		return nullptr;
+	}
+
+	Expr* Parser::ParseFuncExpr()
+	{
+		auto state = SaveState();
+		FuncPrototype* proto = ParseFuncPrototype();
+		if (proto)
+		{
+			if (BlockExpr* block = ParseBlockExpr())
+			{
+				return new FuncExpr(proto, block);
+			}
+			else
+			{
+				return new FuncHeaderExpr(proto);
+			}
+		}
+
+		LoadState(state);
 		return nullptr;
 	}
 
@@ -479,28 +558,24 @@ namespace yk
 	{
 		auto state = SaveState();
 		TypeDesc* type = nullptr;
+		std::string name = "";
 
 		if (IsIdent())
 		{
-			std::string name = GetValue();
+			name = GetValue();
 			Next();
-			if (Match(":"))
-			{
-				if (type = ParseType())
-				{
-					return std::make_pair(name, type);
-				}
-				else
-				{
-					Error("Type expected!");
-					return std::make_pair("", nullptr);
-				}
-			}
 		}
-		LoadState(state);
-		type = ParseType();
 
-		return std::make_pair("", type);
+		if (Match(":"))
+		{
+			type = ParseType();
+		}
+		else if (name.length())
+		{
+			Error("Type expected after identifier!");
+		}
+
+		return std::make_pair(name, type);
 	}
 
 	FuncPrototype* Parser::ParseFuncPrototype()
@@ -548,26 +623,6 @@ namespace yk
 			{
 				Error("')' exprected");
 				return nullptr;
-			}
-		}
-
-		LoadState(state);
-		return nullptr;
-	}
-
-	Expr* Parser::ParseFuncExpr()
-	{
-		auto state = SaveState();
-		FuncPrototype* proto = ParseFuncPrototype();
-		if (proto)
-		{
-			if (BlockExpr* block = ParseBlockExpr())
-			{
-				return new FuncExpr(proto, block);
-			}
-			else
-			{
-				return new FuncHeaderExpr(proto);
 			}
 		}
 
