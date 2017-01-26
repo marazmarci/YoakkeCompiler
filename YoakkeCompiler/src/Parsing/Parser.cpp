@@ -1,4 +1,5 @@
 #include "Parser.h"
+#include "ExprParser.h"
 
 namespace yk
 {
@@ -14,7 +15,16 @@ namespace yk
 		m_Lexer.AddLexeme(",", TokenT::Keyword);
 		m_Lexer.AddLexeme("->", TokenT::Keyword);
 
-		AddOperator(OperDesc("::", 0, AssocT::Noassoc));
+		AddInfixOp(BinOp("+", 4, AssocT::Left));
+		AddInfixOp(BinOp("-", 4, AssocT::Left));
+		AddInfixOp(BinOp("*", 5, AssocT::Left));
+		AddInfixOp(BinOp("/", 5, AssocT::Left));
+		AddPrefixOp(UryOp("+", 6, FixityT::Prefix));
+		AddPrefixOp(UryOp("-", 6, FixityT::Prefix));
+		AddPrefixOp(UryOp("++", 7, FixityT::Prefix));
+		AddPrefixOp(UryOp("--", 7, FixityT::Prefix));
+		AddPostfixOp(UryOp("++", 7, FixityT::Postfix));
+		AddPostfixOp(UryOp("--", 7, FixityT::Postfix));
 	}
 
 	void Parser::Error(std::string const& msg)
@@ -54,7 +64,7 @@ namespace yk
 
 	ParseState Parser::SaveState()
 	{
-		return ParseState(m_Lexer.m_Ptr, m_CurrentToken);
+		return ParseState(m_Lexer.m_Ptr, m_CurrentToken, m_Lexer.m_RowCount, m_Lexer.m_ColCount);
 	}
 
 	void Parser::LoadState(ParseState const& st)
@@ -63,27 +73,55 @@ namespace yk
 		m_CurrentToken = st.CurrentToken;
 	}
 
-	void Parser::AddOperator(OperDesc desc)
+	void Parser::AddPrefixOp(UryOp op)
 	{
-		m_Lexer.AddLexeme(desc.Symbol, TokenT::Operator);
-		m_BinOps.insert(std::make_pair(desc.Symbol, desc));
+		m_Lexer.AddLexeme(op.Symbol, TokenT::Operator);
+		m_PrefixOps.insert(std::make_pair(op.Symbol, op));
 	}
 
-	OperDesc* Parser::GetBinOp(Token t)
+	void Parser::AddInfixOp(BinOp op)
 	{
-		if (t.Type == TokenT::Operator)
-		{
-			auto it = m_BinOps.find(t.Value);
-			return &it->second;
-		}
+		m_Lexer.AddLexeme(op.Symbol, TokenT::Operator);
+		m_InfixOps.insert(std::make_pair(op.Symbol, op));
+	}
 
-		return nullptr;
+	void Parser::AddPostfixOp(UryOp op)
+	{
+		m_Lexer.AddLexeme(op.Symbol, TokenT::Operator);
+		m_PostfixOps.insert(std::make_pair(op.Symbol, op));
+	}
+
+	UryOp* Parser::GetPrefixOp(std::string const& sym)
+	{
+		auto it = m_PrefixOps.find(sym);
+		if (it == m_PrefixOps.end())
+			return nullptr;
+		return &it->second;
+	}
+
+	BinOp* Parser::GetInfixOp(std::string const& sym)
+	{
+		auto it = m_InfixOps.find(sym);
+		if (it == m_InfixOps.end())
+			return nullptr;
+		return &it->second;
+	}
+
+	UryOp* Parser::GetPostfixOp(std::string const& sym)
+	{
+		auto it = m_PostfixOps.find(sym);
+		if (it == m_PostfixOps.end())
+			return nullptr;
+		return &it->second;
 	}
 
 	std::vector<Stmt*> Parser::ParseProgram(const char* src)
 	{
 		m_Lexer.SetSource(src);
 		Next();
+
+		ParseExpr();
+		for (;;);
 
 		std::vector<Stmt*> prog;
 		Stmt* st = nullptr;
@@ -133,6 +171,9 @@ namespace yk
 
 	Expr* Parser::ParseExpr()
 	{
+		ExprParser expp(*this);
+		expp.ParseExprList();
+		/*
 		std::vector<StackElem> stack;
 
 		// Parse atomic expressions and operators onto the stack /////
@@ -141,6 +182,12 @@ namespace yk
 		while (true)
 		{
 			if (op = GetBinOp(m_CurrentToken))
+			{
+				Token t = m_CurrentToken;
+				Next();
+				stack.push_back(StackElem(op, SaveState()));
+			}
+			else if (op = GetUryOp(m_CurrentToken))
 			{
 				Token t = m_CurrentToken;
 				Next();
@@ -179,9 +226,11 @@ namespace yk
 				return nullptr;
 			}
 		}
-		//////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////*/
+		return nullptr;
 	}
 
+	/*
 	double Parser::GetHighestPrecedence(std::size_t from, std::size_t to, std::vector<StackElem>& stack)
 	{
 		double max = -1;
@@ -497,7 +546,7 @@ namespace yk
 				}
 			}
 		}
-	}
+	}*/
 
 	Expr* Parser::ParseAtom()
 	{

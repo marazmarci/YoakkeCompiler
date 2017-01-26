@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "FuncPrototype.h"
-#include "../Parsing/OperDesc.h"
+#include "../Parsing/Operator.h"
 
 namespace yk
 {
@@ -92,15 +92,29 @@ namespace yk
 		virtual std::string ToString() override;
 	};
 
+	class UryExpr : public Expr
+	{
+	public:
+		Expr* Sub;
+		UryOp* OP;
+
+	public:
+		UryExpr(Expr* s, UryOp* o);
+		virtual ~UryExpr();
+
+	public:
+		virtual std::string ToString() override;
+	};
+
 	class BinExpr : public Expr
 	{
 	public:
 		Expr* LHS;
 		Expr* RHS;
-		OperDesc* OP;
+		BinOp* OP;
 
 	public:
-		BinExpr(Expr* l, Expr* r, OperDesc* o);
+		BinExpr(Expr* l, Expr* r, BinOp* o);
 		virtual ~BinExpr();
 
 	public:

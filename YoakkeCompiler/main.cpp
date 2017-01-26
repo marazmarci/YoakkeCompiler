@@ -1,6 +1,8 @@
 #include <fstream>
 #include <iostream>
 #include "src\Parsing\Parser.h"
+#include <Windows.h>
+#include <stdio.h>
 
 static std::string read_file(const char* name)
 {

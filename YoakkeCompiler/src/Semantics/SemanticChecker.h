@@ -14,5 +14,7 @@ namespace yk
 		void Error(std::string const& msg);
 
 		void Check(Expr* exp);
+
+		bool Constant(Expr* exp);
 	};
 }

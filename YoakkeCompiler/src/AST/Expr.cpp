@@ -62,7 +62,22 @@ namespace yk
 		return "<FuncExpr>" + Prototype->ToString() + Body->ToString() + "</FuncExpr>";
 	}
 
-	BinExpr::BinExpr(Expr* l, Expr* r, OperDesc* o)
+	UryExpr::UryExpr(Expr* s, UryOp* o)
+		: Sub(s), OP(o)
+	{
+	}
+
+	UryExpr::~UryExpr()
+	{
+		delete Sub;
+	}
+
+	std::string UryExpr::ToString()
+	{
+		return "<UryExpr op=\"" + OP->Symbol + "\">" + Sub->ToString() + "</UryExpr>";
+	}
+
+	BinExpr::BinExpr(Expr* l, Expr* r, BinOp* o)
 		: LHS(l), RHS(r), OP(o)
 	{
 	}

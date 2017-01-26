@@ -42,6 +42,9 @@
     <ClCompile Include="src\Semantics\SemanticChecker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Parsing\ExprParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Parsing\Lexer.h">
@@ -65,13 +68,22 @@
     <ClInclude Include="src\AST\TypeDesc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Parsing\OperDesc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Parsing\ParseState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Semantics\SemanticChecker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Semantics\SymbolTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Parsing\ExprParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Parsing\ExprElem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Parsing\Operator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
