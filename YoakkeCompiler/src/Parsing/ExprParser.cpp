@@ -1,4 +1,3 @@
-#include <algorithm>
 #include "ExprParser.h"
 #include "Parser.h"
 
@@ -12,7 +11,7 @@ namespace yk
 	std::vector<Expr*> ExprParser::ParseExprList()
 	{
 		EatElements();
-		Reduce(0, m_Stack.size());
+		Reduce();
 
 		return std::vector<Expr*>();
 	}
@@ -42,19 +41,21 @@ namespace yk
 		}
 	}
 
-	void ExprParser::Reduce(std::size_t from, std::size_t to)
+	void ExprParser::Reduce()
 	{
-		auto preds = CreateOperPred(from, to);
+		auto preds = CreateOperPred();
 		std::size_t max = 0;
 		while (PredOperSingle(preds) || MatchOperSingle(preds));
 		CheckAmbiguity(preds);
+		m_RStack = CreateDeducedStack(preds);
+		ReduceOnce();
 	}
 
-	std::vector<OperPred> ExprParser::CreateOperPred(std::size_t from, std::size_t to)
+	std::vector<OperPred> ExprParser::CreateOperPred()
 	{
 		std::vector<OperPred> ret;
 		ret.push_back(OperPred::Begin);
-		for (std::size_t i = from; i < to; i++)
+		for (std::size_t i = 0; i < m_Stack.size(); i++)
 		{
 			if (m_Stack[i].Tag == ExprElemT::Oper)
 				ret.push_back(OperPred::Unknown);
@@ -236,6 +237,141 @@ namespace yk
 			{
 				m_Parser.Error("Ambiguity!");
 			}
+		}
+	}
+
+	std::vector<ExprElemR> ExprParser::CreateDeducedStack(std::vector<OperPred>& preds)
+	{
+		std::vector<ExprElemR> ret;
+		for (std::size_t i = 0; i < m_Stack.size(); i++)
+		{
+			auto& pred = preds[i + 1];
+			if (pred == OperPred::Expr) 
+				ret.push_back(m_Stack[i].GetExpr());
+			if (pred == OperPred::Prefx) 
+				ret.push_back(m_Parser.GetPrefixOp(m_Stack[i].GetOper()->Value));
+			if (pred == OperPred::Infx)
+				ret.push_back(m_Parser.GetInfixOp(m_Stack[i].GetOper()->Value));
+			if (pred == OperPred::Postfx)
+				ret.push_back(m_Parser.GetPostfixOp(m_Stack[i].GetOper()->Value));
+		}
+		return ret;
+	}
+
+	Operator* ExprParser::MaxPrec(std::vector<ExprElemR>& elems)
+	{
+		Operator* maxop = nullptr;
+		double max = -1.0;
+		Operator* op;
+		for (auto& el : elems)
+		{
+			if ((op = el.GetOper()) && op->Precedence > max)
+			{
+				max = op->Precedence;
+				maxop = op;
+			}
+		}
+		return maxop;
+	}
+
+	void ExprParser::ReduceOnce()
+	{
+		Operator* maxpr = MaxPrec(m_RStack);
+		if (maxpr)
+		{
+			if (UryOp* uryop = dynamic_cast<UryOp*>(maxpr))
+			{
+				if (uryop->Fixity == FixityT::Prefix) ReducePrefix(uryop);
+			}
+		}
+	}
+
+	void ExprParser::ReducePrefix(UryOp* op)
+	{
+		for (std::size_t i = 0; i < m_RStack.size(); i++)
+		{
+			auto& elem = m_RStack[i];
+			if (elem.GetOper() == op)
+			{
+				ReducePrefixAt(i);
+			}
+		}
+	}
+
+	void ExprParser::ReducePrefixAt(std::size_t idx)
+	{
+		Expr* exp = nullptr;
+		std::size_t j;
+		for (j = idx; j < m_RStack.size(); j++)
+		{
+			if (m_RStack[j].GetExpr())
+			{
+				exp = m_RStack[j].GetExpr();
+				break;
+			}
+		}
+		if (exp)
+		{
+			std::size_t cnt = 0;
+			for (j--; idx <= j; j--)
+			{
+				cnt++;
+				exp = new UryExpr(exp, (UryOp*)m_RStack[j].GetOper());
+			}
+			m_RStack.erase(m_RStack.begin() + idx, m_RStack.begin() + idx + cnt + 1);
+			if (idx == m_RStack.size())
+				m_RStack.push_back(exp);
+			else
+				m_RStack.insert(m_RStack.begin() + idx, exp);
+		}
+		else
+		{
+			m_Parser.Error("No operand for prefix");
+		}
+	}
+
+	void ExprParser::ReducePostfix(UryOp* op)
+	{
+		for (std::size_t i = 0; i < m_RStack.size(); i++)
+		{
+			auto& elem = m_RStack[i];
+			if (elem.GetOper() == op)
+			{
+				i -= ReducePostfixAt(i);
+			}
+		}
+	}
+
+	std::size_t ExprParser::ReducePostfixAt(std::size_t idx)
+	{
+		// TODO
+		Expr* exp = nullptr;
+		std::size_t j;
+		for (j = idx + 1; j > 0; --j)
+		{
+			if (m_RStack[j].GetExpr())
+			{
+				exp = m_RStack[j].GetExpr();
+				break;
+			}
+		}
+		if (exp)
+		{
+			std::size_t cnt = 0;
+			for (j--; idx <= j; j--)
+			{
+				cnt++;
+				exp = new UryExpr(exp, (UryOp*)m_RStack[j].GetOper());
+			}
+			m_RStack.erase(m_RStack.begin() + idx, m_RStack.begin() + idx + cnt + 1);
+			if (idx == m_RStack.size())
+				m_RStack.push_back(exp);
+			else
+				m_RStack.insert(m_RStack.begin() + idx, exp);
+		}
+		else
+		{
+			m_Parser.Error("No operand for prefix");
 		}
 	}
 }

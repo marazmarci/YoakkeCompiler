@@ -40,4 +40,35 @@ namespace yk
 			return nullptr;
 		}
 	};
+
+	class ExprElemR
+	{
+	public:
+		ExprElemT Tag;
+		void* Value;
+
+	public:
+		ExprElemR(Expr* e)
+			: Tag(ExprElemT::Expr), Value(e)
+		{
+		}
+
+		ExprElemR(Operator* o)
+			: Tag(ExprElemT::Oper), Value(o)
+		{
+		}
+
+	public:
+		Expr* GetExpr()
+		{
+			if (Tag == ExprElemT::Expr) return (Expr*)Value;
+			return nullptr;
+		}
+
+		Operator* GetOper()
+		{
+			if (Tag == ExprElemT::Oper) return (Operator*)Value;
+			return nullptr;
+		}
+	};
 }

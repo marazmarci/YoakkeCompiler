@@ -21,6 +21,7 @@ namespace yk
 	private:
 		Parser& m_Parser;
 		std::vector<ExprElem> m_Stack;
+		std::vector<ExprElemR> m_RStack;
 
 	public:
 		ExprParser(Parser& par);
@@ -30,10 +31,17 @@ namespace yk
 
 	private:
 		void EatElements();
-		void Reduce(std::size_t from, std::size_t to);
-		std::vector<OperPred> CreateOperPred(std::size_t from, std::size_t to);
+		void Reduce();
+		std::vector<OperPred> CreateOperPred();
 		std::size_t PredOperSingle(std::vector<OperPred>& preds);
 		std::size_t MatchOperSingle(std::vector<OperPred>& preds);
 		void CheckAmbiguity(std::vector<OperPred>& preds);
+		std::vector<ExprElemR> CreateDeducedStack(std::vector<OperPred>& preds);
+		Operator* MaxPrec(std::vector<ExprElemR>& elems);
+		void ReduceOnce();
+		void ReducePrefix(UryOp* op);
+		void ReducePrefixAt(std::size_t idx);
+		void ReducePostfix(UryOp* op);
+		std::size_t ReducePostfixAt(std::size_t idx);
 	};
 }

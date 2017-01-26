@@ -25,6 +25,9 @@ namespace yk
 			: Symbol(sym), Precedence(prec)
 		{
 		}
+
+	private:
+		virtual void __nothing() {}
 	};
 
 	class UryOp : public Operator
