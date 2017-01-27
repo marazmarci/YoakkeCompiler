@@ -146,7 +146,7 @@ namespace yk
 					if (next == OperPred::Postfx)	PREDICT_P(OperPred::Postfx, OperPred::Postfx);
 					//if (next == OperPred::PreOrIn)	ERROR("AMBIGUITY");
 					//if (next == OperPred::PostOrIn)	ERROR("AMBIGUITY");
-					if (next == OperPred::Unknown)	PREDICT(OperPred::PreOrIn);
+					//if (next == OperPred::Unknown)	PREDICT(OperPred::PreOrIn);
 				}
 				if (prev == OperPred::Unknown)
 				{
@@ -203,11 +203,13 @@ namespace yk
 			case OperPred::PostOrIn:
 				if (!postfx && infx) PREDICT(OperPred::Infx);
 				if (postfx && !infx) PREDICT(OperPred::Postfx);
+				if (!postfx && !infx) if (!postfx) m_Parser.Error("Operator mismatch!");
 				break;
 
 			case OperPred::PreOrIn:
 				if (!prefx && infx) PREDICT(OperPred::Infx);
 				if (prefx && !infx) PREDICT(OperPred::Prefx);
+				if (!prefx && !infx) m_Parser.Error("Operator mismatch!");
 				break;
 
 			case OperPred::Unknown:
@@ -274,7 +276,7 @@ namespace yk
 		return maxop;
 	}
 
-	void ExprParser::ReduceOnce()
+	bool ExprParser::ReduceOnce()
 	{
 		Operator* maxpr = MaxPrec(m_RStack);
 		if (maxpr)
@@ -282,8 +284,15 @@ namespace yk
 			if (UryOp* uryop = dynamic_cast<UryOp*>(maxpr))
 			{
 				if (uryop->Fixity == FixityT::Prefix) ReducePrefix(uryop);
+				if (uryop->Fixity == FixityT::Postfix) ReducePostfix(uryop);
 			}
+			if (BinOp* binop = dynamic_cast<BinOp*>(maxpr))
+			{
+				ReduceInfix(binop);
+			}
+			return true;
 		}
+		return false;
 	}
 
 	void ExprParser::ReducePrefix(UryOp* op)
@@ -346,8 +355,8 @@ namespace yk
 	{
 		// TODO
 		Expr* exp = nullptr;
-		std::size_t j;
-		for (j = idx + 1; j > 0; --j)
+		int j;
+		for (j = idx; j >= 0; j--)
 		{
 			if (m_RStack[j].GetExpr())
 			{
@@ -358,20 +367,34 @@ namespace yk
 		if (exp)
 		{
 			std::size_t cnt = 0;
-			for (j--; idx <= j; j--)
+			for (j++; j <= idx; j++)
 			{
 				cnt++;
 				exp = new UryExpr(exp, (UryOp*)m_RStack[j].GetOper());
 			}
-			m_RStack.erase(m_RStack.begin() + idx, m_RStack.begin() + idx + cnt + 1);
-			if (idx == m_RStack.size())
+			m_RStack.erase(m_RStack.begin() + (idx - cnt), m_RStack.begin() + idx + 1);
+			if (idx - cnt == m_RStack.size())
 				m_RStack.push_back(exp);
 			else
-				m_RStack.insert(m_RStack.begin() + idx, exp);
+				m_RStack.insert(m_RStack.begin() + (idx - cnt), exp);
+
+			return cnt;
 		}
 		else
 		{
-			m_Parser.Error("No operand for prefix");
+			m_Parser.Error("No operand for postfix");
+		}
+		return 0;
+	}
+
+	void ExprParser::ReduceInfix(BinOp* op)
+	{
+		int dir = op->Assoc == AssocT::Left ? 1 : -1;
+		int start = op->Assoc == AssocT::Left ? 0 : (m_RStack.size() - 1);
+
+		for (int i = start; i >= 0 && i < m_Stack.size(); i += dir)
+		{
+
 		}
 	}
 }
