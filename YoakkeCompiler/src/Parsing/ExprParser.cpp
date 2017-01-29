@@ -353,7 +353,6 @@ namespace yk
 
 	std::size_t ExprParser::ReducePostfixAt(std::size_t idx)
 	{
-		// TODO
 		Expr* exp = nullptr;
 		int j;
 		for (j = idx; j >= 0; j--)
@@ -392,9 +391,22 @@ namespace yk
 		int dir = op->Assoc == AssocT::Left ? 1 : -1;
 		int start = op->Assoc == AssocT::Left ? 0 : (m_RStack.size() - 1);
 
-		for (int i = start; i >= 0 && i < m_Stack.size(); i += dir)
+		for (int i = start; i >= 0 && i < m_RStack.size(); i += dir)
 		{
+			auto& elem = m_RStack[i];
+			if (elem.GetOper() == op)
+			{
+				i -= ReducePostfixAt(i - 1);
+				ReducePrefixAt(i + 1);
+				Expr* exp =
+					new BinExpr(m_RStack[i - 1].GetExpr(), m_RStack[i + 1].GetExpr(), op);
 
+				m_RStack.erase(m_RStack.begin() + (i - 1), m_RStack.begin() + (i + 2));
+				if (i - 1 == m_RStack.size())
+					m_RStack.push_back(exp);
+				else
+					m_RStack.insert(m_RStack.begin() + (i - 1), exp);
+			}
 		}
 	}
 }
