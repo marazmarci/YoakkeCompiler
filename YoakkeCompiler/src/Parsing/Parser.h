@@ -50,18 +50,18 @@ namespace yk
 		std::vector<Stmt*> ParseProgram(const char* src);
 
 	private:
-		Stmt* ParseStmt();
+		std::vector<Stmt*> ParseStmtList();
+		std::vector<Stmt*> ParseStmt();
+		std::vector<Stmt*> ParseExprStmt();
+		std::vector<Expr*> ParseExprs();
 
-		Stmt* ParseExprStmt();
+		Expr* ParseSingleExpr();
+		Expr* ParseAtom();
 
 		ParamPair ParseParameter();
 		FuncPrototype* ParseFuncPrototype();
-		Expr* ParseExpr();
-
-		Expr* ParseAtom();
-
-		Expr* ParseFuncExpr();
 		BlockExpr* ParseBlockExpr();
+		Expr* ParseFuncExpr();
 
 		TypeDesc* ParseType();
 	};
