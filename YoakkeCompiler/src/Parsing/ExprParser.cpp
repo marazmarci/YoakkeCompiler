@@ -13,7 +13,11 @@ namespace yk
 		EatElements();
 		Reduce();
 
-		return std::vector<Expr*>();
+		std::vector<Expr*> ret;
+		for (auto& el : m_RStack)
+			ret.push_back(el.GetExpr());
+
+		return ret;
 	}
 
 	void ExprParser::EatElements()
@@ -48,7 +52,16 @@ namespace yk
 		while (PredOperSingle(preds) || MatchOperSingle(preds));
 		CheckAmbiguity(preds);
 		m_RStack = CreateDeducedStack(preds);
-		ReduceOnce();
+
+		std::size_t prevzs = m_RStack.size();
+		while (true)
+		{
+			ReduceOnce();
+			if (m_RStack.size() == prevzs)
+				break;
+
+			prevzs = m_RStack.size();
+		}
 	}
 
 	std::vector<OperPred> ExprParser::CreateOperPred()
@@ -310,19 +323,18 @@ namespace yk
 	void ExprParser::ReducePrefixAt(std::size_t idx)
 	{
 		Expr* exp = nullptr;
-		std::size_t j;
+		int j;
 		for (j = idx; j < m_RStack.size(); j++)
 		{
-			if (m_RStack[j].GetExpr())
+			if (exp = m_RStack[j].GetExpr())
 			{
-				exp = m_RStack[j].GetExpr();
 				break;
 			}
 		}
 		if (exp)
 		{
 			std::size_t cnt = 0;
-			for (j--; idx <= j; j--)
+			for (j--; (int)idx <= j; j--)
 			{
 				cnt++;
 				exp = new UryExpr(exp, (UryOp*)m_RStack[j].GetOper());
@@ -390,12 +402,14 @@ namespace yk
 	{
 		int dir = op->Assoc == AssocT::Left ? 1 : -1;
 		int start = op->Assoc == AssocT::Left ? 0 : (m_RStack.size() - 1);
+		std::size_t cnt = 0;
 
 		for (int i = start; i >= 0 && i < m_RStack.size(); i += dir)
 		{
 			auto& elem = m_RStack[i];
 			if (elem.GetOper() == op)
 			{
+				cnt++;
 				i -= ReducePostfixAt(i - 1);
 				ReducePrefixAt(i + 1);
 				Expr* exp =
@@ -407,6 +421,11 @@ namespace yk
 				else
 					m_RStack.insert(m_RStack.begin() + (i - 1), exp);
 			}
+		}
+
+		if (op->Assoc == AssocT::Noassoc && cnt > 1)
+		{
+			m_Parser.Error("Cannot chain non-associative operators!");
 		}
 	}
 }

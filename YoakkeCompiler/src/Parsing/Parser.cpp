@@ -172,7 +172,9 @@ namespace yk
 	Expr* Parser::ParseExpr()
 	{
 		ExprParser expp(*this);
-		expp.ParseExprList();
+		auto ls = expp.ParseExprList();
+		for (auto el : ls)
+			std::cout << el->ToString() << std::endl;
 		/*
 		std::vector<StackElem> stack;
 
