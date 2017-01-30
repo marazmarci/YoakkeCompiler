@@ -119,7 +119,14 @@
     <ClCompile Include="src\Parsing\Lexer.cpp" />
     <ClCompile Include="src\Parsing\Parser.cpp" />
     <ClCompile Include="src\Parsing\Token.cpp" />
+    <ClCompile Include="src\Semantics\ConstantEvaluator.cpp" />
+    <ClCompile Include="src\Semantics\Declarator.cpp" />
+    <ClCompile Include="src\Semantics\FunctionSymbol.cpp" />
+    <ClCompile Include="src\Semantics\Scope.cpp" />
     <ClCompile Include="src\Semantics\SemanticChecker.cpp" />
+    <ClCompile Include="src\Semantics\Symbol.cpp" />
+    <ClCompile Include="src\Semantics\SymbolTable.cpp" />
+    <ClCompile Include="src\Semantics\TypeSymbol.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AST\Expr.h" />
@@ -133,8 +140,14 @@
     <ClInclude Include="src\Parsing\ParseState.h" />
     <ClInclude Include="src\Parsing\Token.h" />
     <ClInclude Include="src\Parsing\Operator.h" />
+    <ClInclude Include="src\Semantics\ConstantEvaluator.h" />
+    <ClInclude Include="src\Semantics\Declarator.h" />
+    <ClInclude Include="src\Semantics\FunctionSymbol.h" />
+    <ClInclude Include="src\Semantics\Scope.h" />
     <ClInclude Include="src\Semantics\SemanticChecker.h" />
     <ClInclude Include="src\Semantics\SymbolTable.h" />
+    <ClInclude Include="src\Semantics\Symbol.h" />
+    <ClInclude Include="src\Semantics\TypeSymbol.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -26,7 +26,7 @@ int main(void)
 
 	for (auto t : ast)
 	{
-		std::cout << t->ToString();
+		std::cout << t->ToString() << std::endl;
 	}
 	std::cout << std::endl;
 

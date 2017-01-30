@@ -3,6 +3,11 @@
 
 namespace yk
 {
+	Expr::Expr()
+		: EvalType(nullptr)
+	{
+	}
+
 	IdentExpr::IdentExpr(std::string const& id)
 		: Ident(id)
 	{

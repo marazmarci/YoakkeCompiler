@@ -1,48 +1,61 @@
 #include <iostream>
 #include "SemanticChecker.h"
-#include "../AST/Expr.h"
+#include "ConstantEvaluator.h"
+#include "FunctionSymbol.h"
+#include "../AST/FuncPrototype.h"
 
 namespace yk
 {
-	void SemanticChecker::Error(std::string const& msg)
+	bool SemanticChecker::Check(Stmt* st)
 	{
-		std::cout << "Semantic error: " << msg << std::endl;
+		
 	}
 
-	void SemanticChecker::Check(Stmt* st)
-	{
-		if (ExprStmt* es = dynamic_cast<ExprStmt*>(st))
-		{
-			Check(es->Sub);
-		}
-	}
-
-	void SemanticChecker::Check(Expr* exp)
+	bool SemanticChecker::Check(Expr* exp)
 	{
 		if (BinExpr* be = dynamic_cast<BinExpr*>(exp))
 		{
+			auto LHS = be->LHS;
+			auto RHS = be->RHS;
+
 			if (be->OP->Symbol == "::")
 			{
-				// Constant binding
-				if (IdentExpr* ie = dynamic_cast<IdentExpr*>(be->LHS))
+				// This could be called from a Declarator
+				// TODO: second pass
+
+				if (IdentExpr* ie = dynamic_cast<IdentExpr*>(LHS))
 				{
-					
+					if (Expr* rval = ConstantEvaluator::Evaluate(RHS))
+					{
+						
+					}
+					else
+					{
+						Error("RHS of constant binding must be a constant value!");
+					}
 				}
 				else
 				{
-					Error("LHS of constant binding must be an identifier!");
+					Error("LHS of constant binding must be an identifier");
 				}
 			}
 		}
 	}
 
-	bool SemanticChecker::Constant(Expr* exp)
+	FunctionSymbol* SemanticChecker::Symbolize(std::string const& id, FuncPrototype* fe)
 	{
-		if (dynamic_cast<FuncExpr*>(exp))
-		{
-			return true;
-		}
+		TypeSymbol* rett = Symbolize(fe->ReturnType);
 
-		return false;
+		return nullptr;
+	}
+
+	TypeSymbol* SemanticChecker::Symbolize(TypeDesc* td)
+	{
+
+	}
+
+	void SemanticChecker::Error(std::string const& err)
+	{
+		std::cout << "Semantic error: " << err << std::endl;
 	}
 }

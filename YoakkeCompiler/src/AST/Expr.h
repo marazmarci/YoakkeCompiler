@@ -13,6 +13,10 @@ namespace yk
 	class Expr
 	{
 	public:
+		TypeDesc* EvalType;
+
+	public:
+		Expr();
 		virtual ~Expr() { }
 
 	public:
