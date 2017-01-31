@@ -17,18 +17,36 @@ namespace yk
 		m_Lexer.AddLexeme(",", TokenT::Keyword);
 		m_Lexer.AddLexeme("->", TokenT::Keyword);
 
+		// Default operators ////////////////////////////////////////
 		AddInfixOp(BinOp("::", 0, AssocT::Noassoc));
 
-		AddInfixOp(BinOp("+", 1, AssocT::Left));
-		AddInfixOp(BinOp("-", 1, AssocT::Left));
-		AddInfixOp(BinOp("*", 2, AssocT::Left));
-		AddInfixOp(BinOp("/", 2, AssocT::Left));
+		AddInfixOp(BinOp("=", 1, AssocT::Right));
+		
+		AddInfixOp(BinOp("||", 2, AssocT::Left));
+		
+		AddInfixOp(BinOp("&&", 3, AssocT::Left));
 
-		AddPrefixOp(UryOp("++", 3, FixityT::Prefix));
-		AddPrefixOp(UryOp("--", 3, FixityT::Prefix));
+		AddInfixOp(BinOp("==", 4, AssocT::Left));
+		AddInfixOp(BinOp("<>", 4, AssocT::Left));
 
-		AddPostfixOp(UryOp("++", 3, FixityT::Postfix));
-		AddPostfixOp(UryOp("--", 3, FixityT::Postfix));
+		AddInfixOp(BinOp(">", 5, AssocT::Left));
+		AddInfixOp(BinOp("<", 5, AssocT::Left));
+		AddInfixOp(BinOp(">=", 5, AssocT::Left));
+		AddInfixOp(BinOp("<=", 5, AssocT::Left));
+
+		AddInfixOp(BinOp("+", 6, AssocT::Left));
+		AddInfixOp(BinOp("-", 6, AssocT::Left));
+
+		AddInfixOp(BinOp("*", 7, AssocT::Left));
+		AddInfixOp(BinOp("/", 7, AssocT::Left));
+		AddInfixOp(BinOp("%", 7, AssocT::Left));
+
+		AddPrefixOp(UryOp("+", 8, FixityT::Prefix));
+		AddPrefixOp(UryOp("-", 8, FixityT::Prefix));
+		AddPrefixOp(UryOp("!", 8, FixityT::Prefix));
+
+		AddInfixOp(BinOp(".", 9, AssocT::Left));
+		/////////////////////////////////////////////////////////////
 	}
 
 	void Parser::Next()

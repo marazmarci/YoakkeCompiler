@@ -98,7 +98,6 @@ namespace yk
 			m_Table.PushScope(scope);
 			for (auto par : fe->Prototype->Parameters)
 			{
-				// TODO
 				if (par.first.Value == "")
 				{
 					WarnAt("Unnamed parameter can not be referenced!", par.first);
