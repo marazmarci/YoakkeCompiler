@@ -46,15 +46,16 @@ namespace yk
 	public:
 		ExprElemT Tag;
 		void* Value;
+		Token Reference;
 
 	public:
 		ExprElemR(Expr* e)
-			: Tag(ExprElemT::Expr), Value(e)
+			: Tag(ExprElemT::Expr), Value(e), Reference(Token(TokenT::Epsilon, "", 0, 0))
 		{
 		}
 
-		ExprElemR(Operator* o)
-			: Tag(ExprElemT::Oper), Value(o)
+		ExprElemR(Operator* o, Token const& r)
+			: Tag(ExprElemT::Oper), Value(o), Reference(r)
 		{
 		}
 

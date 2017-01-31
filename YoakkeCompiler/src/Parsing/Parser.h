@@ -8,6 +8,7 @@
 #include "../AST/FuncPrototype.h"
 #include "../AST/Stmt.h"
 #include "../AST/TypeDesc.h"
+#include "../Logging/Logger.h"
 
 namespace yk
 {
@@ -22,19 +23,25 @@ namespace yk
 		std::map<std::string, BinOp> m_InfixOps;
 		std::map<std::string, UryOp> m_PrefixOps;
 		std::map<std::string, UryOp> m_PostfixOps;
+		Logger m_Logger;
 
 	public:
 		Parser();
 
 	private:
-		void Error(std::string const& msg);
-
 		void Next();
 		bool Same(std::string const& val);
 		bool Match(std::string const& val);
+		bool Expect(std::string const& val);
 		bool IsIdent();
 		std::string const& GetValue();
-		
+
+		void ErrorAt(std::string const& msg, Token const& t);
+		void ExpectError(std::string const& ex, std::string const& fnd);
+		void ExpectErrorAt(std::string const& ex, std::string const& fnd, Token const& t);
+		std::string DumpPosition(Token const& t);
+		std::string DumpCurrentTok();
+
 		ParseState SaveState();
 		void LoadState(ParseState const& st);
 

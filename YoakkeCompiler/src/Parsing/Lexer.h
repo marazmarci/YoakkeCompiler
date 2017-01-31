@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "Token.h"
+#include "../Logging/Logger.h"
 
 namespace yk
 {
@@ -18,6 +19,7 @@ namespace yk
 		std::map<const std::string, TokenT> m_Lexemes;
 		std::size_t m_RowCount;
 		std::size_t m_ColCount;
+		Logger m_Logger;
 
 	public:
 		Lexer();
@@ -33,8 +35,6 @@ namespace yk
 		bool Match(std::string const& c);
 
 		bool ValidLexeme(std::string const& v);
-
-		void Error(std::string const& msg);
 
 		inline char IncPtr()
 		{

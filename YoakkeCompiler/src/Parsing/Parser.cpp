@@ -1,10 +1,12 @@
+#include <sstream>
 #include "Parser.h"
 #include "ExprParser.h"
+#include "../Utils/StringUtils.h"
 
 namespace yk
 {
 	Parser::Parser()
-		: m_CurrentToken(Token(TokenT::Epsilon, "", 0, 0))
+		: m_CurrentToken(Token(TokenT::Epsilon, "", 0, 0)), m_Logger(Logger("Parser"))
 	{
 		m_Lexer.AddLexeme(";", TokenT::Keyword);
 		m_Lexer.AddLexeme(":", TokenT::Keyword);
@@ -16,11 +18,17 @@ namespace yk
 		m_Lexer.AddLexeme("->", TokenT::Keyword);
 
 		AddInfixOp(BinOp("::", 0, AssocT::Noassoc));
-	}
 
-	void Parser::Error(std::string const& msg)
-	{
-		std::cout << "Syntax error: " << msg << std::endl;
+		AddInfixOp(BinOp("+", 1, AssocT::Left));
+		AddInfixOp(BinOp("-", 1, AssocT::Left));
+		AddInfixOp(BinOp("*", 2, AssocT::Left));
+		AddInfixOp(BinOp("/", 2, AssocT::Left));
+
+		AddPrefixOp(UryOp("++", 3, FixityT::Prefix));
+		AddPrefixOp(UryOp("--", 3, FixityT::Prefix));
+
+		AddPostfixOp(UryOp("++", 3, FixityT::Postfix));
+		AddPostfixOp(UryOp("--", 3, FixityT::Postfix));
 	}
 
 	void Parser::Next()
@@ -43,6 +51,16 @@ namespace yk
 		return false;
 	}
 
+	bool Parser::Expect(std::string const& val)
+	{
+		if (!Match(val))
+		{
+			ExpectError('\'' + val + '\'', DumpCurrentTok());
+			return false;
+		}
+		return true;
+	}
+
 	bool Parser::IsIdent()
 	{
 		return m_CurrentToken.Type == TokenT::Identifier;
@@ -51,6 +69,56 @@ namespace yk
 	std::string const& Parser::GetValue()
 	{
 		return m_CurrentToken.Value;
+	}
+
+	void Parser::ErrorAt(std::string const& msg, Token const& t)
+	{
+		std::size_t len = t.Value.size();
+		std::size_t pos = t.Column - len;
+		m_Logger.log() << "Syntax error "
+			<< DumpPosition(t) << log::endl
+			<< StringUtils::GetLine(m_Lexer.m_Buffer, t.Row)
+			<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
+			<< msg << log::endlog;
+	}
+
+	void Parser::ExpectError(std::string const& ex, std::string const& fnd)
+	{
+		ExpectErrorAt(ex, fnd, m_CurrentToken);
+	}
+
+	void Parser::ExpectErrorAt(std::string const& ex, std::string const& fnd, Token const& t)
+	{
+		std::size_t len = t.Value.size();
+		std::size_t pos = t.Column - len;
+		if (t.Value == " <End of File> ")
+		{
+			m_Logger.log() << "Syntax error "
+				<< DumpPosition(t) << log::endl
+				<< ex << " expected, early end of file found."
+				<< log::endlog;
+		}
+		else
+		{
+			m_Logger.log() << "Syntax error "
+				<< DumpPosition(t) << log::endl
+				<< StringUtils::GetLine(m_Lexer.m_Buffer, t.Row)
+				<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
+				<< ex << " expected, found " << fnd
+				<< '.' << log::endlog;
+		}
+	}
+
+	std::string Parser::DumpPosition(Token const& t)
+	{
+		std::stringstream ss;
+		ss << "at line " << t.Row << ", character " << t.Column;
+		return ss.str();
+	}
+
+	std::string Parser::DumpCurrentTok()
+	{
+		return '\'' + m_CurrentToken.Value + '\'';
 	}
 
 	ParseState Parser::SaveState()
@@ -62,6 +130,8 @@ namespace yk
 	{
 		m_Lexer.m_Ptr = st.SourcePointer;
 		m_CurrentToken = st.CurrentToken;
+		m_Lexer.m_ColCount = st.ColCount;
+		m_Lexer.m_RowCount = st.RowCount;
 	}
 
 	void Parser::AddPrefixOp(UryOp op)
@@ -176,7 +246,7 @@ namespace yk
 			return ls[0];
 		}
 
-		Error("Only a single expression is expected!");
+		ExpectError("A single expression is", "multiple");
 		return nullptr;
 	}
 
@@ -197,19 +267,18 @@ namespace yk
 			Expr* exp = ParseSingleExpr();
 			if (exp)
 			{
-				if (Match(")"))
+				if (Expect(")"))
 				{
 					return exp;
 				}
 				else
 				{
-					Error("')' expected!");
 					return nullptr;
 				}
 			}
 			else
 			{
-				Error("Expression expected after '('!");
+				ExpectError("Expression", DumpCurrentTok());
 				return nullptr;
 			}
 		}
@@ -261,7 +330,7 @@ namespace yk
 		}
 		else if (name.length())
 		{
-			Error("Type expected after identifier!");
+			ExpectError("Type", DumpCurrentTok());
 		}
 
 		return std::make_pair(name, type);
@@ -286,13 +355,13 @@ namespace yk
 					}
 					else
 					{
-						Error("Parameter expected!");
+						ExpectError("Parameter", DumpCurrentTok());
 						return nullptr;
 					}
 				}
 			}
 
-			if (Match(")"))
+			if (Expect(")"))
 			{
 				TypeDesc* rettype = new IdentTypeDesc("unit");
 				if (Match("->"))
@@ -301,7 +370,7 @@ namespace yk
 					rettype = ParseType();
 					if (!rettype)
 					{
-						Error("Return type expected after '->'!");
+						ExpectError("Return type", DumpCurrentTok());
 						return nullptr;
 					}
 				}
@@ -310,7 +379,6 @@ namespace yk
 			}
 			else
 			{
-				Error("')' exprected");
 				return nullptr;
 			}
 		}
@@ -324,13 +392,9 @@ namespace yk
 		if (Match("{"))
 		{
 			auto stmts = ParseStmtList();
-			if (Match("}"))
+			if (Expect("}"))
 			{
 				return new BlockExpr(stmts);
-			}
-			else
-			{
-				Error("'}' expected!");
 			}
 		}
 

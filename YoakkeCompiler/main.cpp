@@ -2,25 +2,13 @@
 #include <iostream>
 #include "src\Parsing\Parser.h"
 #include "src\Semantics\SemanticChecker.h"
-
-static std::string read_file(const char* name)
-{
-	std::ifstream t(name);
-	if (t.good())
-	{
-		std::string str((std::istreambuf_iterator<char>(t)),
-			std::istreambuf_iterator<char>());
-		t.close();
-		return str;
-	}
-
-	return "";
-}
+#include "src\Utils\FileUtils.h"
+#include "src\Logging\Logger.h"
 
 int main(void)
 {
 	yk::Parser parser;
-	std::string const& src = read_file("C:\\TMP\\YoakkeTest\\tokenizer.txt");
+	std::string const& src = yk::FileUtils::ReadFile("C:\\TMP\\YoakkeTest\\tokenizer.txt");
 	auto ast = parser.ParseProgram(src.c_str());
 	yk::SemanticChecker checker;
 	checker.Check(ast);

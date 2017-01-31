@@ -51,9 +51,6 @@
     <ClCompile Include="src\Semantics\TypeSymbol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Semantics\Declarator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Semantics\ConstantEvaluator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,6 +67,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Semantics\TypedSymbol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\FileUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\StringUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Logging\LogStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Logging\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -107,9 +116,6 @@
     <ClInclude Include="src\Parsing\Operator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Semantics\Declarator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Semantics\Scope.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -135,6 +141,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Semantics\TypedSymbol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\FileUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\StringUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Logging\Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Logging\LogStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

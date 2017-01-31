@@ -86,7 +86,7 @@ namespace yk
 #define PREDICT_N(x, y) { cnt += INC_CNT2(current, x, next, y); current = x; next = y; continue; }
 #define PREDICT_P(x, y) { cnt += INC_CNT2(current, x, prev, y); current = x; prev = y; continue; }
 #define PREDICT_NP(x, y, z) { cnt += INC_CNT3(current, x, next, y, prev, z); current = x; next = y; prev = z; continue; }
-#define ERROR(x) { m_Parser.Error(x); continue; }
+#define ERROR(x, y) { m_Parser.ExpectErrorAt(x, y, m_Stack[i + 1].Oper); continue; }
 	std::size_t ExprParser::PredOperSingle(std::vector<OperPred>& preds)
 	{
 		std::size_t cnt = 0;
@@ -106,30 +106,44 @@ namespace yk
 					if (next == OperPred::Expr)		PREDICT(OperPred::Infx);
 					if (next == OperPred::Prefx)	PREDICT(OperPred::Infx);
 					if (next == OperPred::Infx)		PREDICT(OperPred::Postfx);
-					if (next == OperPred::Postfx)	ERROR("ERR 0");
 					if (next == OperPred::PreOrIn)	PREDICT(OperPred::PostOrIn);
 					if (next == OperPred::PostOrIn)	PREDICT(OperPred::Postfx);
 					if (next == OperPred::Unknown)	PREDICT(OperPred::PostOrIn);
+
+					if (next == OperPred::Postfx)
+						ERROR("Prefix or infix operator", "postfix");
 				}
 				if (prev == OperPred::Prefx)
 				{
 					if (next == OperPred::Expr)		PREDICT(OperPred::Prefx);
 					if (next == OperPred::Prefx)	PREDICT(OperPred::Prefx);
-					if (next == OperPred::Infx)		ERROR("ERR 1");
-					if (next == OperPred::Postfx)	ERROR("ERR 2");
 					if (next == OperPred::PreOrIn)	PREDICT_N(OperPred::Prefx, OperPred::Prefx);
-					if (next == OperPred::PostOrIn)	ERROR("ERR 3");
 					if (next == OperPred::Unknown)	PREDICT(OperPred::Prefx);
+
+					if (next == OperPred::Infx)
+						ERROR("Prefix operator", "infix");
+
+					if (next == OperPred::Postfx)
+						ERROR("Prefix operator", "postfix");
+
+					if (next == OperPred::PostOrIn)
+						ERROR("Prefix operator", "postfix or infix");
 				}
 				if (prev == OperPred::Infx)
 				{
 					if (next == OperPred::Expr)		PREDICT(OperPred::Prefx);
 					if (next == OperPred::Prefx)	PREDICT(OperPred::Prefx);
-					if (next == OperPred::Infx)		ERROR("ERR 4");
-					if (next == OperPred::Postfx)	ERROR("ERR 5");
 					if (next == OperPred::PreOrIn)	PREDICT_N(OperPred::Prefx, OperPred::Prefx);
-					if (next == OperPred::PostOrIn)	ERROR("ERR 6");
 					if (next == OperPred::Unknown)	PREDICT(OperPred::Prefx);
+
+					if (next == OperPred::Infx)
+						ERROR("Prefix operator", "infix");
+
+					if (next == OperPred::Postfx)
+						ERROR("Prefix operator", "postfix");
+
+					if (next == OperPred::PostOrIn)
+						ERROR("Prefix operator", "postfix or infix");
 				}
 				if (prev == OperPred::Postfx)
 				{
@@ -145,11 +159,17 @@ namespace yk
 				{
 					if (next == OperPred::Expr)		PREDICT(OperPred::Prefx);
 					if (next == OperPred::Prefx)	PREDICT(OperPred::Prefx);
-					if (next == OperPred::Infx)		ERROR("ERROR 7");
-					if (next == OperPred::Postfx)	ERROR("ERROR 8");
 					if (next == OperPred::PreOrIn)	PREDICT(OperPred::Prefx);
-					if (next == OperPred::PostOrIn)	ERROR("ERROR 9");
 					if (next == OperPred::Unknown)	PREDICT(OperPred::Prefx);
+
+					if (next == OperPred::Infx)
+						ERROR("Prefix operator", "infix");
+
+					if (next == OperPred::Postfx)
+						ERROR("Prefix operator", "postfix");
+
+					if (next == OperPred::PostOrIn)
+						ERROR("Prefix operator", "postfix or infix");
 				}
 				if (prev == OperPred::PostOrIn)
 				{
@@ -202,27 +222,37 @@ namespace yk
 			switch (pred)
 			{
 			case OperPred::Prefx:
-				if (!prefx) m_Parser.Error("Operator mismatch!");
+				if (!prefx) 
+					m_Parser.ErrorAt("Operator mismatch (prefix operator expected)!",
+						m_Stack[idx].Oper);
 				break;
 
 			case OperPred::Infx:
-				if (!infx) m_Parser.Error("Operator mismatch!");
+				if (!infx)
+					m_Parser.ErrorAt("Operator mismatch (infix operator expected)!",
+						m_Stack[idx].Oper);
 				break;
 
 			case OperPred::Postfx:
-				if (!postfx) m_Parser.Error("Operator mismatch!");
+				if (!postfx)
+					m_Parser.ErrorAt("Operator mismatch (postfix operator expected)!",
+						m_Stack[idx].Oper);
 				break;
 
 			case OperPred::PostOrIn:
 				if (!postfx && infx) PREDICT(OperPred::Infx);
 				if (postfx && !infx) PREDICT(OperPred::Postfx);
-				if (!postfx && !infx) if (!postfx) m_Parser.Error("Operator mismatch!");
+				if (!postfx && !infx)
+					m_Parser.ErrorAt("Operator mismatch (postfix or infix operator expected)!",
+						m_Stack[idx].Oper);
 				break;
 
 			case OperPred::PreOrIn:
 				if (!prefx && infx) PREDICT(OperPred::Infx);
 				if (prefx && !infx) PREDICT(OperPred::Prefx);
-				if (!prefx && !infx) m_Parser.Error("Operator mismatch!");
+				if (!prefx && !infx)
+					m_Parser.ErrorAt("Operator mismatch (prefix or infix operator expected)!",
+						m_Stack[idx].Oper);
 				break;
 
 			case OperPred::Unknown:
@@ -250,7 +280,7 @@ namespace yk
 
 			if (pred != OperPred::Prefx && pred != OperPred::Infx && pred != OperPred::Postfx)
 			{
-				m_Parser.Error("Ambiguity!");
+				m_Parser.ErrorAt("Operator ambiguity!", m_Stack[idx].Oper);
 			}
 		}
 	}
@@ -262,13 +292,17 @@ namespace yk
 		{
 			auto& pred = preds[i + 1];
 			if (pred == OperPred::Expr) 
-				ret.push_back(m_Stack[i].GetExpr());
-			if (pred == OperPred::Prefx) 
-				ret.push_back(m_Parser.GetPrefixOp(m_Stack[i].GetOper()->Value));
-			if (pred == OperPred::Infx)
-				ret.push_back(m_Parser.GetInfixOp(m_Stack[i].GetOper()->Value));
-			if (pred == OperPred::Postfx)
-				ret.push_back(m_Parser.GetPostfixOp(m_Stack[i].GetOper()->Value));
+				ret.push_back(ExprElemR(m_Stack[i].GetExpr()));
+			else
+			{
+				Token* tok = m_Stack[i].GetOper();
+				if (pred == OperPred::Prefx)
+					ret.push_back(ExprElemR(m_Parser.GetPrefixOp(tok->Value), *tok));
+				if (pred == OperPred::Infx)
+					ret.push_back(ExprElemR(m_Parser.GetInfixOp(tok->Value), *tok));
+				if (pred == OperPred::Postfx)
+					ret.push_back(ExprElemR(m_Parser.GetPostfixOp(tok->Value), *tok));
+			}
 		}
 		return ret;
 	}
@@ -322,6 +356,7 @@ namespace yk
 
 	void ExprParser::ReducePrefixAt(std::size_t idx)
 	{
+		auto begop = m_RStack[idx];
 		Expr* exp = nullptr;
 		int j;
 		for (j = idx; j < m_RStack.size(); j++)
@@ -347,7 +382,7 @@ namespace yk
 		}
 		else
 		{
-			m_Parser.Error("No operand for prefix");
+			m_Parser.ErrorAt("No operand for prefix operator", begop.Reference);
 		}
 	}
 
@@ -365,6 +400,7 @@ namespace yk
 
 	std::size_t ExprParser::ReducePostfixAt(std::size_t idx)
 	{
+		auto begop = m_RStack[idx];
 		Expr* exp = nullptr;
 		int j;
 		for (j = idx; j >= 0; j--)
@@ -393,7 +429,7 @@ namespace yk
 		}
 		else
 		{
-			m_Parser.Error("No operand for postfix");
+			m_Parser.ErrorAt("No operand for postfix operator", begop.Reference);
 		}
 		return 0;
 	}
@@ -411,7 +447,7 @@ namespace yk
 			{
 				if (op->Assoc == AssocT::Noassoc && std::abs(last - i) == 2)
 				{
-					m_Parser.Error("Cannot chain non-associative operators!");
+					m_Parser.ErrorAt("Cannot chain non-associative operators!", elem.Reference);
 				}
 				last = i;
 				i -= ReducePostfixAt(i - 1);

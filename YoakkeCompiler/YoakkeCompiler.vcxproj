@@ -115,13 +115,14 @@
     <ClCompile Include="src\AST\FuncPrototype.cpp" />
     <ClCompile Include="src\AST\Stmt.cpp" />
     <ClCompile Include="src\AST\TypeDesc.cpp" />
+    <ClCompile Include="src\Logging\Logger.cpp" />
+    <ClCompile Include="src\Logging\LogStream.cpp" />
     <ClCompile Include="src\Parsing\ExprParser.cpp" />
     <ClCompile Include="src\Parsing\Lexer.cpp" />
     <ClCompile Include="src\Parsing\Parser.cpp" />
     <ClCompile Include="src\Parsing\Token.cpp" />
     <ClCompile Include="src\Semantics\ConstantEvaluator.cpp" />
     <ClCompile Include="src\Semantics\ConstantSymbol.cpp" />
-    <ClCompile Include="src\Semantics\Declarator.cpp" />
     <ClCompile Include="src\Semantics\Scope.cpp" />
     <ClCompile Include="src\Semantics\SemanticChecker.cpp" />
     <ClCompile Include="src\Semantics\Symbol.cpp" />
@@ -129,12 +130,16 @@
     <ClCompile Include="src\Semantics\TypedSymbol.cpp" />
     <ClCompile Include="src\Semantics\TypeSymbol.cpp" />
     <ClCompile Include="src\Semantics\VarSymbol.cpp" />
+    <ClCompile Include="src\Utils\FileUtils.cpp" />
+    <ClCompile Include="src\Utils\StringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AST\Expr.h" />
     <ClInclude Include="src\AST\FuncPrototype.h" />
     <ClInclude Include="src\AST\Stmt.h" />
     <ClInclude Include="src\AST\TypeDesc.h" />
+    <ClInclude Include="src\Logging\Logger.h" />
+    <ClInclude Include="src\Logging\LogStream.h" />
     <ClInclude Include="src\Parsing\ExprElem.h" />
     <ClInclude Include="src\Parsing\ExprParser.h" />
     <ClInclude Include="src\Parsing\Lexer.h" />
@@ -144,7 +149,6 @@
     <ClInclude Include="src\Parsing\Operator.h" />
     <ClInclude Include="src\Semantics\ConstantEvaluator.h" />
     <ClInclude Include="src\Semantics\ConstantSymbol.h" />
-    <ClInclude Include="src\Semantics\Declarator.h" />
     <ClInclude Include="src\Semantics\Scope.h" />
     <ClInclude Include="src\Semantics\SemanticChecker.h" />
     <ClInclude Include="src\Semantics\SymbolTable.h" />
@@ -152,6 +156,8 @@
     <ClInclude Include="src\Semantics\TypedSymbol.h" />
     <ClInclude Include="src\Semantics\TypeSymbol.h" />
     <ClInclude Include="src\Semantics\VarSymbol.h" />
+    <ClInclude Include="src\Utils\FileUtils.h" />
+    <ClInclude Include="src\Utils\StringUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

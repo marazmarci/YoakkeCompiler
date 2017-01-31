@@ -8,6 +8,7 @@
 namespace yk
 {
 	Lexer::Lexer()
+		: m_Logger(Logger("Lexical Analysis"))
 	{
 	}
 
@@ -16,7 +17,7 @@ namespace yk
 		if (ValidLexeme(l))
 			m_Lexemes.insert(std::make_pair(l, tt));
 		else
-			std::cout << "INVALID" << std::endl;
+			m_Logger.log() << "Cannot add invalid lexeme: '" << l << '\'' << log::endlog;
 	}
 
 	void Lexer::SetSource(const char* buf)
@@ -34,7 +35,7 @@ namespace yk
 
 		// EOF
 		if (!*m_Ptr) 
-			return Token(TokenT::Epsilon, "", m_RowCount, m_ColCount);
+			return Token(TokenT::Epsilon, " <End of File> ", m_RowCount, m_ColCount);
 
 		// Comment
 		if (Match("//"))
@@ -122,9 +123,8 @@ namespace yk
 		}
 
 		char unknown = IncPtrS();
-		std::stringstream ss;
-		ss << "Unknown token: '" << unknown << "' (ASCII: " << +unknown << ')';
-		Error(ss.str());
+		m_Logger.log() << "Unknown token: '" 
+			<< unknown << "' (ASCII: " << +unknown << ')' << log::endlog;
 		return Token(TokenT::Unknown, std::string(1, unknown), m_RowCount, m_ColCount);
 	}
 
@@ -149,10 +149,5 @@ namespace yk
 	bool Lexer::ValidLexeme(std::string const& v)
 	{
 		return v.find_first_of(' ') == std::string::npos;
-	}
-
-	void Lexer::Error(std::string const& msg)
-	{
-		std::cout << msg << " at line " << m_RowCount << ", column " << m_ColCount << std::endl;
 	}
 }
