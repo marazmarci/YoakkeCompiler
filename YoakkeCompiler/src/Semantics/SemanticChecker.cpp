@@ -99,13 +99,13 @@ namespace yk
 			for (auto par : fe->Prototype->Parameters)
 			{
 				// TODO
-				if (par.first == "")
+				if (par.first.Value == "")
 				{
-					std::cout << "Warn: Unnamed parameter can not be refeenced" << std::endl;
+					WarnAt("Unnamed parameter can not be referenced!", par.first);
 				}
 				else
 				{
-					m_Table.DeclSymbol(new ParamSymbol(par.first, par.second->SymbolForm));
+					m_Table.DeclSymbol(new ParamSymbol(par.first.Value, par.second->SymbolForm));
 				}
 			}
 			Check(fe->Body);
@@ -202,10 +202,19 @@ namespace yk
 	{
 		std::size_t len = t.Value.size();
 		std::size_t pos = t.Column - len;
-		m_Logger.log() << "Syntax error "
+		m_Logger.log() << "Semantic error "
 			<< StringUtils::Position(t) << log::endl
 			<< StringUtils::GetLine(m_Src, t.Row)
 			<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
+			<< msg << log::endlog;
+	}
+
+	void SemanticChecker::WarnAt(std::string const& msg, Token const& t)
+	{
+		std::size_t len = t.Value.size();
+		std::size_t pos = t.Column - len;
+		m_Logger.log() << "Warn "
+			<< StringUtils::Position(t) << log::endl
 			<< msg << log::endlog;
 	}
 }

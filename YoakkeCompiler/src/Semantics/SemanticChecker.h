@@ -28,5 +28,6 @@ namespace yk
 		TypeSymbol* CheckPrototype(FuncPrototype* proto);
 
 		void ErrorAt(std::string const& msg, Token const& t);
+		void WarnAt(std::string const& msg, Token const& t);
 	};
 }

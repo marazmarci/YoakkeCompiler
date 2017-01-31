@@ -19,7 +19,7 @@ namespace yk
 		std::string ret = "<FuncPrototype><ReturnType>" + ReturnType->ToString() + "</ReturnType>";
 		for (auto td : Parameters)
 		{
-			ret += "<Parameter name=\"" + td.first + "\">" + td.second->ToString() + "</Parameter>";
+			ret += "<Parameter name=\"" + td.first.Value + "\">" + td.second->ToString() + "</Parameter>";
 		}
 		ret += "</FuncPrototype>";
 		return ret;

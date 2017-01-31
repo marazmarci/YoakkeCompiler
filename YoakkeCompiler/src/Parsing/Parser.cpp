@@ -311,9 +311,11 @@ namespace yk
 		auto state = SaveState();
 		TypeDesc* type = nullptr;
 		std::string name = "";
+		Token ident = Token(TokenT::Identifier, "", m_CurrentToken.Row, m_CurrentToken.Column);
 
 		if (IsIdent())
 		{
+			ident = m_CurrentToken;
 			name = GetValue();
 			Next();
 		}
@@ -327,7 +329,7 @@ namespace yk
 			ExpectError("Type", DumpCurrentTok());
 		}
 
-		return std::make_pair(name, type);
+		return std::make_pair(ident, type);
 	}
 
 	FuncPrototype* Parser::ParseFuncPrototype()

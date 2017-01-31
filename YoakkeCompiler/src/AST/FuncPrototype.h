@@ -3,12 +3,13 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "../Parsing/Token.h"
 
 namespace yk
 {
 	class TypeDesc;
 
-	typedef std::pair<std::string, TypeDesc*> ParamPair;
+	typedef std::pair<Token, TypeDesc*> ParamPair;
 	class FuncPrototype
 	{
 	public:
