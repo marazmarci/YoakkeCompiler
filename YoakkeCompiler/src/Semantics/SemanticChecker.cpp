@@ -5,10 +5,12 @@
 #include "VarSymbol.h"
 #include "../AST/FuncPrototype.h"
 #include "../AST/TypeDesc.h"
+#include "../Utils/StringUtils.h"
 
 namespace yk
 {
-	SemanticChecker::SemanticChecker()
+	SemanticChecker::SemanticChecker(const char* src)
+		: m_Src(src), m_Logger(Logger("Semantics"))
 	{
 		m_Table.Init();
 	}
@@ -29,7 +31,7 @@ namespace yk
 		}
 		else
 		{
-			Error("UNCOVERED CASE STMT");
+			std::cout << "UNCOVERED CASE STMT" << std::endl;
 		}
 	}
 
@@ -66,11 +68,11 @@ namespace yk
 			}
 			else if (cnt == 0)
 			{
-				Error("Undefined identifier!");
+				ErrorAt("Undefined identifier: '" + ie->Ident + "'!", ie->Reference);
 			}
 			else
 			{
-				Error("Identifier is ambigious");
+				ErrorAt("Identifier: '" + ie->Ident + "' is ambigous!", ie->Reference);
 			}
 		}
 		else if (BlockExpr* be = dynamic_cast<BlockExpr*>(exp))
@@ -111,7 +113,7 @@ namespace yk
 		}
 		else if (UryExpr* ue = dynamic_cast<UryExpr*>(exp))
 		{
-			Error("URY is unimplemented");
+			std::cout << "URY is unimplemented" << std::endl;
 		}
 		else if (BinExpr* be = dynamic_cast<BinExpr*>(exp))
 		{
@@ -137,27 +139,30 @@ namespace yk
 						}
 						else
 						{
-							Error("Already declared (constant)!");
+							ErrorAt("Already declared (constant): '" + ie->Ident + "'!",
+								ie->Reference);
 						}
 					}
 					else
 					{
-						Error("RHS of constant binding must be a constant value!");
+						ErrorAt("Right-hand side of constant binding must be a constant value!",
+							be->Reference);
 					}
 				}
 				else
 				{
-					Error("LHS of constant binding must be an identifier");
+					ErrorAt("Left-hand side of constant binding must be an identifier!",
+						be->Reference);
 				}
 			}
 			else
 			{
-				Error("UNCOVERED BINOP");
+				std::cout << "UNCOVERED BINOP" << std::endl;
 			}
 		}
 		else
 		{
-			Error("UNCOVERED CASE EXPR");
+			std::cout << "UNCOVERED CASE EXPR" << std::endl;
 		}
 	}
 
@@ -184,17 +189,23 @@ namespace yk
 			}
 			else
 			{
-				Error("Undefined type '" + id->Identifier + "'!");
+				ErrorAt("Undefined type '" + id->Identifier + "'!", id->Reference);
 			}
 		}
 		else
 		{
-			Error("UNCOVERED CASE TYPE DESC");
+			std::cout << "UNCOVERED CASE TYPE DESC" << std::endl;
 		}
 	}
 
-	void SemanticChecker::Error(std::string const& err)
+	void SemanticChecker::ErrorAt(std::string const& msg, Token const& t)
 	{
-		std::cout << "Semantic error: " << err << std::endl;
+		std::size_t len = t.Value.size();
+		std::size_t pos = t.Column - len;
+		m_Logger.log() << "Syntax error "
+			<< StringUtils::Position(t) << log::endl
+			<< StringUtils::GetLine(m_Src, t.Row)
+			<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
+			<< msg << log::endlog;
 	}
 }

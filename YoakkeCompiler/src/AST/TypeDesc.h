@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "../Parsing/Token.h"
 
 namespace yk
 {
@@ -23,9 +24,10 @@ namespace yk
 	{
 	public:
 		std::string Identifier;
+		Token Reference;
 
 	public:
-		IdentTypeDesc(std::string const& id);
+		IdentTypeDesc(std::string const& id, Token const& ref);
 		virtual ~IdentTypeDesc();
 
 	public:

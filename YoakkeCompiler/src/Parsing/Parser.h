@@ -39,7 +39,6 @@ namespace yk
 		void ErrorAt(std::string const& msg, Token const& t);
 		void ExpectError(std::string const& ex, std::string const& fnd);
 		void ExpectErrorAt(std::string const& ex, std::string const& fnd, Token const& t);
-		std::string DumpPosition(Token const& t);
 		std::string DumpCurrentTok();
 
 		ParseState SaveState();

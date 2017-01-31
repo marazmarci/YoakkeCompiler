@@ -76,7 +76,7 @@ namespace yk
 		std::size_t len = t.Value.size();
 		std::size_t pos = t.Column - len;
 		m_Logger.log() << "Syntax error "
-			<< DumpPosition(t) << log::endl
+			<< StringUtils::Position(t) << log::endl
 			<< StringUtils::GetLine(m_Lexer.m_Buffer, t.Row)
 			<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
 			<< msg << log::endlog;
@@ -94,26 +94,19 @@ namespace yk
 		if (t.Value == " <End of File> ")
 		{
 			m_Logger.log() << "Syntax error "
-				<< DumpPosition(t) << log::endl
+				<< StringUtils::Position(t) << log::endl
 				<< ex << " expected, early end of file found."
 				<< log::endlog;
 		}
 		else
 		{
 			m_Logger.log() << "Syntax error "
-				<< DumpPosition(t) << log::endl
+				<< StringUtils::Position(t) << log::endl
 				<< StringUtils::GetLine(m_Lexer.m_Buffer, t.Row)
 				<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
 				<< ex << " expected, found " << fnd
 				<< '.' << log::endlog;
 		}
-	}
-
-	std::string Parser::DumpPosition(Token const& t)
-	{
-		std::stringstream ss;
-		ss << "at line " << t.Row << ", character " << t.Column;
-		return ss.str();
 	}
 
 	std::string Parser::DumpCurrentTok()
@@ -285,8 +278,9 @@ namespace yk
 		else if (IsIdent())
 		{
 			std::string id = GetValue();
+			Token curr = m_CurrentToken;
 			Next();
-			return new IdentExpr(id);
+			return new IdentExpr(id, curr);
 		}
 
 		return nullptr;
@@ -363,7 +357,7 @@ namespace yk
 
 			if (Expect(")"))
 			{
-				TypeDesc* rettype = new IdentTypeDesc("unit");
+				TypeDesc* rettype = new IdentTypeDesc("unit", Token(TokenT::Epsilon, "", 0, 0));
 				if (Match("->"))
 				{
 					delete rettype;
@@ -406,8 +400,9 @@ namespace yk
 		if (IsIdent())
 		{
 			std::string id = GetValue();
+			Token curr = m_CurrentToken;
 			Next();
-			return new IdentTypeDesc(id);
+			return new IdentTypeDesc(id, curr);
 		}
 
 		return nullptr;

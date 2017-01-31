@@ -4,6 +4,7 @@
 #include <vector>
 #include "FuncPrototype.h"
 #include "../Parsing/Operator.h"
+#include "../Parsing/Token.h"
 
 namespace yk
 {
@@ -51,9 +52,10 @@ namespace yk
 		TypeSymbol* HintType;
 		TypedSymbol* Sym;
 		std::string Ident;
+		Token Reference;
 
 	public:
-		IdentExpr(std::string const& id);
+		IdentExpr(std::string const& id, Token const& ref);
 
 	public:
 		virtual std::string ToString() override;
@@ -119,9 +121,10 @@ namespace yk
 		Expr* LHS;
 		Expr* RHS;
 		BinOp* OP;
+		Token Reference;
 
 	public:
-		BinExpr(Expr* l, Expr* r, BinOp* o);
+		BinExpr(Expr* l, Expr* r, BinOp* o, Token const& ref);
 		virtual ~BinExpr();
 
 	public:

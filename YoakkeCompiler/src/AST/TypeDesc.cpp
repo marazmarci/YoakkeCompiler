@@ -7,8 +7,8 @@ namespace yk
 	{
 	}
 
-	IdentTypeDesc::IdentTypeDesc(std::string const& id)
-		: Identifier(id)
+	IdentTypeDesc::IdentTypeDesc(std::string const& id, Token const& ref)
+		: Identifier(id), Reference(ref)
 	{
 	}
 

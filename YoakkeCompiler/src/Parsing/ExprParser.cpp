@@ -453,7 +453,7 @@ namespace yk
 				i -= ReducePostfixAt(i - 1);
 				ReducePrefixAt(i + 1);
 				Expr* exp =
-					new BinExpr(m_RStack[i - 1].GetExpr(), m_RStack[i + 1].GetExpr(), op);
+					new BinExpr(m_RStack[i - 1].GetExpr(), m_RStack[i + 1].GetExpr(), op, m_RStack[i].Reference);
 
 				m_RStack.erase(m_RStack.begin() + (i - 1), m_RStack.begin() + (i + 2));
 				if (i - 1 == m_RStack.size())

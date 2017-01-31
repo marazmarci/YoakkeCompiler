@@ -3,6 +3,8 @@
 #include "SymbolTable.h"
 #include "../AST/Stmt.h"
 #include "../AST/Expr.h"
+#include "../Logging/Logger.h"
+#include "../Parsing/Token.h"
 
 namespace yk
 {
@@ -10,9 +12,11 @@ namespace yk
 	{
 	private:
 		SymbolTable m_Table;
+		Logger m_Logger;
+		const char* m_Src;
 
 	public:
-		SemanticChecker();
+		SemanticChecker(const char* src);
 
 	public:
 		void Check(std::vector<Stmt*> ls);
@@ -23,6 +27,6 @@ namespace yk
 	private:
 		TypeSymbol* CheckPrototype(FuncPrototype* proto);
 
-		void Error(std::string const& err);
+		void ErrorAt(std::string const& msg, Token const& t);
 	};
 }

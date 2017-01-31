@@ -10,7 +10,7 @@ int main(void)
 	yk::Parser parser;
 	std::string const& src = yk::FileUtils::ReadFile("C:\\TMP\\YoakkeTest\\tokenizer.txt");
 	auto ast = parser.ParseProgram(src.c_str());
-	yk::SemanticChecker checker;
+	yk::SemanticChecker checker(src.c_str());
 	checker.Check(ast);
 
 	system("PAUSE");

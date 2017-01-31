@@ -8,8 +8,8 @@ namespace yk
 	{
 	}
 
-	IdentExpr::IdentExpr(std::string const& id)
-		: Ident(id), Sym(nullptr), HintType(nullptr)
+	IdentExpr::IdentExpr(std::string const& id, Token const& ref)
+		: Ident(id), Reference(ref), Sym(nullptr), HintType(nullptr)
 	{
 	}
 
@@ -82,8 +82,8 @@ namespace yk
 		return "<UryExpr op=\"" + OP->Symbol + "\">" + Sub->ToString() + "</UryExpr>";
 	}
 
-	BinExpr::BinExpr(Expr* l, Expr* r, BinOp* o)
-		: LHS(l), RHS(r), OP(o)
+	BinExpr::BinExpr(Expr* l, Expr* r, BinOp* o, Token const& ref)
+		: LHS(l), RHS(r), OP(o), Reference(ref)
 	{
 	}
 

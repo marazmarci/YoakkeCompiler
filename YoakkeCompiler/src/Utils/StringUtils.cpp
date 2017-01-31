@@ -21,5 +21,11 @@ namespace yk
 			while (len--) res += '^';
 			return res;
 		}
+
+		std::string Position(Token const& t)
+		{
+			return "at line " + std::to_string(t.Row) +
+				", character " + std::to_string(t.Column);
+		}
 	}
 }
