@@ -4,7 +4,6 @@
 #include "SemanticChecker.h"
 #include "Scope.h"
 #include "../AST/Expr.h"
-#include "FunctionSymbol.h"
 
 namespace yk
 {

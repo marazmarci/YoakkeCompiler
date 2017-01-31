@@ -8,12 +8,13 @@
 namespace yk
 {
 	class Stmt;
-	class TypeDesc;
+	class TypeSymbol;
+	class TypedSymbol;
 
 	class Expr
 	{
 	public:
-		TypeDesc* EvalType;
+		TypeSymbol* EvalType;
 
 	public:
 		Expr();
@@ -47,6 +48,8 @@ namespace yk
 	class IdentExpr : public Expr
 	{
 	public:
+		TypeSymbol* HintType;
+		TypedSymbol* Sym;
 		std::string Ident;
 
 	public:

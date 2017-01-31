@@ -9,7 +9,7 @@ namespace yk
 	}
 
 	IdentExpr::IdentExpr(std::string const& id)
-		: Ident(id)
+		: Ident(id), Sym(nullptr), HintType(nullptr)
 	{
 	}
 

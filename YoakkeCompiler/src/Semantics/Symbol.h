@@ -11,5 +11,8 @@ namespace yk
 
 	public:
 		Symbol(std::string const& n);
+
+	private:
+		virtual void __unneeded() { }
 	};
 }

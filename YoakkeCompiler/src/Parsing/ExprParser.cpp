@@ -402,14 +402,18 @@ namespace yk
 	{
 		int dir = op->Assoc == AssocT::Left ? 1 : -1;
 		int start = op->Assoc == AssocT::Left ? 0 : (m_RStack.size() - 1);
-		std::size_t cnt = 0;
+		int last = -3;
 
 		for (int i = start; i >= 0 && i < m_RStack.size(); i += dir)
 		{
 			auto& elem = m_RStack[i];
 			if (elem.GetOper() == op)
 			{
-				cnt++;
+				if (op->Assoc == AssocT::Noassoc && std::abs(last - i) == 2)
+				{
+					m_Parser.Error("Cannot chain non-associative operators!");
+				}
+				last = i;
 				i -= ReducePostfixAt(i - 1);
 				ReducePrefixAt(i + 1);
 				Expr* exp =
@@ -421,11 +425,6 @@ namespace yk
 				else
 					m_RStack.insert(m_RStack.begin() + (i - 1), exp);
 			}
-		}
-
-		if (op->Assoc == AssocT::Noassoc && cnt > 1)
-		{
-			m_Parser.Error("Cannot chain non-associative operators!");
 		}
 	}
 }

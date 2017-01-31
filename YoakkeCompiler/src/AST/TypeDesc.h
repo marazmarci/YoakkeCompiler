@@ -4,9 +4,15 @@
 
 namespace yk
 {
+	class TypeSymbol;
+
 	class TypeDesc
 	{
 	public:
+		TypeSymbol* SymbolForm;
+
+	public:
+		TypeDesc();
 		virtual ~TypeDesc() { }
 
 	public:

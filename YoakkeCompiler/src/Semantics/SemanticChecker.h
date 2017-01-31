@@ -12,12 +12,16 @@ namespace yk
 		SymbolTable m_Table;
 
 	public:
-		bool Check(Stmt* st);
-		bool Check(Expr* exp);
+		SemanticChecker();
+
+	public:
+		void Check(std::vector<Stmt*> ls);
+		void Check(Stmt* st);
+		void Check(Expr* exp);
+		void Check(TypeDesc* td);
 
 	private:
-		FunctionSymbol* Symbolize(std::string const& id, FuncPrototype* fe);
-		TypeSymbol* Symbolize(TypeDesc* td);
+		TypeSymbol* CheckPrototype(FuncPrototype* proto);
 
 		void Error(std::string const& err);
 	};

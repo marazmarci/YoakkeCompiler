@@ -2,6 +2,11 @@
 
 namespace yk
 {
+	TypeDesc::TypeDesc()
+		: SymbolForm(nullptr)
+	{
+	}
+
 	IdentTypeDesc::IdentTypeDesc(std::string const& id)
 		: Identifier(id)
 	{

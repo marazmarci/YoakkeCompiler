@@ -1,6 +1,7 @@
 #include <iostream>
 #include "SymbolTable.h"
-#include "FunctionSymbol.h"
+#include "ConstantSymbol.h"
+#include "TypedSymbol.h"
 
 namespace yk
 {
@@ -8,6 +9,12 @@ namespace yk
 	{
 		m_Root = new Scope();
 		m_Current = m_Root;
+	}
+
+	void SymbolTable::Init()
+	{
+		DeclSymbol(new BuiltinTypeSymbol("unit"));
+		DeclSymbol(new BuiltinTypeSymbol("i32"));
 	}
 
 	void SymbolTable::PushScope(Scope* sc)
@@ -35,14 +42,14 @@ namespace yk
 		m_Current->Declare(sym);
 	}
 
-	FunctionSymbol* SymbolTable::RefFunction(FunctionSymbol* f)
+	std::vector<TypedSymbol*> SymbolTable::FilterTyped(std::vector<TypedSymbol*>& syms, TypeSymbol* match)
 	{
-		auto ls = Filter<FunctionSymbol>(RefSymbol(f->Name));
-		for (auto el : ls)
+		std::vector<TypedSymbol*> res;
+		for (auto s : syms)
 		{
-			if (f->Same(el))
-				return el;
+			if (s->Type->Same(match))
+				res.push_back(s);
 		}
-		return nullptr;
+		return res;
 	}
 }

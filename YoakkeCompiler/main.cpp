@@ -1,8 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include "src\Parsing\Parser.h"
-#include <Windows.h>
-#include <stdio.h>
+#include "src\Semantics\SemanticChecker.h"
 
 static std::string read_file(const char* name)
 {
@@ -23,12 +22,8 @@ int main(void)
 	yk::Parser parser;
 	std::string const& src = read_file("C:\\TMP\\YoakkeTest\\tokenizer.txt");
 	auto ast = parser.ParseProgram(src.c_str());
-
-	for (auto t : ast)
-	{
-		std::cout << t->ToString() << std::endl;
-	}
-	std::cout << std::endl;
+	yk::SemanticChecker checker;
+	checker.Check(ast);
 
 	system("PAUSE");
 	return 0;

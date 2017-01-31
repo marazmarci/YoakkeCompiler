@@ -1,9 +1,13 @@
 #pragma once
 
 #include "Scope.h"
+#include "Symbol.h"
 
 namespace yk
 {
+	class TypeSymbol;
+	class TypedSymbol;
+
 	class SymbolTable
 	{
 	private:
@@ -14,11 +18,14 @@ namespace yk
 		SymbolTable();
 
 	public:
+		void Init();
+
 		void PushScope(Scope* sc);
 		void PopScope();
 		std::vector<Symbol*>* RefSymbol(std::string const& id);
 		void DeclSymbol(Symbol* sym);
-		FunctionSymbol* RefFunction(FunctionSymbol* f);
+
+		std::vector<TypedSymbol*> FilterTyped(std::vector<TypedSymbol*>& syms, TypeSymbol* match);
 
 		inline bool GlobalScope() { return m_Current == m_Root; }
 
@@ -35,6 +42,15 @@ namespace yk
 				}
 			}
 			return ret;
+		}
+
+		template <typename T>
+		T* FilterSingle(std::string const& id)
+		{
+			auto set = Filter<T>(RefSymbol(id));
+			if (set.size() == 1)
+				return set[0];
+			return nullptr;
 		}
 	};
 }

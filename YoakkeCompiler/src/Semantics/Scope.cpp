@@ -34,4 +34,14 @@ namespace yk
 			it->second.push_back(s);
 		}
 	}
+
+	BlockScope::BlockScope()
+		: Scope()
+	{
+	}
+
+	FunctionScope::FunctionScope()
+		: Scope()
+	{
+	}
 }

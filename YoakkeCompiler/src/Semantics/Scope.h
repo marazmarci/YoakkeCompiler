@@ -23,4 +23,16 @@ namespace yk
 		std::vector<Symbol*>* Reference(std::string const& id);
 		void Declare(Symbol* s);
 	};
+
+	class BlockScope : public Scope
+	{
+	public:
+		BlockScope();
+	};
+
+	class FunctionScope : public Scope
+	{
+	public:
+		FunctionScope();
+	};
 }
