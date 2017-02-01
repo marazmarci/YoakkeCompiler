@@ -23,6 +23,7 @@ namespace yk
 		std::map<std::string, BinOp> m_InfixOps;
 		std::map<std::string, UryOp> m_PrefixOps;
 		std::map<std::string, UryOp> m_PostfixOps;
+		std::vector<MixfixOp> m_MixfixOps;
 		Logger m_Logger;
 
 	public:
@@ -47,6 +48,7 @@ namespace yk
 		void AddPrefixOp(UryOp op);
 		void AddInfixOp(BinOp op);
 		void AddPostfixOp(UryOp op);
+		void AddMixfixOp(MixfixOp op);
 
 	public:
 		UryOp* GetPrefixOp(std::string const& sym);

@@ -16,6 +16,7 @@ namespace yk
 	{
 	public:
 		TypeSymbol* EvalType;
+		char Enclose;
 
 	public:
 		Expr();
@@ -49,10 +50,10 @@ namespace yk
 	class IdentExpr : public Expr
 	{
 	public:
-		TypeSymbol* HintType;
-		TypedSymbol* Sym;
 		std::string Ident;
 		Token Reference;
+		TypeSymbol* HintType;
+		TypedSymbol* Sym;
 
 	public:
 		IdentExpr(std::string const& id, Token const& ref);

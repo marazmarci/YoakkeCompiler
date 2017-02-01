@@ -4,7 +4,7 @@
 namespace yk
 {
 	Expr::Expr()
-		: EvalType(nullptr)
+		: EvalType(nullptr), Enclose(' ')
 	{
 	}
 

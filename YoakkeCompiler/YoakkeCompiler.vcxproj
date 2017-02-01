@@ -119,6 +119,7 @@
     <ClCompile Include="src\Logging\LogStream.cpp" />
     <ClCompile Include="src\Parsing\ExprParser.cpp" />
     <ClCompile Include="src\Parsing\Lexer.cpp" />
+    <ClCompile Include="src\Parsing\Operator.cpp" />
     <ClCompile Include="src\Parsing\Parser.cpp" />
     <ClCompile Include="src\Parsing\Token.cpp" />
     <ClCompile Include="src\Semantics\ConstantEvaluator.cpp" />

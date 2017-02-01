@@ -307,51 +307,61 @@ namespace yk
 		return ret;
 	}
 
-	Operator* ExprParser::MaxPrec(std::vector<ExprElemR>& elems)
+	double ExprParser::MaxPrec(std::vector<ExprElemR>& elems)
 	{
-		Operator* maxop = nullptr;
 		double max = -1.0;
 		Operator* op;
 		for (auto& el : elems)
 		{
 			if ((op = el.GetOper()) && op->Precedence > max)
-			{
 				max = op->Precedence;
-				maxop = op;
-			}
 		}
-		return maxop;
+		return max;
 	}
 
 	bool ExprParser::ReduceOnce()
 	{
-		Operator* maxpr = MaxPrec(m_RStack);
-		if (maxpr)
+		double mp = MaxPrec(m_RStack);
+		if (mp >= 0)
 		{
-			if (UryOp* uryop = dynamic_cast<UryOp*>(maxpr))
+			// Left-to-right
+			for (std::size_t i = 0; i < m_RStack.size(); i++)
 			{
-				if (uryop->Fixity == FixityT::Prefix) ReducePrefix(uryop);
-				if (uryop->Fixity == FixityT::Postfix) ReducePostfix(uryop);
+				i -= ReduceSingle(i, false, mp);
 			}
-			if (BinOp* binop = dynamic_cast<BinOp*>(maxpr))
+			// Right-to-right
+			for (int i = m_RStack.size() - 1; i >= 0; i--)
 			{
-				ReduceInfix(binop);
+				 i-= ReduceSingle(i, true, mp);
 			}
 			return true;
 		}
 		return false;
 	}
 
-	void ExprParser::ReducePrefix(UryOp* op)
+	std::size_t ExprParser::ReduceSingle(std::size_t idx, bool right, double prec)
 	{
-		for (std::size_t i = 0; i < m_RStack.size(); i++)
+		Operator* op = m_RStack[idx].GetOper();
+		std::size_t offs = 0;
+		if (op && op->Precedence == prec)
 		{
-			auto& elem = m_RStack[i];
-			if (elem.GetOper() == op)
+			if (UryOp* uryop = dynamic_cast<UryOp*>(op))
 			{
-				ReducePrefixAt(i);
+				if (!right)
+				{
+					if (uryop->Fixity == FixityT::Prefix) ReducePrefixAt(idx);
+					if (uryop->Fixity == FixityT::Postfix) offs = ReducePostfixAt(idx);
+				}
+			}
+			if (BinOp* binop = dynamic_cast<BinOp*>(op))
+			{
+				if (binop->Assoc == AssocT::Left && !right) offs = ReduceInfixAt(idx);
+				if (binop->Assoc == AssocT::Right && right) offs = ReduceInfixAt(idx);
+
+				if (binop->Assoc == AssocT::Noassoc && !right) offs = ReduceInfixAt(idx);
 			}
 		}
+		return offs;
 	}
 
 	void ExprParser::ReducePrefixAt(std::size_t idx)
@@ -383,18 +393,6 @@ namespace yk
 		else
 		{
 			m_Parser.ErrorAt("No operand for prefix operator", begop.Reference);
-		}
-	}
-
-	void ExprParser::ReducePostfix(UryOp* op)
-	{
-		for (std::size_t i = 0; i < m_RStack.size(); i++)
-		{
-			auto& elem = m_RStack[i];
-			if (elem.GetOper() == op)
-			{
-				i -= ReducePostfixAt(i);
-			}
 		}
 	}
 
@@ -434,33 +432,22 @@ namespace yk
 		return 0;
 	}
 
-	void ExprParser::ReduceInfix(BinOp* op)
+	std::size_t ExprParser::ReduceInfixAt(std::size_t idx)
 	{
-		int dir = op->Assoc == AssocT::Left ? 1 : -1;
-		int start = op->Assoc == AssocT::Left ? 0 : (m_RStack.size() - 1);
-		int last = -3;
+		std::size_t ret = ReducePostfixAt(idx - 1);
+		ReducePrefixAt(idx + 1);
 
-		for (int i = start; i >= 0 && i < m_RStack.size(); i += dir)
-		{
-			auto& elem = m_RStack[i];
-			if (elem.GetOper() == op)
-			{
-				if (op->Assoc == AssocT::Noassoc && std::abs(last - i) == 2)
-				{
-					m_Parser.ErrorAt("Cannot chain non-associative operators!", elem.Reference);
-				}
-				last = i;
-				i -= ReducePostfixAt(i - 1);
-				ReducePrefixAt(i + 1);
-				Expr* exp =
-					new BinExpr(m_RStack[i - 1].GetExpr(), m_RStack[i + 1].GetExpr(), op, m_RStack[i].Reference);
+		BinOp* op = (BinOp*)m_RStack[idx].GetOper();
+		Expr* exp = new BinExpr(m_RStack[idx - 1].GetExpr(), 
+								m_RStack[idx + 1].GetExpr(), 
+								op, m_RStack[idx].Reference);
 
-				m_RStack.erase(m_RStack.begin() + (i - 1), m_RStack.begin() + (i + 2));
-				if (i - 1 == m_RStack.size())
-					m_RStack.push_back(exp);
-				else
-					m_RStack.insert(m_RStack.begin() + (i - 1), exp);
-			}
-		}
+		m_RStack.erase(m_RStack.begin() + (idx - 1), m_RStack.begin() + (idx + 2));
+		if (idx - 1 == m_RStack.size())
+			m_RStack.push_back(exp);
+		else
+			m_RStack.insert(m_RStack.begin() + (idx - 1), exp);
+
+		return ret;
 	}
 }

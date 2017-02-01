@@ -1,6 +1,8 @@
 #pragma once
 
+#include <functional>
 #include <string>
+#include <vector>
 
 namespace yk
 {
@@ -21,10 +23,7 @@ namespace yk
 		double Precedence;
 
 	public:
-		Operator(std::string const& sym, double prec)
-			: Symbol(sym), Precedence(prec)
-		{
-		}
+		Operator(std::string const& sym, double prec);
 
 	private:
 		virtual void __nothing() {}
@@ -36,10 +35,7 @@ namespace yk
 		FixityT Fixity;
 
 	public:
-		UryOp(std::string const& sym, double prec, FixityT fx)
-			: Operator(sym, prec), Fixity(fx)
-		{
-		}
+		UryOp(std::string const& sym, double prec, FixityT fx);
 	};
 
 	class BinOp : public Operator
@@ -48,9 +44,19 @@ namespace yk
 		AssocT Assoc;
 
 	public:
-		BinOp(std::string const& sym, double prec, AssocT as)
-			: Operator(sym, prec), Assoc(as)
-		{
-		}
+		BinOp(std::string const& sym, double prec, AssocT as);
+	};
+
+	class StackElemR;
+	typedef std::function<bool(std::vector<StackElemR*>&, std::size_t)> MFOpHere;
+	typedef std::function<std::size_t(std::vector<StackElemR*>&, std::size_t)> MFOpReduce;
+	class MixfixOp : public Operator
+	{
+	public:
+		MFOpHere Here;
+		MFOpReduce Reduce;
+
+	public:
+		MixfixOp(std::string const& sym, double prec, MFOpHere h, MFOpReduce r);
 	};
 }

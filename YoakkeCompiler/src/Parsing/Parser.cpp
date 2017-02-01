@@ -20,32 +20,34 @@ namespace yk
 		// Default operators ////////////////////////////////////////
 		AddInfixOp(BinOp("::", 0, AssocT::Noassoc));
 
-		AddInfixOp(BinOp("=", 1, AssocT::Right));
+		AddInfixOp(BinOp(",", 1, AssocT::Left));
+
+		AddInfixOp(BinOp("=", 2, AssocT::Right));
 		
-		AddInfixOp(BinOp("||", 2, AssocT::Left));
+		AddInfixOp(BinOp("||", 3, AssocT::Left));
 		
-		AddInfixOp(BinOp("&&", 3, AssocT::Left));
+		AddInfixOp(BinOp("&&", 4, AssocT::Left));
 
-		AddInfixOp(BinOp("==", 4, AssocT::Left));
-		AddInfixOp(BinOp("<>", 4, AssocT::Left));
+		AddInfixOp(BinOp("==", 5, AssocT::Left));
+		AddInfixOp(BinOp("<>", 5, AssocT::Left));
 
-		AddInfixOp(BinOp(">", 5, AssocT::Left));
-		AddInfixOp(BinOp("<", 5, AssocT::Left));
-		AddInfixOp(BinOp(">=", 5, AssocT::Left));
-		AddInfixOp(BinOp("<=", 5, AssocT::Left));
+		AddInfixOp(BinOp(">", 6, AssocT::Left));
+		AddInfixOp(BinOp("<", 6, AssocT::Left));
+		AddInfixOp(BinOp(">=", 6, AssocT::Left));
+		AddInfixOp(BinOp("<=", 6, AssocT::Left));
 
-		AddInfixOp(BinOp("+", 6, AssocT::Left));
-		AddInfixOp(BinOp("-", 6, AssocT::Left));
+		AddInfixOp(BinOp("+", 7, AssocT::Left));
+		AddInfixOp(BinOp("-", 7, AssocT::Left));
 
-		AddInfixOp(BinOp("*", 7, AssocT::Left));
-		AddInfixOp(BinOp("/", 7, AssocT::Left));
-		AddInfixOp(BinOp("%", 7, AssocT::Left));
+		AddInfixOp(BinOp("*", 8, AssocT::Left));
+		AddInfixOp(BinOp("/", 8, AssocT::Left));
+		AddInfixOp(BinOp("%", 8, AssocT::Left));
 
-		AddPrefixOp(UryOp("+", 8, FixityT::Prefix));
-		AddPrefixOp(UryOp("-", 8, FixityT::Prefix));
-		AddPrefixOp(UryOp("!", 8, FixityT::Prefix));
+		AddPrefixOp(UryOp("+", 9, FixityT::Prefix));
+		AddPrefixOp(UryOp("-", 9, FixityT::Prefix));
+		AddPrefixOp(UryOp("!", 9, FixityT::Prefix));
 
-		AddInfixOp(BinOp(".", 9, AssocT::Left));
+		AddInfixOp(BinOp(".", 10, AssocT::Left));
 		/////////////////////////////////////////////////////////////
 	}
 
@@ -163,6 +165,11 @@ namespace yk
 		m_PostfixOps.insert(std::make_pair(op.Symbol, op));
 	}
 
+	void Parser::AddMixfixOp(MixfixOp op)
+	{
+		m_MixfixOps.push_back(op);
+	}
+
 	UryOp* Parser::GetPrefixOp(std::string const& sym)
 	{
 		auto it = m_PrefixOps.find(sym);
@@ -278,6 +285,7 @@ namespace yk
 			Expr* exp = ParseSingleExpr();
 			if (exp)
 			{
+				exp->Enclose = '(';
 				if (Expect(")"))
 				{
 					return exp;
