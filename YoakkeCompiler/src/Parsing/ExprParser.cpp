@@ -324,6 +324,20 @@ namespace yk
 		double mp = MaxPrec(m_RStack);
 		if (mp >= 0)
 		{
+			// Check for noassoc sanity
+			std::size_t cnt = 0;
+			for (std::size_t i = 0; i < m_RStack.size(); i++)
+			{
+				if (BinOp* bop = dynamic_cast<BinOp*>(m_RStack[i].GetOper()))
+				{
+					if (cnt > 0)
+					{
+						m_Parser.ErrorAt("Cannot chain non-associative operators!", m_RStack[i].Reference);
+					}
+					cnt++;
+				}
+			}
+
 			// Left-to-right
 			for (std::size_t i = 0; i < m_RStack.size(); i++)
 			{
