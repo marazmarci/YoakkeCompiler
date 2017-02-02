@@ -112,7 +112,9 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\AST\Expr.cpp" />
-    <ClCompile Include="src\AST\FuncPrototype.cpp" />
+    <ClCompile Include="src\AST\Node.cpp" />
+    <ClCompile Include="src\Parsing\ExprElem.cpp" />
+    <ClCompile Include="src\Parsing\NodePos.cpp" />
     <ClCompile Include="src\AST\Stmt.cpp" />
     <ClCompile Include="src\AST\TypeDesc.cpp" />
     <ClCompile Include="src\Logging\Logger.cpp" />
@@ -136,7 +138,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AST\Expr.h" />
-    <ClInclude Include="src\AST\FuncPrototype.h" />
+    <ClInclude Include="src\AST\Node.h" />
+    <ClInclude Include="src\Parsing\NodePos.h" />
     <ClInclude Include="src\AST\Stmt.h" />
     <ClInclude Include="src\AST\TypeDesc.h" />
     <ClInclude Include="src\Logging\Logger.h" />

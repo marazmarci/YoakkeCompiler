@@ -5,7 +5,6 @@
 #include "Operator.h"
 #include "ParseState.h"
 #include "../AST/Expr.h"
-#include "../AST/FuncPrototype.h"
 #include "../AST/Stmt.h"
 #include "../AST/TypeDesc.h"
 #include "../Logging/Logger.h"
@@ -66,10 +65,10 @@ namespace yk
 		Expr* ParseSingleExpr();
 		Expr* ParseAtom();
 
-		ParamPair ParseParameter();
-		FuncPrototype* ParseFuncPrototype();
-		BlockExpr* ParseBlockExpr();
-		Expr* ParseFuncExpr();
+		Parameter		ParseParameter();
+		FuncHeaderExpr*	ParseFuncPrototype();
+		BlockExpr*		ParseBlockExpr();
+		Expr*			ParseFuncExpr();
 
 		TypeDesc* ParseType();
 	};

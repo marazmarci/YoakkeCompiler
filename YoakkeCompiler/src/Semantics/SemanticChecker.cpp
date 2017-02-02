@@ -3,7 +3,6 @@
 #include "ConstantEvaluator.h"
 #include "ConstantSymbol.h"
 #include "VarSymbol.h"
-#include "../AST/FuncPrototype.h"
 #include "../AST/TypeDesc.h"
 #include "../Utils/StringUtils.h"
 
@@ -51,7 +50,7 @@ namespace yk
 			{
 				typed = syms[0];
 			}
-			else if (ie->HintType)
+			if (ie->HintType)
 			{
 				auto syms2 = m_Table.FilterTyped(syms, ie->HintType);
 				cnt = syms2.size();
@@ -59,6 +58,8 @@ namespace yk
 				{
 					typed = syms2[0];
 				}
+				else
+					typed = nullptr;
 			}
 
 			if (typed)
@@ -68,11 +69,11 @@ namespace yk
 			}
 			else if (cnt == 0)
 			{
-				ErrorAt("Undefined identifier: '" + ie->Ident + "'!", ie->Reference);
+				ErrorAt("Undefined identifier: '" + ie->Ident + "'!", ie->Position);
 			}
 			else
 			{
-				ErrorAt("Identifier: '" + ie->Ident + "' is ambigous!", ie->Reference);
+				ErrorAt("Identifier: '" + ie->Ident + "' is ambigous!", ie->Position);
 			}
 		}
 		else if (BlockExpr* be = dynamic_cast<BlockExpr*>(exp))
@@ -87,24 +88,41 @@ namespace yk
 		}
 		else if (FuncHeaderExpr* fe = dynamic_cast<FuncHeaderExpr*>(exp))
 		{
-			auto sym = CheckPrototype(fe->Prototype);
-			fe->EvalType = sym;
+			Check(fe->ReturnType);
+			std::vector<TypeSymbol*> params;
+			for (auto p : fe->Parameters)
+			{
+				Check(p.Type);
+				params.push_back(p.Type->SymbolForm);
+			}
+			fe->EvalType = new FunctionTypeSymbol(params, fe->ReturnType->SymbolForm);
 		}
 		else if (FuncExpr* fe = dynamic_cast<FuncExpr*>(exp))
 		{
-			auto sym = CheckPrototype(fe->Prototype);
-			fe->EvalType = sym;
+			Check(fe->Prototype);
+			fe->EvalType = fe->EvalType;
 			FunctionScope* scope = new FunctionScope();
 			m_Table.PushScope(scope);
 			for (auto par : fe->Prototype->Parameters)
 			{
-				if (par.first.Value == "")
+				if (par.Value.Value == "")
 				{
-					WarnAt("Unnamed parameter can not be referenced!", par.first);
+					WarnAt("Unnamed parameter can not be referenced!", 
+						par.Value.GetPos());
 				}
 				else
 				{
-					m_Table.DeclSymbol(new ParamSymbol(par.first.Value, par.second->SymbolForm));
+					auto syms = m_Table.Filter<TypedSymbol>(m_Table.RefSymbol(par.Value.Value));
+					if (syms.size())
+					{
+						ErrorAt("Parameter '" + par.Value.Value + "' already declared!",
+							par.Value.GetPos());
+					}
+					else
+					{
+						m_Table.DeclSymbol(
+							new ParamSymbol(par.Value.Value, par.Type->SymbolForm));
+					}
 				}
 			}
 			Check(fe->Body);
@@ -119,7 +137,7 @@ namespace yk
 			auto LHS = be->LHS;
 			auto RHS = be->RHS;
 
-			if (be->OP->Symbol == "::")
+			if (be->OP.OP->Symbol == "::")
 			{
 				if (IdentExpr* ie = dynamic_cast<IdentExpr*>(LHS))
 				{
@@ -139,19 +157,19 @@ namespace yk
 						else
 						{
 							ErrorAt("Already declared (constant): '" + ie->Ident + "'!",
-								ie->Reference);
+								ie->Position);
 						}
 					}
 					else
 					{
 						ErrorAt("Right-hand side of constant binding must be a constant value!",
-							be->Reference);
+							be->OP);
 					}
 				}
 				else
 				{
 					ErrorAt("Left-hand side of constant binding must be an identifier!",
-						be->Reference);
+						be->OP);
 				}
 			}
 			else
@@ -165,18 +183,6 @@ namespace yk
 		}
 	}
 
-	TypeSymbol* SemanticChecker::CheckPrototype(FuncPrototype* proto)
-	{
-		Check(proto->ReturnType);
-		std::vector<TypeSymbol*> params;
-		for (auto p : proto->Parameters)
-		{
-			Check(p.second);
-			params.push_back(p.second->SymbolForm);
-		}
-		return new FunctionTypeSymbol(params, proto->ReturnType->SymbolForm);
-	}
-
 	void SemanticChecker::Check(TypeDesc* td)
 	{
 		if (IdentTypeDesc* id = dynamic_cast<IdentTypeDesc*>(td))
@@ -188,7 +194,7 @@ namespace yk
 			}
 			else
 			{
-				ErrorAt("Undefined type '" + id->Identifier + "'!", id->Reference);
+				ErrorAt("Undefined type '" + id->Identifier + "'!", id->Position);
 			}
 		}
 		else
@@ -197,21 +203,21 @@ namespace yk
 		}
 	}
 
-	void SemanticChecker::ErrorAt(std::string const& msg, Token const& t)
+	void SemanticChecker::ErrorAt(std::string const& msg, NodePos const& t)
 	{
-		std::size_t len = t.Value.size();
-		std::size_t pos = t.Column - len;
+		std::size_t len = t.EndX - t.StartX;
+		std::size_t pos = t.StartX;
 		m_Logger.log() << "Semantic error "
 			<< StringUtils::Position(t) << log::endl
-			<< StringUtils::GetLine(m_Src, t.Row)
+			<< StringUtils::GetLine(m_Src, t.StartY)
 			<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
 			<< msg << log::endlog;
 	}
 
-	void SemanticChecker::WarnAt(std::string const& msg, Token const& t)
+	void SemanticChecker::WarnAt(std::string const& msg, NodePos const& t)
 	{
-		std::size_t len = t.Value.size();
-		std::size_t pos = t.Column - len;
+		std::size_t len = t.EndX - t.StartX;
+		std::size_t pos = t.StartX;
 		m_Logger.log() << "Warn "
 			<< StringUtils::Position(t) << log::endl
 			<< msg << log::endlog;

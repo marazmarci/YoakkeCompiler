@@ -396,7 +396,9 @@ namespace yk
 			for (j--; (int)idx <= j; j--)
 			{
 				cnt++;
-				exp = new UryExpr(exp, (UryOp*)m_RStack[j].GetOper());
+				Token const& tok = m_RStack[j].Reference;
+				exp = new UryExpr(exp, 
+					OperPos(tok.Column, tok.Row, m_RStack[j].GetOper()));
 			}
 			m_RStack.erase(m_RStack.begin() + idx, m_RStack.begin() + idx + cnt + 1);
 			if (idx == m_RStack.size())
@@ -429,7 +431,9 @@ namespace yk
 			for (j++; j <= idx; j++)
 			{
 				cnt++;
-				exp = new UryExpr(exp, (UryOp*)m_RStack[j].GetOper());
+				Token const& tok = m_RStack[j].Reference;
+				exp = new UryExpr(exp, 
+					OperPos(tok.Column, tok.Row, m_RStack[j].GetOper()));
 			}
 			m_RStack.erase(m_RStack.begin() + (idx - cnt), m_RStack.begin() + idx + 1);
 			if (idx - cnt == m_RStack.size())
@@ -451,10 +455,11 @@ namespace yk
 		std::size_t ret = ReducePostfixAt(idx - 1);
 		ReducePrefixAt(idx + 1);
 
+		Token const& tok = m_RStack[idx].Reference;
 		BinOp* op = (BinOp*)m_RStack[idx].GetOper();
 		Expr* exp = new BinExpr(m_RStack[idx - 1].GetExpr(), 
 								m_RStack[idx + 1].GetExpr(), 
-								op, m_RStack[idx].Reference);
+								OperPos(tok.Column, tok.Row, op));
 
 		m_RStack.erase(m_RStack.begin() + (idx - 1), m_RStack.begin() + (idx + 2));
 		if (idx - 1 == m_RStack.size())

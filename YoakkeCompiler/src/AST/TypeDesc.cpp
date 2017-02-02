@@ -2,13 +2,18 @@
 
 namespace yk
 {
-	TypeDesc::TypeDesc()
-		: SymbolForm(nullptr)
+	TypeDesc::TypeDesc(NodePos const& p)
+		: Node(p), SymbolForm(nullptr)
 	{
 	}
 
-	IdentTypeDesc::IdentTypeDesc(std::string const& id, Token const& ref)
-		: Identifier(id), Reference(ref)
+	TypeDesc::~TypeDesc()
+	{
+	}
+
+	IdentTypeDesc::IdentTypeDesc(Token const& ref)
+		: TypeDesc(NodePos(ref.Column, ref.Row, ref.Column + ref.Value.size(), ref.Row)), 
+		Identifier(ref.Value)
 	{
 	}
 
@@ -16,7 +21,7 @@ namespace yk
 	{
 	}
 
-	std::string IdentTypeDesc::ToString()
+	std::string IdentTypeDesc::ToXML()
 	{
 		return "<IdentTypeDesc id=\"" + Identifier + "\"/>";
 	}

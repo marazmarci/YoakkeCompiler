@@ -22,10 +22,10 @@ namespace yk
 			return res;
 		}
 
-		std::string Position(Token const& t)
+		std::string Position(NodePos const& t)
 		{
-			return "at line " + std::to_string(t.Row) +
-				", character " + std::to_string(t.Column);
+			return "at line " + std::to_string(t.StartY) +
+				", character " + std::to_string(t.StartX);
 		}
 	}
 }

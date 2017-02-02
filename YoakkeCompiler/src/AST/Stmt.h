@@ -1,18 +1,19 @@
 #pragma once
 
 #include <string>
+#include "Node.h"
+#include "../Parsing/Token.h"
+#include "../Parsing/NodePos.h"
 
 namespace yk
 {
 	class Expr;
 
-	class Stmt
+	class Stmt : public Node
 	{
 	public:
-		virtual ~Stmt() { }
-
-	public:
-		virtual std::string ToString() = 0;
+		Stmt(NodePos const& p);
+		virtual ~Stmt();
 	};
 
 	class ExprStmt : public Stmt
@@ -22,10 +23,10 @@ namespace yk
 		bool Semicol;
 
 	public:
-		ExprStmt(Expr* s, bool sc);
+		ExprStmt(Expr* s, Token* sc);
 		virtual ~ExprStmt();
 
 	public:
-		virtual std::string ToString() override;
+		virtual std::string ToXML() override;
 	};
 }

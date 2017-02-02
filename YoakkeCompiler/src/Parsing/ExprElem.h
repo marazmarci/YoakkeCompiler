@@ -18,27 +18,12 @@ namespace yk
 		Expr* Exp;
 
 	public:
-		ExprElem(Token top)
-			: Tag(ExprElemT::Oper), Oper(top), Exp(nullptr)
-		{
-		}
+		ExprElem(Token top);
+		ExprElem(Expr* e);
 
-		ExprElem(Expr* e)
-			: Tag(ExprElemT::Expr), Exp(e), Oper(Token(TokenT::Epsilon, "", 0, 0))
-		{
-		}
-
-		inline Token* GetOper()
-		{
-			if (Tag == ExprElemT::Oper) return &Oper;
-			return nullptr;
-		}
-
-		inline Expr* GetExpr()
-		{
-			if (Tag == ExprElemT::Expr) return Exp;
-			return nullptr;
-		}
+	public:
+		Token* GetOper();
+		Expr* GetExpr();
 	};
 
 	class ExprElemR
@@ -49,27 +34,11 @@ namespace yk
 		Token Reference;
 
 	public:
-		ExprElemR(Expr* e)
-			: Tag(ExprElemT::Expr), Value(e), Reference(Token(TokenT::Epsilon, "", 0, 0))
-		{
-		}
-
-		ExprElemR(Operator* o, Token const& r)
-			: Tag(ExprElemT::Oper), Value(o), Reference(r)
-		{
-		}
+		ExprElemR(Expr* e);
+		ExprElemR(Operator* o, Token const& r);
 
 	public:
-		Expr* GetExpr()
-		{
-			if (Tag == ExprElemT::Expr) return (Expr*)Value;
-			return nullptr;
-		}
-
-		Operator* GetOper()
-		{
-			if (Tag == ExprElemT::Oper) return (Operator*)Value;
-			return nullptr;
-		}
+		Expr* GetExpr();
+		Operator* GetOper();
 	};
 }

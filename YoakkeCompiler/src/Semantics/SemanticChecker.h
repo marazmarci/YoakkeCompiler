@@ -25,9 +25,7 @@ namespace yk
 		void Check(TypeDesc* td);
 
 	private:
-		TypeSymbol* CheckPrototype(FuncPrototype* proto);
-
-		void ErrorAt(std::string const& msg, Token const& t);
-		void WarnAt(std::string const& msg, Token const& t);
+		void ErrorAt(std::string const& msg, NodePos const& t);
+		void WarnAt(std::string const& msg, NodePos const& t);
 	};
 }

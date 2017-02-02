@@ -6,4 +6,9 @@ namespace yk
 		: Type(tt), Value(v), Row(r), Column(c)
 	{
 	}
+
+	NodePos Token::GetPos() const
+	{
+		return NodePos(Column, Row, Column + Value.size(), Row);
+	}
 }
