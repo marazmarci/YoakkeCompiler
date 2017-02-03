@@ -100,7 +100,7 @@ namespace yk
 		else if (FuncExpr* fe = dynamic_cast<FuncExpr*>(exp))
 		{
 			Check(fe->Prototype);
-			fe->EvalType = fe->EvalType;
+			fe->EvalType = fe->Prototype->EvalType;
 			FunctionScope* scope = new FunctionScope();
 			m_Table.PushScope(scope);
 			for (auto par : fe->Prototype->Parameters)

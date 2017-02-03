@@ -430,6 +430,7 @@ namespace yk
 			if (Same("}"))
 			{
 				Token end = m_CurrentToken;
+				Next();
 				return new BlockExpr(stmts, 
 					NodePos(beg.Column, beg.Row, end.Column + end.Value.size(), end.Row));
 			}

@@ -20,7 +20,8 @@ namespace yk
 		Scope();
 
 	public:
-		std::vector<Symbol*>* Reference(std::string const& id);
+		virtual std::vector<Symbol*>* Reference(std::string const& id);
+		std::vector<Symbol*>* ReferenceGlobal(std::string const& id);
 		void Declare(Symbol* s);
 	};
 
@@ -34,5 +35,8 @@ namespace yk
 	{
 	public:
 		FunctionScope();
+
+	public:
+		virtual std::vector<Symbol*>* Reference(std::string const& id) override;
 	};
 }

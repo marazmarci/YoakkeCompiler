@@ -325,6 +325,7 @@ namespace yk
 		if (mp >= 0)
 		{
 			// Check for noassoc sanity
+			/*
 			std::size_t cnt = 0;
 			for (std::size_t i = 0; i < m_RStack.size(); i++)
 			{
@@ -336,7 +337,7 @@ namespace yk
 					}
 					cnt++;
 				}
-			}
+			}*/
 
 			// Left-to-right
 			for (std::size_t i = 0; i < m_RStack.size(); i++)
