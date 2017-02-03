@@ -32,8 +32,8 @@ namespace yk
 	{
 		Name = "@f " + std::to_string(Parameters.size()) + ' ';
 		for (TypeSymbol* ts : Parameters)
-			Name += '(' + ts->Name + ") ";
-		Name += "r (" + rt->Name + ")@e";
+			Name += "@p(" + ts->Name + ") ";
+		Name += "@r(" + rt->Name + ") @e";
 	}
 
 	bool FunctionTypeSymbol::Same(TypeSymbol* other)

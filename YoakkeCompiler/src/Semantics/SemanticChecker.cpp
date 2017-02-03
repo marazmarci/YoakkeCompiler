@@ -153,7 +153,7 @@ namespace yk
 
 						if (same.empty())
 						{
-							m_Table.DeclSymbol(new ConstantSymbol(ident, rval));
+							m_Table.DeclSymbol(new UserConstantSymbol(ident, rval));
 						}
 						else
 						{
@@ -175,7 +175,26 @@ namespace yk
 			}
 			else
 			{
-				std::cout << "UNCOVERED BINOP" << std::endl;
+				Check(LHS);
+				Check(RHS);
+				yvec<TypeSymbol*> args = { LHS->EvalType, RHS->EvalType };
+
+				ystr op = be->OP->OP->Symbol;
+				// Check for a function
+				auto syms = m_Table.Filter<ConstantSymbol>(m_Table.RefSymbol(op));
+				auto funs = m_Table.FilterArgs(syms, args);
+				if (funs.size() == 1)
+				{
+					be->EvalType = ((FunctionTypeSymbol*)funs[0]->Type)->ReturnType;
+				}
+				else if (funs.size() == 0)
+				{
+					ErrorAt("No operator '" + op + "' defined for operands!", be->Position);
+				}
+				else
+				{
+					std::cout << "SANITY ERROR" << std::endl;
+				}
 			}
 		}
 		else
@@ -208,10 +227,11 @@ namespace yk
 	{
 		ysize len = t.EndX - t.StartX;
 		ysize pos = t.StartX;
+		ystr ln = StringUtils::GetLine(m_Src, t.StartY);
 		m_Logger.log() << "Semantic error "
 			<< StringUtils::Position(t) << log::endl
-			<< StringUtils::GetLine(m_Src, t.StartY)
-			<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
+			<< ln
+			<< log::endl << StringUtils::GenArrow(pos, len, ln) << log::endl
 			<< msg << log::endlog;
 	}
 

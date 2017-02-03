@@ -179,5 +179,8 @@
     <ClInclude Include="src\Utils\XMLNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Semantics\Builtin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

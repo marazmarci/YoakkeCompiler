@@ -153,6 +153,7 @@
     <ClInclude Include="src\Parsing\ParseState.h" />
     <ClInclude Include="src\Parsing\Token.h" />
     <ClInclude Include="src\Parsing\Operator.h" />
+    <ClInclude Include="src\Semantics\Builtin.h" />
     <ClInclude Include="src\Semantics\ConstantEvaluator.h" />
     <ClInclude Include="src\Semantics\ConstantSymbol.h" />
     <ClInclude Include="src\Semantics\Scope.h" />

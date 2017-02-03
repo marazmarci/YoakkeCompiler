@@ -1,4 +1,5 @@
 #include <sstream>
+#include <cctype>
 #include "StringUtils.h"
 
 namespace yk
@@ -14,10 +15,16 @@ namespace yk
 			return ret;
 		}
 
-		ystr GenArrow(ysize offs, ysize len)
+		ystr GenArrow(ysize offs, ysize len, ystr const& ref)
 		{
 			ystr res = "";
-			while (offs--) res += ' ';
+			for (ysize i = 0; i < offs; i++)
+			{
+				if (std::isspace(ref[i]))
+					res += ref[i];
+				else
+					res += ' ';
+			}
 			while (len--) res += '^';
 			return res;
 		}

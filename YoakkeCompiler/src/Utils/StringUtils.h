@@ -9,7 +9,7 @@ namespace yk
 	namespace StringUtils
 	{
 		ystr GetLine(ystr const& orig, ysize idx);
-		ystr GenArrow(ysize offs, ysize len);
+		ystr GenArrow(ysize offs, ysize len, ystr const& ref);
 		ystr Position(NodePos const& t);
 	}
 }

@@ -7,6 +7,7 @@ namespace yk
 {
 	class TypeSymbol;
 	class TypedSymbol;
+	class ConstantSymbol;
 
 	class SymbolTable
 	{
@@ -26,6 +27,7 @@ namespace yk
 		void DeclSymbol(Symbol* sym);
 
 		yvec<TypedSymbol*> FilterTyped(yvec<TypedSymbol*>& syms, TypeSymbol* match);
+		yvec<ConstantSymbol*> FilterArgs(yvec<ConstantSymbol*>& syms, yvec<TypeSymbol*>& args);
 
 		inline bool GlobalScope() { return m_Current == m_Root; }
 

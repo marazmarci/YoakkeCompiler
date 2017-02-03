@@ -2,6 +2,7 @@
 #include "SymbolTable.h"
 #include "ConstantSymbol.h"
 #include "TypedSymbol.h"
+#include "Builtin.h"
 
 namespace yk
 {
@@ -11,10 +12,19 @@ namespace yk
 		m_Current = m_Root;
 	}
 
+	static BuiltinConstantSymbol* make_oper(ystr const& n, TypeSymbol* par, TypeSymbol* ret)
+	{
+		yvec<TypeSymbol*> pars = { par, par };
+		FunctionTypeSymbol* type = new FunctionTypeSymbol(pars, ret);
+		return new BuiltinConstantSymbol(n, type);
+	}
+
 	void SymbolTable::Init()
 	{
-		DeclSymbol(new BuiltinTypeSymbol("unit"));
-		DeclSymbol(new BuiltinTypeSymbol("i32"));
+		DeclSymbol(Builtin::UNIT = new BuiltinTypeSymbol("unit"));
+		DeclSymbol(Builtin::I32 = new BuiltinTypeSymbol("i32"));
+
+		//DeclSymbol(make_oper("+", Builtin::I32, Builtin::I32));
 	}
 
 	void SymbolTable::PushScope(Scope* sc)
@@ -51,5 +61,31 @@ namespace yk
 				res.push_back(s);
 		}
 		return res;
+	}
+
+	yvec<ConstantSymbol*> SymbolTable::FilterArgs(yvec<ConstantSymbol*>& syms, yvec<TypeSymbol*>& args)
+	{
+		yvec<ConstantSymbol*> ret;
+		for (auto s : syms)
+		{
+			if (auto* ft = dynamic_cast<FunctionTypeSymbol*>(s->Type))
+			{
+				if (ft->Parameters.size() == args.size())
+				{
+					bool match = true;
+					for (ysize i = 0; i < args.size(); i++)
+					{
+						if (!ft->Parameters[i]->Same(args[i]))
+						{
+							match = false;
+							break;
+						}
+					}
+					if (match)
+						ret.push_back(s);
+				}
+			}
+		}
+		return ret;
 	}
 }

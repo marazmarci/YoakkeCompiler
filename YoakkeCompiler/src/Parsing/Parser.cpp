@@ -95,10 +95,11 @@ namespace yk
 	{
 		ysize len = t.Value.size();
 		ysize pos = t.Column;
+		ystr ln = StringUtils::GetLine(m_Lexer.m_Buffer, t.Row);
 		m_Logger.log() << "Syntax error "
 			<< StringUtils::Position(NodePos::Get(t)) << log::endl
-			<< StringUtils::GetLine(m_Lexer.m_Buffer, t.Row)
-			<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
+			<< ln
+			<< log::endl << StringUtils::GenArrow(pos, len, ln) << log::endl
 			<< msg << log::endlog;
 	}
 
@@ -120,10 +121,11 @@ namespace yk
 		}
 		else
 		{
+			ystr ln = StringUtils::GetLine(m_Lexer.m_Buffer, t.Row);
 			m_Logger.log() << "Syntax error "
 				<< StringUtils::Position(NodePos::Get(t)) << log::endl
-				<< StringUtils::GetLine(m_Lexer.m_Buffer, t.Row)
-				<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
+				<< ln
+				<< log::endl << StringUtils::GenArrow(pos, len, ln) << log::endl
 				<< ex << " expected, found " << fnd
 				<< '.' << log::endlog;
 		}
