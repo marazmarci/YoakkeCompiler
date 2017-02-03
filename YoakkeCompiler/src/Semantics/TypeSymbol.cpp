@@ -50,16 +50,28 @@ namespace yk
 		return false;
 	}
 
-	TupleTypeSymbol::TupleTypeSymbol(TypeSymbol* l, TypeSymbol* r)
-		: TypeSymbol("@t(" + l->Name + "," + r->Name + ')'), LHS(l), RHS(r)
+	TupleTypeSymbol::TupleTypeSymbol(yvec<TypeSymbol*> const& ls)
+		: TypeSymbol(""), Types(ls)
 	{
+		ystr name = "@t(";
+		for (auto t : ls) name += t->Name + ",";
+		name += ')';
+		Name = name;
 	}
 
 	bool TupleTypeSymbol::Same(TypeSymbol* other)
 	{
 		if (auto t = dynamic_cast<TupleTypeSymbol*>(other))
 		{
-			return LHS->Same(t->LHS) && RHS->Same(t->RHS);
+			if (t->Types.size() == Types.size())
+			{
+				for (ysize i = 0; i < Types.size(); i++)
+				{
+					if (!Types[i]->Same(t->Types[i])) 
+						return false;
+				}
+				return true;
+			}
 		}
 		return false;
 	}

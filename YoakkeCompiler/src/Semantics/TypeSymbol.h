@@ -48,11 +48,10 @@ namespace yk
 	class TupleTypeSymbol : public TypeSymbol
 	{
 	public:
-		TypeSymbol* LHS;
-		TypeSymbol* RHS;
+		yvec<TypeSymbol*> Types;
 
 	public:
-		TupleTypeSymbol(TypeSymbol* l, TypeSymbol* r);
+		TupleTypeSymbol(yvec<TypeSymbol*> const& ls);
 
 	public:
 		bool Same(TypeSymbol* other) override;

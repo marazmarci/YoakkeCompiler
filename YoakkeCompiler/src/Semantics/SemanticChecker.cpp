@@ -175,9 +175,29 @@ namespace yk
 			}
 			else if (be->OP->OP->Symbol == ",")
 			{
-				Check(LHS);
 				Check(RHS);
-				be->EvalType = new TupleTypeSymbol(LHS->EvalType, RHS->EvalType);
+				Expr* exp = LHS;
+				yvec<TypeSymbol*> types;
+				types.push_back(RHS->EvalType);
+				// Flatten
+				while (true)
+				{
+					BinExpr* r;
+					if ((r = dynamic_cast<BinExpr*>(exp)) && r->OP->OP->Symbol == ",")
+					{
+						Check(r->RHS);
+						types.push_back(r->RHS->EvalType);
+						exp = r->LHS;
+					}
+					else
+					{
+						Check(exp);
+						types.push_back(exp->EvalType);
+						break;
+					}
+				}
+
+				be->EvalType = new TupleTypeSymbol(types);
 			}
 			else
 			{

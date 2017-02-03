@@ -465,6 +465,6 @@ namespace yk
 		else
 			m_RStack.insert(m_RStack.begin() + (idx - 1), exp);
 
-		return ret;
+		return ret + 1;
 	}
 }
