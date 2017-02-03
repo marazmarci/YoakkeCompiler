@@ -210,4 +210,30 @@ namespace yk
 		node->Children.push_back(Sub->ToXML());
 		return node;
 	}
+
+	// Variable introduction
+	LetExpr::LetExpr(Expr* lv, TypeDesc* td, Expr* val, NodePos const& p)
+		: Expr(p), Lvalue(lv), Type(td), Value(val)
+	{
+	}
+
+	LetExpr::~LetExpr()
+	{
+		delete Lvalue;
+		if (Type)
+			delete Type;
+		if (Value)
+			delete Value;
+	}
+
+	XMLNode* LetExpr::ToXML()
+	{
+		auto node = new XMLNode("LetExpr");
+		node->Children.push_back(Lvalue->ToXML());
+		if (Type)
+			node->Children.push_back(Type->ToXML());
+		if (Value)
+			node->Children.push_back(Value->ToXML());
+		return node;
+	}
 }

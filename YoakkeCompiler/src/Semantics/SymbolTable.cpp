@@ -24,7 +24,7 @@ namespace yk
 		DeclSymbol(Builtin::UNIT = new BuiltinTypeSymbol("unit"));
 		DeclSymbol(Builtin::I32 = new BuiltinTypeSymbol("i32"));
 
-		//DeclSymbol(make_oper("+", Builtin::I32, Builtin::I32));
+		DeclSymbol(make_oper("+", Builtin::I32, Builtin::I32));
 	}
 
 	void SymbolTable::PushScope(Scope* sc)

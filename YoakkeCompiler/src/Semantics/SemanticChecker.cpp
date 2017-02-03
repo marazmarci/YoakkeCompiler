@@ -173,6 +173,12 @@ namespace yk
 						be->LHS->Position);
 				}
 			}
+			else if (be->OP->OP->Symbol == ",")
+			{
+				Check(LHS);
+				Check(RHS);
+				be->EvalType = new TupleTypeSymbol(LHS->EvalType, RHS->EvalType);
+			}
 			else
 			{
 				Check(LHS);

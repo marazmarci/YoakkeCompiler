@@ -44,4 +44,17 @@ namespace yk
 	public:
 		bool Same(TypeSymbol* other) override;
 	};
+
+	class TupleTypeSymbol : public TypeSymbol
+	{
+	public:
+		TypeSymbol* LHS;
+		TypeSymbol* RHS;
+
+	public:
+		TupleTypeSymbol(TypeSymbol* l, TypeSymbol* r);
+
+	public:
+		bool Same(TypeSymbol* other) override;
+	};
 }

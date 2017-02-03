@@ -176,4 +176,20 @@ namespace yk
 	public:
 		virtual XMLNode* ToXML() override;
 	};
+
+	// Variable declaration (+ definition)
+	class LetExpr : public Expr
+	{
+	public:
+		Expr* Lvalue;
+		TypeDesc* Type;
+		Expr* Value;
+
+	public:
+		LetExpr(Expr* lv, TypeDesc* td, Expr* val, NodePos const& p);
+		virtual ~LetExpr();
+
+	public:
+		virtual XMLNode* ToXML() override;
+	};
 }

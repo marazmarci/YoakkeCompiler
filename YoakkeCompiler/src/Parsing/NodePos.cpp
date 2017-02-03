@@ -21,7 +21,12 @@ namespace yk
 		return NodePos(bp.StartX, bp.StartY, ep.EndX, ep.EndY);
 	}
 
-	NodePos NodePos::Join(Expr* a, Expr* b)
+	NodePos NodePos::Interval(NodePos const& beg, NodePos const& end)
+	{
+		return NodePos(beg.StartX, beg.StartY, end.EndX, end.EndY);
+	}
+
+	NodePos NodePos::Join(Node* a, Node* b)
 	{
 		auto& apos = a->Position;
 		auto& bpos = b->Position;

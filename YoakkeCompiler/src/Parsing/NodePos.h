@@ -6,7 +6,7 @@
 namespace yk
 {
 	class Token;
-	class Expr;
+	class Node;
 
 	class NodePos
 	{
@@ -22,6 +22,7 @@ namespace yk
 	public:
 		static NodePos Get(Token const& tok);
 		static NodePos Interval(Token const& beg, Token const& end);
-		static NodePos Join(Expr* a, Expr* b);
+		static NodePos Interval(NodePos const& beg, NodePos const& end);
+		static NodePos Join(Node* a, Node* b);
 	};
 }

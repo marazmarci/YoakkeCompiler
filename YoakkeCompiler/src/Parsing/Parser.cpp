@@ -14,8 +14,8 @@ namespace yk
 		m_Lexer.AddLexeme(")", TokenT::Keyword);
 		m_Lexer.AddLexeme("{", TokenT::Keyword);
 		m_Lexer.AddLexeme("}", TokenT::Keyword);
-		m_Lexer.AddLexeme(",", TokenT::Keyword);
 		m_Lexer.AddLexeme("->", TokenT::Keyword);
+		m_Lexer.AddLexeme("let", TokenT::Keyword);
 
 		// Default operators ////////////////////////////////////////
 		AddInfixOp(BinOp("::", 0, AssocT::Noassoc));
@@ -316,6 +316,48 @@ namespace yk
 			Token curr = m_CurrentToken;
 			Next();
 			return new IdentExpr(curr);
+		}
+		else if (Same("let"))
+		{
+			NodePos curr = NodePos::Get(m_CurrentToken);
+			Next();
+			Expr* lval = ParseSingleExpr();
+			if (lval)
+			{
+				NodePos last = lval->Position;
+				TypeDesc* type = nullptr;
+				if (Match(":"))
+				{
+					type = ParseType();
+					if (!type)
+					{
+						ExpectError("Type", DumpCurrentTok());
+					}
+					else
+					{
+						last = type->Position;
+					}
+				}
+				Expr* rval = nullptr;
+				if (Match("="))
+				{
+					rval = ParseSingleExpr();
+					if (!rval)
+					{
+						ExpectError("Expression", DumpCurrentTok());
+					}
+					else
+					{
+						last = rval->Position;
+					}
+				}
+				return new LetExpr(lval, type, rval,
+					NodePos::Interval(curr, last));
+			}
+			else
+			{
+				ExpectError("Lvalue", DumpCurrentTok());
+			}
 		}
 
 		return nullptr;

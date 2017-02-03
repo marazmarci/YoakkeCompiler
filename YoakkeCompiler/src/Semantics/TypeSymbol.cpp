@@ -23,7 +23,6 @@ namespace yk
 		{
 			return Name == other->Name;
 		}
-
 		return false;
 	}
 
@@ -48,7 +47,20 @@ namespace yk
 			}
 			return true;
 		}
+		return false;
+	}
 
+	TupleTypeSymbol::TupleTypeSymbol(TypeSymbol* l, TypeSymbol* r)
+		: TypeSymbol("@t(" + l->Name + "," + r->Name + ')'), LHS(l), RHS(r)
+	{
+	}
+
+	bool TupleTypeSymbol::Same(TypeSymbol* other)
+	{
+		if (auto t = dynamic_cast<TupleTypeSymbol*>(other))
+		{
+			return LHS->Same(t->LHS) && RHS->Same(t->RHS);
+		}
 		return false;
 	}
 }
