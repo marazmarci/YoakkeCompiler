@@ -44,9 +44,9 @@ namespace yk
 		else if (IdentExpr* ie = dynamic_cast<IdentExpr*>(exp))
 		{
 			TypedSymbol* typed = nullptr;
-			ysize cnt = 0;
+
 			auto syms = m_Table.Filter<TypedSymbol>(m_Table.RefSymbol(ie->Ident));
-			cnt = syms.size();
+			ysize cnt = syms.size();
 			if (cnt == 1)
 			{
 				typed = syms[0];

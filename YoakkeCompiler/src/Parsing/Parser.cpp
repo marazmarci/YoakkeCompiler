@@ -358,13 +358,21 @@ namespace yk
 		if (Match(":"))
 		{
 			type = ParseType();
+			if (type)
+			{
+				return new ParamExpr(gotid ? &ident : nullptr, type);
+			}
+			else
+			{
+				ExpectError("Type", DumpCurrentTok());
+			}
 		}
-		else if (name.length())
+		else if (gotid)
 		{
 			ExpectError("Type", DumpCurrentTok());
 		}
 
-		return new ParamExpr(gotid ? &ident : nullptr, type);
+		return nullptr;
 	}
 
 	FuncHeaderExpr* Parser::ParseFuncPrototype()
@@ -374,13 +382,13 @@ namespace yk
 		{
 			yvec<ParamExpr*> params;
 			auto par = ParseParameter();
-			if (par->Type)
+			if (par)
 			{
 				params.push_back(par);
 				while (Match(","))
 				{
 					par = ParseParameter();
-					if (par->Type)
+					if (par)
 					{
 						params.push_back(par);
 					}
