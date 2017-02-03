@@ -325,19 +325,17 @@ namespace yk
 		if (mp >= 0)
 		{
 			// Check for noassoc sanity
-			/*
-			std::size_t cnt = 0;
-			for (std::size_t i = 0; i < m_RStack.size(); i++)
+			for (int i = 0; i < m_RStack.size() - 2; i++)
 			{
-				if (BinOp* bop = dynamic_cast<BinOp*>(m_RStack[i].GetOper()))
+				BinOp* aop;
+				BinOp* bop;
+				if ((aop = dynamic_cast<BinOp*>(m_RStack[i].GetOper())) &&
+					(bop = dynamic_cast<BinOp*>(m_RStack[i + 2].GetOper())) &&
+					aop->Assoc == AssocT::Noassoc && bop->Assoc == AssocT::Noassoc)
 				{
-					if (cnt > 0)
-					{
-						m_Parser.ErrorAt("Cannot chain non-associative operators!", m_RStack[i].Reference);
-					}
-					cnt++;
+					m_Parser.ErrorAt("Cannot chain non-associative operators!", m_RStack[i + 2].Reference);
 				}
-			}*/
+			}
 
 			// Left-to-right
 			for (std::size_t i = 0; i < m_RStack.size(); i++)

@@ -94,7 +94,7 @@ namespace yk
 	void Parser::ErrorAt(std::string const& msg, Token const& t)
 	{
 		std::size_t len = t.Value.size();
-		std::size_t pos = t.Column - len;
+		std::size_t pos = t.Column;
 		m_Logger.log() << "Syntax error "
 			<< StringUtils::Position(t.GetPos()) << log::endl
 			<< StringUtils::GetLine(m_Lexer.m_Buffer, t.Row)
