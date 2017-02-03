@@ -12,6 +12,6 @@ namespace yk
 		Expr* Value;
 
 	public:
-		ConstantSymbol(std::string const& nm, Expr* val);
+		ConstantSymbol(ystr const& nm, Expr* val);
 	};
 }

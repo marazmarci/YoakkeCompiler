@@ -1,29 +1,27 @@
 #pragma once
 
 #include <cstddef>
+#include "../Types.h"
 
 namespace yk
 {
-	class Operator;
+	class Token;
+	class Expr;
 
-	struct NodePos
+	class NodePos
 	{
 	public:
-		std::size_t StartX;
-		std::size_t StartY;
-		std::size_t EndX;
-		std::size_t EndY;
+		ysize StartX;
+		ysize StartY;
+		ysize EndX;
+		ysize EndY;
 
 	public:
-		NodePos(std::size_t sx, std::size_t sy, std::size_t ex, std::size_t ey);
-	};
-
-	struct OperPos : public NodePos
-	{
-	public:
-		Operator* OP;
+		NodePos(ysize sx, ysize sy, ysize ex, ysize ey);
 
 	public:
-		OperPos(std::size_t sx, std::size_t sy, Operator* o);
+		static NodePos Get(Token const& tok);
+		static NodePos Interval(Token const& beg, Token const& end);
+		static NodePos Join(Expr* a, Expr* b);
 	};
 }

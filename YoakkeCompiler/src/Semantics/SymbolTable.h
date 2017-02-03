@@ -22,17 +22,17 @@ namespace yk
 
 		void PushScope(Scope* sc);
 		void PopScope();
-		std::vector<Symbol*>* RefSymbol(std::string const& id);
+		yvec<Symbol*>* RefSymbol(ystr const& id);
 		void DeclSymbol(Symbol* sym);
 
-		std::vector<TypedSymbol*> FilterTyped(std::vector<TypedSymbol*>& syms, TypeSymbol* match);
+		yvec<TypedSymbol*> FilterTyped(yvec<TypedSymbol*>& syms, TypeSymbol* match);
 
 		inline bool GlobalScope() { return m_Current == m_Root; }
 
 		template <typename T>
-		std::vector<T*> Filter(std::vector<Symbol*>* syms)
+		yvec<T*> Filter(yvec<Symbol*>* syms)
 		{
-			std::vector<T*> ret;
+			yvec<T*> ret;
 			if (syms)
 			{
 				for (auto s : *syms)
@@ -45,7 +45,7 @@ namespace yk
 		}
 
 		template <typename T>
-		T* FilterSingle(std::string const& id)
+		T* FilterSingle(ystr const& id)
 		{
 			auto set = Filter<T>(RefSymbol(id));
 			if (set.size() == 1)

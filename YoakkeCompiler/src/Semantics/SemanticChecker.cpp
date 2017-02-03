@@ -3,6 +3,7 @@
 #include "ConstantEvaluator.h"
 #include "ConstantSymbol.h"
 #include "VarSymbol.h"
+#include "../Parsing/Operator.h"
 #include "../AST/TypeDesc.h"
 #include "../Utils/StringUtils.h"
 
@@ -14,7 +15,7 @@ namespace yk
 		m_Table.Init();
 	}
 
-	void SemanticChecker::Check(std::vector<Stmt*> ls)
+	void SemanticChecker::Check(yvec<Stmt*> ls)
 	{
 		for (auto s : ls)
 		{
@@ -43,7 +44,7 @@ namespace yk
 		else if (IdentExpr* ie = dynamic_cast<IdentExpr*>(exp))
 		{
 			TypedSymbol* typed = nullptr;
-			std::size_t cnt = 0;
+			ysize cnt = 0;
 			auto syms = m_Table.Filter<TypedSymbol>(m_Table.RefSymbol(ie->Ident));
 			cnt = syms.size();
 			if (cnt == 1)
@@ -89,11 +90,11 @@ namespace yk
 		else if (FuncHeaderExpr* fe = dynamic_cast<FuncHeaderExpr*>(exp))
 		{
 			Check(fe->ReturnType);
-			std::vector<TypeSymbol*> params;
+			yvec<TypeSymbol*> params;
 			for (auto p : fe->Parameters)
 			{
-				Check(p.Type);
-				params.push_back(p.Type->SymbolForm);
+				Check(p->Type);
+				params.push_back(p->Type->SymbolForm);
 			}
 			fe->EvalType = new FunctionTypeSymbol(params, fe->ReturnType->SymbolForm);
 		}
@@ -105,23 +106,23 @@ namespace yk
 			m_Table.PushScope(scope);
 			for (auto par : fe->Prototype->Parameters)
 			{
-				if (par.Value.Value == "")
+				if (par->Value == "")
 				{
 					WarnAt("Unnamed parameter can not be referenced!", 
-						par.Value.GetPos());
+						par->Position);
 				}
 				else
 				{
-					auto syms = m_Table.Filter<TypedSymbol>(m_Table.RefSymbol(par.Value.Value));
+					auto syms = m_Table.Filter<TypedSymbol>(m_Table.RefSymbol(par->Value));
 					if (syms.size())
 					{
-						ErrorAt("Parameter '" + par.Value.Value + "' already declared!",
-							par.Value.GetPos());
+						ErrorAt("Parameter '" + par->Value + "' already declared!",
+							par->Position);
 					}
 					else
 					{
 						m_Table.DeclSymbol(
-							new ParamSymbol(par.Value.Value, par.Type->SymbolForm));
+							new ParamSymbol(par->Value, par->Type->SymbolForm));
 					}
 				}
 			}
@@ -137,11 +138,11 @@ namespace yk
 			auto LHS = be->LHS;
 			auto RHS = be->RHS;
 
-			if (be->OP.OP->Symbol == "::")
+			if (be->OP->OP->Symbol == "::")
 			{
 				if (IdentExpr* ie = dynamic_cast<IdentExpr*>(LHS))
 				{
-					std::string ident = ie->Ident;
+					ystr ident = ie->Ident;
 					if (Expr* rval = ConstantEvaluator::Evaluate(RHS))
 					{
 						Check(rval);
@@ -163,13 +164,13 @@ namespace yk
 					else
 					{
 						ErrorAt("Right-hand side of constant binding must be a constant value!",
-							be->OP);
+							be->RHS->Position);
 					}
 				}
 				else
 				{
 					ErrorAt("Left-hand side of constant binding must be an identifier!",
-						be->OP);
+						be->LHS->Position);
 				}
 			}
 			else
@@ -203,10 +204,10 @@ namespace yk
 		}
 	}
 
-	void SemanticChecker::ErrorAt(std::string const& msg, NodePos const& t)
+	void SemanticChecker::ErrorAt(ystr const& msg, NodePos const& t)
 	{
-		std::size_t len = t.EndX - t.StartX;
-		std::size_t pos = t.StartX;
+		ysize len = t.EndX - t.StartX;
+		ysize pos = t.StartX;
 		m_Logger.log() << "Semantic error "
 			<< StringUtils::Position(t) << log::endl
 			<< StringUtils::GetLine(m_Src, t.StartY)
@@ -214,10 +215,10 @@ namespace yk
 			<< msg << log::endlog;
 	}
 
-	void SemanticChecker::WarnAt(std::string const& msg, NodePos const& t)
+	void SemanticChecker::WarnAt(ystr const& msg, NodePos const& t)
 	{
-		std::size_t len = t.EndX - t.StartX;
-		std::size_t pos = t.StartX;
+		ysize len = t.EndX - t.StartX;
+		ysize pos = t.StartX;
 		m_Logger.log() << "Warn "
 			<< StringUtils::Position(t) << log::endl
 			<< msg << log::endlog;

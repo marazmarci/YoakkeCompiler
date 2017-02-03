@@ -2,7 +2,7 @@
 
 namespace yk
 {
-	TypedSymbol::TypedSymbol(std::string const& nm, TypeSymbol* t)
+	TypedSymbol::TypedSymbol(ystr const& nm, TypeSymbol* t)
 		: Symbol(nm), Type(t)
 	{
 	}

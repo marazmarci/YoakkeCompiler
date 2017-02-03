@@ -1,4 +1,5 @@
 #include "ExprElem.h"
+#include "Operator.h"
 
 namespace yk
 {

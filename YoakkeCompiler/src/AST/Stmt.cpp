@@ -28,10 +28,10 @@ namespace yk
 		delete Sub;
 	}
 
-	std::string ExprStmt::ToXML()
+	XMLNode* ExprStmt::ToXML()
 	{
-		return "<ExprStmt>" + 
-			Sub->ToXML() + 
-			"</ExprStmt>";
+		auto node = new XMLNode("ExprStmt");
+		node->Children.push_back(Sub->ToXML());
+		return node;
 	}
 }

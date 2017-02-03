@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Token.h"
+#include "../Types.h"
 
 namespace yk
 {
@@ -9,13 +10,10 @@ namespace yk
 	public:
 		const char* SourcePointer;
 		Token CurrentToken;
-		std::size_t RowCount;
-		std::size_t ColCount;
+		ysize RowCount;
+		ysize ColCount;
 
 	public:
-		ParseState(const char* src, Token ct, std::size_t rc, std::size_t cc)
-			: SourcePointer(src), CurrentToken(ct), RowCount(rc), ColCount(cc)
-		{
-		}
+		ParseState(const char* src, Token ct, ysize rc, ysize cc);
 	};
 }

@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include "LogStream.h"
+#include "../Types.h"
 
 namespace yk
 {
@@ -12,12 +13,12 @@ namespace yk
 		friend class LogStream;
 
 	private:
-		std::string m_Name;
+		ystr m_Name;
 		bool m_Logging;
 		LogStream m_Stream;
 
 	public:
-		Logger(std::string const& name);
+		Logger(ystr const& name);
 
 	public:
 		LogStream& log();

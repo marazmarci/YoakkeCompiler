@@ -2,6 +2,7 @@
 
 #include <string>
 #include "Node.h"
+#include "../Types.h"
 #include "../Parsing/Token.h"
 #include "../Parsing/NodePos.h"
 
@@ -27,6 +28,6 @@ namespace yk
 		virtual ~ExprStmt();
 
 	public:
-		virtual std::string ToXML() override;
+		virtual XMLNode* ToXML() override;
 	};
 }

@@ -3,25 +3,26 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "../Types.h"
 
 namespace yk
 {
 	class Symbol;
-	typedef std::map<std::string, std::vector<Symbol*>> SymbolDict;
+	typedef ymap<ystr, yvec<Symbol*>> SymbolDict;
 
 	class Scope
 	{
 	public:
 		Scope* Parent;
-		std::vector<Scope*> Children;
+		yvec<Scope*> Children;
 		SymbolDict Symbols;
 
 	public:
 		Scope();
 
 	public:
-		virtual std::vector<Symbol*>* Reference(std::string const& id);
-		std::vector<Symbol*>* ReferenceGlobal(std::string const& id);
+		virtual yvec<Symbol*>* Reference(ystr const& id);
+		yvec<Symbol*>* ReferenceGlobal(ystr const& id);
 		void Declare(Symbol* s);
 	};
 
@@ -37,6 +38,6 @@ namespace yk
 		FunctionScope();
 
 	public:
-		virtual std::vector<Symbol*>* Reference(std::string const& id) override;
+		virtual yvec<Symbol*>* Reference(ystr const& id) override;
 	};
 }

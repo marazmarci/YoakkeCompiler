@@ -56,12 +56,12 @@ namespace yk
 		m_CurrentToken = m_Lexer.Next();
 	}
 	
-	bool Parser::Same(std::string const& val)
+	bool Parser::Same(ystr const& val)
 	{
 		return m_CurrentToken.Value == val;
 	}
 
-	bool Parser::Match(std::string const& val)
+	bool Parser::Match(ystr const& val)
 	{
 		if (Same(val))
 		{
@@ -71,7 +71,7 @@ namespace yk
 		return false;
 	}
 
-	bool Parser::Expect(std::string const& val)
+	bool Parser::Expect(ystr const& val)
 	{
 		if (!Match(val))
 		{
@@ -86,42 +86,42 @@ namespace yk
 		return m_CurrentToken.Type == TokenT::Identifier;
 	}
 
-	std::string const& Parser::GetValue()
+	ystr const& Parser::GetValue()
 	{
 		return m_CurrentToken.Value;
 	}
 
-	void Parser::ErrorAt(std::string const& msg, Token const& t)
+	void Parser::ErrorAt(ystr const& msg, Token const& t)
 	{
-		std::size_t len = t.Value.size();
-		std::size_t pos = t.Column;
+		ysize len = t.Value.size();
+		ysize pos = t.Column;
 		m_Logger.log() << "Syntax error "
-			<< StringUtils::Position(t.GetPos()) << log::endl
+			<< StringUtils::Position(NodePos::Get(t)) << log::endl
 			<< StringUtils::GetLine(m_Lexer.m_Buffer, t.Row)
 			<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
 			<< msg << log::endlog;
 	}
 
-	void Parser::ExpectError(std::string const& ex, std::string const& fnd)
+	void Parser::ExpectError(ystr const& ex, ystr const& fnd)
 	{
 		ExpectErrorAt(ex, fnd, m_CurrentToken);
 	}
 
-	void Parser::ExpectErrorAt(std::string const& ex, std::string const& fnd, Token const& t)
+	void Parser::ExpectErrorAt(ystr const& ex, ystr const& fnd, Token const& t)
 	{
-		std::size_t len = t.Value.size();
-		std::size_t pos = t.Column - len;
+		ysize len = t.Value.size();
+		ysize pos = t.Column - len;
 		if (t.Value == " <End of File> ")
 		{
 			m_Logger.log() << "Syntax error "
-				<< StringUtils::Position(t.GetPos()) << log::endl
+				<< StringUtils::Position(NodePos::Get(t)) << log::endl
 				<< ex << " expected, early end of file found."
 				<< log::endlog;
 		}
 		else
 		{
 			m_Logger.log() << "Syntax error "
-				<< StringUtils::Position(t.GetPos()) << log::endl
+				<< StringUtils::Position(NodePos::Get(t)) << log::endl
 				<< StringUtils::GetLine(m_Lexer.m_Buffer, t.Row)
 				<< log::endl << StringUtils::GenArrow(pos, len) << log::endl
 				<< ex << " expected, found " << fnd
@@ -129,7 +129,7 @@ namespace yk
 		}
 	}
 
-	std::string Parser::DumpCurrentTok()
+	ystr Parser::DumpCurrentTok()
 	{
 		return '\'' + m_CurrentToken.Value + '\'';
 	}
@@ -170,7 +170,7 @@ namespace yk
 		m_MixfixOps.push_back(op);
 	}
 
-	UryOp* Parser::GetPrefixOp(std::string const& sym)
+	UryOp* Parser::GetPrefixOp(ystr const& sym)
 	{
 		auto it = m_PrefixOps.find(sym);
 		if (it == m_PrefixOps.end())
@@ -178,7 +178,7 @@ namespace yk
 		return &it->second;
 	}
 
-	BinOp* Parser::GetInfixOp(std::string const& sym)
+	BinOp* Parser::GetInfixOp(ystr const& sym)
 	{
 		auto it = m_InfixOps.find(sym);
 		if (it == m_InfixOps.end())
@@ -186,7 +186,7 @@ namespace yk
 		return &it->second;
 	}
 
-	UryOp* Parser::GetPostfixOp(std::string const& sym)
+	UryOp* Parser::GetPostfixOp(ystr const& sym)
 	{
 		auto it = m_PostfixOps.find(sym);
 		if (it == m_PostfixOps.end())
@@ -194,7 +194,7 @@ namespace yk
 		return &it->second;
 	}
 
-	std::vector<Stmt*> Parser::ParseProgram(const char* src)
+	yvec<Stmt*> Parser::ParseProgram(const char* src)
 	{
 		m_Lexer.SetSource(src);
 		Next();
@@ -202,9 +202,9 @@ namespace yk
 		return ParseStmtList();
 	}
 
-	std::vector<Stmt*> Parser::ParseStmtList()
+	yvec<Stmt*> Parser::ParseStmtList()
 	{
-		std::vector<Stmt*> list;
+		yvec<Stmt*> list;
 		while (true)
 		{
 			auto res = ParseStmt();
@@ -219,19 +219,19 @@ namespace yk
 		return list;
 	}
 
-	std::vector<Stmt*> Parser::ParseStmt()
+	yvec<Stmt*> Parser::ParseStmt()
 	{
 		auto ls = ParseExprStmt();
 		return ls;
 	}
 
-	std::vector<Stmt*> Parser::ParseExprStmt()
+	yvec<Stmt*> Parser::ParseExprStmt()
 	{
 		auto exps = ParseExprs();
 		if (exps.size())
 		{
-			std::vector<Stmt*> ret;
-			for (std::size_t i = 0; i < exps.size() - 1; i++)
+			yvec<Stmt*> ret;
+			for (ysize i = 0; i < exps.size() - 1; i++)
 			{
 				auto el = exps[i];
 				ret.push_back(new ExprStmt(el, false));
@@ -243,10 +243,10 @@ namespace yk
 			return ret;
 		}
 
-		return std::vector<Stmt*>();
+		return yvec<Stmt*>();
 	}
 
-	std::vector<Expr*> Parser::ParseExprs()
+	yvec<Expr*> Parser::ParseExprs()
 	{
 		ExprParser expp(*this);
 		return expp.ParseExprList();
@@ -281,7 +281,7 @@ namespace yk
 			Token t = m_CurrentToken;
 			int v = std::atoi(GetValue().c_str());
 			Next();
-			return new IntLiteralExpr(v, t.GetPos());
+			return new IntLiteralExpr(t);
 		}
 		else if (Same("("))
 		{
@@ -310,7 +310,7 @@ namespace yk
 		}
 		else if (IsIdent())
 		{
-			std::string id = GetValue();
+			ystr id = GetValue();
 			Token curr = m_CurrentToken;
 			Next();
 			return new IdentExpr(curr);
@@ -327,9 +327,7 @@ namespace yk
 		{
 			if (BlockExpr* block = ParseBlockExpr())
 			{
-				return new FuncExpr(proto, block,
-					NodePos(state.ColCount, state.RowCount,
-						block->Position.EndX, block->Position.EndY));
+				return new FuncExpr(proto, block);
 			}
 			else
 			{
@@ -341,18 +339,20 @@ namespace yk
 		return nullptr;
 	}
 
-	Parameter Parser::ParseParameter()
+	ParamExpr* Parser::ParseParameter()
 	{
 		auto state = SaveState();
 		TypeDesc* type = nullptr;
-		std::string name = "";
+		ystr name = "";
 		Token ident = Token(TokenT::Identifier, "", m_CurrentToken.Row, m_CurrentToken.Column);
+		bool gotid = false;
 
 		if (IsIdent())
 		{
 			ident = m_CurrentToken;
 			name = GetValue();
 			Next();
+			gotid = true;
 		}
 
 		if (Match(":"))
@@ -364,7 +364,7 @@ namespace yk
 			ExpectError("Type", DumpCurrentTok());
 		}
 
-		return Parameter(ident, type);
+		return new ParamExpr(gotid ? &ident : nullptr, type);
 	}
 
 	FuncHeaderExpr* Parser::ParseFuncPrototype()
@@ -372,15 +372,15 @@ namespace yk
 		auto state = SaveState();
 		if (Match("("))
 		{
-			std::vector<Parameter> params;
+			yvec<ParamExpr*> params;
 			auto par = ParseParameter();
-			if (par.Type)
+			if (par->Type)
 			{
 				params.push_back(par);
 				while (Match(","))
 				{
 					par = ParseParameter();
-					if (par.Type)
+					if (par->Type)
 					{
 						params.push_back(par);
 					}
@@ -431,8 +431,7 @@ namespace yk
 			{
 				Token end = m_CurrentToken;
 				Next();
-				return new BlockExpr(stmts, 
-					NodePos(beg.Column, beg.Row, end.Column + end.Value.size(), end.Row));
+				return new BlockExpr(stmts, NodePos::Interval(beg, end));
 			}
 			else
 			{
@@ -447,7 +446,7 @@ namespace yk
 	{
 		if (IsIdent())
 		{
-			std::string id = GetValue();
+			ystr id = GetValue();
 			Token curr = m_CurrentToken;
 			Next();
 			return new IdentTypeDesc(curr);

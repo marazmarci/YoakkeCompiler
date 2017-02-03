@@ -1,16 +1,17 @@
 #pragma once
 
 #include <string>
+#include "../Types.h"
 
 namespace yk
 {
 	class Symbol
 	{
 	public:
-		std::string Name;
+		ystr Name;
 
 	public:
-		Symbol(std::string const& n);
+		Symbol(ystr const& n);
 
 	private:
 		virtual void __unneeded() { }

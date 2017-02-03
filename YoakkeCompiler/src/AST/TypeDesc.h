@@ -3,6 +3,7 @@
 #include <string>
 #include "Node.h"
 #include "../Parsing/Token.h"
+#include "../Types.h"
 
 namespace yk
 {
@@ -21,13 +22,13 @@ namespace yk
 	class IdentTypeDesc : public TypeDesc
 	{
 	public:
-		std::string Identifier;
+		ystr Identifier;
 
 	public:
 		IdentTypeDesc(Token const& ref);
 		virtual ~IdentTypeDesc();
 
 	public:
-		virtual std::string ToXML() override;
+		virtual XMLNode* ToXML() override;
 	};
 }

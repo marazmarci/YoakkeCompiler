@@ -19,10 +19,10 @@ namespace yk
 	private:
 		yk::Lexer m_Lexer;
 		Token m_CurrentToken;
-		std::map<std::string, BinOp> m_InfixOps;
-		std::map<std::string, UryOp> m_PrefixOps;
-		std::map<std::string, UryOp> m_PostfixOps;
-		std::vector<MixfixOp> m_MixfixOps;
+		ymap<ystr, BinOp> m_InfixOps;
+		ymap<ystr, UryOp> m_PrefixOps;
+		ymap<ystr, UryOp> m_PostfixOps;
+		yvec<MixfixOp> m_MixfixOps;
 		Logger m_Logger;
 
 	public:
@@ -30,16 +30,16 @@ namespace yk
 
 	private:
 		void Next();
-		bool Same(std::string const& val);
-		bool Match(std::string const& val);
-		bool Expect(std::string const& val);
+		bool Same(ystr const& val);
+		bool Match(ystr const& val);
+		bool Expect(ystr const& val);
 		bool IsIdent();
-		std::string const& GetValue();
+		ystr const& GetValue();
 
-		void ErrorAt(std::string const& msg, Token const& t);
-		void ExpectError(std::string const& ex, std::string const& fnd);
-		void ExpectErrorAt(std::string const& ex, std::string const& fnd, Token const& t);
-		std::string DumpCurrentTok();
+		void ErrorAt(ystr const& msg, Token const& t);
+		void ExpectError(ystr const& ex, ystr const& fnd);
+		void ExpectErrorAt(ystr const& ex, ystr const& fnd, Token const& t);
+		ystr DumpCurrentTok();
 
 		ParseState SaveState();
 		void LoadState(ParseState const& st);
@@ -50,22 +50,22 @@ namespace yk
 		void AddMixfixOp(MixfixOp op);
 
 	public:
-		UryOp* GetPrefixOp(std::string const& sym);
-		BinOp* GetInfixOp(std::string const& sym);
-		UryOp* GetPostfixOp(std::string const& sym);
+		UryOp* GetPrefixOp(ystr const& sym);
+		BinOp* GetInfixOp(ystr const& sym);
+		UryOp* GetPostfixOp(ystr const& sym);
 
-		std::vector<Stmt*> ParseProgram(const char* src);
+		yvec<Stmt*> ParseProgram(const char* src);
 
 	private:
-		std::vector<Stmt*> ParseStmtList();
-		std::vector<Stmt*> ParseStmt();
-		std::vector<Stmt*> ParseExprStmt();
-		std::vector<Expr*> ParseExprs();
+		yvec<Stmt*> ParseStmtList();
+		yvec<Stmt*> ParseStmt();
+		yvec<Stmt*> ParseExprStmt();
+		yvec<Expr*> ParseExprs();
 
 		Expr* ParseSingleExpr();
 		Expr* ParseAtom();
 
-		Parameter		ParseParameter();
+		ParamExpr*		ParseParameter();
 		FuncHeaderExpr*	ParseFuncPrototype();
 		BlockExpr*		ParseBlockExpr();
 		Expr*			ParseFuncExpr();

@@ -8,7 +8,7 @@ namespace yk
 	{
 	}
 
-	std::vector<Symbol*>* Scope::Reference(std::string const& id)
+	yvec<Symbol*>* Scope::Reference(ystr const& id)
 	{
 		auto it = Symbols.find(id);
 		if (it == Symbols.end())
@@ -20,7 +20,7 @@ namespace yk
 		return &it->second;
 	}
 
-	std::vector<Symbol*>* Scope::ReferenceGlobal(std::string const& id)
+	yvec<Symbol*>* Scope::ReferenceGlobal(ystr const& id)
 	{
 		if (Parent)
 		{
@@ -34,7 +34,7 @@ namespace yk
 		auto it = Symbols.find(s->Name);
 		if (it == Symbols.end())
 		{
-			std::vector<Symbol*> set;
+			yvec<Symbol*> set;
 			set.push_back(s);
 			Symbols.insert(std::make_pair(s->Name, set));
 		}
@@ -54,7 +54,7 @@ namespace yk
 	{
 	}
 
-	std::vector<Symbol*>* FunctionScope::Reference(std::string const& id)
+	yvec<Symbol*>* FunctionScope::Reference(ystr const& id)
 	{
 		auto it = Symbols.find(id);
 		if (it == Symbols.end())

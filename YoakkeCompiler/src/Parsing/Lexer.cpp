@@ -12,7 +12,7 @@ namespace yk
 	{
 	}
 
-	void Lexer::AddLexeme(std::string const& l, TokenT tt)
+	void Lexer::AddLexeme(ystr const& l, TokenT tt)
 	{
 		if (ValidLexeme(l))
 			m_Lexemes.insert(std::make_pair(l, tt));
@@ -46,7 +46,7 @@ namespace yk
 
 		if (Match("/*"))
 		{
-			std::size_t depth = 1;
+			ysize depth = 1;
 			while (*m_Ptr)
 			{
 				if (Match("/*"))
@@ -78,8 +78,8 @@ namespace yk
 		TokenT type = TokenT::Epsilon;
 		for (auto it = m_Lexemes.rbegin(); it != m_Lexemes.rend(); ++it)
 		{
-			std::string const& lex = it->first;
-			std::size_t len = lex.length();
+			ystr const& lex = it->first;
+			ysize len = lex.length();
 			if (std::strncmp(lex.c_str(), m_Ptr, len) == 0)
 			{
 				IncPtrSBy(len);
@@ -89,7 +89,7 @@ namespace yk
 
 		// Number literal
 		{
-			std::string num = "";
+			ystr num = "";
 			while (std::isdigit(*m_Ptr))
 			{
 				num += IncPtrS();
@@ -114,7 +114,7 @@ namespace yk
 		// Identifier
 		if (std::isalpha(*m_Ptr) || *m_Ptr == '_')
 		{
-			std::string ident = "";
+			ystr ident = "";
 			while (std::isalnum(*m_Ptr) || *m_Ptr == '_')
 			{
 				ident += IncPtrS();
@@ -125,10 +125,10 @@ namespace yk
 		char unknown = IncPtrS();
 		m_Logger.log() << "Unknown token: '" 
 			<< unknown << "' (ASCII: " << +unknown << ')' << log::endlog;
-		return Token(TokenT::Unknown, std::string(1, unknown), m_RowCount, m_ColCount);
+		return Token(TokenT::Unknown, ystr(1, unknown), m_RowCount, m_ColCount);
 	}
 
-	void Lexer::ConsumeUntil(std::string const& c)
+	void Lexer::ConsumeUntil(ystr const& c)
 	{
 		while (*m_Ptr && std::strncmp(m_Ptr, c.c_str(), c.length()) != 0)
 		{
@@ -136,7 +136,7 @@ namespace yk
 		}
 	}
 
-	bool Lexer::Match(std::string const& c)
+	bool Lexer::Match(ystr const& c)
 	{
 		if (*m_Ptr && std::strncmp(m_Ptr, c.c_str(), c.length()) == 0)
 		{
@@ -146,8 +146,8 @@ namespace yk
 		return false;
 	}
 
-	bool Lexer::ValidLexeme(std::string const& v)
+	bool Lexer::ValidLexeme(ystr const& v)
 	{
-		return v.find_first_of(' ') == std::string::npos;
+		return v.find_first_of(' ') == ystr::npos;
 	}
 }

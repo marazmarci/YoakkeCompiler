@@ -1,11 +1,12 @@
 #pragma once
 
 #include <string>
+#include "../Types.h"
 
 namespace yk
 {
 	namespace FileUtils
 	{
-		std::string ReadFile(const char* name);
+		ystr ReadFile(const char* name);
 	}
 }

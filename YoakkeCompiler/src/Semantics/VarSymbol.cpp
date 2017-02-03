@@ -2,12 +2,12 @@
 
 namespace yk
 {
-	VarSymbol::VarSymbol(std::string const& nm, TypeSymbol* t)
+	VarSymbol::VarSymbol(ystr const& nm, TypeSymbol* t)
 		: TypedSymbol(nm, t)
 	{
 	}
 
-	ParamSymbol::ParamSymbol(std::string const& nm, TypeSymbol* t)
+	ParamSymbol::ParamSymbol(ystr const& nm, TypeSymbol* t)
 		: VarSymbol(nm, t)
 	{
 	}

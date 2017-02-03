@@ -2,7 +2,7 @@
 
 namespace yk
 {
-	Symbol::Symbol(std::string const& n)
+	Symbol::Symbol(ystr const& n)
 		: Name(n)
 	{
 	}

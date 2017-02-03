@@ -2,13 +2,14 @@
 
 #include <string>
 #include "../Parsing/NodePos.h"
+#include "../Types.h"
 
 namespace yk
 {
 	namespace StringUtils
 	{
-		std::string GetLine(std::string const& orig, std::size_t idx);
-		std::string GenArrow(std::size_t offs, std::size_t len);
-		std::string Position(NodePos const& t);
+		ystr GetLine(ystr const& orig, ysize idx);
+		ystr GenArrow(ysize offs, ysize len);
+		ystr Position(NodePos const& t);
 	}
 }

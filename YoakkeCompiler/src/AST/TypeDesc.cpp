@@ -12,8 +12,7 @@ namespace yk
 	}
 
 	IdentTypeDesc::IdentTypeDesc(Token const& ref)
-		: TypeDesc(NodePos(ref.Column, ref.Row, ref.Column + ref.Value.size(), ref.Row)), 
-		Identifier(ref.Value)
+		: TypeDesc(NodePos::Get(ref)), Identifier(ref.Value)
 	{
 	}
 
@@ -21,8 +20,10 @@ namespace yk
 	{
 	}
 
-	std::string IdentTypeDesc::ToXML()
+	XMLNode* IdentTypeDesc::ToXML()
 	{
-		return "<IdentTypeDesc id=\"" + Identifier + "\"/>";
+		auto node = new XMLNode("IdentTypeDesc");
+		node->Attributes.push_back(XMLAttribute("id", Identifier));
+		return node;
 	}
 }

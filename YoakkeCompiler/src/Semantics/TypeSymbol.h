@@ -8,7 +8,7 @@ namespace yk
 	class TypeSymbol : public Symbol
 	{
 	public:
-		TypeSymbol(std::string const& n);
+		TypeSymbol(ystr const& n);
 
 	public:
 		virtual bool Same(TypeSymbol* other) = 0;
@@ -20,13 +20,13 @@ namespace yk
 		TypeSymbol* Resolved;
 
 	public:
-		ResolvableTypeSymbol(std::string const& n);
+		ResolvableTypeSymbol(ystr const& n);
 	};
 
 	class BuiltinTypeSymbol : public TypeSymbol
 	{
 	public:
-		BuiltinTypeSymbol(std::string const& n);
+		BuiltinTypeSymbol(ystr const& n);
 
 	public:
 		bool Same(TypeSymbol* other) override;
@@ -35,11 +35,11 @@ namespace yk
 	class FunctionTypeSymbol : public TypeSymbol
 	{
 	public:
-		std::vector<TypeSymbol*> Parameters;
+		yvec<TypeSymbol*> Parameters;
 		TypeSymbol* ReturnType;
 
 	public:
-		FunctionTypeSymbol(std::vector<TypeSymbol*>& params, TypeSymbol* rt);
+		FunctionTypeSymbol(yvec<TypeSymbol*>& params, TypeSymbol* rt);
 
 	public:
 		bool Same(TypeSymbol* other) override;

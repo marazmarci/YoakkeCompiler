@@ -2,13 +2,8 @@
 
 namespace yk
 {
-	Token::Token(TokenT tt, std::string const& v, std::size_t r, std::size_t c)
+	Token::Token(TokenT tt, ystr const& v, ysize r, ysize c)
 		: Type(tt), Value(v), Row(r), Column(c - v.size())
 	{
-	}
-
-	NodePos Token::GetPos() const
-	{
-		return NodePos(Column, Row, Column + Value.size(), Row);
 	}
 }

@@ -2,9 +2,12 @@
 
 #include <string>
 #include "../Parsing/NodePos.h"
+#include "../Utils/XMLNode.h"
 
 namespace yk
 {
+	// Abstract AST node
+	// Children must override ToXML, which is an XML dump of the subtree
 	class Node
 	{
 	public:
@@ -15,6 +18,6 @@ namespace yk
 		virtual ~Node();
 
 	public:
-		virtual std::string ToXML() = 0;
+		virtual XMLNode* ToXML() = 0;
 	};
 }

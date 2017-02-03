@@ -11,6 +11,6 @@ namespace yk
 		TypeSymbol* Type;
 
 	public:
-		TypedSymbol(std::string const& nm, TypeSymbol* t);
+		TypedSymbol(ystr const& nm, TypeSymbol* t);
 	};
 }

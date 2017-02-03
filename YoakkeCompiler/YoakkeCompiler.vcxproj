@@ -123,6 +123,7 @@
     <ClCompile Include="src\Parsing\Lexer.cpp" />
     <ClCompile Include="src\Parsing\Operator.cpp" />
     <ClCompile Include="src\Parsing\Parser.cpp" />
+    <ClCompile Include="src\Parsing\ParseState.cpp" />
     <ClCompile Include="src\Parsing\Token.cpp" />
     <ClCompile Include="src\Semantics\ConstantEvaluator.cpp" />
     <ClCompile Include="src\Semantics\ConstantSymbol.cpp" />
@@ -135,6 +136,7 @@
     <ClCompile Include="src\Semantics\VarSymbol.cpp" />
     <ClCompile Include="src\Utils\FileUtils.cpp" />
     <ClCompile Include="src\Utils\StringUtils.cpp" />
+    <ClCompile Include="src\Utils\XMLNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AST\Expr.h" />
@@ -160,8 +162,10 @@
     <ClInclude Include="src\Semantics\TypedSymbol.h" />
     <ClInclude Include="src\Semantics\TypeSymbol.h" />
     <ClInclude Include="src\Semantics\VarSymbol.h" />
+    <ClInclude Include="src\Types.h" />
     <ClInclude Include="src\Utils\FileUtils.h" />
     <ClInclude Include="src\Utils\StringUtils.h" />
+    <ClInclude Include="src\Utils\XMLNode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

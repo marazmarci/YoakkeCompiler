@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "Token.h"
+#include "../Types.h"
 #include "../Logging/Logger.h"
 
 namespace yk
@@ -16,25 +17,25 @@ namespace yk
 	private:
 		const char* m_Buffer;
 		const char* m_Ptr;
-		std::map<const std::string, TokenT> m_Lexemes;
-		std::size_t m_RowCount;
-		std::size_t m_ColCount;
+		ymap<const ystr, TokenT> m_Lexemes;
+		ysize m_RowCount;
+		ysize m_ColCount;
 		Logger m_Logger;
 
 	public:
 		Lexer();
 
 	public:
-		void AddLexeme(std::string const& l, TokenT tt);
+		void AddLexeme(ystr const& l, TokenT tt);
 		void SetSource(const char* buf);
 
 		Token Next();
 
 	private:
-		void ConsumeUntil(std::string const& c);
-		bool Match(std::string const& c);
+		void ConsumeUntil(ystr const& c);
+		bool Match(ystr const& c);
 
-		bool ValidLexeme(std::string const& v);
+		bool ValidLexeme(ystr const& v);
 
 		inline char IncPtr()
 		{
@@ -51,9 +52,9 @@ namespace yk
 			return *m_Ptr++;
 		}
 
-		inline void IncPtrBy(std::size_t n)
+		inline void IncPtrBy(ysize n)
 		{
-			for (std::size_t i = 0; i < n; i++) IncPtr();
+			for (ysize i = 0; i < n; i++) IncPtr();
 		}
 
 		inline char IncPtrS()
@@ -62,7 +63,7 @@ namespace yk
 			return *m_Ptr++;
 		}
 
-		inline void IncPtrSBy(std::size_t n)
+		inline void IncPtrSBy(ysize n)
 		{
 			m_Ptr += n;
 			m_ColCount += n;

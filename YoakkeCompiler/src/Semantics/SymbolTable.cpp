@@ -32,7 +32,7 @@ namespace yk
 			std::cout << "TRIED TO POP GLOBAL SCOPE" << std::endl;
 	}
 
-	std::vector<Symbol*>* SymbolTable::RefSymbol(std::string const& id)
+	yvec<Symbol*>* SymbolTable::RefSymbol(ystr const& id)
 	{
 		return m_Current->Reference(id);
 	}
@@ -42,9 +42,9 @@ namespace yk
 		m_Current->Declare(sym);
 	}
 
-	std::vector<TypedSymbol*> SymbolTable::FilterTyped(std::vector<TypedSymbol*>& syms, TypeSymbol* match)
+	yvec<TypedSymbol*> SymbolTable::FilterTyped(yvec<TypedSymbol*>& syms, TypeSymbol* match)
 	{
-		std::vector<TypedSymbol*> res;
+		yvec<TypedSymbol*> res;
 		for (auto s : syms)
 		{
 			if (s->Type->Same(match))

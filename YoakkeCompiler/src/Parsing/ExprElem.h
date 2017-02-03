@@ -5,6 +5,8 @@
 
 namespace yk
 {
+	class Operator;
+
 	enum class ExprElemT
 	{
 		Expr, Oper

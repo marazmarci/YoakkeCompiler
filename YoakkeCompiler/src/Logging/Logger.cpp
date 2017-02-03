@@ -2,7 +2,7 @@
 
 namespace yk
 {
-	Logger::Logger(std::string const& name)
+	Logger::Logger(ystr const& name)
 		: m_Name(name), m_Logging(false), m_Stream(LogStream(*this, std::cout))
 	{
 	}

@@ -3,6 +3,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include "../Types.h"
 
 namespace yk
 {
@@ -19,11 +20,11 @@ namespace yk
 	class Operator
 	{
 	public:
-		std::string Symbol;
+		ystr Symbol;
 		double Precedence;
 
 	public:
-		Operator(std::string const& sym, double prec);
+		Operator(ystr const& sym, double prec);
 
 	private:
 		virtual void __nothing() {}
@@ -35,7 +36,7 @@ namespace yk
 		FixityT Fixity;
 
 	public:
-		UryOp(std::string const& sym, double prec, FixityT fx);
+		UryOp(ystr const& sym, double prec, FixityT fx);
 	};
 
 	class BinOp : public Operator
@@ -44,12 +45,12 @@ namespace yk
 		AssocT Assoc;
 
 	public:
-		BinOp(std::string const& sym, double prec, AssocT as);
+		BinOp(ystr const& sym, double prec, AssocT as);
 	};
 
 	class StackElemR;
-	typedef std::function<bool(std::vector<StackElemR*>&, std::size_t)> MFOpHere;
-	typedef std::function<std::size_t(std::vector<StackElemR*>&, std::size_t)> MFOpReduce;
+	typedef std::function<bool(yvec<StackElemR*>&, ysize)> MFOpHere;
+	typedef std::function<ysize(yvec<StackElemR*>&, ysize)> MFOpReduce;
 	class MixfixOp : public Operator
 	{
 	public:
@@ -57,6 +58,6 @@ namespace yk
 		MFOpReduce Reduce;
 
 	public:
-		MixfixOp(std::string const& sym, double prec, MFOpHere h, MFOpReduce r);
+		MixfixOp(ystr const& sym, double prec, MFOpHere h, MFOpReduce r);
 	};
 }

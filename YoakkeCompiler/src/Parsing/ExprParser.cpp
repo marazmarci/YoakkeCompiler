@@ -8,12 +8,12 @@ namespace yk
 	{
 	}
 
-	std::vector<Expr*> ExprParser::ParseExprList()
+	yvec<Expr*> ExprParser::ParseExprList()
 	{
 		EatElements();
 		Reduce();
 
-		std::vector<Expr*> ret;
+		yvec<Expr*> ret;
 		for (auto& el : m_RStack)
 			ret.push_back(el.GetExpr());
 
@@ -48,12 +48,12 @@ namespace yk
 	void ExprParser::Reduce()
 	{
 		auto preds = CreateOperPred();
-		std::size_t max = 0;
+		ysize max = 0;
 		while (PredOperSingle(preds) || MatchOperSingle(preds));
 		CheckAmbiguity(preds);
 		m_RStack = CreateDeducedStack(preds);
 
-		std::size_t prevzs = m_RStack.size();
+		ysize prevzs = m_RStack.size();
 		while (true)
 		{
 			ReduceOnce();
@@ -64,11 +64,11 @@ namespace yk
 		}
 	}
 
-	std::vector<OperPred> ExprParser::CreateOperPred()
+	yvec<OperPred> ExprParser::CreateOperPred()
 	{
-		std::vector<OperPred> ret;
+		yvec<OperPred> ret;
 		ret.push_back(OperPred::Begin);
-		for (std::size_t i = 0; i < m_Stack.size(); i++)
+		for (ysize i = 0; i < m_Stack.size(); i++)
 		{
 			if (m_Stack[i].Tag == ExprElemT::Oper)
 				ret.push_back(OperPred::Unknown);
@@ -87,10 +87,10 @@ namespace yk
 #define PREDICT_P(x, y) { cnt += INC_CNT2(current, x, prev, y); current = x; prev = y; continue; }
 #define PREDICT_NP(x, y, z) { cnt += INC_CNT3(current, x, next, y, prev, z); current = x; next = y; prev = z; continue; }
 #define ERROR(x, y) { m_Parser.ExpectErrorAt(x, y, m_Stack[i + 1].Oper); continue; }
-	std::size_t ExprParser::PredOperSingle(std::vector<OperPred>& preds)
+	ysize ExprParser::PredOperSingle(yvec<OperPred>& preds)
 	{
-		std::size_t cnt = 0;
-		for (std::size_t i = 0; i < preds.size(); i++)
+		ysize cnt = 0;
+		for (ysize i = 0; i < preds.size(); i++)
 		{
 			auto& current = preds[i];
 			if (current == OperPred::Unknown || current == OperPred::PreOrIn || current == OperPred::PostOrIn)
@@ -205,16 +205,16 @@ namespace yk
 #undef ERROR(x)
 
 #define PREDICT(x) { pred = x; cnt++; }
-	std::size_t ExprParser::MatchOperSingle(std::vector<OperPred>& preds)
+	ysize ExprParser::MatchOperSingle(yvec<OperPred>& preds)
 	{
-		std::size_t cnt = 0;
-		for (std::size_t idx = 0; idx < m_Stack.size(); idx++)
+		ysize cnt = 0;
+		for (ysize idx = 0; idx < m_Stack.size(); idx++)
 		{
 			auto& pred = preds[idx + 1];	// Begin is extra
 			if (pred == OperPred::Begin || pred == OperPred::End || pred == OperPred::Expr)
 				continue;
 			Token* tok = m_Stack[idx].GetOper();
-			std::string sym = tok->Value;
+			ystr sym = tok->Value;
 			Operator* prefx = m_Parser.GetPrefixOp(sym);
 			Operator* infx = m_Parser.GetInfixOp(sym);
 			Operator* postfx = m_Parser.GetPostfixOp(sym);
@@ -270,9 +270,9 @@ namespace yk
 	}
 #undef PREDICT(x)
 
-	void ExprParser::CheckAmbiguity(std::vector<OperPred>& preds)
+	void ExprParser::CheckAmbiguity(yvec<OperPred>& preds)
 	{
-		for (std::size_t idx = 0; idx < m_Stack.size(); idx++)
+		for (ysize idx = 0; idx < m_Stack.size(); idx++)
 		{
 			auto& pred = preds[idx + 1];	// Begin is extra
 			if (pred == OperPred::Begin || pred == OperPred::End || pred == OperPred::Expr)
@@ -285,10 +285,10 @@ namespace yk
 		}
 	}
 
-	std::vector<ExprElemR> ExprParser::CreateDeducedStack(std::vector<OperPred>& preds)
+	yvec<ExprElemR> ExprParser::CreateDeducedStack(yvec<OperPred>& preds)
 	{
-		std::vector<ExprElemR> ret;
-		for (std::size_t i = 0; i < m_Stack.size(); i++)
+		yvec<ExprElemR> ret;
+		for (ysize i = 0; i < m_Stack.size(); i++)
 		{
 			auto& pred = preds[i + 1];
 			if (pred == OperPred::Expr) 
@@ -307,7 +307,7 @@ namespace yk
 		return ret;
 	}
 
-	double ExprParser::MaxPrec(std::vector<ExprElemR>& elems)
+	double ExprParser::MaxPrec(yvec<ExprElemR>& elems)
 	{
 		double max = -1.0;
 		Operator* op;
@@ -338,7 +338,7 @@ namespace yk
 			}
 
 			// Left-to-right
-			for (std::size_t i = 0; i < m_RStack.size(); i++)
+			for (ysize i = 0; i < m_RStack.size(); i++)
 			{
 				i -= ReduceSingle(i, false, mp);
 			}
@@ -352,10 +352,10 @@ namespace yk
 		return false;
 	}
 
-	std::size_t ExprParser::ReduceSingle(std::size_t idx, bool right, double prec)
+	ysize ExprParser::ReduceSingle(ysize idx, bool right, double prec)
 	{
 		Operator* op = m_RStack[idx].GetOper();
-		std::size_t offs = 0;
+		ysize offs = 0;
 		if (op && op->Precedence == prec)
 		{
 			if (UryOp* uryop = dynamic_cast<UryOp*>(op))
@@ -377,7 +377,7 @@ namespace yk
 		return offs;
 	}
 
-	void ExprParser::ReducePrefixAt(std::size_t idx)
+	void ExprParser::ReducePrefixAt(ysize idx)
 	{
 		auto begop = m_RStack[idx];
 		Expr* exp = nullptr;
@@ -391,13 +391,13 @@ namespace yk
 		}
 		if (exp)
 		{
-			std::size_t cnt = 0;
+			ysize cnt = 0;
 			for (j--; (int)idx <= j; j--)
 			{
 				cnt++;
 				Token const& tok = m_RStack[j].Reference;
 				exp = new UryExpr(exp, 
-					OperPos(tok.Column, tok.Row, m_RStack[j].GetOper()));
+					new OperExpr(m_RStack[j].GetOper(), m_RStack[j].Reference));
 			}
 			m_RStack.erase(m_RStack.begin() + idx, m_RStack.begin() + idx + cnt + 1);
 			if (idx == m_RStack.size())
@@ -411,7 +411,7 @@ namespace yk
 		}
 	}
 
-	std::size_t ExprParser::ReducePostfixAt(std::size_t idx)
+	ysize ExprParser::ReducePostfixAt(ysize idx)
 	{
 		auto begop = m_RStack[idx];
 		Expr* exp = nullptr;
@@ -426,13 +426,12 @@ namespace yk
 		}
 		if (exp)
 		{
-			std::size_t cnt = 0;
+			ysize cnt = 0;
 			for (j++; j <= idx; j++)
 			{
 				cnt++;
-				Token const& tok = m_RStack[j].Reference;
 				exp = new UryExpr(exp, 
-					OperPos(tok.Column, tok.Row, m_RStack[j].GetOper()));
+					new OperExpr(m_RStack[j].GetOper(), m_RStack[j].Reference));
 			}
 			m_RStack.erase(m_RStack.begin() + (idx - cnt), m_RStack.begin() + idx + 1);
 			if (idx - cnt == m_RStack.size())
@@ -449,16 +448,16 @@ namespace yk
 		return 0;
 	}
 
-	std::size_t ExprParser::ReduceInfixAt(std::size_t idx)
+	ysize ExprParser::ReduceInfixAt(ysize idx)
 	{
-		std::size_t ret = ReducePostfixAt(idx - 1);
+		ysize ret = ReducePostfixAt(idx - 1);
 		ReducePrefixAt(idx + 1);
 
 		Token const& tok = m_RStack[idx].Reference;
 		BinOp* op = (BinOp*)m_RStack[idx].GetOper();
 		Expr* exp = new BinExpr(m_RStack[idx - 1].GetExpr(), 
 								m_RStack[idx + 1].GetExpr(), 
-								OperPos(tok.Column, tok.Row, op));
+								new OperExpr(op, tok));
 
 		m_RStack.erase(m_RStack.begin() + (idx - 1), m_RStack.begin() + (idx + 2));
 		if (idx - 1 == m_RStack.size())

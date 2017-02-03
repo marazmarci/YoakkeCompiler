@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../Parsing/Token.h"
 #include <string>
 #include <vector>
 #include "Node.h"
-#include "../Parsing/Operator.h"
+#include "../Types.h"
+#include "../Parsing/Token.h"
 
 namespace yk
 {
@@ -13,9 +13,9 @@ namespace yk
 	class TypeSymbol;
 	class TypedSymbol;
 	class TypeDesc;
+	class Operator;
 
 	// Base class for any expression
-	// Children must override ToString, which is an XML dump of the subtree
 	class Expr : public Node
 	{
 	public:
@@ -27,34 +27,26 @@ namespace yk
 	public:
 		virtual ~Expr();
 	};
-
-	// Any literal holding the constant value
-	template <typename T>
-	class LiteralExpr : public Expr
+	
+	// Integer literal
+	class IntLiteralExpr : public Expr
 	{
 	public:
-		T Value;
+		yint Value;
 
 	public:
-		LiteralExpr(T const& v, NodePos const& p)
-			: Expr(p), Value(v)
-		{
-		}
+		IntLiteralExpr(Token const& tok);
+		virtual ~IntLiteralExpr();
 
 	public:
-		virtual std::string ToXML() override
-		{
-			std::string name = std::string(typeid(T).name()) + "Literal";
-			return "<" + name + ">" + std::to_string(Value) + "</" + name + ">";
-		}
+		virtual XMLNode* ToXML() override;
 	};
-	typedef LiteralExpr<int> IntLiteralExpr;
 
 	// An identifier with an optional hint type for ambigous evaluation
 	class IdentExpr : public Expr
 	{
 	public:
-		std::string Ident;
+		ystr Ident;
 		TypeSymbol* HintType;
 		TypedSymbol* Sym;
 
@@ -63,48 +55,51 @@ namespace yk
 		virtual ~IdentExpr();
 
 	public:
-		virtual std::string ToXML() override;
+		virtual XMLNode* ToXML() override;
 	};
 
 	// Anything between curly braces is a block expression
 	class BlockExpr : public Expr
 	{
 	public:
-		std::vector<Stmt*> Statements;
+		yvec<Stmt*> Statements;
 
 	public:
-		BlockExpr(std::vector<Stmt*> const& st, NodePos const& p);
+		BlockExpr(yvec<Stmt*> const& st, NodePos const& p);
 		virtual ~BlockExpr();
 
 	public:
-		virtual std::string ToXML() override;
+		virtual XMLNode* ToXML() override;
 	};
 
 	// Parameter for function
-	struct Parameter
+	class ParamExpr : public Expr
 	{
 	public:
-		Token Value;
+		ystr Value;
 		TypeDesc* Type;
 
 	public:
-		Parameter(Token const& v, TypeDesc* t);
-		virtual ~Parameter();
+		ParamExpr(Token* v, TypeDesc* t);
+		virtual ~ParamExpr();
+
+	public:
+		virtual XMLNode* ToXML() override;
 	};
 	
 	// A function header declaration
 	class FuncHeaderExpr : public Expr
 	{
 	public:
-		std::vector<Parameter> Parameters;
+		yvec<ParamExpr*> Parameters;
 		TypeDesc* ReturnType;
 
 	public:
-		FuncHeaderExpr(std::vector<Parameter> const& pars, TypeDesc* ret, NodePos const& p);
+		FuncHeaderExpr(yvec<ParamExpr*> const& pars, TypeDesc* ret, NodePos const& p);
 		virtual ~FuncHeaderExpr();
 
 	public:
-		virtual std::string ToXML() override;
+		virtual XMLNode* ToXML() override;
 	};
 
 	// A function with implementation
@@ -115,11 +110,24 @@ namespace yk
 		BlockExpr* Body;
 
 	public:
-		FuncExpr(FuncHeaderExpr* proto, BlockExpr* body, NodePos const& p);
+		FuncExpr(FuncHeaderExpr* proto, BlockExpr* body);
 		virtual ~FuncExpr();
 
 	public:
-		virtual std::string ToXML() override;
+		virtual XMLNode* ToXML() override;
+	};
+
+	class OperExpr : public Expr
+	{
+	public:
+		Operator* OP;
+
+	public:
+		OperExpr(Operator* o, Token const& t);
+		virtual ~OperExpr();
+
+	public:
+		virtual XMLNode* ToXML() override;
 	};
 
 	// An expression chained with an operator
@@ -127,14 +135,14 @@ namespace yk
 	{
 	public:
 		Expr* Sub;
-		OperPos OP;
+		OperExpr* OP;
 
 	public:
-		UryExpr(Expr* s, OperPos const& o);
+		UryExpr(Expr* s, OperExpr* o);
 		virtual ~UryExpr();
 
 	public:
-		virtual std::string ToXML() override;
+		virtual XMLNode* ToXML() override;
 	};
 
 	// Two expressions connected with an operator
@@ -143,14 +151,14 @@ namespace yk
 	public:
 		Expr* LHS;
 		Expr* RHS;
-		OperPos OP;
+		OperExpr* OP;
 
 	public:
-		BinExpr(Expr* l, Expr* r, OperPos const& o);
+		BinExpr(Expr* l, Expr* r, OperExpr* o);
 		virtual ~BinExpr();
 
 	public:
-		virtual std::string ToXML() override;
+		virtual XMLNode* ToXML() override;
 	};
 
 	// An expression enclosed between 2 tokens (needed for parsing)
@@ -166,6 +174,6 @@ namespace yk
 		virtual ~EnclosedExpr();
 
 	public:
-		virtual std::string ToXML() override;
+		virtual XMLNode* ToXML() override;
 	};
 }

@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <iostream>
 #include <string>
-#include "NodePos.h"
+#include "../Types.h"
 
 namespace yk
 {
@@ -15,13 +15,12 @@ namespace yk
 	class Token
 	{
 	public:
-		std::string Value;
-		std::size_t Row;
-		std::size_t Column;
+		ystr Value;
+		ysize Row;
+		ysize Column;
 		TokenT Type;
 
 	public:
-		Token(TokenT tt, std::string const& v, std::size_t r, std::size_t c);
-		NodePos GetPos() const;
+		Token(TokenT tt, ystr const& v, ysize r, ysize c);
 	};
 }

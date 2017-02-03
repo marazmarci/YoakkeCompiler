@@ -19,13 +19,13 @@ namespace yk
 		SemanticChecker(const char* src);
 
 	public:
-		void Check(std::vector<Stmt*> ls);
+		void Check(yvec<Stmt*> ls);
 		void Check(Stmt* st);
 		void Check(Expr* exp);
 		void Check(TypeDesc* td);
 
 	private:
-		void ErrorAt(std::string const& msg, NodePos const& t);
-		void WarnAt(std::string const& msg, NodePos const& t);
+		void ErrorAt(ystr const& msg, NodePos const& t);
+		void WarnAt(ystr const& msg, NodePos const& t);
 	};
 }

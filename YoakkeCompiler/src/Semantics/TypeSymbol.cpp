@@ -2,17 +2,17 @@
 
 namespace yk
 {
-	TypeSymbol::TypeSymbol(std::string const& n)
+	TypeSymbol::TypeSymbol(ystr const& n)
 		: Symbol(n)
 	{
 	}
 
-	ResolvableTypeSymbol::ResolvableTypeSymbol(std::string const& n)
+	ResolvableTypeSymbol::ResolvableTypeSymbol(ystr const& n)
 		: TypeSymbol(n), Resolved(nullptr)
 	{
 	}
 
-	BuiltinTypeSymbol::BuiltinTypeSymbol(std::string const& n)
+	BuiltinTypeSymbol::BuiltinTypeSymbol(ystr const& n)
 		: TypeSymbol(n)
 	{
 	}
@@ -27,7 +27,7 @@ namespace yk
 		return false;
 	}
 
-	FunctionTypeSymbol::FunctionTypeSymbol(std::vector<TypeSymbol*>& params, TypeSymbol* rt)
+	FunctionTypeSymbol::FunctionTypeSymbol(yvec<TypeSymbol*>& params, TypeSymbol* rt)
 		: TypeSymbol(""), Parameters(params), ReturnType(rt)
 	{
 		Name = "@f " + std::to_string(Parameters.size()) + ' ';
@@ -42,7 +42,7 @@ namespace yk
 		{
 			if (Parameters.size() != ft->Parameters.size()) return false;
 			if (!ReturnType->Same(ft->ReturnType)) return false;
-			for (std::size_t i = 0; i < Parameters.size(); i++)
+			for (ysize i = 0; i < Parameters.size(); i++)
 			{
 				if (!Parameters[i]->Same(ft->Parameters[i])) return false;
 			}
