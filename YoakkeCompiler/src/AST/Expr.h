@@ -20,6 +20,7 @@ namespace yk
 	{
 	public:
 		TypeSymbol* EvalType;
+		TypeSymbol* HintType;
 
 	protected:
 		Expr(NodePos const& p);
@@ -47,7 +48,6 @@ namespace yk
 	{
 	public:
 		ystr Ident;
-		TypeSymbol* HintType;
 		TypedSymbol* Sym;
 
 	public:

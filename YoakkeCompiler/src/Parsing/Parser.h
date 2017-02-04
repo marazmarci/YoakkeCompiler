@@ -62,7 +62,7 @@ namespace yk
 		yvec<Stmt*> ParseExprStmt();
 		yvec<Expr*> ParseExprs();
 
-		Expr* ParseSingleExpr();
+		Expr* ParseSingleExpr(ystr const& stop);
 		Expr* ParseAtom();
 
 		ParamExpr*		ParseParameter();

@@ -96,6 +96,9 @@
     <ClCompile Include="src\Parsing\ParseState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Semantics\Builtin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Parsing\Lexer.h">

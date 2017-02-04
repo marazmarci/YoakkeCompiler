@@ -7,7 +7,7 @@ namespace yk
 {
 	// Expression
 	Expr::Expr(NodePos const& p)
-		: Node(p), EvalType(nullptr)
+		: Node(p), EvalType(nullptr), HintType(nullptr)
 	{
 	}
 
@@ -34,7 +34,7 @@ namespace yk
 
 	// Identifier expression
 	IdentExpr::IdentExpr(Token const& tok)
-		: Expr(NodePos::Get(tok)), Ident(tok.Value), Sym(nullptr), HintType(nullptr)
+		: Expr(NodePos::Get(tok)), Ident(tok.Value), Sym(nullptr)
 	{
 	}
 

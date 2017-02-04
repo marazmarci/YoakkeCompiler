@@ -23,15 +23,17 @@ namespace yk
 		Parser& m_Parser;
 		yvec<ExprElem> m_Stack;
 		yvec<ExprElemR> m_RStack;
+		ystr m_Stop;
 
 	public:
-		ExprParser(Parser& par);
+		ExprParser(Parser& par, ystr const& stop);
 
 	public:
 		yvec<Expr*> ParseExprList();
 
 	private:
 		void EatElements();
+		bool EatSingle();
 		void Reduce();
 		yvec<OperPred> CreateOperPred();
 		ysize PredOperSingle(yvec<OperPred>& preds);

@@ -3,6 +3,7 @@
 #include "ConstantEvaluator.h"
 #include "ConstantSymbol.h"
 #include "VarSymbol.h"
+#include "Builtin.h"
 #include "../Parsing/Operator.h"
 #include "../AST/TypeDesc.h"
 #include "../Utils/StringUtils.h"
@@ -221,6 +222,45 @@ namespace yk
 				{
 					std::cout << "SANITY ERROR" << std::endl;
 				}
+			}
+		}
+		else if (LetExpr* le = dynamic_cast<LetExpr*>(exp))
+		{
+			if (le->Type) Check(le->Type);
+			if (le->Value)
+			{
+				if (le->Type) le->Value->HintType = le->Type->SymbolForm;
+				Check(le->Value);
+				le->EvalType = le->Value->EvalType;
+
+				if (IdentExpr* ident = dynamic_cast<IdentExpr*>(le->Lvalue))
+				{
+					auto syms = 
+						m_Table.Filter<TypedSymbol>(m_Table.RefSymbol(ident->Ident));
+					if (syms.size())
+					{
+						ErrorAt("Variable '" + ident->Ident + "' already declared!",
+							ident->Position);
+					}
+					else
+					{
+						m_Table.DeclSymbol(
+							new VarSymbol(ident->Ident, le->EvalType));
+					}
+				}
+				else
+				{
+					ErrorAt("Illegal left-hand side for let!", le->Lvalue->Position);
+				}
+			}
+			else
+				le->EvalType = Builtin::UNIT;
+
+			if (le->Type && le->Value && 
+				!le->Type->SymbolForm->Same(le->Value->EvalType))
+			{
+				ErrorAt("Specified type for let is not the type of given expression!", 
+					le->Value->Position);
 			}
 		}
 		else

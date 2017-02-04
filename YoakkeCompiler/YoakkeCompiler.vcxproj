@@ -125,6 +125,7 @@
     <ClCompile Include="src\Parsing\Parser.cpp" />
     <ClCompile Include="src\Parsing\ParseState.cpp" />
     <ClCompile Include="src\Parsing\Token.cpp" />
+    <ClCompile Include="src\Semantics\Builtin.cpp" />
     <ClCompile Include="src\Semantics\ConstantEvaluator.cpp" />
     <ClCompile Include="src\Semantics\ConstantSymbol.cpp" />
     <ClCompile Include="src\Semantics\Scope.cpp" />

@@ -250,13 +250,13 @@ namespace yk
 
 	yvec<Expr*> Parser::ParseExprs()
 	{
-		ExprParser expp(*this);
+		ExprParser expp(*this, "");
 		return expp.ParseExprList();
 	}
 
-	Expr* Parser::ParseSingleExpr()
+	Expr* Parser::ParseSingleExpr(ystr const& stop)
 	{
-		ExprParser expp(*this);
+		ExprParser expp(*this, stop);
 		auto ls = expp.ParseExprList();
 
 		if (ls.size() == 0)
@@ -289,7 +289,7 @@ namespace yk
 		{
 			Token beg = m_CurrentToken;
 			Next();
-			Expr* exp = ParseSingleExpr();
+			Expr* exp = ParseSingleExpr("");
 			if (exp)
 			{
 				if (Same(")"))
@@ -321,7 +321,7 @@ namespace yk
 		{
 			NodePos curr = NodePos::Get(m_CurrentToken);
 			Next();
-			Expr* lval = ParseSingleExpr();
+			Expr* lval = ParseSingleExpr("=");
 			if (lval)
 			{
 				NodePos last = lval->Position;
@@ -341,7 +341,7 @@ namespace yk
 				Expr* rval = nullptr;
 				if (Match("="))
 				{
-					rval = ParseSingleExpr();
+					rval = ParseSingleExpr("");
 					if (!rval)
 					{
 						ExpectError("Expression", DumpCurrentTok());

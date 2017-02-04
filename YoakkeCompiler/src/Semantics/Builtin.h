@@ -6,7 +6,7 @@ namespace yk
 {
 	namespace Builtin
 	{
-		BuiltinTypeSymbol* UNIT = nullptr;
-		BuiltinTypeSymbol* I32	= nullptr;
+		extern BuiltinTypeSymbol* UNIT;
+		extern BuiltinTypeSymbol* I32;
 	}
 }

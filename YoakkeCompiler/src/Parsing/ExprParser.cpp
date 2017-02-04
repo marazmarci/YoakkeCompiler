@@ -3,8 +3,8 @@
 
 namespace yk
 {
-	ExprParser::ExprParser(Parser& par)
-		: m_Parser(par)
+	ExprParser::ExprParser(Parser& par, ystr const& stop)
+		: m_Parser(par), m_Stop(stop)
 	{
 	}
 
@@ -24,25 +24,44 @@ namespace yk
 	{
 		Operator* op = nullptr;
 		Expr* exp = nullptr;
-		while (true)
+		if (m_Stop == "")
 		{
-			Token tok = m_Parser.m_CurrentToken;
-			if ((op = m_Parser.GetPrefixOp(tok.Value))
-				|| (op = m_Parser.GetInfixOp(tok.Value))
-				|| (op = m_Parser.GetPostfixOp(tok.Value)))
+			while (true)
 			{
-				m_Parser.Next();
-				m_Stack.push_back(ExprElem(tok));
-			}
-			else if (exp = m_Parser.ParseAtom())
-			{
-				m_Stack.push_back(ExprElem(exp));
-			}
-			else
-			{
-				break;
+				if (!EatSingle())
+					break;
 			}
 		}
+		else
+		{
+			while (m_Parser.m_CurrentToken.Value != m_Stop)
+			{
+				if (!EatSingle())
+					break;
+			}
+		}
+	}
+
+	bool ExprParser::EatSingle()
+	{
+		Operator* op = nullptr;
+		Expr* exp = nullptr;
+
+		Token tok = m_Parser.m_CurrentToken;
+		if ((op = m_Parser.GetPrefixOp(tok.Value))
+			|| (op = m_Parser.GetInfixOp(tok.Value))
+			|| (op = m_Parser.GetPostfixOp(tok.Value)))
+		{
+			m_Parser.Next();
+			m_Stack.push_back(ExprElem(tok));
+			return true;
+		}
+		if (exp = m_Parser.ParseAtom())
+		{
+			m_Stack.push_back(ExprElem(exp));
+			return true;
+		}
+		return false;
 	}
 
 	void ExprParser::Reduce()
