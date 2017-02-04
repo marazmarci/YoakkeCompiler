@@ -20,6 +20,14 @@ namespace yk
 			m_Logger.log() << "Cannot add invalid lexeme: '" << l << '\'' << log::endlog;
 	}
 
+	void Lexer::AddKeyword(ystr const& l)
+	{
+		if (ValidKeyword(l))
+			m_Keywords.insert(l);
+		else
+			m_Logger.log() << "Cannot add invalid keyword: '" << l << '\'' << log::endlog;
+	}
+
 	void Lexer::SetSource(const char* buf)
 	{
 		m_Buffer = buf;
@@ -119,6 +127,10 @@ namespace yk
 			{
 				ident += IncPtrS();
 			}
+			// check for keyword
+			auto it = m_Keywords.find(ident);
+			if (it != m_Keywords.end())
+				return Token(TokenT::Keyword, ident, m_RowCount, m_ColCount);
 			return Token(TokenT::Identifier, ident, m_RowCount, m_ColCount);
 		}
 
@@ -149,5 +161,15 @@ namespace yk
 	bool Lexer::ValidLexeme(ystr const& v)
 	{
 		return v.find_first_of(' ') == ystr::npos;
+	}
+
+	bool Lexer::ValidKeyword(ystr const& v)
+	{
+		if (!std::isalpha(v[0]) && v[0] != '_') return false;
+		for (const char c : v)
+		{
+			if (!std::isalnum(c) && c != '_') return false;
+		}
+		return true;
 	}
 }

@@ -15,7 +15,9 @@ namespace yk
 		m_Lexer.AddLexeme("{", TokenT::Keyword);
 		m_Lexer.AddLexeme("}", TokenT::Keyword);
 		m_Lexer.AddLexeme("->", TokenT::Keyword);
-		m_Lexer.AddLexeme("let", TokenT::Keyword);
+
+		m_Lexer.AddKeyword("let");
+		m_Lexer.AddKeyword("fn");
 
 		// Default operators ////////////////////////////////////////
 		AddInfixOp(BinOp("::", 0, AssocT::Noassoc));

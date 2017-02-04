@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -19,4 +20,7 @@ namespace yk
 
 	template <typename T>
 	using yvec = std::vector<T>;
+
+	template <typename T>
+	using yset = std::set<T>;
 }

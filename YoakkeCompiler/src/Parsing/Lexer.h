@@ -18,6 +18,7 @@ namespace yk
 		const char* m_Buffer;
 		const char* m_Ptr;
 		ymap<const ystr, TokenT> m_Lexemes;
+		yset<ystr> m_Keywords;
 		ysize m_RowCount;
 		ysize m_ColCount;
 		Logger m_Logger;
@@ -27,6 +28,7 @@ namespace yk
 
 	public:
 		void AddLexeme(ystr const& l, TokenT tt);
+		void AddKeyword(ystr const& l);
 		void SetSource(const char* buf);
 
 		Token Next();
@@ -36,6 +38,7 @@ namespace yk
 		bool Match(ystr const& c);
 
 		bool ValidLexeme(ystr const& v);
+		bool ValidKeyword(ystr const& v);
 
 		inline char IncPtr()
 		{
