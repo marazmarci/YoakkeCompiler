@@ -211,7 +211,14 @@ namespace yk
 						if (ts->Type == Builtin::UNRESOLVED)
 						{
 							Check(RHS);
-							ts->Type = RHS->EvalType;
+							if (RHS->EvalType == Builtin::UNRESOLVED)
+							{
+								ErrorAt("Cannot use unresolved types!", RHS->Position);
+							}
+							else
+							{
+								ts->Type = RHS->EvalType;
+							}
 						}
 						else
 						{
