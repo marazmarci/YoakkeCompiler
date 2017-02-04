@@ -232,10 +232,15 @@ namespace yk
 				if (le->Type) le->Value->HintType = le->Type->SymbolForm;
 				Check(le->Value);
 				le->EvalType = le->Value->EvalType;
+			}
+			else
+				le->EvalType = Builtin::UNIT;
 
+			if (le->Value || le->Type)
+			{
 				if (IdentExpr* ident = dynamic_cast<IdentExpr*>(le->Lvalue))
 				{
-					auto syms = 
+					auto syms =
 						m_Table.Filter<TypedSymbol>(m_Table.RefSymbol(ident->Ident));
 					if (syms.size())
 					{
@@ -244,8 +249,12 @@ namespace yk
 					}
 					else
 					{
-						m_Table.DeclSymbol(
-							new VarSymbol(ident->Ident, le->EvalType));
+						if (le->Value)
+							m_Table.DeclSymbol(
+								new VarSymbol(ident->Ident, le->Value->EvalType));
+						else
+							m_Table.DeclSymbol(
+								new VarSymbol(ident->Ident, le->Type->SymbolForm));
 					}
 				}
 				else
@@ -253,8 +262,6 @@ namespace yk
 					ErrorAt("Illegal left-hand side for let!", le->Lvalue->Position);
 				}
 			}
-			else
-				le->EvalType = Builtin::UNIT;
 
 			if (le->Type && le->Value && 
 				!le->Type->SymbolForm->Same(le->Value->EvalType))
