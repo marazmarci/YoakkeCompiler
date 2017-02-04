@@ -273,7 +273,14 @@ namespace yk
 			{
 				if (le->Type) le->Value->HintType = le->Type->SymbolForm;
 				Check(le->Value);
-				le->EvalType = le->Value->EvalType;
+				if (le->Value->EvalType == Builtin::UNRESOLVED)
+				{
+					ErrorAt("Cannot use unresolved types!", le->Value->Position);
+				}
+				else
+				{
+					le->EvalType = le->Value->EvalType;
+				}
 			}
 			else
 				le->EvalType = Builtin::UNIT;
