@@ -60,8 +60,6 @@ namespace yk
 				{
 					typed = syms2[0];
 				}
-				else
-					typed = nullptr;
 			}
 
 			if (typed)
