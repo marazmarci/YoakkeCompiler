@@ -28,24 +28,25 @@ namespace yk
 
 	// Reduced expression element
 	ExprElemR::ExprElemR(Expr* e)
-		: Tag(ExprElemT::Expr), Value(e), Reference(Token(TokenT::Epsilon, "", 0, 0))
+		: Tag(ExprElemT::Expr), ExpValue(e), OperValue(nullptr), 
+		Reference(Token(TokenT::Epsilon, "", 0, 0))
 	{
 	}
 
 	ExprElemR::ExprElemR(Operator* o, Token const& r)
-		: Tag(ExprElemT::Oper), Value(o), Reference(r)
+		: Tag(ExprElemT::Oper), OperValue(o), ExpValue(nullptr), Reference(r)
 	{
 	}
 
 	Expr* ExprElemR::GetExpr()
 	{
-		if (Tag == ExprElemT::Expr) return (Expr*)Value;
+		if (Tag == ExprElemT::Expr) return ExpValue;
 		return nullptr;
 	}
 
 	Operator* ExprElemR::GetOper()
 	{
-		if (Tag == ExprElemT::Oper) return (Operator*)Value;
+		if (Tag == ExprElemT::Oper) return OperValue;
 		return nullptr;
 	}
 }

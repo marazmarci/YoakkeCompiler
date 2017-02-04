@@ -93,9 +93,10 @@ namespace yk
 	public:
 		yvec<ParamExpr*> Parameters;
 		TypeDesc* ReturnType;
+		bool Explicit;
 
 	public:
-		FuncHeaderExpr(yvec<ParamExpr*> const& pars, TypeDesc* ret, NodePos const& p);
+		FuncHeaderExpr(yvec<ParamExpr*> const& pars, TypeDesc* ret, bool ex, NodePos const& p);
 		virtual ~FuncHeaderExpr();
 
 	public:
@@ -188,6 +189,21 @@ namespace yk
 	public:
 		LetExpr(Expr* lv, TypeDesc* td, Expr* val, NodePos const& p);
 		virtual ~LetExpr();
+
+	public:
+		virtual XMLNode* ToXML() override;
+	};
+
+	// Mixfix operation
+	class MixfixExpr : public Expr
+	{
+	public:
+		yvec<Expr*> Operands;
+		OperExpr* OP;
+
+	public:
+		MixfixExpr(yvec<Expr*> const& ops, OperExpr* o, NodePos const& p);
+		virtual ~MixfixExpr();
 
 	public:
 		virtual XMLNode* ToXML() override;

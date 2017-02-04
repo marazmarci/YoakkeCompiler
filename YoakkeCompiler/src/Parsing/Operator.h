@@ -48,9 +48,9 @@ namespace yk
 		BinOp(ystr const& sym, double prec, AssocT as);
 	};
 
-	class StackElemR;
-	typedef std::function<bool(yvec<StackElemR*>&, ysize)> MFOpHere;
-	typedef std::function<ysize(yvec<StackElemR*>&, ysize)> MFOpReduce;
+	class ExprElemR;
+	typedef std::function<bool(yvec<ExprElemR>&, ysize)> MFOpHere;
+	typedef std::function<ysize(yvec<ExprElemR>&, ysize, Operator*)> MFOpReduce;
 	class MixfixOp : public Operator
 	{
 	public:

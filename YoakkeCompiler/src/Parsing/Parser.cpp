@@ -2,6 +2,7 @@
 #include "Parser.h"
 #include "ExprParser.h"
 #include "../Utils/StringUtils.h"
+#include "EnclosedExpr.h"
 
 namespace yk
 {
@@ -17,7 +18,6 @@ namespace yk
 		m_Lexer.AddLexeme("->", TokenT::Keyword);
 
 		m_Lexer.AddKeyword("let");
-		m_Lexer.AddKeyword("fn");
 
 		// Default operators ////////////////////////////////////////
 		AddInfixOp(BinOp("::", 0, AssocT::Noassoc));
@@ -50,6 +50,7 @@ namespace yk
 		AddPrefixOp(UryOp("!", 9, FixityT::Prefix));
 
 		AddInfixOp(BinOp(".", 10, AssocT::Left));
+		AddMixfixOp(MixfixOp(" fcall ", 10, Enclosed::FuncCallHere, Enclosed::FuncCallReduce));
 		/////////////////////////////////////////////////////////////
 	}
 
@@ -292,17 +293,34 @@ namespace yk
 			Token beg = m_CurrentToken;
 			Next();
 			Expr* exp = ParseSingleExpr("");
+			if (Same(")"))
+			{
+				Token end = m_CurrentToken;
+				Next();
+				return new EnclosedExpr(exp, beg, end);
+			}
+			else
+			{
+				ExpectError("')'", DumpCurrentTok());
+				return nullptr;
+			}
+		}
+		else if (Same("["))
+		{
+			Token beg = m_CurrentToken;
+			Next();
+			Expr* exp = ParseSingleExpr("");
 			if (exp)
 			{
-				if (Same(")"))
+				if (Same("]"))
 				{
 					Token end = m_CurrentToken;
 					Next();
-					return exp;
+					return new EnclosedExpr(exp, beg, end);
 				}
 				else
 				{
-					ExpectError("')'", DumpCurrentTok());
+					ExpectError("']'", DumpCurrentTok());
 					return nullptr;
 				}
 			}
@@ -377,7 +395,19 @@ namespace yk
 			}
 			else
 			{
-				return proto;
+				if (proto->Explicit)
+				{
+					return proto;
+				}
+				else
+				{
+					if (proto->Parameters.size())
+					{
+						ExpectError("'->'", DumpCurrentTok());
+					}
+					LoadState(state);
+					return nullptr;
+				}
 			}
 		}
 
@@ -452,9 +482,11 @@ namespace yk
 			{
 				NodePos last = NodePos::Get(m_CurrentToken);
 				Next();
+				bool expl = false;
 				TypeDesc* rettype = new IdentTypeDesc(Token(TokenT::Keyword, "unit", 0, 0));
 				if (Match("->"))
 				{
+					expl = true;
 					delete rettype;
 					rettype = ParseType();
 					if (!rettype)
@@ -465,9 +497,9 @@ namespace yk
 					last = rettype->Position;
 				}
 
-				return new FuncHeaderExpr(params, rettype, 
+				return new FuncHeaderExpr(params, rettype, expl,
 					NodePos(first.StartX, first.StartY,
-						last.EndX, last.EndY));
+							last.EndX, last.EndY));
 			}
 			else
 			{
@@ -510,52 +542,41 @@ namespace yk
 			Next();
 			return new IdentTypeDesc(curr);
 		}
-		else if (Same("fn"))
+		else if (Same("("))
 		{
 			NodePos first = NodePos::Get(m_CurrentToken);
 			Next();
-			if (Expect("("))
+
+			TypeDesc* arg = nullptr;
+			yvec<TypeDesc*> args;
+			if (arg = ParseType())
 			{
-				TypeDesc* arg = nullptr;
-				yvec<TypeDesc*> args;
-				if (arg = ParseType())
+				args.push_back(arg);
+				while (Match(","))
 				{
-					args.push_back(arg);
-					while (Match(","))
+					if (arg = ParseType())
 					{
-						if (arg = ParseType())
-						{
-							args.push_back(arg);
-						}
-						else
-						{
-							ExpectError("Type", DumpCurrentTok());
-						}
+						args.push_back(arg);
+					}
+					else
+					{
+						ExpectError("Type", DumpCurrentTok());
 					}
 				}
-				if (Same(")"))
+			}
+			if (Expect(")"))
+			{
+				if (Expect("->"))
 				{
-					NodePos last = NodePos::Get(m_CurrentToken);
-					Next();
-					TypeDesc* rettype = new IdentTypeDesc(Token(TokenT::Keyword, "unit", 0, 0));
-					if (Match("->"))
+					TypeDesc* rettype = ParseType();
+					if (!rettype)
 					{
-						delete rettype;
-						rettype = ParseType();
-						if (!rettype)
-						{
-							ExpectError("Return type", DumpCurrentTok());
-							return nullptr;
-						}
-						last = rettype->Position;
+						ExpectError("Return type", DumpCurrentTok());
+						return nullptr;
 					}
 					return new FuncTypeDesc(args, rettype,
-						NodePos(first.StartX, first.StartY, last.EndX, last.EndY));
-				}
-				else
-				{
-					ExpectError("')'", DumpCurrentTok());
-				}
+						NodePos::Interval(first, rettype->Position));
+				} // TODO: tuple type
 			}
 		}
 

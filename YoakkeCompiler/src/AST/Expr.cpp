@@ -92,8 +92,8 @@ namespace yk
 	}
 
 	// Function declaration
-	FuncHeaderExpr::FuncHeaderExpr(yvec<ParamExpr*> const& pars, TypeDesc* ret, NodePos const& p)
-		: Expr(p), Parameters(pars), ReturnType(ret)
+	FuncHeaderExpr::FuncHeaderExpr(yvec<ParamExpr*> const& pars, TypeDesc* ret, bool expl, NodePos const& p)
+		: Expr(p), Parameters(pars), ReturnType(ret), Explicit(expl)
 	{
 	}
 
@@ -234,6 +234,26 @@ namespace yk
 			node->Children.push_back(Type->ToXML());
 		if (Value)
 			node->Children.push_back(Value->ToXML());
+		return node;
+	}
+
+	// Mixfix expression
+	MixfixExpr::MixfixExpr(yvec<Expr*> const& ops, OperExpr* o, NodePos const& p)
+		: Expr(p), Operands(ops), OP(o)
+	{
+	}
+
+	MixfixExpr::~MixfixExpr()
+	{
+		for (auto o : Operands) delete o;
+		delete OP;
+	}
+
+	XMLNode* MixfixExpr::ToXML()
+	{
+		auto node = new XMLNode("MixfixExpr");
+		node->Children.push_back(OP->ToXML());
+		for (auto o : Operands) node->Children.push_back(o->ToXML());
 		return node;
 	}
 }

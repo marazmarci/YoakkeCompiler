@@ -8,6 +8,9 @@
 #include "../AST/TypeDesc.h"
 #include "../Utils/StringUtils.h"
 
+// TODO
+// - fix flattening
+
 namespace yk
 {
 	SemanticChecker::SemanticChecker(const char* src)
@@ -191,7 +194,7 @@ namespace yk
 					else
 					{
 						Check(exp);
-						types.push_back(exp->EvalType);
+						types.insert(types.begin(), exp->EvalType);
 						break;
 					}
 				}
@@ -272,6 +275,26 @@ namespace yk
 					std::cout << "SANITY ERROR" << std::endl;
 				}
 			}
+		}
+		else if (MixfixExpr* mf = dynamic_cast<MixfixExpr*>(exp))
+		{
+			if (mf->OP->OP->Symbol == " fcall ")
+			{
+				Expr* func = mf->Operands[0];
+				Expr* params = mf->Operands[1];
+				yvec<TypeSymbol*> args;
+				if (params)
+				{
+					Check(params);
+				}
+
+				FunctionTypeSymbol* fts = new FunctionTypeSymbol(args, Builtin::UNIT);
+				func->HintType = fts;
+				Check(func);
+				mf->EvalType = ((FunctionTypeSymbol*)func->EvalType)->ReturnType;
+			}
+			else
+				std::cout << "WAT";
 		}
 		else if (LetExpr* le = dynamic_cast<LetExpr*>(exp))
 		{

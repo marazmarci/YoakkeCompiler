@@ -40,7 +40,7 @@ namespace yk
 		ysize MatchOperSingle(yvec<OperPred>& preds);
 		void CheckAmbiguity(yvec<OperPred>& preds);
 		yvec<ExprElemR> CreateDeducedStack(yvec<OperPred>& preds);
-		double MaxPrec(yvec<ExprElemR>& elems);
+		double MaxPrec();
 		bool ReduceOnce();
 		ysize ReduceSingle(ysize idx, bool right, double prec);
 		void ReducePrefixAt(ysize idx);

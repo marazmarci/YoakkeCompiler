@@ -326,21 +326,36 @@ namespace yk
 		return ret;
 	}
 
-	double ExprParser::MaxPrec(yvec<ExprElemR>& elems)
+	double ExprParser::MaxPrec()
 	{
 		double max = -1.0;
 		Operator* op;
-		for (auto& el : elems)
+		for (auto& el : m_RStack)
 		{
 			if ((op = el.GetOper()) && op->Precedence > max)
 				max = op->Precedence;
+		}
+		// Try mixfix operators
+		for (auto mf : m_Parser.m_MixfixOps)
+		{
+			if (mf.Precedence > max)
+			{
+				for (ysize i = 0; i < m_RStack.size(); i++)
+				{
+					if (mf.Here(m_RStack, i))
+					{
+						max = mf.Precedence;
+						break;
+					}
+				}
+			}
 		}
 		return max;
 	}
 
 	bool ExprParser::ReduceOnce()
 	{
-		double mp = MaxPrec(m_RStack);
+		double mp = MaxPrec();
 		if (mp >= 0)
 		{
 			// Check for noassoc sanity
@@ -391,6 +406,14 @@ namespace yk
 				if (binop->Assoc == AssocT::Right && right) offs = ReduceInfixAt(idx);
 
 				if (binop->Assoc == AssocT::Noassoc && !right) offs = ReduceInfixAt(idx);
+			}
+		}
+		else if (!right)
+		{
+			for (auto& mf : m_Parser.m_MixfixOps)
+			{
+				if (mf.Precedence == prec && mf.Here(m_RStack, idx))
+					offs = mf.Reduce(m_RStack, idx, &mf);
 			}
 		}
 		return offs;

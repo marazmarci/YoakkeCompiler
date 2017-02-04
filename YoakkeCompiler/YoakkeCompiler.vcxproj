@@ -113,6 +113,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\AST\Expr.cpp" />
     <ClCompile Include="src\AST\Node.cpp" />
+    <ClCompile Include="src\Parsing\EnclosedExpr.cpp" />
     <ClCompile Include="src\Parsing\ExprElem.cpp" />
     <ClCompile Include="src\Parsing\NodePos.cpp" />
     <ClCompile Include="src\AST\Stmt.cpp" />
@@ -142,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="src\AST\Expr.h" />
     <ClInclude Include="src\AST\Node.h" />
+    <ClInclude Include="src\Parsing\EnclosedExpr.h" />
     <ClInclude Include="src\Parsing\NodePos.h" />
     <ClInclude Include="src\AST\Stmt.h" />
     <ClInclude Include="src\AST\TypeDesc.h" />

@@ -32,7 +32,8 @@ namespace yk
 	{
 	public:
 		ExprElemT Tag;
-		void* Value;
+		Expr* ExpValue;
+		Operator* OperValue;
 		Token Reference;
 
 	public:
