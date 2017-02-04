@@ -14,13 +14,13 @@ namespace yk
 		virtual bool Same(TypeSymbol* other) = 0;
 	};
 
-	class ResolvableTypeSymbol : public TypeSymbol
+	class UnresolvedTypeSymbol : public TypeSymbol
 	{
 	public:
-		TypeSymbol* Resolved;
+		UnresolvedTypeSymbol();
 
 	public:
-		ResolvableTypeSymbol(ystr const& n);
+		bool Same(TypeSymbol* other) override;
 	};
 
 	class BuiltinTypeSymbol : public TypeSymbol

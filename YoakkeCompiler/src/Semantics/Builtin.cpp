@@ -6,5 +6,6 @@ namespace yk
 	{
 		BuiltinTypeSymbol* UNIT = nullptr;
 		BuiltinTypeSymbol* I32 = nullptr;
+		UnresolvedTypeSymbol* UNRESOLVED = nullptr;
 	}
 }

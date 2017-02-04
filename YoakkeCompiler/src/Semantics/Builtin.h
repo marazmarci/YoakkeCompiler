@@ -8,5 +8,6 @@ namespace yk
 	{
 		extern BuiltinTypeSymbol* UNIT;
 		extern BuiltinTypeSymbol* I32;
+		extern UnresolvedTypeSymbol* UNRESOLVED;
 	}
 }

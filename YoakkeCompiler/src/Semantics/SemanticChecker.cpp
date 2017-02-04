@@ -200,6 +200,48 @@ namespace yk
 
 				be->EvalType = new TupleTypeSymbol(types);
 			}
+			else if (be->OP->OP->Symbol == "=")
+			{
+				// TODO: better LHS handling (also for let)
+				if (IdentExpr* ident = dynamic_cast<IdentExpr*>(LHS))
+				{
+					auto syms =
+						m_Table.Filter<TypedSymbol>(m_Table.RefSymbol(ident->Ident));
+					if (syms.size() == 1)
+					{
+						TypedSymbol* ts = syms[0];
+						if (ts->Type == Builtin::UNRESOLVED)
+						{
+							Check(RHS);
+							ts->Type = RHS->EvalType;
+						}
+						else
+						{
+							// Hint for RHS
+							RHS->HintType = ts->Type;
+							Check(RHS);
+							if (!RHS->EvalType->Same(ts->Type))
+							{
+								ErrorAt("Specified type for assignment is not the type of given expression!",
+									be->RHS->Position);
+							}
+						}
+					}
+					else if (syms.size() == 0)
+					{
+						ErrorAt("Undefined variable '" + ident->Ident + "'!",
+							ident->Position);
+					}
+					else
+					{
+						std::cout << "SANITY ERROR" << std::endl;
+					}
+				}
+				else
+				{
+					ErrorAt("Illegal left-hand side for assignment!", LHS->Position);
+				}
+			}
 			else
 			{
 				Check(LHS);
@@ -238,38 +280,40 @@ namespace yk
 			else
 				le->EvalType = Builtin::UNIT;
 
-			if (le->Value || le->Type)
+			// Check for type match
+			if (le->Type && le->Value &&
+				!le->Type->SymbolForm->Same(le->Value->EvalType))
 			{
-				if (IdentExpr* ident = dynamic_cast<IdentExpr*>(le->Lvalue))
+				ErrorAt("Specified type for let is not the type of given expression!",
+					le->Value->Position);
+			}
+
+			// Add to symbol table
+			if (IdentExpr* ident = dynamic_cast<IdentExpr*>(le->Lvalue))
+			{
+				auto syms =
+					m_Table.Filter<TypedSymbol>(m_Table.RefSymbol(ident->Ident));
+				if (syms.size())
 				{
-					auto syms =
-						m_Table.Filter<TypedSymbol>(m_Table.RefSymbol(ident->Ident));
-					if (syms.size())
-					{
-						ErrorAt("Variable '" + ident->Ident + "' already declared!",
-							ident->Position);
-					}
-					else
-					{
-						if (le->Value)
-							m_Table.DeclSymbol(
-								new VarSymbol(ident->Ident, le->Value->EvalType));
-						else
-							m_Table.DeclSymbol(
-								new VarSymbol(ident->Ident, le->Type->SymbolForm));
-					}
+					ErrorAt("Variable '" + ident->Ident + "' already declared!",
+						ident->Position);
 				}
 				else
 				{
-					ErrorAt("Illegal left-hand side for let!", le->Lvalue->Position);
+					if (le->Value)
+						m_Table.DeclSymbol(
+							new VarSymbol(ident->Ident, le->Value->EvalType));
+					else if (le->Type)
+						m_Table.DeclSymbol(
+							new VarSymbol(ident->Ident, le->Type->SymbolForm));
+					else
+						m_Table.DeclSymbol(
+							new VarSymbol(ident->Ident, Builtin::UNRESOLVED));
 				}
 			}
-
-			if (le->Type && le->Value && 
-				!le->Type->SymbolForm->Same(le->Value->EvalType))
+			else
 			{
-				ErrorAt("Specified type for let is not the type of given expression!", 
-					le->Value->Position);
+				ErrorAt("Illegal left-hand side for let!", le->Lvalue->Position);
 			}
 		}
 		else

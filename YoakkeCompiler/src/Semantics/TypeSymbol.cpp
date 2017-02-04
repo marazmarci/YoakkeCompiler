@@ -7,9 +7,14 @@ namespace yk
 	{
 	}
 
-	ResolvableTypeSymbol::ResolvableTypeSymbol(ystr const& n)
-		: TypeSymbol(n), Resolved(nullptr)
+	UnresolvedTypeSymbol::UnresolvedTypeSymbol()
+		: TypeSymbol("@unresolved")
 	{
+	}
+
+	bool UnresolvedTypeSymbol::Same(TypeSymbol* other)
+	{
+		return false;
 	}
 
 	BuiltinTypeSymbol::BuiltinTypeSymbol(ystr const& n)
