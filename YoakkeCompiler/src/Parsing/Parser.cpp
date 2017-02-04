@@ -424,8 +424,10 @@ namespace yk
 	FuncHeaderExpr* Parser::ParseFuncPrototype()
 	{
 		auto state = SaveState();
-		if (Match("("))
+		if (Same("("))
 		{
+			NodePos first = NodePos::Get(m_CurrentToken);
+			Next();
 			yvec<ParamExpr*> params;
 			auto par = ParseParameter();
 			if (par)
@@ -446,8 +448,10 @@ namespace yk
 				}
 			}
 
-			if (Expect(")"))
+			if (Same(")"))
 			{
+				NodePos last = NodePos::Get(m_CurrentToken);
+				Next();
 				TypeDesc* rettype = new IdentTypeDesc(Token(TokenT::Keyword, "unit", 0, 0));
 				if (Match("->"))
 				{
@@ -458,15 +462,16 @@ namespace yk
 						ExpectError("Return type", DumpCurrentTok());
 						return nullptr;
 					}
+					last = rettype->Position;
 				}
 
 				return new FuncHeaderExpr(params, rettype, 
-					NodePos(state.ColCount, state.RowCount, 
-						rettype->Position.EndX, rettype->Position.EndY));
+					NodePos(first.StartX, first.StartY,
+						last.EndX, last.EndY));
 			}
 			else
 			{
-				return nullptr;
+				ExpectError("')'", DumpCurrentTok());
 			}
 		}
 
@@ -504,6 +509,54 @@ namespace yk
 			Token curr = m_CurrentToken;
 			Next();
 			return new IdentTypeDesc(curr);
+		}
+		else if (Same("fn"))
+		{
+			NodePos first = NodePos::Get(m_CurrentToken);
+			Next();
+			if (Expect("("))
+			{
+				TypeDesc* arg = nullptr;
+				yvec<TypeDesc*> args;
+				if (arg = ParseType())
+				{
+					args.push_back(arg);
+					while (Match(","))
+					{
+						if (arg = ParseType())
+						{
+							args.push_back(arg);
+						}
+						else
+						{
+							ExpectError("Type", DumpCurrentTok());
+						}
+					}
+				}
+				if (Same(")"))
+				{
+					NodePos last = NodePos::Get(m_CurrentToken);
+					Next();
+					TypeDesc* rettype = new IdentTypeDesc(Token(TokenT::Keyword, "unit", 0, 0));
+					if (Match("->"))
+					{
+						delete rettype;
+						rettype = ParseType();
+						if (!rettype)
+						{
+							ExpectError("Return type", DumpCurrentTok());
+							return nullptr;
+						}
+						last = rettype->Position;
+					}
+					return new FuncTypeDesc(args, rettype,
+						NodePos(first.StartX, first.StartY, last.EndX, last.EndY));
+				}
+				else
+				{
+					ExpectError("')'", DumpCurrentTok());
+				}
+			}
 		}
 
 		return nullptr;

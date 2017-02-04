@@ -55,17 +55,24 @@ namespace yk
 	yvec<TypedSymbol*> SymbolTable::FilterTyped(yvec<TypedSymbol*>& syms, TypeSymbol* match)
 	{
 		yvec<TypedSymbol*> res;
-		for (auto s : syms)
+		if (FunctionTypeSymbol* ft = dynamic_cast<FunctionTypeSymbol*>(match))
 		{
-			if (s->Type->Same(match))
-				res.push_back(s);
+			return FilterArgs(syms, ft->Parameters);
+		}
+		else
+		{
+			for (auto s : syms)
+			{
+				if (s->Type->Same(match))
+					res.push_back(s);
+			}
 		}
 		return res;
 	}
 
-	yvec<ConstantSymbol*> SymbolTable::FilterArgs(yvec<ConstantSymbol*>& syms, yvec<TypeSymbol*>& args)
+	yvec<TypedSymbol*> SymbolTable::FilterArgs(yvec<TypedSymbol*>& syms, yvec<TypeSymbol*>& args)
 	{
-		yvec<ConstantSymbol*> ret;
+		yvec<TypedSymbol*> ret;
 		for (auto s : syms)
 		{
 			if (auto* ft = dynamic_cast<FunctionTypeSymbol*>(s->Type))

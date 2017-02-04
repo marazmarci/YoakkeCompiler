@@ -151,7 +151,7 @@ namespace yk
 						auto set = m_Table.RefSymbol(ident);
 						auto typed = m_Table.Filter<TypedSymbol>(set);
 						auto same = m_Table.FilterTyped(typed, rval->EvalType);
-
+						
 						if (same.empty())
 						{
 							m_Table.DeclSymbol(new UserConstantSymbol(ident, rval));
@@ -208,7 +208,9 @@ namespace yk
 
 				ystr op = be->OP->OP->Symbol;
 				// Check for a function
-				auto syms = m_Table.Filter<ConstantSymbol>(m_Table.RefSymbol(op));
+				auto tmpsyms = m_Table.Filter<ConstantSymbol>(m_Table.RefSymbol(op));
+				std::vector<TypedSymbol*> syms;
+				for (auto s : tmpsyms) syms.push_back(s);
 				auto funs = m_Table.FilterArgs(syms, args);
 				if (funs.size() == 1)
 				{
@@ -289,6 +291,17 @@ namespace yk
 			{
 				ErrorAt("Undefined type '" + id->Identifier + "'!", id->Position);
 			}
+		}
+		else if (FuncTypeDesc* fd = dynamic_cast<FuncTypeDesc*>(td))
+		{
+			yvec<TypeSymbol*> pars;
+			for (auto p : fd->Parameters)
+			{
+				Check(p);
+				pars.push_back(p->SymbolForm);
+			}
+			Check(fd->ReturnType);
+			fd->SymbolForm = new FunctionTypeSymbol(pars, fd->ReturnType->SymbolForm);
 		}
 		else
 		{

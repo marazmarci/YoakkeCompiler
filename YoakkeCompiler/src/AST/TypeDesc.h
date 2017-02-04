@@ -31,4 +31,18 @@ namespace yk
 	public:
 		virtual XMLNode* ToXML() override;
 	};
+
+	class FuncTypeDesc : public TypeDesc
+	{
+	public:
+		yvec<TypeDesc*> Parameters;
+		TypeDesc* ReturnType;
+
+	public:
+		FuncTypeDesc(yvec<TypeDesc*> const& pars, TypeDesc* rt, NodePos const& p);
+		virtual ~FuncTypeDesc();
+
+	public:
+		virtual XMLNode* ToXML() override;
+	};
 }
