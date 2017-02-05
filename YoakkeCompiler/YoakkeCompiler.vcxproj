@@ -113,6 +113,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\AST\Expr.cpp" />
     <ClCompile Include="src\AST\Node.cpp" />
+    <ClCompile Include="src\IR\BasicBlock.cpp" />
+    <ClCompile Include="src\IR\Function.cpp" />
+    <ClCompile Include="src\IR\IRPrinter.cpp" />
+    <ClCompile Include="src\IR\NameGenerator.cpp" />
+    <ClCompile Include="src\IR\Type.cpp" />
+    <ClCompile Include="src\IR\Unit.cpp" />
     <ClCompile Include="src\Parsing\EnclosedExpr.cpp" />
     <ClCompile Include="src\Parsing\ExprElem.cpp" />
     <ClCompile Include="src\Parsing\NodePos.cpp" />
@@ -143,6 +149,12 @@
   <ItemGroup>
     <ClInclude Include="src\AST\Expr.h" />
     <ClInclude Include="src\AST\Node.h" />
+    <ClInclude Include="src\IR\BasicBlock.h" />
+    <ClInclude Include="src\IR\Function.h" />
+    <ClInclude Include="src\IR\IRPrinter.h" />
+    <ClInclude Include="src\IR\NameGenerator.h" />
+    <ClInclude Include="src\IR\Type.h" />
+    <ClInclude Include="src\IR\Unit.h" />
     <ClInclude Include="src\Parsing\EnclosedExpr.h" />
     <ClInclude Include="src\Parsing\NodePos.h" />
     <ClInclude Include="src\AST\Stmt.h" />
