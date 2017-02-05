@@ -9,6 +9,7 @@
 #include "src\IR\BasicBlock.h"
 #include "src\IR\IRPrinter.h"
 #include "src\IR\Type.h"
+#include "src\IR\Instruction.h"
 
 int main(void)
 {
@@ -31,6 +32,12 @@ int main(void)
 	func->Add(new yk::IR::BasicBlock("asd"));
 	func->Add(new yk::IR::BasicBlock("asd"));
 	global->Add(func);
+
+	for (yk::ysize i = 0; i < func->Blocks.size() - 1; i++)
+	{
+		func->Blocks[i]->Add(new yk::IR::JmpInstr(func->Blocks[i + 1]));
+	}
+
 	yk::IR::IRPrinter printer(std::cout);
 	printer.Print(global);
 

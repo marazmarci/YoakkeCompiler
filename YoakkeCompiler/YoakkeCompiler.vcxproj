@@ -115,6 +115,7 @@
     <ClCompile Include="src\AST\Node.cpp" />
     <ClCompile Include="src\IR\BasicBlock.cpp" />
     <ClCompile Include="src\IR\Function.cpp" />
+    <ClCompile Include="src\IR\Instruction.cpp" />
     <ClCompile Include="src\IR\IRPrinter.cpp" />
     <ClCompile Include="src\IR\NameGenerator.cpp" />
     <ClCompile Include="src\IR\Type.cpp" />
@@ -151,8 +152,10 @@
     <ClInclude Include="src\AST\Node.h" />
     <ClInclude Include="src\IR\BasicBlock.h" />
     <ClInclude Include="src\IR\Function.h" />
+    <ClInclude Include="src\IR\Instruction.h" />
     <ClInclude Include="src\IR\IRPrinter.h" />
     <ClInclude Include="src\IR\NameGenerator.h" />
+    <ClInclude Include="src\IR\Opcode.h" />
     <ClInclude Include="src\IR\Type.h" />
     <ClInclude Include="src\IR\Unit.h" />
     <ClInclude Include="src\Parsing\EnclosedExpr.h" />

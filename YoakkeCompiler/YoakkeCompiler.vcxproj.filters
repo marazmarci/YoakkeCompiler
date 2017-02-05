@@ -120,6 +120,9 @@
     <ClCompile Include="src\IR\Type.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\IR\Instruction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Parsing\Lexer.h">
@@ -225,6 +228,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\IR\Type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IR\Instruction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IR\Opcode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,6 +9,7 @@ namespace yk
 		class Unit;
 		class Function;
 		class BasicBlock;
+		class Instr;
 
 		class IRPrinter
 		{
@@ -22,6 +23,7 @@ namespace yk
 			void Print(Unit* un);
 			void Print(Function* fn);
 			void Print(BasicBlock* bb);
+			void Print(Instr* ins);
 		};
 	}
 }

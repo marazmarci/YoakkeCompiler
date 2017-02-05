@@ -8,5 +8,10 @@ namespace yk
 			: Name(name), Func(nullptr)
 		{
 		}
+
+		void BasicBlock::Add(Instr* ins)
+		{
+			Body.push_back(ins);
+		}
 	}
 }

@@ -3,6 +3,7 @@
 #include "Function.h"
 #include "BasicBlock.h"
 #include "Type.h"
+#include "Instruction.h"
 
 namespace yk
 {
@@ -41,7 +42,24 @@ namespace yk
 
 		void IRPrinter::Print(BasicBlock* bb)
 		{
-			m_Ostream << "# <label> '" << bb->Name << "':" << std::endl;
+			m_Ostream << "<label> '" << bb->Name << "':" << std::endl;
+			for (auto i : bb->Body)
+				Print(i);
+		}
+
+		void IRPrinter::Print(Instr* ins)
+		{
+			m_Ostream << "  ";
+			switch (ins->Code)
+			{
+			case Opcode::Jmp:
+				m_Ostream << "jmp label '" << ((JmpInstr*)ins)->Target->Name << '\'';
+				break;
+
+			default:
+				std::cout << "Unhandld opcode!" << std::endl;
+			}
+			m_Ostream << std::endl;
 		}
 	}
 }
