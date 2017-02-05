@@ -274,7 +274,14 @@ namespace yk
 				FunctionTypeSymbol* fts = new FunctionTypeSymbol(params ? params->EvalType : nullptr, Builtin::UNIT);
 				func->HintType = fts;
 				Check(func);
-				mf->EvalType = ((FunctionTypeSymbol*)func->EvalType)->ReturnType;
+				if (auto fnsm = dynamic_cast<FunctionTypeSymbol*>(func->EvalType))
+				{
+					mf->EvalType = fnsm->ReturnType;
+				}
+				else
+				{
+					ErrorAt("Left-hand side is not a function!", func->Position);
+				}
 			}
 			else
 				std::cout << "WAT";
