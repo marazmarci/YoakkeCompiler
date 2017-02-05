@@ -92,13 +92,16 @@ namespace yk
 		else if (FuncHeaderExpr* fe = dynamic_cast<FuncHeaderExpr*>(exp))
 		{
 			Check(fe->ReturnType);
-			yvec<TypeSymbol*> params;
+			TypeSymbol* lhs = nullptr;
 			for (auto p : fe->Parameters)
 			{
 				Check(p->Type);
-				params.push_back(p->Type->SymbolForm);
+				if (lhs == nullptr)
+					lhs = p->Type->SymbolForm;
+				else
+					lhs = new TupleTypeSymbol(lhs, p->Type->SymbolForm);
 			}
-			fe->EvalType = new FunctionTypeSymbol(params, fe->ReturnType->SymbolForm);
+			fe->EvalType = new FunctionTypeSymbol(lhs, fe->ReturnType->SymbolForm);
 		}
 		else if (FuncExpr* fe = dynamic_cast<FuncExpr*>(exp))
 		{
@@ -177,29 +180,10 @@ namespace yk
 			}
 			else if (be->OP->OP->Symbol == ",")
 			{
+				Check(LHS);
 				Check(RHS);
-				Expr* exp = LHS;
-				yvec<TypeSymbol*> types;
-				types.push_back(RHS->EvalType);
-				// Flatten
-				while (true)
-				{
-					BinExpr* r;
-					if ((r = dynamic_cast<BinExpr*>(exp)) && r->OP->OP->Symbol == ",")
-					{
-						Check(r->RHS);
-						types.push_back(r->RHS->EvalType);
-						exp = r->LHS;
-					}
-					else
-					{
-						Check(exp);
-						types.insert(types.begin(), exp->EvalType);
-						break;
-					}
-				}
 
-				be->EvalType = new TupleTypeSymbol(types);
+				be->EvalType = new TupleTypeSymbol(LHS->EvalType, RHS->EvalType);
 			}
 			else if (be->OP->OP->Symbol == "=")
 			{
@@ -254,7 +238,7 @@ namespace yk
 			{
 				Check(LHS);
 				Check(RHS);
-				yvec<TypeSymbol*> args = { LHS->EvalType, RHS->EvalType };
+				TypeSymbol* args = new TupleTypeSymbol(LHS->EvalType, RHS->EvalType );
 
 				ystr op = be->OP->OP->Symbol;
 				// Check for a function
@@ -282,13 +266,12 @@ namespace yk
 			{
 				Expr* func = mf->Operands[0];
 				Expr* params = mf->Operands[1];
-				yvec<TypeSymbol*> args;
 				if (params)
 				{
 					Check(params);
 				}
 
-				FunctionTypeSymbol* fts = new FunctionTypeSymbol(args, Builtin::UNIT);
+				FunctionTypeSymbol* fts = new FunctionTypeSymbol(params ? params->EvalType : nullptr, Builtin::UNIT);
 				func->HintType = fts;
 				Check(func);
 				mf->EvalType = ((FunctionTypeSymbol*)func->EvalType)->ReturnType;
@@ -373,14 +356,17 @@ namespace yk
 		}
 		else if (FuncTypeDesc* fd = dynamic_cast<FuncTypeDesc*>(td))
 		{
-			yvec<TypeSymbol*> pars;
+			TypeSymbol* lhs = nullptr;
 			for (auto p : fd->Parameters)
 			{
 				Check(p);
-				pars.push_back(p->SymbolForm);
+				if (lhs == nullptr)
+					lhs = p->SymbolForm;
+				else
+					lhs = new TupleTypeSymbol(lhs, p->SymbolForm);
 			}
 			Check(fd->ReturnType);
-			fd->SymbolForm = new FunctionTypeSymbol(pars, fd->ReturnType->SymbolForm);
+			fd->SymbolForm = new FunctionTypeSymbol(lhs, fd->ReturnType->SymbolForm);
 		}
 		else
 		{

@@ -35,11 +35,11 @@ namespace yk
 	class FunctionTypeSymbol : public TypeSymbol
 	{
 	public:
-		yvec<TypeSymbol*> Parameters;
+		TypeSymbol* Parameters;
 		TypeSymbol* ReturnType;
 
 	public:
-		FunctionTypeSymbol(yvec<TypeSymbol*>& params, TypeSymbol* rt);
+		FunctionTypeSymbol(TypeSymbol* params, TypeSymbol* rt);
 
 	public:
 		bool Same(TypeSymbol* other) override;
@@ -48,10 +48,11 @@ namespace yk
 	class TupleTypeSymbol : public TypeSymbol
 	{
 	public:
-		yvec<TypeSymbol*> Types;
+		TypeSymbol* LHS;
+		TypeSymbol* RHS;
 
 	public:
-		TupleTypeSymbol(yvec<TypeSymbol*> const& ls);
+		TupleTypeSymbol(TypeSymbol* l, TypeSymbol* r);
 
 	public:
 		bool Same(TypeSymbol* other) override;

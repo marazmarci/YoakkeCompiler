@@ -501,10 +501,6 @@ namespace yk
 					NodePos(first.StartX, first.StartY,
 							last.EndX, last.EndY));
 			}
-			else
-			{
-				ExpectError("')'", DumpCurrentTok());
-			}
 		}
 
 		LoadState(state);

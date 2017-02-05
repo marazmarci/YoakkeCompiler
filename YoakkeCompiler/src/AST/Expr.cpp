@@ -193,7 +193,7 @@ namespace yk
 
 	// Enclosed expression
 	EnclosedExpr::EnclosedExpr(Expr* s, Token const& l, Token const& r)
-		: Expr(NodePos::Interval(l, r)), Begin(l), End(r)
+		: Expr(NodePos::Interval(l, r)), Sub(s), Begin(l), End(r)
 	{
 	}
 

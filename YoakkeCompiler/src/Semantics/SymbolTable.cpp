@@ -14,7 +14,7 @@ namespace yk
 
 	static BuiltinConstantSymbol* make_oper(ystr const& n, TypeSymbol* par, TypeSymbol* ret)
 	{
-		yvec<TypeSymbol*> pars = { par, par };
+		TypeSymbol* pars = new TupleTypeSymbol(par, par);
 		FunctionTypeSymbol* type = new FunctionTypeSymbol(pars, ret);
 		return new BuiltinConstantSymbol(n, type);
 	}
@@ -70,27 +70,20 @@ namespace yk
 		return res;
 	}
 
-	yvec<TypedSymbol*> SymbolTable::FilterArgs(yvec<TypedSymbol*>& syms, yvec<TypeSymbol*>& args)
+	yvec<TypedSymbol*> SymbolTable::FilterArgs(yvec<TypedSymbol*>& syms, TypeSymbol* args)
 	{
 		yvec<TypedSymbol*> ret;
 		for (auto s : syms)
 		{
 			if (auto* ft = dynamic_cast<FunctionTypeSymbol*>(s->Type))
 			{
-				if (ft->Parameters.size() == args.size())
+				if (!ft->Parameters && !args)
+					ret.push_back(s);
+				else if (!ft->Parameters || !args)
 				{
-					bool match = true;
-					for (ysize i = 0; i < args.size(); i++)
-					{
-						if (!ft->Parameters[i]->Same(args[i]))
-						{
-							match = false;
-							break;
-						}
-					}
-					if (match)
-						ret.push_back(s);
 				}
+				else if (ft->Parameters->Same(args))
+					ret.push_back(s);
 			}
 		}
 		return ret;

@@ -27,7 +27,7 @@ namespace yk
 		void DeclSymbol(Symbol* sym);
 
 		yvec<TypedSymbol*> FilterTyped(yvec<TypedSymbol*>& syms, TypeSymbol* match);
-		yvec<TypedSymbol*> FilterArgs(yvec<TypedSymbol*>& syms, yvec<TypeSymbol*>& args);
+		yvec<TypedSymbol*> FilterArgs(yvec<TypedSymbol*>& syms, TypeSymbol* args);
 
 		inline bool GlobalScope() { return m_Current == m_Root; }
 
