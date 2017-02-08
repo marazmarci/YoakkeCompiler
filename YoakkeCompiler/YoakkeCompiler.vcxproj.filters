@@ -18,222 +18,126 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Parsing\Token.cpp">
+    <ClCompile Include="src2\Parsing\Token.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Parsing\Lexer.cpp">
+    <ClCompile Include="src2\Parsing\Lexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Parsing\Parser.cpp">
+    <ClCompile Include="src2\Parsing\LexerState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\AST\Stmt.cpp">
+    <ClCompile Include="src2\Parsing\Position.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\AST\Expr.cpp">
+    <ClCompile Include="src2\Debug\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\AST\TypeDesc.cpp">
+    <ClCompile Include="src2\AST\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Parsing\ExprParser.cpp">
+    <ClCompile Include="src2\AST\Expr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Semantics\Scope.cpp">
+    <ClCompile Include="src2\Parsing\InfixParselet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Semantics\Symbol.cpp">
+    <ClCompile Include="src2\Parsing\PrefixOperatorParselet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Semantics\TypeSymbol.cpp">
+    <ClCompile Include="src2\Parsing\PostfixOperatorParselet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Semantics\ConstantEvaluator.cpp">
+    <ClCompile Include="src2\Parsing\InfixOperatorParselet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Semantics\SemanticChecker.cpp">
+    <ClCompile Include="src2\Parsing\YExprParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Semantics\SymbolTable.cpp">
+    <ClCompile Include="src2\Debug\ParserTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Semantics\ConstantSymbol.cpp">
+    <ClCompile Include="src2\Parsing\AtomicParselet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Semantics\VarSymbol.cpp">
+    <ClCompile Include="src2\Parsing\ExprParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Semantics\TypedSymbol.cpp">
+    <ClCompile Include="src2\Utility\StringUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\FileUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Utils\StringUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Logging\LogStream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Logging\Logger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Parsing\Operator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Parsing\NodePos.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AST\Node.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Parsing\ExprElem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Utils\XMLNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Parsing\ParseState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Semantics\Builtin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Parsing\EnclosedExpr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\IR\NameGenerator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\IR\BasicBlock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\IR\Function.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\IR\Unit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\IR\IRPrinter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\IR\Type.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\IR\Instruction.cpp">
+    <ClCompile Include="src2\AST\Stmt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Parsing\Lexer.h">
+    <ClInclude Include="src2\Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Parsing\Token.h">
+    <ClInclude Include="src2\Utility\Iterator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Parsing\Parser.h">
+    <ClInclude Include="src2\Parsing\Lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\AST\Expr.h">
+    <ClInclude Include="src2\Parsing\Token.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\AST\Stmt.h">
+    <ClInclude Include="src2\Parsing\LexerState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\AST\TypeDesc.h">
+    <ClInclude Include="src2\Parsing\Position.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Parsing\ParseState.h">
+    <ClInclude Include="src2\Debug\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Parsing\ExprParser.h">
+    <ClInclude Include="src2\Debug\LogLevel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Parsing\ExprElem.h">
+    <ClInclude Include="src2\AST\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Parsing\Operator.h">
+    <ClInclude Include="src2\AST\Expr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Semantics\Scope.h">
+    <ClInclude Include="src2\Parsing\InfixParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Semantics\Symbol.h">
+    <ClInclude Include="src2\Parsing\PrefixParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Semantics\TypeSymbol.h">
+    <ClInclude Include="src2\Parsing\PrefixOperatorParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Semantics\SemanticChecker.h">
+    <ClInclude Include="src2\Parsing\PostfixOperatorParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Semantics\ConstantEvaluator.h">
+    <ClInclude Include="src2\Parsing\InfixOperatorParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Semantics\SymbolTable.h">
+    <ClInclude Include="src2\Parsing\YExprParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Semantics\ConstantSymbol.h">
+    <ClInclude Include="src2\Debug\ParserTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Semantics\VarSymbol.h">
+    <ClInclude Include="src2\Parsing\AtomicParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Semantics\TypedSymbol.h">
+    <ClInclude Include="src2\Parsing\ExprParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\FileUtils.h">
+    <ClInclude Include="src2\Utility\MapExtension.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\StringUtils.h">
+    <ClInclude Include="src2\Utility\StringUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Logging\Logger.h">
+    <ClInclude Include="src2\Parsing\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Logging\LogStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AST\Node.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Parsing\NodePos.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Utils\XMLNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Semantics\Builtin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Parsing\EnclosedExpr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IR\BasicBlock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IR\NameGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IR\Function.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IR\IRPrinter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IR\Unit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IR\Type.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IR\Instruction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IR\Opcode.h">
+    <ClInclude Include="src2\AST\Stmt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

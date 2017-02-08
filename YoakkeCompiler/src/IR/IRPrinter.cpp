@@ -57,7 +57,7 @@ namespace yk
 				break;
 
 			default:
-				std::cout << "Unhandld opcode!" << std::endl;
+				std::cout << "Unhandled opcode!" << std::endl;
 			}
 			m_Ostream << std::endl;
 		}
