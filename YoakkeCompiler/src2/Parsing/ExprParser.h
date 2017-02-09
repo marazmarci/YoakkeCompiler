@@ -16,7 +16,7 @@ namespace yk
 		class ExprParser
 		{
 		protected:
-			Lexer m_Lexer;
+			Lexer& m_Lexer;
 
 		private:
 			ymap<ystr, PrefixParselet*> m_PrefixParselets;
@@ -25,8 +25,8 @@ namespace yk
 			ymap<TokenT, InfixParselet*> m_InfixParseletsTT;
 			yvec<Token> m_TokenBuffer;
 
-		public:
-			ExprParser(const char* buf, ystr const& fn);
+		protected:
+			ExprParser(Lexer& lexer);
 
 		public:
 			void Register(ystr const& sym, PrefixParselet* parselet);
@@ -34,14 +34,7 @@ namespace yk
 			void Register(TokenT tt, PrefixParselet* parselet);
 			void Register(TokenT tt, InfixParselet* parselet);
 
-		public:
-			bool Match(ystr const& expect);
-			bool Expect(ystr const& expect);
-			Token Consume();
-			Token Peek(ysize delta);
-
 			ysize GetPrecedence();
-
 			ast::Expr* ParseExpr();
 			ast::Expr* ParseExpr(ysize prec);
 		};

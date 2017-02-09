@@ -9,7 +9,7 @@ namespace yk
 		class YExprParser : public ExprParser
 		{
 		public:
-			YExprParser(const char* buf, ystr const& fn);
+			YExprParser(Lexer& lexer);
 
 		private:
 			void AddPostfix(ystr const& op, ysize prec);

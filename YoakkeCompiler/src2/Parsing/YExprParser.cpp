@@ -8,8 +8,8 @@ namespace yk
 {
 	namespace parse
 	{
-		YExprParser::YExprParser(const char* buf, ystr const& fn)
-			: ExprParser(buf, fn)
+		YExprParser::YExprParser(Lexer& lexer)
+			: ExprParser(lexer)
 		{
 			m_Lexer.RegisterSymbol("(");
 			m_Lexer.RegisterSymbol(")");

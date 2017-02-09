@@ -69,6 +69,9 @@
     <ClCompile Include="src2\AST\Stmt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src2\Parsing\Parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src2\Common.h">

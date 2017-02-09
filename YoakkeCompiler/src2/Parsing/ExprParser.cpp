@@ -7,9 +7,9 @@ namespace yk
 {
 	namespace parse
 	{
-		ExprParser::ExprParser(const char* buf, ystr const& fn)
+		ExprParser::ExprParser(Lexer& lexer)
+			: m_Lexer(lexer)
 		{
-			m_Lexer.SetSource(buf, fn);
 		}
 
 		void ExprParser::Register(ystr const& sym, PrefixParselet* parselet)
@@ -32,46 +32,6 @@ namespace yk
 		void ExprParser::Register(TokenT tt, InfixParselet* parselet)
 		{
 			m_InfixParseletsTT.insert(std::make_pair(tt, parselet));
-		}
-
-		bool ExprParser::Match(ystr const& expect)
-		{
-			auto tok = Peek(0);
-			if (tok.Value == expect)
-			{
-				Consume();
-				return true;
-			}
-			return false;
-		}
-
-		bool ExprParser::Expect(ystr const& expect)
-		{
-			auto tok = Peek(0);
-			if (tok.Value == expect)
-			{
-				Consume();
-				return true;
-			}
-			std::cout << "ERROR TOKEN" << std::endl;
-			return false;
-		}
-
-		Token ExprParser::Consume()
-		{
-			Peek(0);
-			auto tok = m_TokenBuffer[0];
-			m_TokenBuffer.erase(m_TokenBuffer.begin());
-			return tok;
-		}
-
-		Token ExprParser::Peek(ysize delta)
-		{
-			while (delta >= m_TokenBuffer.size())
-			{
-				m_TokenBuffer.push_back(m_Lexer.Next());
-			}
-			return m_TokenBuffer[delta];
 		}
 
 		ysize ExprParser::GetPrecedence()

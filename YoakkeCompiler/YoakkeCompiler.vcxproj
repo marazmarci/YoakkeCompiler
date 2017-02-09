@@ -122,6 +122,7 @@
     <ClCompile Include="src2\Parsing\Lexer.cpp" />
     <ClCompile Include="src2\Parsing\LexerState.cpp" />
     <ClCompile Include="src2\Parsing\ExprParser.cpp" />
+    <ClCompile Include="src2\Parsing\Parser.cpp" />
     <ClCompile Include="src2\Parsing\Position.cpp" />
     <ClCompile Include="src2\Parsing\PostfixOperatorParselet.cpp" />
     <ClCompile Include="src2\Parsing\PrefixOperatorParselet.cpp" />
