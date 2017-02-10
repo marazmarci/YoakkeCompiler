@@ -1,26 +1,26 @@
 #include "ExprParser.h"
-#include "PrefixParselet.h"
-#include "InfixParselet.h"
+#include "Parselets/PrefixParselet.h"
+#include "Parselets/InfixParselet.h"
 #include "../Utility/MapExtension.h"
 
 namespace yk
 {
 	namespace parse
 	{
-		ExprParser::ExprParser(Lexer& lexer)
-			: m_Lexer(lexer)
+		ExprParser::ExprParser(Lexer* lexer, yvec<Token>* tokbuf, dbg::Logger* logger, ystr const& fn)
+			: Parser(lexer, tokbuf, logger, fn)
 		{
 		}
 
 		void ExprParser::Register(ystr const& sym, PrefixParselet* parselet)
 		{
-			m_Lexer.RegisterSymbol(sym);
+			m_Lexer->RegisterSymbol(sym);
 			m_PrefixParselets.insert(std::make_pair(sym, parselet));
 		}
 
 		void ExprParser::Register(ystr const& sym, InfixParselet* parselet)
 		{
-			m_Lexer.RegisterSymbol(sym);
+			m_Lexer->RegisterSymbol(sym);
 			m_InfixParselets.insert(std::make_pair(sym, parselet));
 		}
 

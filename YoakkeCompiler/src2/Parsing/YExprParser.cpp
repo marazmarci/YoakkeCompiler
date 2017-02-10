@@ -1,18 +1,15 @@
 #include "YExprParser.h"
-#include "InfixOperatorParselet.h"
-#include "PostfixOperatorParselet.h"
-#include "PrefixOperatorParselet.h"
-#include "AtomicParselet.h"
+#include "Parselets\ExprParselets.h"
 
 namespace yk
 {
 	namespace parse
 	{
-		YExprParser::YExprParser(Lexer& lexer)
-			: ExprParser(lexer)
+		YExprParser::YExprParser(Lexer* lexer, yvec<Token>* tokbuf, dbg::Logger* logger, ystr const& fn)
+			: ExprParser(lexer, tokbuf, logger, fn)
 		{
-			m_Lexer.RegisterSymbol("(");
-			m_Lexer.RegisterSymbol(")");
+			m_Lexer->RegisterSymbol("(");
+			m_Lexer->RegisterSymbol(")");
 
 			Register(TokenT::Identifier,	new IdentParselet());
 			Register("(",					new GroupParselet());

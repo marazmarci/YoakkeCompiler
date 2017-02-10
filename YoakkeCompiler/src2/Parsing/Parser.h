@@ -12,17 +12,17 @@ namespace yk
 		class Parser
 		{
 		private:
-			Lexer& m_Lexer;
-			dbg::Logger& m_Logger;
-			yvec<Token> m_TokenBuffer;
+			yvec<Token>* m_TokenBuffer;
 		
 		protected:
+			Lexer* m_Lexer;
+			dbg::Logger* m_Logger;
 			ystr m_File;
 
 		protected:
-			Parser(Lexer& lexer, dbg::Logger& logger, ystr const& fn);
+			Parser(Lexer* lexer, yvec<Token>* tokbuf, dbg::Logger* logger, ystr const& fn);
 
-		protected:
+		public:
 			bool Match(ystr const& expect);
 			bool Expect(ystr const& expect);
 			Token Consume();

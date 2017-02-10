@@ -9,7 +9,7 @@ namespace yk
 		class YExprParser : public ExprParser
 		{
 		public:
-			YExprParser(Lexer& lexer);
+			YExprParser(Lexer* lexer, yvec<Token>* tokbuf, dbg::Logger* logger, ystr const& fn);
 
 		private:
 			void AddPostfix(ystr const& op, ysize prec);

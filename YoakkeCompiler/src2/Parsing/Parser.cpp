@@ -5,8 +5,8 @@ namespace yk
 {
 	namespace parse
 	{
-		Parser::Parser(Lexer& lexer, dbg::Logger& logger, ystr const& fn)
-			: m_Lexer(lexer), m_Logger(logger), m_File(fn)
+		Parser::Parser(Lexer* lexer, yvec<Token>* tokbuf, dbg::Logger* logger, ystr const& fn)
+			: m_Lexer(lexer), m_TokenBuffer(tokbuf), m_Logger(logger), m_File(fn)
 		{
 		}
 
@@ -29,7 +29,7 @@ namespace yk
 				Consume();
 				return true;
 			}
-			m_Logger.log<dbg::Error>() 
+			m_Logger->log<dbg::Error>() 
 				<< str_utils::FileStamp(m_File, tok.PosY, tok.PosX)
 				<< " expected: '" << expect << "' but got: '" << tok.Value << "'"
 				<< std::endl;
@@ -39,18 +39,18 @@ namespace yk
 		Token Parser::Consume()
 		{
 			Peek(0);
-			auto tok = m_TokenBuffer[0];
-			m_TokenBuffer.erase(m_TokenBuffer.begin());
+			auto tok = (*m_TokenBuffer)[0];
+			m_TokenBuffer->erase(m_TokenBuffer->begin());
 			return tok;
 		}
 
 		Token Parser::Peek(ysize delta)
 		{
-			while (delta >= m_TokenBuffer.size())
+			while (delta >= m_TokenBuffer->size())
 			{
-				m_TokenBuffer.push_back(m_Lexer.Next());
+				m_TokenBuffer->push_back(m_Lexer->Next());
 			}
-			return m_TokenBuffer[delta];
+			return (*m_TokenBuffer)[delta];
 		}
 	}
 }
