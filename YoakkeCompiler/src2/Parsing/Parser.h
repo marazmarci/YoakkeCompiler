@@ -11,11 +11,9 @@ namespace yk
 	{
 		class Parser
 		{
-		private:
-			yvec<Token>* m_TokenBuffer;
-		
 		protected:
 			Lexer* m_Lexer;
+			yvec<Token>* m_TokenBuffer;
 			dbg::Logger* m_Logger;
 			ystr m_File;
 

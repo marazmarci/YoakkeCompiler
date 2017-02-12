@@ -115,8 +115,9 @@
     <ClCompile Include="src2\AST\Node.cpp" />
     <ClCompile Include="src2\AST\Stmt.cpp" />
     <ClCompile Include="src2\Debug\Logger.cpp" />
-    <ClCompile Include="src2\Debug\ParserTest.cpp" />
+    <ClCompile Include="src2\Debug\UnitTests\ParserUnitTest.cpp" />
     <ClCompile Include="src2\Parsing\Parselets\AtomicParselet.cpp" />
+    <ClCompile Include="src2\Parsing\Parselets\FuncCallParselet.cpp" />
     <ClCompile Include="src2\Parsing\Parselets\InfixOperatorParselet.cpp" />
     <ClCompile Include="src2\Parsing\Parselets\InfixParselet.cpp" />
     <ClCompile Include="src2\Parsing\Lexer.cpp" />
@@ -128,6 +129,7 @@
     <ClCompile Include="src2\Parsing\Parselets\PrefixOperatorParselet.cpp" />
     <ClCompile Include="src2\Parsing\Token.cpp" />
     <ClCompile Include="src2\Parsing\YExprParser.cpp" />
+    <ClCompile Include="src2\Parsing\YStmtParser.cpp" />
     <ClCompile Include="src2\Utility\StringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -136,9 +138,11 @@
     <ClInclude Include="src2\AST\Stmt.h" />
     <ClInclude Include="src2\Common.h" />
     <ClInclude Include="src2\Debug\LogLevel.h" />
-    <ClInclude Include="src2\Debug\ParserTest.h" />
+    <ClInclude Include="src2\Debug\UnitTest.h" />
+    <ClInclude Include="src2\Debug\UnitTests\ParserUnitTest.h" />
     <ClInclude Include="src2\Parsing\Parselets\AtomicParselet.h" />
     <ClInclude Include="src2\Parsing\Parselets\ExprParselets.h" />
+    <ClInclude Include="src2\Parsing\Parselets\FuncCallParselet.h" />
     <ClInclude Include="src2\Parsing\Parselets\InfixOperatorParselet.h" />
     <ClInclude Include="src2\Parsing\Parselets\InfixParselet.h" />
     <ClInclude Include="src2\Parsing\Lexer.h" />

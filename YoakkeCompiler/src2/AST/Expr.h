@@ -90,5 +90,20 @@ namespace yk
 		public:
 			virtual ystr UnitTestPrint() override;
 		};
+
+		// Mixfix expression
+		class MixfixExpr : public Expr
+		{
+		public:
+			ystr Symbol;
+			yvec<Expr*> Operands;
+
+		public:
+			MixfixExpr(ystr const& sym,yvec<Expr*> const& opers, parse::Position const& pos);
+			~MixfixExpr();
+
+		public:
+			virtual ystr UnitTestPrint() override;
+		};
 	}
 }

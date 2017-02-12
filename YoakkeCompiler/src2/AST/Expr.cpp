@@ -90,5 +90,30 @@ namespace yk
 			return '(' + LHS->UnitTestPrint() + ' ' + Operator.Value + ' '
 				+ RHS->UnitTestPrint() + ')';
 		}
+
+		// Mixfix expression
+		MixfixExpr::MixfixExpr(ystr const& sym, yvec<Expr*> const& opers, parse::Position const& pos)
+			: Expr(pos), Symbol(sym), Operands(opers)
+		{
+		}
+
+		MixfixExpr::~MixfixExpr()
+		{
+			for (auto o : Operands)
+				delete o;
+		}
+
+		ystr MixfixExpr::UnitTestPrint()
+		{
+			ystr ret = Symbol + '(';
+			if (Operands.size())
+			{
+				ret += Operands[0]->UnitTestPrint();
+				for (ysize i = 1; i < Operands.size(); i++)
+					ret += ", " + Operands[i]->UnitTestPrint();
+			}
+			ret += ')';
+			return ret;
+		}
 	}
 }

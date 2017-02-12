@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "src2\Debug\ParserTest.h"
+#include "src2\Debug\UnitTests\ParserUnitTest.h"
 
 using namespace yk;
 
@@ -21,7 +21,7 @@ ystr ReadFile(const char* name)
 int main(void)
 {
 	//auto src = ReadFile("C:\\TMP\\YoakkeTest\\tokenizer.txt");
-	dbg::Parser_TestAll();
+	dbg::Parser_UnitTest_All();
 
 	system("PAUSE");
 	return 0;

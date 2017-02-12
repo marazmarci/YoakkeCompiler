@@ -42,9 +42,6 @@
     <ClCompile Include="src2\Parsing\YExprParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src2\Debug\ParserTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src2\Parsing\ExprParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,6 +67,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src2\Parsing\Parselets\PrefixOperatorParselet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src2\Parsing\YStmtParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src2\Debug\UnitTests\ParserUnitTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src2\Parsing\Parselets\FuncCallParselet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -105,9 +111,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src2\Parsing\YExprParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src2\Debug\ParserTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src2\Parsing\ExprParser.h">
@@ -147,6 +150,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src2\Parsing\YStmtParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src2\Debug\UnitTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src2\Debug\UnitTests\ParserUnitTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src2\Parsing\Parselets\FuncCallParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

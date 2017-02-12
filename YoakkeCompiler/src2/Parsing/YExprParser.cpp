@@ -8,16 +8,36 @@ namespace yk
 		YExprParser::YExprParser(Lexer* lexer, yvec<Token>* tokbuf, dbg::Logger* logger, ystr const& fn)
 			: ExprParser(lexer, tokbuf, logger, fn)
 		{
-			m_Lexer->RegisterSymbol("(");
-			m_Lexer->RegisterSymbol(")");
-
 			Register(TokenT::Identifier,	new IdentParselet());
 			Register("(",					new GroupParselet());
 
-			AddInfixLeft("+", 1);
-			AddInfixLeft("-", 1);
-			AddInfixLeft("*", 2);
-			AddInfixLeft("/", 2);
+			AddInfixRight("=", 1);
+
+			AddInfixLeft("||", 2);
+			AddInfixLeft("&&", 3);
+
+			AddInfixLeft("==", 4);
+			AddInfixLeft("<>", 4);
+
+			AddInfixLeft("<", 5);
+			AddInfixLeft(">", 5);
+			AddInfixLeft("<=", 5);
+			AddInfixLeft(">=", 5);
+
+			AddInfixLeft("+", 6);
+			AddInfixLeft("-", 6);
+
+			AddInfixLeft("*", 7);
+			AddInfixLeft("/", 7);
+			AddInfixLeft("%", 7);
+
+			AddPrefix("+", 8);
+			AddPrefix("-", 8);
+			AddPrefix("!", 8);
+
+			AddInfixLeft(".", 9);
+
+			AddInfixLeft("::", 10);
 		}
 
 		void YExprParser::AddPostfix(ystr const& op, ysize prec)
