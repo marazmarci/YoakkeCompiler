@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "src2\Debug\UnitTests\ParserUnitTest.h"
+#include "src2\Parsing\YStmtParser.h"
 
 using namespace yk;
 
@@ -20,8 +21,11 @@ ystr ReadFile(const char* name)
 
 int main(void)
 {
-	//auto src = ReadFile("C:\\TMP\\YoakkeTest\\tokenizer.txt");
 	dbg::Parser_UnitTest_All();
+
+	auto src = ReadFile("C:\\TMP\\YoakkeTest\\tokenizer.txt");
+	auto parser = yk::parse::YStmtParser(src.c_str(), "tokenizer.txt");
+	auto ast = parser.ParseStmt();
 
 	system("PAUSE");
 	return 0;

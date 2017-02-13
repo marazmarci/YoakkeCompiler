@@ -1,4 +1,5 @@
 #include "TypeDesc.h"
+#include "../Parsing/Token.h"
 
 namespace yk
 {
@@ -10,6 +11,15 @@ namespace yk
 		}
 
 		TypeDesc::~TypeDesc()
+		{
+		}
+
+		IdentTypeDesc::IdentTypeDesc(parse::Token const& tok)
+			: TypeDesc(parse::Position::Get(tok)), Identifier(tok.Value)
+		{
+		}
+
+		IdentTypeDesc::~IdentTypeDesc()
 		{
 		}
 	}

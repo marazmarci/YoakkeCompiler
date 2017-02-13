@@ -8,7 +8,8 @@ namespace yk
 		YExprParser::YExprParser(Lexer* lexer, yvec<Token>* tokbuf, dbg::Logger* logger, ystr const& fn)
 			: ExprParser(lexer, tokbuf, logger, fn)
 		{
-			Register(TokenT::Identifier, new IdentParselet());
+			// EXPRESSION /////////////////////////////////////////////
+			Register(TokenT::Identifier, new IdentExprParselet());
 			Register("let", new LetParselet(1));
 			AddEnclose(new EncloseParselet("(", ")"));
 
@@ -42,6 +43,9 @@ namespace yk
 			Register("(", new FuncCallParselet(9));
 
 			AddInfixLeft("::", 10);
+
+			// TYPE DESCRIPTOR //////////////////////////////////
+			Register(TokenT::Identifier, new IdentTypeParselet());
 		}
 
 		void YExprParser::AddPostfix(ystr const& op, ysize prec)

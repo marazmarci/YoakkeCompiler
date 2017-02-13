@@ -150,7 +150,9 @@ namespace yk
 		
 		ystr LetExpr::UnitTestPrint()
 		{
-			return "let (" + Lvalue->UnitTestPrint() + ") = (" + Rvalue->UnitTestPrint() + ')';
+			ystr ret = "let (" + Lvalue->UnitTestPrint() + ')';
+			if (Rvalue) ret += " = (" + Rvalue->UnitTestPrint() + ')';
+			return ret;
 		}
 	}
 }

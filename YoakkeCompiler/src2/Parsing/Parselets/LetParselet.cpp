@@ -29,7 +29,7 @@ namespace yk
 				if (parser->Match("="))
 				{
 					val = parser->ParseExpr();
-					if (!type)
+					if (!val)
 					{
 						std::cout << "ERROR: EXPR EXPECTED AFTER '=' IN LET" << std::endl;
 						return nullptr;

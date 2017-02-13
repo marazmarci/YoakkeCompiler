@@ -16,6 +16,7 @@ namespace yk
 			m_Lexer->RegisterSymbol("(");
 			m_Lexer->RegisterSymbol(")");
 			m_Lexer->RegisterSymbol(";");
+			m_Lexer->RegisterSymbol(":");
 		}
 
 		ast::Stmt* YStmtParser::ParseStmt()

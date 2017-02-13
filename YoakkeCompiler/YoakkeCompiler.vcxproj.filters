@@ -57,9 +57,6 @@
     <ClCompile Include="src2\Parsing\Parselets\InfixOperatorParselet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src2\Parsing\Parselets\AtomicParselet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src2\Parsing\Parselets\PostfixOperatorParselet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -176,10 +173,10 @@
     <ClInclude Include="src2\Parsing\Parselets\IInfixParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src2\Parsing\Parselets\InfixExprParselet.h">
+    <ClInclude Include="src2\Parsing\Parselets\PrefixParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src2\Parsing\Parselets\PrefixExprParselet.h">
+    <ClInclude Include="src2\Parsing\Parselets\InfixParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -15,13 +15,13 @@ namespace yk
 		}
 
 		ExprStmt::ExprStmt(Expr* exp)
-			: Stmt(exp->Pos), Semicol(false)
+			: Stmt(exp->Pos), Semicol(false), Expression(exp)
 		{
 		}
 		
 		ExprStmt::ExprStmt(Expr* exp, parse::Token const& sc)
 			: Stmt(parse::Position::Interval(exp->Pos, parse::Position::Get(sc))), 
-			Semicol(true)
+			Semicol(true), Expression(exp)
 		{
 		}
 

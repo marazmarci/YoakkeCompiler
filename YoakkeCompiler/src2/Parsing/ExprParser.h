@@ -37,6 +37,11 @@ namespace yk
 			void Register(TokenT tt, PrefixExprParselet* parselet);
 			void Register(TokenT tt, InfixExprParselet* parselet);
 
+			void Register(ystr const& sym, PrefixTypeDescParselet* parselet);
+			void Register(ystr const& sym, InfixTypeDescParselet* parselet);
+			void Register(TokenT tt, PrefixTypeDescParselet* parselet);
+			void Register(TokenT tt, InfixTypeDescParselet* parselet);
+
 			ast::Expr* ParseExpr();
 			ast::Expr* ParseExpr(ysize prec);
 			ast::TypeDesc* ParseTypeDesc();

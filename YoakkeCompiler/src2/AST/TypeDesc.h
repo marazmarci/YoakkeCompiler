@@ -14,5 +14,15 @@ namespace yk
 		public:
 			virtual ~TypeDesc();
 		};
+
+		class IdentTypeDesc : public TypeDesc
+		{
+		public:
+			ystr Identifier;
+
+		public:
+			IdentTypeDesc(parse::Token const& tok);
+			virtual ~IdentTypeDesc();
+		};
 	}
 }
