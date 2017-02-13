@@ -1,12 +1,12 @@
 #pragma once
 
-#include "PrefixParselet.h"
+#include "PrefixExprParselet.h"
 
 namespace yk
 {
 	namespace parse
 	{
-		class IdentParselet : public PrefixParselet
+		class IdentParselet : public PrefixExprParselet
 		{
 		public:
 			ast::Expr* Parse(ExprParser* parser, Token const& sym) override;

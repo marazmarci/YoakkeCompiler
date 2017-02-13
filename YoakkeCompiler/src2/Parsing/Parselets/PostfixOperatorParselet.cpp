@@ -5,7 +5,7 @@ namespace yk
 	namespace parse
 	{
 		PostfixOperatorParselet::PostfixOperatorParselet(ysize prec)
-			: InfixParselet(prec)
+			: InfixExprParselet(prec)
 		{
 		}
 

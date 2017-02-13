@@ -6,14 +6,13 @@ namespace yk
 {
 	namespace parse
 	{
-		class EncloseParselet : public PrefixExprParselet
+		class LetParselet : public PrefixExprParselet
 		{
 		public:
-			ystr Left;
-			ystr Right;
+			ysize AsgnPrec;
 
 		public:
-			EncloseParselet(ystr const& l, ystr const& r);
+			LetParselet(ysize ap);
 
 		public:
 			ast::Expr* Parse(ExprParser* parser, Token const& sym) override;

@@ -7,7 +7,7 @@ namespace yk
 	namespace ext
 	{
 		template <typename K, typename V>
-		V* GetValue(ymap<K, V*>& map, K const& k)
+		V* GetValue(ymap<K, V*> const& map, K const& k)
 		{
 			auto it = map.find(k);
 			if (it == map.end())

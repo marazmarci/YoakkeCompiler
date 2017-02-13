@@ -6,7 +6,7 @@ namespace yk
 	namespace parse
 	{
 		InfixOperatorParselet::InfixOperatorParselet(ysize prec, bool r)
-			: InfixParselet(prec), Right(r)
+			: InfixExprParselet(prec), Right(r)
 		{
 		}
 

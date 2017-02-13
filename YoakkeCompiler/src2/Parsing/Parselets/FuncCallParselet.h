@@ -1,12 +1,12 @@
 #pragma once
 
-#include "InfixParselet.h"
+#include "InfixExprParselet.h"
 
 namespace yk
 {
 	namespace parse
 	{
-		class FuncCallParselet : public InfixParselet
+		class FuncCallParselet : public InfixExprParselet
 		{
 		public:
 			FuncCallParselet(ysize prec);

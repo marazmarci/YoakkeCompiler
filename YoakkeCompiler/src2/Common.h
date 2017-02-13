@@ -27,6 +27,9 @@ namespace yk
 	template <typename T>
 	using yhpair = std::pair<T, T>;
 
-	template<typename T1, typename T2, typename T3>
+	template <typename T1, typename T2, typename T3>
 	using ytriplet = std::tuple<T1, T2, T3>;
+
+	template <typename T1, typename T2, typename T3, typename T4>
+	using yquad = std::tuple<T1, T2, T3, T4>;
 }

@@ -6,6 +6,8 @@ namespace yk
 {
 	namespace parse
 	{
+		class EncloseParselet;
+
 		class YExprParser : public ExprParser
 		{
 		public:

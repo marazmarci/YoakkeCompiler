@@ -12,6 +12,8 @@ namespace yk
 		 - Move UnitTestPrint() out of the tree?
 		*/
 
+		class TypeDesc;
+
 		// Abstract expression
 		class Expr : public Node
 		{
@@ -117,6 +119,22 @@ namespace yk
 		public:
 			EnclosedExpr(parse::Token const& l, parse::Token const& r, Expr* s);
 			~EnclosedExpr();
+
+		public:
+			virtual ystr UnitTestPrint() override;
+		};
+
+		// Let expression
+		class LetExpr : public Expr
+		{
+		public:
+			Expr* Lvalue;
+			Expr* Rvalue;
+			TypeDesc* Type;
+
+		public:
+			LetExpr(Expr* l, Expr* r, TypeDesc* t);
+			virtual ~LetExpr();
 
 		public:
 			virtual ystr UnitTestPrint() override;

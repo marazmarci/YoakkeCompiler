@@ -1,12 +1,13 @@
 #include "FuncCallParselet.h"
 #include "../ExprParser.h"
+#include "../Token.h"
 
 namespace yk
 {
 	namespace parse
 	{
 		FuncCallParselet::FuncCallParselet(ysize prec)
-			: InfixParselet(prec)
+			: InfixExprParselet(prec)
 		{
 		}
 

@@ -1,4 +1,5 @@
 #include "Expr.h"
+#include "TypeDesc.h"
 
 namespace yk
 {
@@ -131,6 +132,25 @@ namespace yk
 		ystr EnclosedExpr::UnitTestPrint()
 		{
 			return Sub->UnitTestPrint();
+		}
+
+		// Let expression
+		LetExpr::LetExpr(Expr* l, Expr* r, TypeDesc* t)
+			: Expr(parse::Position::Interval(l->Pos,
+				r ? r->Pos : (t ? t->Pos : l->Pos))), Lvalue(l), Rvalue(r),Type(t)
+		{
+		}
+		
+		LetExpr::~LetExpr()
+		{
+			delete Lvalue;
+			if (Rvalue) delete Rvalue;
+			if (Type) delete Type;
+		}
+		
+		ystr LetExpr::UnitTestPrint()
+		{
+			return "let (" + Lvalue->UnitTestPrint() + ") = (" + Rvalue->UnitTestPrint() + ')';
 		}
 	}
 }

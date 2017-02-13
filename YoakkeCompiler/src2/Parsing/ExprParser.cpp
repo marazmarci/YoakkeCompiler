@@ -1,6 +1,6 @@
 #include "ExprParser.h"
-#include "Parselets/PrefixParselet.h"
-#include "Parselets/InfixParselet.h"
+#include "Parselets/PrefixExprParselet.h"
+#include "Parselets/InfixExprParselet.h"
 #include "../Utility/MapExtension.h"
 
 namespace yk
@@ -12,35 +12,30 @@ namespace yk
 		{
 		}
 
-		void ExprParser::Register(ystr const& sym, PrefixParselet* parselet)
+		void ExprParser::Register(ystr const& sym, PrefixExprParselet* parselet)
 		{
 			m_Lexer->RegisterSymbol(sym);
-			m_PrefixParselets.insert(std::make_pair(sym, parselet));
+			auto& map = std::get<1>(m_ExprParselets);
+			map.insert(std::make_pair(sym, parselet));
 		}
 
-		void ExprParser::Register(ystr const& sym, InfixParselet* parselet)
+		void ExprParser::Register(ystr const& sym, InfixExprParselet* parselet)
 		{
 			m_Lexer->RegisterSymbol(sym);
-			m_InfixParselets.insert(std::make_pair(sym, parselet));
+			auto& map = std::get<3>(m_ExprParselets);
+			map.insert(std::make_pair(sym, parselet));
 		}
 
-		void ExprParser::Register(TokenT tt, PrefixParselet* parselet)
+		void ExprParser::Register(TokenT tt, PrefixExprParselet* parselet)
 		{
-			m_PrefixParseletsTT.insert(std::make_pair(tt, parselet));
+			auto& map = std::get<0>(m_ExprParselets);
+			map.insert(std::make_pair(tt, parselet));
 		}
 
-		void ExprParser::Register(TokenT tt, InfixParselet* parselet)
+		void ExprParser::Register(TokenT tt, InfixExprParselet* parselet)
 		{
-			m_InfixParseletsTT.insert(std::make_pair(tt, parselet));
-		}
-
-		ysize ExprParser::GetPrecedence()
-		{
-			auto parser = m_InfixParselets.find(Peek(0).Value);
-			if (parser == m_InfixParselets.end())
-				return 0;
-
-			return parser->second->Precedence;
+			auto& map = std::get<2>(m_ExprParselets);
+			map.insert(std::make_pair(tt, parselet));
 		}
 
 		ast::Expr* ExprParser::ParseExpr()
@@ -50,27 +45,17 @@ namespace yk
 
 		ast::Expr* ExprParser::ParseExpr(ysize prec)
 		{
-			auto lookahead = Consume();
-			PrefixParselet* pre_parselet = nullptr;
-			if (!(pre_parselet = ext::GetValue(m_PrefixParselets, lookahead.Value))
-				&& !(pre_parselet = ext::GetValue(m_PrefixParseletsTT, lookahead.Type)))
-			{
-				return nullptr;
-			}
-			auto left = pre_parselet->Parse(this, lookahead);
-			while (prec < GetPrecedence())
-			{
-				lookahead = Consume();
-				InfixParselet* in_parselet = nullptr;
-				if (!(in_parselet = ext::GetValue(m_InfixParselets, lookahead.Value))
-					&& !(in_parselet = ext::GetValue(m_InfixParseletsTT, lookahead.Type)))
-				{
-					std::cout << "ERROR2" << std::endl;
-					return nullptr;
-				}
-				left = in_parselet->Parse(this, left, lookahead);
-			}
-			return left;
+			return ParseSuper(m_ExprParselets, prec);
+		}
+
+		ast::TypeDesc* ExprParser::ParseTypeDesc()
+		{
+			return ParseTypeDesc(0);
+		}
+
+		ast::TypeDesc* ExprParser::ParseTypeDesc(ysize prec)
+		{
+			return ParseSuper(m_TypeDescParselets, prec);
 		}
 	}
 }

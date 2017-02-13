@@ -8,7 +8,8 @@ namespace yk
 		YExprParser::YExprParser(Lexer* lexer, yvec<Token>* tokbuf, dbg::Logger* logger, ystr const& fn)
 			: ExprParser(lexer, tokbuf, logger, fn)
 		{
-			Register(TokenT::Identifier,	new IdentParselet());
+			Register(TokenT::Identifier, new IdentParselet());
+			Register("let", new LetParselet(1));
 			AddEnclose(new EncloseParselet("(", ")"));
 
 			AddInfixLeft(",", 0);

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "InfixParselet.h"
+#include "InfixExprParselet.h"
 
 namespace yk
 {
 	namespace parse
 	{
-		class InfixOperatorParselet : public InfixParselet
+		class InfixOperatorParselet : public InfixExprParselet
 		{
 		public:
 			bool Right;

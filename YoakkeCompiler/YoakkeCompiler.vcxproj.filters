@@ -60,9 +60,6 @@
     <ClCompile Include="src2\Parsing\Parselets\AtomicParselet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src2\Parsing\Parselets\InfixParselet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src2\Parsing\Parselets\PostfixOperatorParselet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -76,6 +73,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src2\Parsing\Parselets\FuncCallParselet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src2\Parsing\Parselets\EncloseParselet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src2\Parsing\Parselets\LetParselet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src2\AST\TypeDesc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -134,16 +140,10 @@
     <ClInclude Include="src2\Parsing\Parselets\InfixOperatorParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src2\Parsing\Parselets\InfixParselet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src2\Parsing\Parselets\PostfixOperatorParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src2\Parsing\Parselets\PrefixOperatorParselet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src2\Parsing\Parselets\PrefixParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src2\Parsing\Parselets\ExprParselets.h">
@@ -159,6 +159,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src2\Parsing\Parselets\FuncCallParselet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src2\Parsing\Parselets\EncloseParselet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src2\Parsing\Parselets\LetParselet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src2\AST\TypeDesc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src2\Parsing\Parselets\IPrefixParselet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src2\Parsing\Parselets\IInfixParselet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src2\Parsing\Parselets\InfixExprParselet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src2\Parsing\Parselets\PrefixExprParselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
