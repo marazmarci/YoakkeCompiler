@@ -16,6 +16,7 @@ namespace yk
 			void AddPrefix(ystr const& op, ysize prec);
 			void AddInfixLeft(ystr const& op, ysize prec);
 			void AddInfixRight(ystr const& op, ysize prec);
+			void AddEnclose(EncloseParselet* enc);
 		};
 	}
 }

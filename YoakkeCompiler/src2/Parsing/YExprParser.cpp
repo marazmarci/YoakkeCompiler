@@ -9,7 +9,9 @@ namespace yk
 			: ExprParser(lexer, tokbuf, logger, fn)
 		{
 			Register(TokenT::Identifier,	new IdentParselet());
-			Register("(",					new GroupParselet());
+			AddEnclose(new EncloseParselet("(", ")"));
+
+			AddInfixLeft(",", 0);
 
 			AddInfixRight("=", 1);
 
@@ -36,6 +38,7 @@ namespace yk
 			AddPrefix("!", 8);
 
 			AddInfixLeft(".", 9);
+			Register("(", new FuncCallParselet(9));
 
 			AddInfixLeft("::", 10);
 		}
@@ -58,6 +61,11 @@ namespace yk
 		void YExprParser::AddInfixRight(ystr const& op, ysize prec)
 		{
 			Register(op, new InfixOperatorParselet(prec, true));
+		}
+
+		void YExprParser::AddEnclose(EncloseParselet* enc)
+		{
+			Register(enc->Left, enc);
 		}
 	}
 }

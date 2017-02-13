@@ -99,8 +99,24 @@ namespace yk
 			yvec<Expr*> Operands;
 
 		public:
-			MixfixExpr(ystr const& sym,yvec<Expr*> const& opers, parse::Position const& pos);
+			MixfixExpr(ystr const& sym, yvec<Expr*> const& opers, parse::Position const& pos);
 			~MixfixExpr();
+
+		public:
+			virtual ystr UnitTestPrint() override;
+		};
+
+		// Enclosed expression
+		class EnclosedExpr : public Expr
+		{
+		public:
+			parse::Token Left;
+			parse::Token Right;
+			Expr* Sub;
+
+		public:
+			EnclosedExpr(parse::Token const& l, parse::Token const& r, Expr* s);
+			~EnclosedExpr();
 
 		public:
 			virtual ystr UnitTestPrint() override;

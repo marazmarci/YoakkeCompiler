@@ -9,15 +9,5 @@ namespace yk
 		{
 			return new ast::IdentExpr(sym);
 		}
-
-		ast::Expr* GroupParselet::Parse(ExprParser* parser, Token const& sym)
-		{
-			auto expr = parser->ParseExpr();
-			if (parser->Expect(")"))
-			{
-				return expr;
-			}
-			return nullptr;
-		}
 	}
 }

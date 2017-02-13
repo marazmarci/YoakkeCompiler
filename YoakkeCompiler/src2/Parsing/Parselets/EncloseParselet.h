@@ -6,8 +6,15 @@ namespace yk
 {
 	namespace parse
 	{
-		class IdentParselet : public PrefixParselet
+		class EncloseParselet : public PrefixParselet
 		{
+		public:
+			ystr Left;
+			ystr Right;
+
+		public:
+			EncloseParselet(ystr const& l, ystr const& r);
+
 		public:
 			ast::Expr* Parse(ExprParser* parser, Token const& sym) override;
 		};

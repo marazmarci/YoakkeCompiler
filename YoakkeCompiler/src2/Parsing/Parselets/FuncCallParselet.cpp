@@ -18,16 +18,13 @@ namespace yk
 
 			if (!parser->Match(")"))
 			{
-				do
+				auto params = parser->ParseExpr();
+				if (!params)
 				{
-					auto arg = parser->ParseExpr();
-					if (!arg)
-					{
-						std::cout << "ERROR arg" << std::endl;
-						return nullptr;
-					}
-					operands.push_back(arg);
-				} while (parser->Match(","));
+					std::cout << "ERROR: args expeced" << std::endl;
+					return nullptr;
+				}
+				operands.push_back(params);
 				last = parser->Peek(0);
 				parser->Expect(")");
 			}

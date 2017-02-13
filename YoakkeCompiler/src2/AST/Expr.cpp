@@ -115,5 +115,22 @@ namespace yk
 			ret += ')';
 			return ret;
 		}
+
+		// Enclosed expression
+		EnclosedExpr::EnclosedExpr(parse::Token const& l, parse::Token const& r, Expr* s)
+			: Expr(parse::Position::Interval(parse::Position::Get(l),
+				parse::Position::Get(r))), Left(l), Right(r), Sub(s)
+		{
+		}
+		
+		EnclosedExpr::~EnclosedExpr()
+		{
+			delete Sub;
+		}
+
+		ystr EnclosedExpr::UnitTestPrint()
+		{
+			return Sub->UnitTestPrint();
+		}
 	}
 }
