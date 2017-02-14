@@ -13,21 +13,14 @@ namespace yk
 		ast::Expr* EncloseParselet::Parse(ExprParser* parser, Token const& sym)
 		{
 			auto expr = parser->ParseExpr();
-			if (expr)
+			auto rig = parser->Peek(0);
+			if (parser->Expect(Right))
 			{
-				auto rig = parser->Peek(0);
-				if (parser->Expect(Right))
-				{
-					return new ast::EnclosedExpr(sym, rig, expr);
-				}
-				else
-				{
-					std::cout << "ERROR, enclosed needs expression inside" << std::endl;
-				}
+				return new ast::EnclosedExpr(sym, rig, expr);
 			}
 			else
 			{
-				std::cout << "ERROR, enclosed needs expr" << std::endl;
+				std::cout << "ERROR, enclosed needs expression inside" << std::endl;
 			}
 			return nullptr;
 		}
