@@ -66,25 +66,43 @@ namespace yk
 				auto& inf_parselets = std::get<3>(pack);
 				auto& inf_parselets_T = std::get<2>(pack);
 
+				auto save = m_Lexer->Position();
 				auto lookahead = Consume();
 				T* pre_parselet = nullptr;
 				if (!(pre_parselet = ext::GetValue(pref_parselets, lookahead.Value))
 					&& !(pre_parselet = ext::GetValue(pref_parselets_T, lookahead.Type)))
 				{
+					m_Lexer->Rollback(save);
 					return (T::ReturnType)nullptr;
 				}
 				auto left = pre_parselet->Parse(this, lookahead);
-				while (prec < GetPrecedence(pack))
+				if (left)
 				{
-					lookahead = Consume();
-					U* in_parselet = nullptr;
-					if (!(in_parselet = ext::GetValue(inf_parselets, lookahead.Value))
-						&& !(in_parselet = ext::GetValue(inf_parselets_T, lookahead.Type)))
+					while (prec < GetPrecedence(pack))
 					{
-						std::cout << "ERROR2" << std::endl;
-						return (T::ReturnType)nullptr;
+						save = m_Lexer->Position();
+						lookahead = Consume();
+						U* in_parselet = nullptr;
+						if (!(in_parselet = ext::GetValue(inf_parselets, lookahead.Value))
+							&& !(in_parselet = ext::GetValue(inf_parselets_T, lookahead.Type)))
+						{
+							std::cout << "ERROR2" << std::endl;
+							return (T::ReturnType)nullptr;
+						}
+						auto newleft = in_parselet->Parse(this, left, lookahead);
+						if (newleft)
+						{
+							left = newleft;
+						}
+						else
+						{
+							m_Lexer->Rollback(save);
+						}
 					}
-					left = in_parselet->Parse(this, left, lookahead);
+				}
+				else
+				{
+					m_Lexer->Rollback(save);
 				}
 				return left;
 			}
