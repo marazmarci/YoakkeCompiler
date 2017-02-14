@@ -96,7 +96,8 @@ namespace yk {
 		}
 
 		template <typename T>
-		bool is() const {
+		std::enable_if_t<static_contains<T, Types...>::value, bool>
+		is() const {
 			return type_id == typeid(T).hash_code();
 		}
 
@@ -113,7 +114,8 @@ namespace yk {
 		}
 
 		template<typename T>
-		T& get() {
+		std::enable_if_t<static_contains<T, Types...>::value, T&>
+		get() {
 			if (type_id == typeid(T).hash_code()) {
 				return *reinterpret_cast<T*>(&data);
 			}
@@ -127,4 +129,7 @@ namespace yk {
 			return typeid(void).hash_code();
 		}
 	};
+
+	template <typename... Ts>
+	using yvar = variant<Ts...>;
 }

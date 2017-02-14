@@ -114,12 +114,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h" />
+    <ClInclude Include="src\parse\lexer.h" />
+    <ClInclude Include="src\parse\lex_rule.h" />
+    <ClInclude Include="src\parse\token.h" />
+    <ClInclude Include="src\utility\iterator.h" />
+    <ClInclude Include="src\utility\optional.h" />
     <ClInclude Include="src\utility\static_max.h" />
     <ClInclude Include="src\utility\static_contains.h" />
     <ClInclude Include="src\Utility\variant.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\parse\lex_rule.cpp" />
+    <ClCompile Include="src\parse\token.cpp" />
+    <ClCompile Include="src\utility\optional.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
