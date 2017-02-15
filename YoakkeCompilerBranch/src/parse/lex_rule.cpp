@@ -3,312 +3,117 @@
 #include "lex_rule.h"
 
 namespace yk {
-	lex_rule::lex_rule()
-		: m_Next(nullptr) {
-	}
-
-	lex_rule::~lex_rule() { }
-
-	void lex_rule::set_next(lex_rule* nxt) {
-		m_Next = nxt;
-	}
-
-	or_lex_rule::or_lex_rule(lex_rule* l, lex_rule* r)
-		: m_Left(l), m_Right(r) {
-	}
-
-	or_lex_rule::~or_lex_rule() {
-		delete m_Left;
-		delete m_Right;
-	}
-
-	ysize or_lex_rule::match(const char* input) const {
-		auto res = m_Left->match(input);
-		auto res2 = m_Right->match(input);
-		if (res || res2) {
-			if (m_Next) {
-				auto nres = m_Next->match(input + res);
-				auto nres2 = m_Next->match(input + res2);
-				if (nres) {
-					return res + nres;
-				}
-				else if (nres2) {
-					return res2 + nres2;
-				}
-				else {
-					return 0;
-				}
-			}
-			else {
-				if (res > res2) {
-					return res;
-				}
-				else {
-					return res2;
-				}
-			}
+	namespace lex_rule {
+		// Generic rule
+		rule::rule(code c) 
+			: m_Hash(c), Next(&END) {
 		}
-		return 0;
-	}
 
-	lex_rule* or_lex_rule::clone() const {
-		return new or_lex_rule(m_Left, m_Right);
-	}
+		rule::~rule() { }
 
-	seq_lex_rule::seq_lex_rule(ystr const& seq)
-		: m_Sequence(seq) {
-	}
-
-	seq_lex_rule::~seq_lex_rule() { }
-
-	ysize seq_lex_rule::match(const char* input) const {
-		auto len = m_Sequence.length();
-		if (std::strncmp(input, m_Sequence.c_str(), len) == 0) {
-			if (m_Next) {
-				auto nres = m_Next->match(input + len);
-				if (nres) {
-					return len + nres;
-				}
-				else {
-					return 0;
-				}
-			}
-			else {
-				return len;
-			}
+		code rule::hash_code() const {
+			return m_Hash;
 		}
-		else {
-			return 0;
+
+		rule& operator+(rule & l, rule & r) {
+			l.Next = &r;
+			return l;
 		}
-	}
 
-	lex_rule* seq_lex_rule::clone() const {
-		return new seq_lex_rule(m_Sequence);
-	}
+		// Rule end
+		end::end() 
+			: rule(code::end) {
+		}
 
-	mul_lex_rule::mul_lex_rule(lex_rule* any) 
-		: m_Any(any) {
-	}
+		end::~end() { }
 
-	mul_lex_rule::~mul_lex_rule() {
-		delete m_Any;
-	}
-	
-	ysize mul_lex_rule::match(const char* input) const {
-		ysize offset = 0;
-		if (m_Next) {
+		// Char sequence
+		chars::chars(ystr const& seq) 
+			: rule(code::chars), Sequence(seq) {
+		}
+
+		chars::~chars() { }
+
+		// Multiple occurences
+		mul::mul(rule& sub)
+			: rule(code::mul), Sub(&sub) {
+			Sub->Next = this;
+		}
+
+		mul::~mul() {
+			delete Sub;
+		}
+
+		// Optional
+		opt::opt(rule& sub) 
+			: rule(code::opt), Sub(&sub) {
+			Sub->Next = &END;
+		}
+
+		opt::~opt() {
+			delete Sub;
+		}
+
+		end END;
+
+		// Matching function
+#define EAT_STACK() {if (stack.size()) {		\
+						auto top = stack.top();	\
+						offset = top.second;	\
+						begin = top.first;		\
+						stack.pop();			\
+					}							\
+					else {						\
+						return longest;			\
+					}}
+
+		ysize match(const char* str, rule& thebegin) {
+			rule* begin = &thebegin;
+			ysize longest = 0;
+			ysize offset = 0;
+			ystack<ypair<rule*, ysize>> stack;
+
 			for (;;) {
-				auto nmatch = m_Next->match(input + offset);
-				if (nmatch) {
-					return nmatch + offset;
+				switch (begin->hash_code()) {
+				case code::end:
+					if (offset > longest) {
+						longest = offset;
+					}
+					EAT_STACK();
+					break;
+
+				case code::chars: {
+					chars* ch = reinterpret_cast<chars*>(begin);
+					ysize len = ch->Sequence.size();
+					if (std::strncmp(str + offset, ch->Sequence.c_str(), len) == 0) {
+						offset += len;
+						begin = ch->Next;
+					}
+					else {
+						EAT_STACK();
+					}
+					break;
 				}
-				auto res = m_Any->match(input + offset);
-				if (res) {
-					offset += res;
+
+				case code::mul: {
+					mul* ml = reinterpret_cast<mul*>(begin);
+					stack.push(std::make_pair(ml->Next, offset));
+					begin = ml->Sub;
+					break;
 				}
-				else {
-					return 0;
+
+				case code::opt: {
+					opt* op = reinterpret_cast<opt*>(begin);
+					stack.push(std::make_pair(op->Next, offset));
+					begin = op->Sub;
+					break;
+				}
+
+				default:
+					throw std::exception("Lex match rule unimplemented!");
 				}
 			}
-		}
-		else {
-			for (;;) {
-				auto res = m_Any->match(input + offset);
-				if (res) {
-					offset += res;
-				}
-				else {
-					return offset;
-				}
-			}
-		}
-	}
-
-	lex_rule* mul_lex_rule::clone() const {
-		return new mul_lex_rule(m_Any->clone());
-	}
-
-	char_lex_rule::char_lex_rule(ystr const& chars) {
-		for (char c : chars) {
-			m_Chars.insert(c);
-		}
-	}
-
-	char_lex_rule::char_lex_rule(yset<char> const& chars) 
-		: m_Chars(chars) {
-	}
-
-	char_lex_rule::char_lex_rule(std::initializer_list<char> list) {
-		for (char c : list) {
-			m_Chars.insert(c);
-		}
-	}
-
-	char_lex_rule::~char_lex_rule() { }
-
-	ysize char_lex_rule::match(const char* input) const {
-		char curr = *input;
-		if (m_Chars.find(curr) != m_Chars.end()) {
-			if (m_Next) {
-				auto nres = m_Next->match(input + 1);
-				if (nres) {
-					return 1 + nres;
-				}
-				else {
-					return 0;
-				}
-			}
-			else {
-				return 1;
-			}
-		}
-		else {
 			return 0;
-		}
-	}
-
-	lex_rule* char_lex_rule::clone() const {
-		return new char_lex_rule(m_Chars);
-	}
-
-	chrange_lex_rule::chrange_lex_rule(char f, char l)
-		: m_First(f), m_Last(l) {
-	}
-
-	chrange_lex_rule::~chrange_lex_rule() { }
-
-	ysize chrange_lex_rule::match(const char* input) const {
-		char curr = *input;
-		if (curr >= m_First && curr <= m_Last) {
-			if (m_Next) {
-				auto nres = m_Next->match(input + 1);
-				if (nres) {
-					return 1 + nres;
-				}
-				else {
-					return 0;
-				}
-			}
-			else {
-				return 1;
-			}
-		}
-		else {
-			return 0;
-		}
-	}
-
-	lex_rule* chrange_lex_rule::clone() const {
-		return new chrange_lex_rule(m_First, m_Last);
-	}
-
-	comb_lex_rule::comb_lex_rule(lex_rule* sub) 
-		: m_Sub(sub) {
-	}
-
-	comb_lex_rule::~comb_lex_rule() {
-		delete m_Sub;
-	}
-
-	ysize comb_lex_rule::match(const char* input) const {
-		auto res = m_Sub->match(input);
-		if (m_Next) {
-			auto nres = m_Next->match(input + res);
-			if (nres) {
-				return res + nres;
-			}
-			else {
-				return 0;
-			}
-		}
-		else {
-			return res;
-		}
-	}
-
-	lex_rule* comb_lex_rule::clone() const {
-		return new comb_lex_rule(m_Sub->clone());
-	}
-
-	opt_lex_rule::opt_lex_rule(lex_rule* sub)
-		: m_Sub(sub) {
-	}
-
-	opt_lex_rule::~opt_lex_rule() {
-		delete m_Sub;
-	}
-
-	ysize opt_lex_rule::match(const char* input) const {
-		auto res = m_Sub->match(input);
-		if (m_Next) {
-			return m_Next->match(input + res);
-		}
-		return res;
-	}
-
-	lex_rule* opt_lex_rule::clone() const {
-		return new comb_lex_rule(m_Sub->clone());
-	}
-
-	namespace lr {
-		lex_rule* match(ystr const& str) {
-			return new seq_lex_rule(str);
-		}
-
-		lex_rule* mul(lex_rule* r) {
-			return new mul_lex_rule(r);
-		}
-
-		lex_rule* mmul(lex_rule* r) {
-			auto res = r->clone();
-			res->set_next(mul(r->clone()));
-			return new comb_lex_rule(res);
-		}
-
-		lex_rule* set(ystr const& chars) {
-			return new char_lex_rule(chars);
-		}
-
-		lex_rule* range(char l, char r) {
-			return new chrange_lex_rule(l, r);
-		}
-
-		lex_rule* or(std::initializer_list<lex_rule*> elems) {
-			yvec<lex_rule*> rules;
-			for (auto e : elems) {
-				rules.push_back(e->clone());
-			}
-			if (rules.size() == 0) {
-				return nullptr;
-			}
-			while (rules.size() > 1) {
-				auto o = new or_lex_rule(rules[0], rules[1]);
-				rules.erase(rules.begin(), rules.begin() + 2);
-				if (!rules.size()) {
-					return o;
-				}
-				else {
-					rules.insert(rules.begin(), o);
-				}
-			}
-		}
-
-		lex_rule* opt(lex_rule* r) {
-			return new opt_lex_rule(r->clone());
-		}
-
-		lex_rule* group(std::initializer_list<lex_rule*> elems) {
-			yvec<lex_rule*> rules;
-			for (auto e : elems) {
-				rules.push_back(e->clone());
-			}
-			if (rules.size() == 0) {
-				return nullptr;
-			}
-			for (ysize i = 1; i < rules.size(); i++) {
-				rules[i - 1]->set_next(rules[i]);
-			}
-			return new comb_lex_rule(rules[0]);
 		}
 	}
 }

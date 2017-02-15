@@ -5,17 +5,17 @@ namespace yk {
 		m_Src = src;
 	}
 
-	void lexer::add_skip(lex_rule* rule) {
+	/*void lexer::add_skip(lex_rule* rule) {
 		m_Skips.push_back(rule);
 	}
 
 	void lexer::add_rule(lex_rule* rule, ystr const& tok) {
 		m_Rules.push_back(std::make_pair(rule, tok));
-	}
+	}*/
 
 	token lexer::next() {
 	begin:
-		for (auto& r : m_Skips) {
+		/*for (auto& r : m_Skips) {
 			if (auto res = r->match(m_Src)) {
 				skip(res);
 				goto begin;
@@ -43,7 +43,8 @@ namespace yk {
 		}
 
 		ystr err = "Unhandled token: '" + (*m_Src) + ystr("'!");
-		throw std::exception(err.c_str());
+		throw std::exception(err.c_str());*/
+		return token("", "");
 	}
 
 	bool lexer::has_next() {

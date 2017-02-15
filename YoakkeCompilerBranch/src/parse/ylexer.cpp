@@ -3,7 +3,7 @@
 namespace yk {
 	ylexer::ylexer() {
 		// Skip whitespace
-		add_skip(lr::mul(lr::set(" \t\n")));
+		/*add_skip(lr::mul(lr::set(" \t\n")));
 		// Skip comment
 		// Single-line comment
 		auto sl_comm = lr::match("//");
@@ -15,8 +15,8 @@ namespace yk {
 		auto mul_comm = lr::match("/*");
 		auto mul_comm_cont = lr::mul(lr::or({ mul_comm, lr::range(1, 127) }));
 		mul_comm->set_next(mul_comm_cont);
-		mul_comm_cont->set_next(lr::match("*/"));
-		add_skip(mul_comm);
+		mul_comm_cont->set_next(lr::match("*//*"));
+		/*add_skip(mul_comm);
 
 		// Keywords
 		// Identifier
@@ -34,6 +34,6 @@ namespace yk {
 		auto real = 
 			lr::or({ lr::group({ integer, lr::match("."), lr::opt(integer) }),
 			lr::group({ lr::match("."), integer }) });
-		add_rule(real, "Real");
+		add_rule(real, "Real");*/
 	}
 }

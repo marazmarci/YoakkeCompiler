@@ -3,123 +3,66 @@
 #include "../common.h"
 
 namespace yk {
-	class lex_rule {
-	protected:
-		lex_rule* m_Next;
+	namespace lex_rule {
+		enum class code {
+			end, chars, mul, opt
+		};
 
-	public:
-		lex_rule();
-		virtual ~lex_rule();
+		struct rule {
+		public:
+			rule* Next;
 
-	public:
-		void set_next(lex_rule* nxt);
-		virtual ysize match(const char* input) const = 0;
-		virtual lex_rule* clone() const = 0;
-	};
+		protected:
+			code m_Hash;
 
-	class or_lex_rule : public lex_rule {
-	private:
-		lex_rule* m_Left;
-		lex_rule* m_Right;
+		protected:
+			rule(code c);
 
-	public:
-		or_lex_rule(lex_rule* l, lex_rule* r);
-		virtual ~or_lex_rule();
+		public:
+			virtual ~rule();
 
-	public:
-		virtual ysize match(const char* input) const override;
-		virtual lex_rule* clone() const override;
-	};
+		public:
+			code hash_code() const;
 
-	class seq_lex_rule : public lex_rule {
-	private:
-		ystr m_Sequence;
+		public:
+			friend rule& operator+(rule& l, rule& r);
+		};
 
-	public:
-		seq_lex_rule(ystr const& seq);
-		virtual ~seq_lex_rule();
+		struct end : public rule {
+		public:
+			end();
+			virtual ~end();
+		};
 
-	public:
-		virtual ysize match(const char* input) const override;
-		virtual lex_rule* clone() const override;
-	};
+		struct chars : public rule {
+		public:
+			ystr Sequence;
 
-	class mul_lex_rule : public lex_rule {
-	private:
-		lex_rule* m_Any;
+		public:
+			chars(ystr const& seq);
+			virtual ~chars();
+		};
 
-	public:
-		mul_lex_rule(lex_rule* any);
-		virtual ~mul_lex_rule();
+		struct mul : public rule {
+		public:
+			rule* Sub;
 
-	public:
-		virtual ysize match(const char* input) const override;
-		virtual lex_rule* clone() const override;
-	};
+		public:
+			mul(rule& sub);
+			virtual ~mul();
+		};
 
-	class char_lex_rule : public lex_rule {
-	private:
-		yset<char> m_Chars;
+		struct opt : public rule {
+		public:
+			rule* Sub;
 
-	public:
-		char_lex_rule(ystr const& chars);
-		char_lex_rule(yset<char> const& chars);
-		char_lex_rule(std::initializer_list<char> list);
-		virtual ~char_lex_rule();
+		public:
+			opt(rule& sub);
+			virtual ~opt();
+		};
 
-	public:
-		virtual ysize match(const char* input) const override;
-		virtual lex_rule* clone() const override;
-	};
+		extern end END;
 
-	class chrange_lex_rule : public lex_rule {
-	private:
-		char m_First;
-		char m_Last;
-
-	public:
-		chrange_lex_rule(char f, char l);
-		virtual ~chrange_lex_rule();
-
-	public:
-		virtual ysize match(const char* input) const override;
-		virtual lex_rule* clone() const override;
-	};
-
-	class comb_lex_rule : public lex_rule {
-	private:
-		lex_rule* m_Sub;
-
-	public:
-		comb_lex_rule(lex_rule* sub);
-		virtual ~comb_lex_rule();
-
-	public:
-		virtual ysize match(const char* input) const override;
-		virtual lex_rule* clone() const override;
-	};
-
-	class opt_lex_rule : public lex_rule {
-	private:
-		lex_rule* m_Sub;
-
-	public:
-		opt_lex_rule(lex_rule* sub);
-		virtual ~opt_lex_rule();
-
-	public:
-		virtual ysize match(const char* input) const override;
-		virtual lex_rule* clone() const override;
-	};
-
-	namespace lr {
-		lex_rule* match(ystr const& str);
-		lex_rule* mul(lex_rule* r);
-		lex_rule* mmul(lex_rule* r);
-		lex_rule* set(ystr const& chars);
-		lex_rule* range(char l, char r);
-		lex_rule* or(std::initializer_list<lex_rule*> elems);
-		lex_rule* opt(lex_rule* r);
-		lex_rule* group(std::initializer_list<lex_rule*> elems);
+		ysize match(const char* str, rule& thebegin);
 	}
 }

@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <map>
 #include <set>
+#include <stack>
 #include <string>
 #include <vector>
 #include <utility>
@@ -19,6 +20,9 @@ namespace yk {
 
 	template <typename T>
 	using yvec = std::vector<T>;
+
+	template <typename T>
+	using ystack = std::stack<T>;
 
 	template <typename T, typename U>
 	using ypair = std::pair<T, U>;
