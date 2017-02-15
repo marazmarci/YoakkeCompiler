@@ -51,6 +51,10 @@ namespace yk {
 		return 0;
 	}
 
+	lex_rule* or_lex_rule::clone() const {
+		return new or_lex_rule(m_Left, m_Right);
+	}
+
 	seq_lex_rule::seq_lex_rule(ystr const& seq)
 		: m_Sequence(seq) {
 	}
@@ -76,6 +80,10 @@ namespace yk {
 		else {
 			return 0;
 		}
+	}
+
+	lex_rule* seq_lex_rule::clone() const {
+		return new seq_lex_rule(m_Sequence);
 	}
 
 	mul_lex_rule::mul_lex_rule(lex_rule* any) 
@@ -116,10 +124,18 @@ namespace yk {
 		}
 	}
 
+	lex_rule* mul_lex_rule::clone() const {
+		return new mul_lex_rule(m_Any->clone());
+	}
+
 	char_lex_rule::char_lex_rule(ystr const& chars) {
 		for (char c : chars) {
 			m_Chars.insert(c);
 		}
+	}
+
+	char_lex_rule::char_lex_rule(yset<char> const& chars) 
+		: m_Chars(chars) {
 	}
 
 	char_lex_rule::char_lex_rule(std::initializer_list<char> list) {
@@ -151,6 +167,10 @@ namespace yk {
 		}
 	}
 
+	lex_rule* char_lex_rule::clone() const {
+		return new char_lex_rule(m_Chars);
+	}
+
 	chrange_lex_rule::chrange_lex_rule(char f, char l)
 		: m_First(f), m_Last(l) {
 	}
@@ -178,6 +198,58 @@ namespace yk {
 		}
 	}
 
+	lex_rule* chrange_lex_rule::clone() const {
+		return new chrange_lex_rule(m_First, m_Last);
+	}
+
+	comb_lex_rule::comb_lex_rule(lex_rule* sub) 
+		: m_Sub(sub) {
+	}
+
+	comb_lex_rule::~comb_lex_rule() {
+		delete m_Sub;
+	}
+
+	ysize comb_lex_rule::match(const char* input) const {
+		auto res = m_Sub->match(input);
+		if (m_Next) {
+			auto nres = m_Next->match(input + res);
+			if (nres) {
+				return res + nres;
+			}
+			else {
+				return 0;
+			}
+		}
+		else {
+			return res;
+		}
+	}
+
+	lex_rule* comb_lex_rule::clone() const {
+		return new comb_lex_rule(m_Sub->clone());
+	}
+
+	opt_lex_rule::opt_lex_rule(lex_rule* sub)
+		: m_Sub(sub) {
+	}
+
+	opt_lex_rule::~opt_lex_rule() {
+		delete m_Sub;
+	}
+
+	ysize opt_lex_rule::match(const char* input) const {
+		auto res = m_Sub->match(input);
+		if (m_Next) {
+			return m_Next->match(input + res);
+		}
+		return res;
+	}
+
+	lex_rule* opt_lex_rule::clone() const {
+		return new comb_lex_rule(m_Sub->clone());
+	}
+
 	namespace lr {
 		lex_rule* match(ystr const& str) {
 			return new seq_lex_rule(str);
@@ -185,6 +257,12 @@ namespace yk {
 
 		lex_rule* mul(lex_rule* r) {
 			return new mul_lex_rule(r);
+		}
+
+		lex_rule* mmul(lex_rule* r) {
+			auto res = r->clone();
+			res->set_next(mul(r->clone()));
+			return new comb_lex_rule(res);
 		}
 
 		lex_rule* set(ystr const& chars) {
@@ -198,7 +276,7 @@ namespace yk {
 		lex_rule* or(std::initializer_list<lex_rule*> elems) {
 			yvec<lex_rule*> rules;
 			for (auto e : elems) {
-				rules.push_back(e);
+				rules.push_back(e->clone());
 			}
 			if (rules.size() == 0) {
 				return nullptr;
@@ -213,6 +291,24 @@ namespace yk {
 					rules.insert(rules.begin(), o);
 				}
 			}
+		}
+
+		lex_rule* opt(lex_rule* r) {
+			return new opt_lex_rule(r->clone());
+		}
+
+		lex_rule* group(std::initializer_list<lex_rule*> elems) {
+			yvec<lex_rule*> rules;
+			for (auto e : elems) {
+				rules.push_back(e->clone());
+			}
+			if (rules.size() == 0) {
+				return nullptr;
+			}
+			for (ysize i = 1; i < rules.size(); i++) {
+				rules[i - 1]->set_next(rules[i]);
+			}
+			return new comb_lex_rule(rules[0]);
 		}
 	}
 }

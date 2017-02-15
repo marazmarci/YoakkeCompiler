@@ -47,11 +47,11 @@ namespace yk {
 			return *this;
 		}
 
-		inline bool contains() const {
+		inline bool some() const {
 			return flag;
 		}
 
-		inline bool empty() const {
+		inline bool none() const {
 			return !flag;
 		}
 

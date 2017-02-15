@@ -25,5 +25,15 @@ namespace yk {
 			lr::mul(lr::or({ lr::range('a', 'z'), lr::range('A', 'Z'), lr::range('0', '9'),
 				lr::set("_") })));
 		add_rule(ident, "Identifier");
+
+		// Integer
+		auto integer = lr::mmul(lr::range('0', '9'));
+		add_rule(integer, "Integer");
+
+		// Real
+		auto real = 
+			lr::or({ lr::group({ integer, lr::match("."), lr::opt(integer) }),
+			lr::group({ lr::match("."), integer }) });
+		add_rule(real, "Real");
 	}
 }

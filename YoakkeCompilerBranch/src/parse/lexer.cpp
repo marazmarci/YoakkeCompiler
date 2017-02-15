@@ -24,14 +24,22 @@ namespace yk {
 
 		if (!(*m_Src)) return token("<eof>", "");
 
+		ystr longest = "";
+		ystr longest_id = "";
 		for (auto& trip : m_Rules) {
 			auto& rule = std::get<0>(trip);
 			auto& id = std::get<1>(trip);
 			if (auto res = rule->match(m_Src)) {
-				ystr val(m_Src, m_Src + res);
-				skip(res);
-				return token(id, val);
+				ystr val = ystr(m_Src, m_Src + res);
+				if (val.size() > longest.size()) {
+					longest = val;
+					longest_id = id;
+				}
 			}
+		}
+		if (longest.size()) {
+			skip(longest.size());
+			return token(longest_id, longest);
 		}
 
 		ystr err = "Unhandled token: '" + (*m_Src) + ystr("'!");

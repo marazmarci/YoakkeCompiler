@@ -5,8 +5,8 @@
 namespace yk {
 	class token {
 	private:
-		const ystr m_Identifier;
-		const ystr m_Value;
+		ystr m_Identifier;
+		ystr m_Value;
 
 	public:
 		token(ystr const& id, ystr const& val);

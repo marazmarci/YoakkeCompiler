@@ -45,6 +45,12 @@
     <ClInclude Include="src\parse\ylexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\parse\token_buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parse\parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -63,6 +69,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\parse\ylexer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\parse\token_buffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\parse\parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
