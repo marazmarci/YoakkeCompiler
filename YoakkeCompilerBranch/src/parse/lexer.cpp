@@ -5,45 +5,37 @@ namespace yk {
 		m_Src = src;
 	}
 
-	/*void lexer::add_skip(lex_rule* rule) {
+	void lexer::add_skip(lex_skip rule) {
 		m_Skips.push_back(rule);
 	}
 
-	void lexer::add_rule(lex_rule* rule, ystr const& tok) {
-		m_Rules.push_back(std::make_pair(rule, tok));
-	}*/
+	void lexer::add_rule(lex_rule rule) {
+		m_Rules.push_back(rule);
+	}
 
 	token lexer::next() {
 	begin:
-		/*for (auto& r : m_Skips) {
-			if (auto res = r->match(m_Src)) {
+		if (!(*m_Src)) return token("<eof>", "");
+
+		for (auto& rule : m_Skips) {
+			if (auto res = rule(m_Src)) {
 				skip(res);
 				goto begin;
 			}
 		}
 
-		if (!(*m_Src)) return token("<eof>", "");
-
-		ystr longest = "";
-		ystr longest_id = "";
-		for (auto& trip : m_Rules) {
-			auto& rule = std::get<0>(trip);
-			auto& id = std::get<1>(trip);
-			if (auto res = rule->match(m_Src)) {
-				ystr val = ystr(m_Src, m_Src + res);
-				if (val.size() > longest.size()) {
-					longest = val;
-					longest_id = id;
-				}
+		for (auto& rule : m_Rules) {
+			auto res = rule(m_Src);
+			if (res.some()) {
+				auto unwrapped = res.get();
+				ystr val = ystr(m_Src, m_Src + unwrapped.second);
+				skip(unwrapped.second);
+				return token(unwrapped.first, val);
 			}
-		}
-		if (longest.size()) {
-			skip(longest.size());
-			return token(longest_id, longest);
 		}
 
 		ystr err = "Unhandled token: '" + (*m_Src) + ystr("'!");
-		throw std::exception(err.c_str());*/
+		throw std::exception(err.c_str());
 		return token("", "");
 	}
 

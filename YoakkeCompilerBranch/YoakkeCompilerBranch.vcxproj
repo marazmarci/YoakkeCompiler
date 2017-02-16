@@ -115,7 +115,6 @@
   <ItemGroup>
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\parse\lexer.h" />
-    <ClInclude Include="src\parse\lex_rule.h" />
     <ClInclude Include="src\parse\parser.h" />
     <ClInclude Include="src\parse\token_buffer.h" />
     <ClInclude Include="src\parse\token.h" />
@@ -129,7 +128,6 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\parse\lexer.cpp" />
-    <ClCompile Include="src\parse\lex_rule.cpp" />
     <ClCompile Include="src\parse\parser.cpp" />
     <ClCompile Include="src\parse\token_buffer.cpp" />
     <ClCompile Include="src\parse\token.cpp" />

@@ -25,6 +25,16 @@ namespace yk {
 			: flag(false) {
 		}
 
+		optional(const optional<T>& prev)
+			: flag(prev.flag) {
+			new (&data) T(*reinterpret_cast<const T*>(&prev.data));
+		}
+
+		optional(optional<T>&& prev)
+			: flag(prev.flag) {
+			new (&data) T(std::move(*reinterpret_cast<T*>(&prev.data)));
+		}
+
 		~optional() {
 			destruct();
 		}

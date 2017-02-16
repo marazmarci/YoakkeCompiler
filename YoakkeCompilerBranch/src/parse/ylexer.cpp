@@ -1,39 +1,109 @@
+#include <cctype>
+#include <cstring>
+
 #include "ylexer.h"
 
 namespace yk {
+	namespace lex_rules {
+		static ysize whitespace(const char* src) {
+			if (*src == ' ' || *src == '\t' || *src == '\n') {
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		}
+
+		static ysize single_line_comment(const char* src) {
+			if (*src++ == '/' && *src++ == '/') {
+				ysize skip = 2;
+				while (*src && *src++ != '\n') skip++;
+				return skip;
+			}
+			else {
+				return 0;
+			}
+		}
+
+		static ysize multi_line_comment(const char* src) {
+			if (*src++ == '/' && *src++ == '*') {
+				ysize skip = 2;
+				ysize depth = 1;
+				while (*src && depth) {
+					if (*src == '/' && *(src + 1) == '*') {
+						src += 2;
+						skip += 2;
+						depth++;
+					}
+					else if (*src == '*' && *(src + 1) == '/') {
+						src += 2;
+						skip += 2;
+						depth--;
+					}
+					else {
+						src++;
+						skip++;
+					}
+				}
+				return skip;
+			}
+			else {
+				return 0;
+			}
+		}
+
+		typedef yopt<ypair<ystr, ysize>> token_desc;
+
+		static const yset<ystr> keywords = {
+			"if", "while"
+		};
+
+		static token_desc identifier(const char* src) {
+			ysize skip = 0;
+			if (std::isalpha(*src) || *src == '_') {
+				while (std::isalnum(*src) || *src == '_') {
+					*src++;
+					skip++;
+				}
+				if (keywords.find(ystr(src - skip, src)) != keywords.end()) {
+					return std::make_pair("Keyword", skip);
+				}
+				else {
+					return std::make_pair("Identifier", skip);
+				}
+			}
+			else {
+				return None;
+			}
+		}
+
+		static token_desc numeric_literal(const char* src) {
+			ysize skip = 0;
+			if (std::isdigit(*src)) {
+				while (std::isdigit(*src)) src++, skip++;
+			}
+			if (*src == '.' && (skip || std::isdigit(*(src + 1)))) {
+				src++, skip++;
+				while (std::isdigit(*src++)) skip++;
+				return std::make_pair("Real", skip);
+			}
+			else if (skip) {
+				return std::make_pair("Integer", skip);
+			}
+			else {
+				return None;
+			}
+		}
+	}
+
 	ylexer::ylexer() {
-		// Skip whitespace
-		/*add_skip(lr::mul(lr::set(" \t\n")));
-		// Skip comment
-		// Single-line comment
-		auto sl_comm = lr::match("//");
-		auto sl_comm_cont = lr::mul(lr::range(1, 127));
-		sl_comm->set_next(sl_comm_cont);
-		sl_comm_cont->set_next(lr::set("\n"));
-		add_skip(sl_comm);
-		// Multi-line comment 
-		auto mul_comm = lr::match("/*");
-		auto mul_comm_cont = lr::mul(lr::or({ mul_comm, lr::range(1, 127) }));
-		mul_comm->set_next(mul_comm_cont);
-		mul_comm_cont->set_next(lr::match("*//*"));
-		/*add_skip(mul_comm);
+		// Add skip sequences
+		add_skip(lex_rules::whitespace);
+		add_skip(lex_rules::single_line_comment);
+		add_skip(lex_rules::multi_line_comment);
 
-		// Keywords
-		// Identifier
-		auto ident = lr::or({ lr::range('a', 'z'), lr::range('A', 'Z'), lr::set("_") });
-		ident->set_next(
-			lr::mul(lr::or({ lr::range('a', 'z'), lr::range('A', 'Z'), lr::range('0', '9'),
-				lr::set("_") })));
-		add_rule(ident, "Identifier");
-
-		// Integer
-		auto integer = lr::mmul(lr::range('0', '9'));
-		add_rule(integer, "Integer");
-
-		// Real
-		auto real = 
-			lr::or({ lr::group({ integer, lr::match("."), lr::opt(integer) }),
-			lr::group({ lr::match("."), integer }) });
-		add_rule(real, "Real");*/
+		// Actual tokenization
+		add_rule(lex_rules::identifier);
+		add_rule(lex_rules::numeric_literal);
 	}
 }
