@@ -15,6 +15,9 @@ namespace yk {
 	typedef std::size_t ysize;
 	typedef std::string ystr;
 
+	template <typename k, typename V>
+	using ymap = std::map<K, V>;
+
 	template <typename T>
 	using yset = std::set<T>;
 

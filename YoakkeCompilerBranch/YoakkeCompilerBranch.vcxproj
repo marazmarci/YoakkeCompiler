@@ -113,9 +113,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\ast\ast_node.h" />
+    <ClInclude Include="src\ast\expr.h" />
     <ClInclude Include="src\common.h" />
+    <ClInclude Include="src\parse\expr_parselet.h" />
+    <ClInclude Include="src\parse\prec_parser.h" />
+    <ClInclude Include="src\parse\infix_parselet.h" />
     <ClInclude Include="src\parse\lexer.h" />
     <ClInclude Include="src\parse\parser.h" />
+    <ClInclude Include="src\parse\position.h" />
+    <ClInclude Include="src\parse\prefix_parselet.h" />
     <ClInclude Include="src\parse\token_buffer.h" />
     <ClInclude Include="src\parse\token.h" />
     <ClInclude Include="src\parse\ylexer.h" />
@@ -127,8 +134,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\ast\ast_node.cpp" />
+    <ClCompile Include="src\ast\expr.cpp" />
+    <ClCompile Include="src\parse\expr_parselet.cpp" />
     <ClCompile Include="src\parse\lexer.cpp" />
     <ClCompile Include="src\parse\parser.cpp" />
+    <ClCompile Include="src\parse\position.cpp" />
     <ClCompile Include="src\parse\token_buffer.cpp" />
     <ClCompile Include="src\parse\token.cpp" />
     <ClCompile Include="src\parse\ylexer.cpp" />
