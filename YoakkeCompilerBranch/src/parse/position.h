@@ -1,5 +1,6 @@
 #pragma once
 
+#include "token.h"
 #include "../common.h"
 
 namespace yk {
@@ -15,5 +16,6 @@ namespace yk {
 
 	public:
 		static position get(token const& tok);
+		static position interval(position const& a, position const& b);
 	};
 }

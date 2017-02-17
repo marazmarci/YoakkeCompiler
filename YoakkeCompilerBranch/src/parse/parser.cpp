@@ -5,7 +5,7 @@ namespace yk {
 		: m_Buffer(buff) {
 	}
 
-	token const& parser::peek(ysize delta = 0) {
+	token const& parser::peek(ysize delta) {
 		while (m_Buffer->m_Buffer.size() <= delta) {
 			m_Buffer->m_Buffer.push_back(m_Buffer->m_Iter->next());
 		}

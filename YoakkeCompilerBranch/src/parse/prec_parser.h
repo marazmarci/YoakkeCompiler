@@ -23,7 +23,7 @@ namespace yk {
 
 	private:
 		template <typename T>
-		void register_generic(ystr const& val, T* r, ymap<ystr, yset<T*>>& map) {
+		void register_generic(ystr const& val, T* r, ymap<ystr, T*>& map) {
 			auto it = map.find(val);
 			if (it == map.end()) {
 				map.insert(std::make_pair(val, r));
@@ -65,7 +65,7 @@ namespace yk {
 			if (left) {
 				while (prec < get_precedence()) {
 					lookahead = peek();
-					in_rule* in parselet = ext::get_value(m_Infix, lookahead.identifier());
+					in_rule* in_parselet = ext::get_value(m_Infix, lookahead.identifier());
 					if (!in_parselet) {
 						throw std::exception("No matching infix parselet!");
 					}

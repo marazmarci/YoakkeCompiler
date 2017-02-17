@@ -2,16 +2,15 @@
 #include <string>
 
 #include "src\parse\ylexer.h"
+#include "src\parse\yexpr_parser.h"
 
 int main(void) {
-	
-	const char* src = "foo bar 34 53. .123 432.123 if_";
+	const char* src = "foo hello there";
 	yk::ylexer lexer;
 	lexer.set_source(src);
-	while (lexer.has_next()) {
-		auto tok = lexer.next();
-		std::cout << tok.identifier() << " - '" << tok.value() << '\'' << std::endl;
-	}
+	yk::token_buffer buffer(&lexer);
+	yk::yexpr_parser parser(&buffer);
+	auto exp = parser.parse();
 
 	system("PAUSE");
 	return 0;

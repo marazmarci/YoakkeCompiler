@@ -5,7 +5,7 @@
 namespace yk {
 	class ast_node {
 	public:
-		position Position;
+		const position Position;
 
 	public:
 		ast_node(position const& pos);
