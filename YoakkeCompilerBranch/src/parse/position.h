@@ -12,5 +12,8 @@ namespace yk {
 
 	public:
 		position(ysize sx, ysize sy, ysize ex, ysize ey);
+
+	public:
+		static position get(token const& tok);
 	};
 }

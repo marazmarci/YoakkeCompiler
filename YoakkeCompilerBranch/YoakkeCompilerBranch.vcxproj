@@ -125,8 +125,10 @@
     <ClInclude Include="src\parse\prefix_parselet.h" />
     <ClInclude Include="src\parse\token_buffer.h" />
     <ClInclude Include="src\parse\token.h" />
+    <ClInclude Include="src\parse\yexpr_parser.h" />
     <ClInclude Include="src\parse\ylexer.h" />
     <ClInclude Include="src\utility\iterator.h" />
+    <ClInclude Include="src\utility\map_ext.h" />
     <ClInclude Include="src\utility\optional.h" />
     <ClInclude Include="src\utility\static_max.h" />
     <ClInclude Include="src\utility\static_contains.h" />
@@ -142,6 +144,7 @@
     <ClCompile Include="src\parse\position.cpp" />
     <ClCompile Include="src\parse\token_buffer.cpp" />
     <ClCompile Include="src\parse\token.cpp" />
+    <ClCompile Include="src\parse\yexpr_parser.cpp" />
     <ClCompile Include="src\parse\ylexer.cpp" />
     <ClCompile Include="src\utility\optional.cpp" />
   </ItemGroup>

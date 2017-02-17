@@ -5,8 +5,8 @@
 namespace yk {
 	template <typename T, typename P>
 	class infix_parselet {
-	public:
-		const ysize Precedence;
+	private:
+		const ysize m_Precedence;
 
 	public:
 		infix_parselet(ysize prec)
@@ -15,5 +15,6 @@ namespace yk {
 
 	public:
 		virtual T* parse(T* left, token const& begin, P* parser) = 0;
+		inline ysize precedence() const { return m_Precedence; }
 	};
 }

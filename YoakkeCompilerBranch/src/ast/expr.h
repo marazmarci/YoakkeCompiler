@@ -1,11 +1,23 @@
 #pragma once
 
 #include "ast_node.h"
+#include "../parse/token.h"
 
 namespace yk {
 	class expr : public ast_node {
-	public:
+	protected:
 		expr(position const& pos);
+
+	public:
 		virtual ~expr();
+	};
+
+	class ident_expr : public expr {
+	public:
+		const ystr identifier;
+
+	public:
+		ident_expr(token const& tok);
+		virtual ~ident_expr();
 	};
 }

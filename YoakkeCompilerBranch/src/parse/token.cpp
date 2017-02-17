@@ -5,11 +5,11 @@ namespace yk {
 		: m_Identifier(id), m_Value(val) {
 	}
 
-	ystr const& token::value() {
+	ystr const& token::value() const {
 		return m_Value;
 	}
 
-	ystr const& token::identifier() {
+	ystr const& token::identifier() const {
 		return m_Identifier;
 	}
 }

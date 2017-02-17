@@ -12,7 +12,7 @@ namespace yk {
 		token(ystr const& id, ystr const& val);
 
 	public:
-		ystr const& value();
-		ystr const& identifier();
+		ystr const& value() const;
+		ystr const& identifier() const;
 	};
 }

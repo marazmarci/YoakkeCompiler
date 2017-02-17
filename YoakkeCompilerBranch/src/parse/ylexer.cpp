@@ -65,8 +65,9 @@ namespace yk {
 					*src++;
 					skip++;
 				}
+				ystr ident = ystr(src - skip, src);
 				if (keywords.find(ystr(src - skip, src)) != keywords.end()) {
-					return std::make_pair("Keyword", skip);
+					return std::make_pair(ident, skip);
 				}
 				else {
 					return std::make_pair("Identifier", skip);

@@ -69,6 +69,12 @@
     <ClInclude Include="src\parse\prec_parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\utility\map_ext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parse\yexpr_parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -102,6 +108,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ast\expr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\parse\yexpr_parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
