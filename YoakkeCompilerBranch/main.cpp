@@ -3,9 +3,10 @@
 
 #include "src\parse\ylexer.h"
 #include "src\parse\yexpr_parser.h"
+#include "src\utility\static_block.h"
 
 int main(void) {
-	const char* src = "foo hello there";
+	const char* src = "a + b";
 	yk::ylexer lexer;
 	lexer.set_source(src);
 	yk::token_buffer buffer(&lexer);

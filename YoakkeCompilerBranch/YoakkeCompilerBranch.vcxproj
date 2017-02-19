@@ -130,6 +130,8 @@
     <ClInclude Include="src\utility\iterator.h" />
     <ClInclude Include="src\utility\map_ext.h" />
     <ClInclude Include="src\utility\optional.h" />
+    <ClInclude Include="src\utility\preproc.h" />
+    <ClInclude Include="src\utility\static_block.h" />
     <ClInclude Include="src\utility\static_max.h" />
     <ClInclude Include="src\utility\static_contains.h" />
     <ClInclude Include="src\Utility\variant.h" />

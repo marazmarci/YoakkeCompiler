@@ -10,7 +10,7 @@ namespace yk {
 
 	public:
 		infix_parselet(ysize prec)
-			: Precedence(prec) {
+			: m_Precedence(prec) {
 		}
 
 	public:

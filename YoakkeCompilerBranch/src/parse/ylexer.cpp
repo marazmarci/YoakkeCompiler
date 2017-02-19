@@ -95,6 +95,22 @@ namespace yk {
 				return None;
 			}
 		}
+
+		static const yset<ystr> symbols = {
+			"(", ")",
+			"=",
+			"+", "-",
+			"*", "/"
+		};
+
+		static token_desc symbol(const char* src) {
+			for (auto sym : symbols) {
+				if (std::strncmp(sym.c_str(), src, sym.length()) == 0) {
+					return std::make_pair(sym, sym.length());
+				}
+			}
+			return None;
+		}
 	}
 
 	ylexer::ylexer() {
@@ -106,5 +122,6 @@ namespace yk {
 		// Actual tokenization
 		add_rule(lex_rules::identifier);
 		add_rule(lex_rules::numeric_literal);
+		add_rule(lex_rules::symbol);
 	}
 }

@@ -38,7 +38,15 @@ namespace yk {
 
 	yexpr_parser::yexpr_parser(token_buffer* buff)
 		: prec_parser<expr>(buff) {
+		// Atomic
 		register_rule("Identifier", new expr_rules::ident());
+
+		// Operators
+		infixr("=", 1);
+		infixl("+", 2);
+		infixl("-", 2);
+		infixl("*", 3);
+		infixl("/", 3);
 	}
 
 	void yexpr_parser::infixl(ystr const& op, ysize prec) {
