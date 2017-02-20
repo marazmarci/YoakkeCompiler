@@ -6,6 +6,7 @@ namespace yk {
 	}
 
 	ystr expr_prec_printer::dispatch(bin_expr* be) {
-		return '(' + dispatch_gen(be->LHS);
+		return '(' + dispatch_gen(be->LHS) + ' ' + be->OP.identifier()
+			+ ' ' + dispatch_gen(be->RHS) + ')';
 	}
 }

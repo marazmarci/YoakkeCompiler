@@ -6,6 +6,7 @@
 #include "src\utility\static_block.h"
 #include "src\utility\double_dispatcher.h"
 #include "src\ast\expr.h"
+#include "src\debug\expr_prec_printer.h"
 
 int main(void) {
 	const char* src = "a + b";
@@ -14,6 +15,8 @@ int main(void) {
 	yk::token_buffer buffer(&lexer);
 	yk::yexpr_parser parser(&buffer);
 	auto exp = parser.parse();
+	yk::expr_prec_printer printer;
+	std::cout << printer.dispatch_gen(exp) << std::endl;
 
 	system("PAUSE");
 	return 0;

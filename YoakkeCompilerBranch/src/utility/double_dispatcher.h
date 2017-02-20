@@ -4,7 +4,7 @@
 
 namespace yk {
 	// Dispatching mechanism
-	template <typename T, typename... T>
+	template <typename... U>
 	struct double_dispatcher_disp;
 
 	template <typename T, typename Head>
@@ -44,7 +44,7 @@ namespace yk {
 				return dispatcher->dispatch(sub);
 			}
 			else {
-				return double_dispatcher_disp<Tail...>::dispatch(dispatcher, base);
+				return double_dispatcher_disp<T, Tail...>::dispatch(dispatcher, base);
 			}
 		}
 
@@ -56,13 +56,13 @@ namespace yk {
 				dispatcher->dispatch(sub);
 			}
 			else {
-				double_dispatcher_disp<Tail...>::dispatch(dispatcher, base);
+				double_dispatcher_disp<T, Tail...>::dispatch(dispatcher, base);
 			}
 		}
 	};
 
 	// Dispatcher implementation
-	template <typename T, typename... U>
+	template <typename... U>
 	struct double_dispatcher_impl;
 
 	template <typename T, typename Head>
@@ -83,14 +83,16 @@ namespace yk {
 		using Base = base_of(&Head::dispatch_id);
 		using double_dispatcher_impl<T, Head, Tail...>::dispatch;
 
-		std::enable_if_t<!std::is_same<T, void>, T>
-			dispatch_gen(Base* b) {
-			return double_dispatcher_disp<Head, Tail...>::dispatch(this, b);
+		template <typename U>
+		std::enable_if_t<!std::is_same<T, void>::value, T>
+			dispatch_gen(U* b) {
+			return double_dispatcher_disp<T, Head, Tail...>::dispatch(this, static_cast<Base*>(b));
 		}
 
-		std::enable_if_t<std::is_same<T, void>, T>
-			dispatch_gen(Base* b) {
-			double_dispatcher_disp<Head, Tail...>::dispatch(this, b);
+		template <typename U>
+		std::enable_if_t<std::is_same<T, void>::value, T>
+			dispatch_gen(U* b) {
+			double_dispatcher_disp<T, Head, Tail...>::dispatch(this, static_cast<Base*>(b));
 		}
 	};
 

@@ -116,6 +116,7 @@
     <ClInclude Include="src\ast\ast_node.h" />
     <ClInclude Include="src\ast\expr.h" />
     <ClInclude Include="src\common.h" />
+    <ClInclude Include="src\debug\expr_prec_printer.h" />
     <ClInclude Include="src\debug\unit_test.h" />
     <ClInclude Include="src\parse\expr_parselet.h" />
     <ClInclude Include="src\parse\prec_parser.h" />
@@ -143,6 +144,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\ast\ast_node.cpp" />
     <ClCompile Include="src\ast\expr.cpp" />
+    <ClCompile Include="src\debug\expr_prec_printer.cpp" />
     <ClCompile Include="src\debug\unit_test.cpp" />
     <ClCompile Include="src\parse\expr_parselet.cpp" />
     <ClCompile Include="src\parse\lexer.cpp" />
