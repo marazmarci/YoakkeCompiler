@@ -4,6 +4,8 @@
 #include "src\parse\ylexer.h"
 #include "src\parse\yexpr_parser.h"
 #include "src\utility\static_block.h"
+#include "src\utility\double_dispatcher.h"
+#include "src\ast\expr.h"
 
 int main(void) {
 	const char* src = "a + b";

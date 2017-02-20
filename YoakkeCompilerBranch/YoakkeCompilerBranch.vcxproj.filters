@@ -81,6 +81,15 @@
     <ClInclude Include="src\utility\static_block.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\debug\unit_test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\double_dispatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\base_of.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -117,6 +126,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\parse\yexpr_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\debug\unit_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
