@@ -2,9 +2,10 @@
 
 #include "ast_node.h"
 #include "../parse/token.h"
+#include "../utility/double_dispatcher.h"
 
 namespace yk {
-	class expr : public ast_node {
+	class expr : public ast_node, public double_dispatchable {
 	protected:
 		expr(position const& pos);
 

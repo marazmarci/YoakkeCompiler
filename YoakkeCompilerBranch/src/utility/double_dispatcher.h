@@ -83,7 +83,7 @@ namespace yk {
 		template <typename U>
 		Ret dispatch_gen(U* b) {
 			return double_dispatcher_gen<double_dispatcher<Ret, Head, Tail...>, Ret, Head, Tail...>
-				::dispatch(this, static_cast<Base*>(b));
+				::dispatch(this, (Base*)(b));
 		}
 	};
 
@@ -95,9 +95,13 @@ namespace yk {
 		template <typename U>
 		void dispatch_gen(U* b) {
 			double_dispatcher_gen<double_dispatcher<void, Head, Tail...>, void, Head, Tail...>
-				::dispatch(this, static_cast<Base*>(b));
+				::dispatch(this, (Base*)(b));
 		}
 	};
+
+	// Visitor specialization
+	template <typename... T>
+	using visitor = double_dispatcher<void, T...>;
 
 	// Dispatchable
 	struct double_dispatchable {

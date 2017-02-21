@@ -9,7 +9,7 @@
 #include "src\debug\expr_prec_printer.h"
 
 int main(void) {
-	const char* src = "a + b";
+	const char* src = "a + b - c * d";
 	yk::ylexer lexer;
 	lexer.set_source(src);
 	yk::token_buffer buffer(&lexer);
@@ -17,6 +17,7 @@ int main(void) {
 	auto exp = parser.parse();
 	yk::expr_prec_printer printer;
 	std::cout << printer.dispatch_gen(exp) << std::endl;
+	yk::expr_prec_printer::Base a;
 
 	system("PAUSE");
 	return 0;

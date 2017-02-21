@@ -1,10 +1,9 @@
 #pragma once
 
 #include "../parse/position.h"
-#include "../utility/double_dispatcher.h"
 
 namespace yk {
-	class ast_node : public dispatchable {
+	class ast_node {
 	public:
 		const position Position;
 
