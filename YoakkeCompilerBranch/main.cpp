@@ -17,7 +17,6 @@ int main(void) {
 	auto exp = parser.parse();
 	yk::expr_prec_printer printer;
 	std::cout << printer.dispatch_gen(exp) << std::endl;
-	yk::expr_prec_printer::Base a;
 
 	system("PAUSE");
 	return 0;

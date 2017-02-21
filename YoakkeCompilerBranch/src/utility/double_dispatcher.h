@@ -1,61 +1,59 @@
 #pragma once
 
-#include "base_of.h"
-
 namespace yk {
-	// Dispatching mechanism
+	// Double dispatcher mechanism
 	template <typename... T>
 	struct double_dispatcher_gen;
 
-	template <typename Disp, typename Ret, typename Head>
-	struct double_dispatcher_gen<Disp, Ret, Head> {
-		static inline Ret dispatch(Disp* dispatcher, typename Disp::Base* base) {
+	template <typename Disp, typename Ret, typename Base, typename Head>
+	struct double_dispatcher_gen<Disp, Ret, Base, Head> {
+		static inline Ret dispatch(Disp* dispatcher, Base* base) {
 			if (Head* sub = dynamic_cast<Head*>(base)) {
 				return dispatcher->dispatch(sub);
 			}
 			else {
-				throw std::exception("Unimplemented dispatc function for dispatcher!");
+				throw std::exception("Double dispatcher unimplemented type!");
 			}
 		}
 	};
 
-	template <typename Disp, typename Head>
-	struct double_dispatcher_gen<Disp, void, Head> {
-		static inline void dispatch(Disp* dispatcher, typename Disp::Base* base) {
+	template <typename Disp, typename Base, typename Head>
+	struct double_dispatcher_gen<Disp, void, Base, Head> {
+		static inline void dispatch(Disp* dispatcher, Base* base) {
 			if (Head* sub = dynamic_cast<Head*>(base)) {
 				dispatcher->dispatch(sub);
 			}
 			else {
-				throw std::exception("Unimplemented dispatc function for dispatcher!");
+				throw std::exception("Double dispatcher unimplemented type!");
 			}
 		}
 	};
 
-	template <typename Disp, typename Ret, typename Head, typename... Tail>
-	struct double_dispatcher_gen<Disp, Ret, Head, Tail...> {
-		static inline Ret dispatch(Disp* dispatcher, typename Disp::Base* base) {
+	template <typename Disp, typename Ret, typename Base, typename Head, typename... Tail>
+	struct double_dispatcher_gen<Disp, Ret, Base, Head, Tail...> {
+		static inline Ret dispatch(Disp* dispatcher, Base* base) {
 			if (Head* sub = dynamic_cast<Head*>(base)) {
 				return dispatcher->dispatch(sub);
 			}
 			else {
-				return double_dispatcher_gen<Disp, Ret, Tail...>::dispatch(dispatcher, base);
+				return double_dispatcher_gen<Disp, Ret, Base, Tail...>::dispatch(dispatcher, base);
 			}
 		}
 	};
 
-	template <typename Disp, typename Head, typename... Tail>
-	struct double_dispatcher_gen<Disp, void, Head, Tail...> {
-		static inline void dispatch(Disp* dispatcher, typename Disp::Base* base) {
+	template <typename Disp, typename Base, typename Head, typename... Tail>
+	struct double_dispatcher_gen<Disp, void, Base, Head, Tail...> {
+		static inline void dispatch(Disp* dispatcher, Base* base) {
 			if (Head* sub = dynamic_cast<Head*>(base)) {
 				dispatcher->dispatch(sub);
 			}
 			else {
-				double_dispatcher_gen<Disp, void, Tail...>::dispatch(dispatcher, base);
+				double_dispatcher_gen<Disp, void, Base, Tail...>::dispatch(dispatcher, base);
 			}
 		}
 	};
 
-	// Interface implementation
+	// Double dispatcher interface
 	template <typename... T>
 	struct double_dispatcher_int;
 
@@ -71,44 +69,31 @@ namespace yk {
 		virtual Ret dispatch(Head*) = 0;
 	};
 
-	// Public interface for double dispatcher
+	// Public dispatcher interface
 	template <typename... T>
 	struct double_dispatcher;
 
-	template <typename Ret, typename Head, typename... Tail>
-	struct double_dispatcher<Ret, Head, Tail...> : public double_dispatcher_int<Ret, Head, Tail...> {
-		using Base = base_of(&Head::dispatch_id);
-		using double_dispatcher_int<Ret, Head, Tail...>::dispatch;
+	template <typename Ret, typename Base, typename... Types>
+	struct double_dispatcher<Ret, Base, Types...> : public double_dispatcher_int<Ret, Types...> {
+		using double_dispatcher_int<Ret, Types...>::dispatch;
 
-		template <typename U>
-		Ret dispatch_gen(U* b) {
-			return double_dispatcher_gen<double_dispatcher<Ret, Head, Tail...>, Ret, Head, Tail...>
-				::dispatch(this, (Base*)(b));
+		inline Ret dispatch_gen(Base* b) {
+			return double_dispatcher_gen<double_dispatcher<Ret, Base, Types...>, Ret, Base, Types...>
+				::dispatch(this, b);
 		}
 	};
 
-	template <typename Head, typename... Tail>
-	struct double_dispatcher<void, Head, Tail...> : public double_dispatcher_int<void, Head, Tail...> {
-		using Base = base_of(&Head::dispatch_id);
-		using double_dispatcher_int<void, Head, Tail...>::dispatch;
+	template <typename Base, typename... Types>
+	struct double_dispatcher<void, Base, Types...> : public double_dispatcher_int<void, Types...> {
+		using double_dispatcher_int<void, Types...>::dispatch;
 
-		template <typename U>
-		void dispatch_gen(U* b) {
-			double_dispatcher_gen<double_dispatcher<void, Head, Tail...>, void, Head, Tail...>
-				::dispatch(this, (Base*)(b));
+		inline void dispatch_gen(Base* b) {
+			return double_dispatcher_gen<double_dispatcher<void, Base, Types...>, void, Base, Types...>
+				::dispatch(this, b);
 		}
 	};
 
 	// Visitor specialization
 	template <typename... T>
 	using visitor = double_dispatcher<void, T...>;
-
-	// Dispatchable
-	struct double_dispatchable {
-	public:
-		void dispatch_id() { }
-
-	private:
-		virtual void nothing() { }
-	};
 }
