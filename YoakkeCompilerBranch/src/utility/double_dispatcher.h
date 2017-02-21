@@ -4,15 +4,12 @@
 
 namespace yk {
 	// Dispatching mechanism
-	template <typename... U>
-	struct double_dispatcher_disp;
+	template <typename... T>
+	struct double_dispatcher_gen;
 
-	template <typename T, typename Head>
-	struct double_dispatcher_disp<T, Head> {
-		template <typename D>
-		static inline
-			std::enable_if_t<!std::is_same<T, void>::value, T>
-			dispatch(D* dispatcher, typename D::Base* base) {
+	template <typename Disp, typename Ret, typename Head>
+	struct double_dispatcher_gen<Disp, Ret, Head> {
+		static inline Ret dispatch(Disp* dispatcher, typename Disp::Base* base) {
 			if (Head* sub = dynamic_cast<Head*>(base)) {
 				return dispatcher->dispatch(sub);
 			}
@@ -20,11 +17,11 @@ namespace yk {
 				throw std::exception("Unimplemented dispatc function for dispatcher!");
 			}
 		}
+	};
 
-		template <typename D>
-		static inline
-			std::enable_if_t<std::is_same<T, void>::value, T>
-			dispatch(D* dispatcher, typename D::Base* base) {
+	template <typename Disp, typename Head>
+	struct double_dispatcher_gen<Disp, void, Head> {
+		static inline void dispatch(Disp* dispatcher, typename Disp::Base* base) {
 			if (Head* sub = dynamic_cast<Head*>(base)) {
 				dispatcher->dispatch(sub);
 			}
@@ -34,70 +31,76 @@ namespace yk {
 		}
 	};
 
-	template <typename T, typename Head, typename... Tail>
-	struct double_dispatcher_disp<T, Head, Tail...> {
-		template <typename D>
-		static inline 
-			std::enable_if_t<!std::is_same<T, void>::value, T>
-			dispatch(D* dispatcher, typename D::Base* base) {
+	template <typename Disp, typename Ret, typename Head, typename... Tail>
+	struct double_dispatcher_gen<Disp, Ret, Head, Tail...> {
+		static inline Ret dispatch(Disp* dispatcher, typename Disp::Base* base) {
 			if (Head* sub = dynamic_cast<Head*>(base)) {
 				return dispatcher->dispatch(sub);
 			}
 			else {
-				return double_dispatcher_disp<T, Tail...>::dispatch(dispatcher, base);
+				return double_dispatcher_gen<Disp, Ret, Tail...>::dispatch(dispatcher, base);
 			}
 		}
+	};
 
-		template <typename D>
-		static inline
-			std::enable_if_t<std::is_same<T, void>::value, T>
-			dispatch(D* dispatcher, typename D::Base* base) {
+	template <typename Disp, typename Head, typename... Tail>
+	struct double_dispatcher_gen<Disp, void, Head, Tail...> {
+		static inline void dispatch(Disp* dispatcher, typename Disp::Base* base) {
 			if (Head* sub = dynamic_cast<Head*>(base)) {
 				dispatcher->dispatch(sub);
 			}
 			else {
-				double_dispatcher_disp<T, Tail...>::dispatch(dispatcher, base);
+				double_dispatcher_gen<Disp, void, Tail...>::dispatch(dispatcher, base);
 			}
 		}
 	};
 
-	// Dispatcher implementation
-	template <typename... U>
-	struct double_dispatcher_impl;
+	// Interface implementation
+	template <typename... T>
+	struct double_dispatcher_int;
 
-	template <typename T, typename Head>
-	struct double_dispatcher_impl<T, Head> {
-		virtual T dispatch(Head*) = 0;
+	template <typename Ret, typename Head>
+	struct double_dispatcher_int<Ret, Head> {
+		virtual Ret dispatch(Head*) = 0;
 	};
 
-	template <typename T, typename Head, typename... Tail>
-	struct double_dispatcher_impl<T, Head, Tail...> : public double_dispatcher_impl<T, Tail...> {
-		using double_dispatcher_impl<T, Tail...>::dispatch;
+	template <typename Ret, typename Head, typename... Tail>
+	struct double_dispatcher_int<Ret, Head, Tail...> : public double_dispatcher_int<Ret, Tail...> {
+		using double_dispatcher_int<Ret, Tail...>::dispatch;
 
-		virtual T dispatch(Head*) = 0;
+		virtual Ret dispatch(Head*) = 0;
 	};
 
-	// Public dispatcher type
-	template <typename T, typename Head, typename... Tail>
-	struct double_dispatcher : public double_dispatcher_impl<T, Head, Tail...> {
+	// Public interface for double dispatcher
+	template <typename... T>
+	struct double_dispatcher;
+
+	template <typename Ret, typename Head, typename... Tail>
+	struct double_dispatcher<Ret, Head, Tail...> : public double_dispatcher_int<Ret, Head, Tail...> {
 		using Base = base_of(&Head::dispatch_id);
-		using double_dispatcher_impl<T, Head, Tail...>::dispatch;
+		using double_dispatcher_int<Ret, Head, Tail...>::dispatch;
 
 		template <typename U>
-		std::enable_if_t<!std::is_same<T, void>::value, T>
-			dispatch_gen(U* b) {
-			return double_dispatcher_disp<T, Head, Tail...>::dispatch(this, static_cast<Base*>(b));
+		Ret dispatch_gen(U* b) {
+			return double_dispatcher_gen<double_dispatcher<Ret, Head, Tail...>, Ret, Head, Tail...>
+				::dispatch(this, static_cast<Base*>(b));
 		}
+	};
+
+	template <typename Head, typename... Tail>
+	struct double_dispatcher<void, Head, Tail...> : public double_dispatcher_int<void, Head, Tail...> {
+		using Base = base_of(&Head::dispatch_id);
+		using double_dispatcher_int<void, Head, Tail...>::dispatch;
 
 		template <typename U>
-		std::enable_if_t<std::is_same<T, void>::value, T>
-			dispatch_gen(U* b) {
-			double_dispatcher_disp<T, Head, Tail...>::dispatch(this, static_cast<Base*>(b));
+		void dispatch_gen(U* b) {
+			double_dispatcher_gen<double_dispatcher<void, Head, Tail...>, void, Head, Tail...>
+				::dispatch(this, static_cast<Base*>(b));
 		}
 	};
 
 	// Dispatchable
-	struct dispatchable {
+	struct double_dispatchable {
 	public:
 		void dispatch_id() { }
 
