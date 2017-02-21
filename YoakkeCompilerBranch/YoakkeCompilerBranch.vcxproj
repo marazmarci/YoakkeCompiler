@@ -129,6 +129,7 @@
     <ClInclude Include="src\parse\token.h" />
     <ClInclude Include="src\parse\yexpr_parser.h" />
     <ClInclude Include="src\parse\ylexer.h" />
+    <ClInclude Include="src\unit_testing\expr_unit_test.h" />
     <ClInclude Include="src\utility\base_of.h" />
     <ClInclude Include="src\utility\double_dispatcher.h" />
     <ClInclude Include="src\utility\iterator.h" />
@@ -154,6 +155,7 @@
     <ClCompile Include="src\parse\token.cpp" />
     <ClCompile Include="src\parse\yexpr_parser.cpp" />
     <ClCompile Include="src\parse\ylexer.cpp" />
+    <ClCompile Include="src\unit_testing\expr_unit_test.cpp" />
     <ClCompile Include="src\utility\optional.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

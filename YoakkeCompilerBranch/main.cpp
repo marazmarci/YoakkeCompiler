@@ -6,17 +6,10 @@
 #include "src\utility\static_block.h"
 #include "src\utility\double_dispatcher.h"
 #include "src\ast\expr.h"
-#include "src\debug\expr_prec_printer.h"
+#include "src\unit_testing\expr_unit_test.h"
 
 int main(void) {
-	const char* src = "a + b - c * d";
-	yk::ylexer lexer;
-	lexer.set_source(src);
-	yk::token_buffer buffer(&lexer);
-	yk::yexpr_parser parser(&buffer);
-	auto exp = parser.parse();
-	yk::expr_prec_printer printer;
-	std::cout << printer.dispatch_gen(exp) << std::endl;
+	yk::unit_testing::test_expr_parser();
 
 	system("PAUSE");
 	return 0;

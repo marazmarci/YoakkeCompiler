@@ -16,5 +16,8 @@ namespace yk {
 
 	public:
 		token_buffer(iterator<token>* iter);
+
+	public:
+		void clear();
 	};
 }
