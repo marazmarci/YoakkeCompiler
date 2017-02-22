@@ -16,5 +16,6 @@ namespace yk {
 	public:
 		virtual T* parse(T* left, token const& begin, P* parser) = 0;
 		inline ysize precedence() const { return m_Precedence; }
+		virtual bool matches(T* left) { return true; }
 	};
 }

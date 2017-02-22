@@ -34,6 +34,60 @@ namespace yk {
 				}
 			}
 		};
+
+		class pre_uryop : public expr_pre_parselet {
+		public:
+			ysize precedence;
+
+		public:
+			pre_uryop(ysize prec)
+				: precedence(prec) {
+			}
+
+		public:
+			expr* parse(token const& begin, expr_parser* parser) override {
+				auto right = parser->parse(precedence);
+				if (right) {
+					return new preury_expr(right, begin);
+				}
+				throw std::exception("RHS expected!");
+			}
+		};
+
+		class post_uryop : public expr_in_parselet {
+		public:
+			post_uryop(ysize prec)
+				: expr_in_parselet(prec) {
+			}
+
+		public:
+			expr* parse(expr* left, token const& begin, expr_parser* parser) override {
+				return new postury_expr(left, begin);
+			}
+		};
+
+		class enclosed : public expr_pre_parselet {
+		public:
+			ystr left;
+			ystr right;
+
+		public:
+			enclosed(ystr const& l, ystr const& r)
+				: left(l), right(r) {
+			}
+
+		public:
+			expr* parse(token const& begin, expr_parser* parser) override {
+				auto expr = parser->parse();
+				auto end = parser->match_id(right);
+				if (end.some()) {
+					return new enclose_expr(expr, begin, end.get());
+				}
+				else {
+					throw std::exception("Enclosed RHS expected!");
+				}
+			}
+		};
 	}
 
 	yexpr_parser::yexpr_parser(token_buffer* buff)
@@ -47,6 +101,14 @@ namespace yk {
 		infixl("-", 2);
 		infixl("*", 3);
 		infixl("/", 3);
+	}
+
+	void yexpr_parser::prefix(ystr const& op, ysize prec) {
+		register_rule(op, new expr_rules::pre_uryop(prec));
+	}
+
+	void yexpr_parser::postfix(ystr const& op, ysize prec) {
+		register_rule(op, new expr_rules::post_uryop(prec));
 	}
 
 	void yexpr_parser::infixl(ystr const& op, ysize prec) {

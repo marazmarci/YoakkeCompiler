@@ -29,6 +29,37 @@ namespace yk {
 
 	public:
 		bin_expr(expr* l, expr* r, token const& o);
-		~bin_expr();
+		virtual ~bin_expr();
+	};
+
+	class preury_expr : public expr {
+	public:
+		expr* Sub;
+		token OP;
+
+	public:
+		preury_expr(expr* s, token const& o);
+		virtual ~preury_expr();
+	};
+
+	class postury_expr : public expr {
+	public:
+		expr* Sub;
+		token OP;
+
+	public:
+		postury_expr(expr* s, token const& o);
+		virtual ~postury_expr();
+	};
+
+	class enclose_expr : public expr {
+	public:
+		token Begin;
+		token End;
+		expr* Sub;
+
+	public:
+		enclose_expr(expr* s, token const& beg, token const& end);
+		virtual ~enclose_expr();
 	};
 }

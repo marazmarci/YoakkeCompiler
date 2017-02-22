@@ -11,6 +11,9 @@ namespace yk {
 		yexpr_parser(token_buffer* buff);
 
 	public:
+		void prefix(ystr const& op, ysize prec);
+		void postfix(ystr const& op, ysize prec);
+
 		void infixl(ystr const& op, ysize prec);
 		void infixr(ystr const& op, ysize prec);
 	};

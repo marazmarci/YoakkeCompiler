@@ -21,6 +21,7 @@ namespace yk {
 	yopt<token> parser::match_val(ystr const& val) {
 		auto tok = peek();
 		if (tok.value() == val) {
+			consume();
 			return tok;
 		}
 		else {
@@ -31,6 +32,7 @@ namespace yk {
 	yopt<token> parser::match_id(ystr const& val) {
 		auto tok = peek();
 		if (tok.identifier() == val) {
+			consume();
 			return tok;
 		}
 		else {

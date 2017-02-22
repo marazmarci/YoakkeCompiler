@@ -69,8 +69,13 @@ namespace yk {
 					if (!in_parselet) {
 						throw std::exception("No matching infix parselet!");
 					}
-					lookahead = consume();
-					left = in_parselet->parse(left, lookahead, this);
+					if (in_parselet->matches(left)) {
+						lookahead = consume();
+						left = in_parselet->parse(left, lookahead, this);
+					}
+					else {
+						break;
+					}
 				}
 			}
 			return left;
