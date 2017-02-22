@@ -69,18 +69,12 @@ namespace yk {
 
 		class enclosed : public expr_pre_parselet {
 		public:
-			ystr left;
-			ystr right;
-
-		public:
-			enclosed(ystr const& l, ystr const& r)
-				: left(l), right(r) {
-			}
+			enclosed() { }
 
 		public:
 			expr* parse(token const& begin, expr_parser* parser) override {
 				auto expr = parser->parse();
-				auto end = parser->match_id(right);
+				auto end = parser->match_id(")");
 				if (end.some()) {
 					return new enclose_expr(expr, begin, end.get());
 				}
@@ -140,7 +134,7 @@ namespace yk {
 		: prec_parser<expr>(buff) {
 		// Atomic
 		register_rule("Identifier", new expr_rules::ident());
-		register_rule("(", new expr_rules::enclosed("(", ")"));
+		register_rule("(", new expr_rules::enclosed());
 
 		// Operators
 		register_rule("::", new expr_rules::const_asgn(0));

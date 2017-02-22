@@ -98,9 +98,14 @@ namespace yk {
 
 		static const yset<ystr> symbols = {
 			"(", ")",
+			"::",
+			",",
 			"=",
-			"+", "-",
-			"*", "/"
+			"||", "&&",
+			"==", "<>",
+			">", "<", ">=", "<=",
+			"+", "-", "*", "/", "%",
+			"!", "."
 		};
 
 		static token_desc symbol(const char* src) {
