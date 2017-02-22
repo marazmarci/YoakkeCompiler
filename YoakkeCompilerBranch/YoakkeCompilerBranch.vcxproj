@@ -114,6 +114,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\ast\ast_node.h" />
+    <ClInclude Include="src\ast\ast_tag.h" />
     <ClInclude Include="src\ast\expr.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\debug\expr_prec_printer.h" />
@@ -126,7 +127,7 @@
     <ClInclude Include="src\parse\prefix_parselet.h" />
     <ClInclude Include="src\parse\token_buffer.h" />
     <ClInclude Include="src\parse\token.h" />
-    <ClInclude Include="src\parse\yexpr_parser.h" />
+    <ClInclude Include="src\parse\yparser.h" />
     <ClInclude Include="src\parse\ylexer.h" />
     <ClInclude Include="src\unit_testing\expr_unit_test.h" />
     <ClInclude Include="src\utility\base_of.h" />
@@ -151,7 +152,7 @@
     <ClCompile Include="src\parse\position.cpp" />
     <ClCompile Include="src\parse\token_buffer.cpp" />
     <ClCompile Include="src\parse\token.cpp" />
-    <ClCompile Include="src\parse\yexpr_parser.cpp" />
+    <ClCompile Include="src\parse\yparser.cpp" />
     <ClCompile Include="src\parse\ylexer.cpp" />
     <ClCompile Include="src\unit_testing\expr_unit_test.cpp" />
     <ClCompile Include="src\utility\optional.cpp" />

@@ -1,4 +1,4 @@
-#include "yexpr_parser.h"
+#include "yparser.h"
 #include "../ast/expr.h"
 #include "../utility/map_ext.h"
 
@@ -136,10 +136,11 @@ namespace yk {
 		};
 	}
 
-	yexpr_parser::yexpr_parser(token_buffer* buff)
+	yparser::yparser(token_buffer* buff)
 		: prec_parser<expr>(buff) {
 		// Atomic
 		register_rule("Identifier", new expr_rules::ident());
+		register_rule("(", new expr_rules::enclosed("(", ")"));
 
 		// Operators
 		register_rule("::", new expr_rules::const_asgn(0));
@@ -175,19 +176,19 @@ namespace yk {
 		register_rule("(", new expr_rules::func_call(10));
 	}
 
-	void yexpr_parser::prefix(ystr const& op, ysize prec) {
+	void yparser::prefix(ystr const& op, ysize prec) {
 		register_rule(op, new expr_rules::pre_uryop(prec));
 	}
 
-	void yexpr_parser::postfix(ystr const& op, ysize prec) {
+	void yparser::postfix(ystr const& op, ysize prec) {
 		register_rule(op, new expr_rules::post_uryop(prec));
 	}
 
-	void yexpr_parser::infixl(ystr const& op, ysize prec) {
+	void yparser::infixl(ystr const& op, ysize prec) {
 		register_rule(op, new expr_rules::binop(prec, false));
 	}
 
-	void yexpr_parser::infixr(ystr const& op, ysize prec) {
+	void yparser::infixr(ystr const& op, ysize prec) {
 		register_rule(op, new expr_rules::binop(prec, true));
 	}
 }

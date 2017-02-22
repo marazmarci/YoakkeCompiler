@@ -6,9 +6,9 @@ namespace yk {
 	class expr;
 	class expr_in_parselet;
 
-	class yexpr_parser : public prec_parser<expr> {
+	class yparser : public prec_parser<expr> {
 	public:
-		yexpr_parser(token_buffer* buff);
+		yparser(token_buffer* buff);
 
 	public:
 		void prefix(ystr const& op, ysize prec);
