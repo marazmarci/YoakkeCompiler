@@ -1,5 +1,6 @@
 #include "yexpr_parser.h"
 #include "../ast/expr.h"
+#include "../utility/map_ext.h"
 
 namespace yk {
 	namespace expr_rules {
@@ -88,6 +89,51 @@ namespace yk {
 				}
 			}
 		};
+
+		class func_call : public expr_in_parselet {
+		public:
+			func_call(ysize prec)
+				: expr_in_parselet(prec) {
+			}
+
+		public:
+			bool matches(expr* exp) override {
+				return !(ext::contains(ast_node::get_tags(exp), ast_tag::block));
+			}
+
+			expr* parse(expr* left, token const& begin, expr_parser* parser) override {
+				yvec<expr*> operands;
+				operands.push_back(left);
+				auto last = parser->peek();
+				if (last.identifier() != ")") {
+					auto params = parser->parse();
+					if (!params) {
+						throw "Parameters expected!";
+					}
+					operands.push_back(params);
+					last = parser->peek();
+					if (last.identifier() != ")") {
+						throw "')' expected!";
+					}
+				}
+				parser->consume();
+
+				return new mixfix_expr("call", operands,
+					position::interval(left->Position, position::get(last)));
+			}
+		};
+
+		class const_asgn : public binop {
+		public:
+			const_asgn(ysize prec)
+				: binop(prec, true) {
+			}
+
+		public:
+			bool matches(expr* left) override {
+				return dynamic_cast<ident_expr*>(left) != nullptr;
+			}
+		};
 	}
 
 	yexpr_parser::yexpr_parser(token_buffer* buff)
@@ -96,11 +142,37 @@ namespace yk {
 		register_rule("Identifier", new expr_rules::ident());
 
 		// Operators
-		infixr("=", 1);
-		infixl("+", 2);
-		infixl("-", 2);
-		infixl("*", 3);
-		infixl("/", 3);
+		register_rule("::", new expr_rules::const_asgn(0));
+
+		infixl(",", 1);
+		
+		infixr("=", 2);
+		
+		infixl("||", 3);
+
+		infixl("&&", 4);
+
+		infixl("==", 5);
+		infixl("<>", 5);
+
+		infixl("<", 6);
+		infixl(">", 6);
+		infixl("<=", 6);
+		infixl(">=", 6);
+
+		infixl("+", 7);
+		infixl("-", 7);
+
+		infixl("*", 8);
+		infixl("/", 8);
+		infixl("%", 8);
+
+		prefix("+", 9);
+		prefix("-", 9);
+		prefix("!", 9);
+
+		infixl(".", 10);
+		register_rule("(", new expr_rules::func_call(10));
 	}
 
 	void yexpr_parser::prefix(ystr const& op, ysize prec) {

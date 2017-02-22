@@ -14,5 +14,10 @@ namespace yk {
 				return nullptr;
 			}
 		}
+
+		template <typename T>
+		bool contains(yset<T> const& set, T const& v) {
+			return set.find(v) != set.end();
+		}
 	}
 }

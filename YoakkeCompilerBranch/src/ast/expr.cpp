@@ -52,4 +52,13 @@ namespace yk {
 	enclose_expr::~enclose_expr() {
 		delete Sub;
 	}
+
+	// Mixfix expression
+	mixfix_expr::mixfix_expr(ystr const& o, yvec<expr*> const& opers, position const& pos)
+		: expr(pos), OP(o), Operands(opers) {
+	}
+
+	mixfix_expr::~mixfix_expr() {
+		for (auto o : Operands) delete o;
+	}
 }
