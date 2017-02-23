@@ -55,7 +55,7 @@ namespace yk {
 		typedef yopt<ypair<ystr, ysize>> token_desc;
 
 		static const yset<ystr> keywords = {
-			"if", "while"
+			"if", "while", "fn"
 		};
 
 		static token_desc identifier(const char* src) {
@@ -98,14 +98,13 @@ namespace yk {
 
 		static const yset<ystr> symbols = {
 			"(", ")",
-			"::",
 			",",
 			"=",
 			"||", "&&",
 			"==", "<>",
 			">", "<", ">=", "<=",
 			"+", "-", "*", "/", "%",
-			"!", "."
+			"!", ".", "->"
 		};
 
 		static token_desc symbol(const char* src) {

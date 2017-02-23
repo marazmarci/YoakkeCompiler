@@ -71,7 +71,13 @@ namespace yk {
 					}
 					if (in_parselet->matches(left)) {
 						lookahead = consume();
-						left = in_parselet->parse(left, lookahead, this);
+						auto newleft = in_parselet->parse(left, lookahead, this);
+						if (newleft) {
+							left = newleft;
+						}
+						else {
+							throw std::exception("Parse RHS returned with null");
+						}
 					}
 					else {
 						break;

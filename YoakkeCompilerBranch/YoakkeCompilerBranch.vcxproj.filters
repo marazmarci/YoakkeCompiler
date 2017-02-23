@@ -90,10 +90,10 @@
     <ClInclude Include="src\unit_testing\expr_unit_test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ast\ast_tag.h">
+    <ClInclude Include="src\parse\yparser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\parse\yparser.h">
+    <ClInclude Include="src\ast\type_desc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -138,6 +138,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\parse\yparser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ast\type_desc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

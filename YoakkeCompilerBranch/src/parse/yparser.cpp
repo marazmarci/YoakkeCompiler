@@ -73,13 +73,19 @@ namespace yk {
 
 		public:
 			expr* parse(token const& begin, expr_parser* parser) override {
-				auto expr = parser->parse();
+				expr* inner = nullptr;
+				if (parser->peek().identifier() != ")") {
+					inner = parser->parse();
+					if (!inner) {
+						throw std::exception("Expression expected between parenthesis!");
+					}
+				}
 				auto end = parser->match_id(")");
 				if (end.some()) {
-					return new enclose_expr(expr, begin, end.get());
+					return new enclose_expr(inner, begin, end.get());
 				}
 				else {
-					throw std::exception("Enclosed RHS expected!");
+					throw std::exception("')' expected!");
 				}
 			}
 		};
@@ -92,7 +98,7 @@ namespace yk {
 
 		public:
 			bool matches(expr* exp) override {
-				return !(ext::contains(ast_node::get_tags(exp), ast_tag::block));
+				return dynamic_cast<block_expr*>(exp) == nullptr;
 			}
 
 			expr* parse(expr* left, token const& begin, expr_parser* parser) override {
@@ -131,14 +137,12 @@ namespace yk {
 	}
 
 	yparser::yparser(token_buffer* buff)
-		: prec_parser<expr>(buff) {
+		: prec_parser<expr>(buff), prec_parser<type_desc>(buff) {
 		// Atomic
-		register_rule("Identifier", new expr_rules::ident());
-		register_rule("(", new expr_rules::enclosed());
+		prec_parser<expr>::register_rule("Identifier", new expr_rules::ident());
+		prec_parser<expr>::register_rule("(", new expr_rules::enclosed());
 
 		// Operators
-		register_rule("::", new expr_rules::const_asgn(0));
-
 		infixl(",", 1);
 		
 		infixr("=", 2);
@@ -167,22 +171,26 @@ namespace yk {
 		prefix("!", 9);
 
 		infixl(".", 10);
-		register_rule("(", new expr_rules::func_call(10));
+		prec_parser<expr>::register_rule("(", new expr_rules::func_call(10));
+	}
+
+	expr* yparser::parse_expr() {
+		return prec_parser<expr>::parse();
 	}
 
 	void yparser::prefix(ystr const& op, ysize prec) {
-		register_rule(op, new expr_rules::pre_uryop(prec));
+		prec_parser<expr>::register_rule(op, new expr_rules::pre_uryop(prec));
 	}
 
 	void yparser::postfix(ystr const& op, ysize prec) {
-		register_rule(op, new expr_rules::post_uryop(prec));
+		prec_parser<expr>::register_rule(op, new expr_rules::post_uryop(prec));
 	}
 
 	void yparser::infixl(ystr const& op, ysize prec) {
-		register_rule(op, new expr_rules::binop(prec, false));
+		prec_parser<expr>::register_rule(op, new expr_rules::binop(prec, false));
 	}
 
 	void yparser::infixr(ystr const& op, ysize prec) {
-		register_rule(op, new expr_rules::binop(prec, true));
+		prec_parser<expr>::register_rule(op, new expr_rules::binop(prec, true));
 	}
 }

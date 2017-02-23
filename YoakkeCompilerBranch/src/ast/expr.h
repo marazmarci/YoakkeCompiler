@@ -2,7 +2,6 @@
 
 #include "ast_node.h"
 #include "../parse/token.h"
-#include "ast_tag.h"
 
 namespace yk {
 	class expr : public ast_node {
@@ -72,5 +71,9 @@ namespace yk {
 	public:
 		mixfix_expr(ystr const& o, yvec<expr*> const& opers, position const& pos);
 		virtual ~mixfix_expr();
+	};
+
+	class block_expr : public expr {
+
 	};
 }

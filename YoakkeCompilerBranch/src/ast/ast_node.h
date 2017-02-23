@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../parse/position.h"
-#include "ast_tag.h"
 
 namespace yk {
 	class ast_node {
@@ -11,8 +10,5 @@ namespace yk {
 	public:
 		ast_node(position const& pos);
 		virtual ~ast_node();
-
-	public:
-		static yset<ast_tag> get_tags(ast_node* n);
 	};
 }
