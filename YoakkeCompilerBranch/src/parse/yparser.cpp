@@ -73,16 +73,80 @@ namespace yk {
 
 		public:
 			expr* parse(token const& begin, expr_parser* parser) override {
+				yparser* ypar = reinterpret_cast<yparser*>(parser->parent());
+				bool func = false;
+				bool unknown = true;
+				yvec<ypair<ystr, type_desc*>> params;
 				expr* inner = nullptr;
 				if (parser->peek().identifier() != ")") {
-					inner = parser->parse();
-					if (!inner) {
-						throw std::exception("Expression expected between parenthesis!");
+					unknown = false;
+					if (parser->peek().identifier() == ":"
+						|| parser->peek(1).identifier() == ":") {
+						func = true;
+						if (parser->peek().identifier() == "Identifier") {
+							token id = parser->consume();
+							if (parser->peek().identifier() == ":") {
+								parser->consume();
+
+							}
+							else {
+								throw std::exception();
+							}
+						}
+						auto par = ypar->parse_type();
+						if (!par) {
+							throw std::exception("Parameters expected between parenthesis!");
+						}
+						
+					}
+					else {
+						inner = parser->parse();
+						if (!inner) {
+							throw std::exception("Expression expected between parenthesis!");
+						}
 					}
 				}
 				auto end = parser->match_id(")");
 				if (end.some()) {
-					return new enclose_expr(inner, begin, end.get());
+					if (unknown) {
+						if (parser->peek().identifier() == "->"
+							|| parser->peek().identifier() == "{") {
+							func = true;
+						}
+					}
+					if (!func) {
+						return new enclose_expr(inner, begin, end.get());
+					}
+					else {
+						bool expl = false;
+						type_desc* rett = new ident_type_desc(token("unit", "unit"));
+						if (parser->peek().identifier() == "->") {
+							expl = true;
+							parser->consume();
+							delete rett;
+							rett = ypar->parse_type();
+							if (!rett) {
+								throw std::exception("Type expected after '->'!");
+							}
+						}
+						func_proto* proto = nullptr;/* new func_proto(
+							begin, expl ? rett->Position : position::get(end.get()),
+							params, rett);*/
+						if (parser->peek().identifier() == "{") {
+							// Return function expr
+							expr* block = parser->parse();
+							if (block) {
+								return new func_expr(proto, block);
+							}
+							else {
+								throw std::exception("Block expected after '{'!");
+							}
+						}
+						else {
+							// Return function header
+							return proto;
+						}
+					}
 				}
 				else {
 					throw std::exception("')' expected!");
@@ -137,10 +201,12 @@ namespace yk {
 	}
 
 	yparser::yparser(token_buffer* buff)
-		: prec_parser<expr>(buff), prec_parser<type_desc>(buff) {
+		: parser(buff), m_ExprParser(buff, this), m_TypeParser(buff, this) {
 		// Atomic
-		prec_parser<expr>::register_rule("Identifier", new expr_rules::ident());
-		prec_parser<expr>::register_rule("(", new expr_rules::enclosed());
+		m_ExprParser.register_rule("Identifier", new expr_rules::ident());
+		m_ExprParser.register_rule("(", new expr_rules::enclosed());
+
+		m_ExprParser.register_rule("::", new expr_rules::const_asgn(0));
 
 		// Operators
 		infixl(",", 1);
@@ -171,26 +237,30 @@ namespace yk {
 		prefix("!", 9);
 
 		infixl(".", 10);
-		prec_parser<expr>::register_rule("(", new expr_rules::func_call(10));
-	}
-
-	expr* yparser::parse_expr() {
-		return prec_parser<expr>::parse();
+		m_ExprParser.register_rule("(", new expr_rules::func_call(10));
 	}
 
 	void yparser::prefix(ystr const& op, ysize prec) {
-		prec_parser<expr>::register_rule(op, new expr_rules::pre_uryop(prec));
+		m_ExprParser.register_rule(op, new expr_rules::pre_uryop(prec));
 	}
 
 	void yparser::postfix(ystr const& op, ysize prec) {
-		prec_parser<expr>::register_rule(op, new expr_rules::post_uryop(prec));
+		m_ExprParser.register_rule(op, new expr_rules::post_uryop(prec));
 	}
 
 	void yparser::infixl(ystr const& op, ysize prec) {
-		prec_parser<expr>::register_rule(op, new expr_rules::binop(prec, false));
+		m_ExprParser.register_rule(op, new expr_rules::binop(prec, false));
 	}
 
 	void yparser::infixr(ystr const& op, ysize prec) {
-		prec_parser<expr>::register_rule(op, new expr_rules::binop(prec, true));
+		m_ExprParser.register_rule(op, new expr_rules::binop(prec, true));
+	}
+
+	expr* yparser::parse_expr() {
+		return m_ExprParser.parse();
+	}
+
+	type_desc* yparser::parse_type() {
+		return m_TypeParser.parse();
 	}
 }
