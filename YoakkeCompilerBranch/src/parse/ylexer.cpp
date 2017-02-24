@@ -98,17 +98,21 @@ namespace yk {
 
 		static const yset<ystr> symbols = {
 			"(", ")",
+			"::",
 			",",
 			"=",
 			"||", "&&",
 			"==", "<>",
 			">", "<", ">=", "<=",
 			"+", "-", "*", "/", "%",
-			"!", ".", "->"
+			"!", ".", "->",
+			":",
+			"{", "}"
 		};
 
 		static token_desc symbol(const char* src) {
-			for (auto sym : symbols) {
+			for (auto it = symbols.rbegin(); it != symbols.rend(); it++) {
+				auto& sym = *it;
 				if (std::strncmp(sym.c_str(), src, sym.length()) == 0) {
 					return std::make_pair(sym, sym.length());
 				}

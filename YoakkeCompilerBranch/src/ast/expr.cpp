@@ -1,4 +1,5 @@
 #include "expr.h"
+#include "type_desc.h"
 
 namespace yk {
 	// Expression
@@ -14,6 +15,13 @@ namespace yk {
 	}
 
 	ident_expr::~ident_expr() { }
+
+	// Unit expression
+	unit_expr::unit_expr(token const& beg, token const& end)
+		: expr(position::interval(position::get(beg), position::get(end))) {
+	}
+
+	unit_expr::~unit_expr() { }
 
 	// Binary expression
 	bin_expr::bin_expr(expr* l, expr* r, token const& o)
@@ -70,23 +78,41 @@ namespace yk {
 	block_expr::~block_expr() { }
 
 	// Function prototype
-	func_proto::func_proto(token const& beg, position const& end, yvec<param_t> const& pars, type_desc* rett)
+	func_proto::func_proto(token const& beg, position const& end, 
+		yvec<param_expr*> const& pars, type_desc* rett)
 		: block_expr(position::interval(position::get(beg), end)),
 		Parameters(pars), ReturnType(rett) {
 	}
 
 	func_proto::~func_proto() {
 		delete ReturnType;
-		for (auto p : Parameters) delete p.second;
+		for (auto p : Parameters) delete p;
 	}
 
 	// Function expression
 	func_expr::func_expr(func_proto* pr, expr* bod)
-		: expr(position::interval(pr->Position, bod->Position)), Prototype(pr), Body(bod) {
+		: block_expr(position::interval(pr->Position, bod->Position)), Prototype(pr), Body(bod) {
 	}
 
 	func_expr::~func_expr() {
 		delete Prototype;
 		delete Body;
 	}
+
+	// Parameter expression
+	param_expr::param_expr(yopt<token>& name, token const& col, type_desc* type)
+		: expr(position::interval(position::get(name.some() ? name.get() : col), type->Position)),
+		Name(name), Type(type) {
+	}
+
+	param_expr::~param_expr() {
+		delete Type;
+	}
+
+	// Block expression
+	body_expr::body_expr(token const& beg, token const& end) 
+		: block_expr(position::interval(position::get(beg), position::get(end))) {
+	}
+
+	body_expr::~body_expr() { }
 }

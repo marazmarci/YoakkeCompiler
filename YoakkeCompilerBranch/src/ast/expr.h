@@ -2,9 +2,11 @@
 
 #include "ast_node.h"
 #include "../parse/token.h"
+#include "../utility/optional.h"
 
 namespace yk {
 	class type_desc;
+	class param_expr;
 
 	class expr : public ast_node {
 	protected:
@@ -21,6 +23,12 @@ namespace yk {
 	public:
 		ident_expr(token const& tok);
 		virtual ~ident_expr();
+	};
+
+	class unit_expr : public expr {
+	public:
+		unit_expr(token const& beg, token const& end);
+		virtual ~unit_expr();
 	};
 
 	class bin_expr : public expr {
@@ -84,19 +92,17 @@ namespace yk {
 	};
 
 	class func_proto : public block_expr {
-	private:
-		typedef ypair<token, type_desc*> param_t;
-
 	public:
-		yvec<param_t> Parameters;
+		yvec<param_expr*> Parameters;
 		type_desc* ReturnType;
 
 	public:
-		func_proto(token const& beg, position const& end, yvec<param_t> const& pars, type_desc* rett);
+		func_proto(token const& beg, position const& end, 
+			yvec<param_expr*> const& pars, type_desc* rett);
 		virtual ~func_proto();
 	};
 
-	class func_expr : public expr {
+	class func_expr : public block_expr {
 	public:
 		func_proto* Prototype;
 		expr* Body;
@@ -104,5 +110,21 @@ namespace yk {
 	public:
 		func_expr(func_proto* pr, expr* bod);
 		virtual ~func_expr();
+	};
+
+	class param_expr : public expr {
+	public:
+		yopt<token> Name;
+		type_desc* Type;
+
+	public:
+		param_expr(yopt<token>& name, token const& col, type_desc* type);
+		virtual ~param_expr();
+	};
+
+	class body_expr : public block_expr {
+	public:
+		body_expr(token const& beg, token const& end);
+		virtual ~body_expr();
 	};
 }

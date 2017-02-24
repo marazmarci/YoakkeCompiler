@@ -40,18 +40,20 @@ namespace yk {
 		}
 
 	public:
-		optional<T>& operator=(T const& el) {
+		optional<T> const& operator=(T const& el) {
 			destruct();
 			flag = true;
-			data = el;
+			std::memcpy(&data, &el, sizeof(T));
+			return *this;
 		}
 
-		optional<T>& operator=(NoneT const& el) {
+		optional<T> const& operator=(NoneT const& el) {
 			destruct();
 			flag = false;
+			return *this;
 		}
 
-		optional<T>& operator=(optional<T> prev) {
+		optional<T> const& operator=(optional<T> prev) {
 			std::swap(flag, prev.flag);
 			std::swap(data, prev.data);
 			return *this;
@@ -77,7 +79,7 @@ namespace yk {
 	private:
 		void destruct() {
 			if (flag) {
-				data.~T();
+				//data.~T();
 			}
 		}
 	};

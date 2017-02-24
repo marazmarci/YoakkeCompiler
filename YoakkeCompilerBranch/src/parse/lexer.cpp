@@ -1,3 +1,4 @@
+#include <sstream>
 #include "lexer.h"
 
 namespace yk {
@@ -34,9 +35,9 @@ namespace yk {
 			}
 		}
 
-		ystr err = "Unhandled token: '" + (*m_Position) + ystr("'!");
-		throw std::exception(err.c_str());
-		return token("", "");
+		std::stringstream sstream;
+		sstream << "Unhandled token: '" << (*m_Position) << "'!";
+		throw std::exception(sstream.str().c_str());
 	}
 
 	bool lexer::has_next() {
