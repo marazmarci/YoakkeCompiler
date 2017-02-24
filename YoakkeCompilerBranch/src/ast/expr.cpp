@@ -99,20 +99,25 @@ namespace yk {
 		delete Body;
 	}
 
-	// Parameter expression
-	param_expr::param_expr(yopt<token>& name, token const& col, type_desc* type)
-		: expr(position::interval(position::get(name.some() ? name.get() : col), type->Position)),
-		Name(name), Type(type) {
-	}
-
-	param_expr::~param_expr() {
-		delete Type;
-	}
-
 	// Block expression
 	body_expr::body_expr(token const& beg, token const& end) 
 		: block_expr(position::interval(position::get(beg), position::get(end))) {
 	}
 
 	body_expr::~body_expr() { }
+
+	// Parameter expr
+	param_expr::param_expr(token const& name, token const& col, type_desc* type)
+		: expr(position::interval(position::get(name), type->Position)),
+		Name(name), Type(type) {
+	}
+
+	param_expr::param_expr(token const& col, type_desc* type)
+		: expr(position::interval(position::get(col), type->Position)),
+		Name(None), Type(type) {
+	}
+
+	param_expr::~param_expr() {
+		delete Type;
+	}
 }

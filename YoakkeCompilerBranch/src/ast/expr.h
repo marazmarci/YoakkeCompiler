@@ -112,19 +112,20 @@ namespace yk {
 		virtual ~func_expr();
 	};
 
+	class body_expr : public block_expr {
+	public:
+		body_expr(token const& beg, token const& end);
+		virtual ~body_expr();
+	};
+
 	class param_expr : public expr {
 	public:
 		yopt<token> Name;
 		type_desc* Type;
 
 	public:
-		param_expr(yopt<token>& name, token const& col, type_desc* type);
+		param_expr(token const& name, token const& col, type_desc* type);
+		param_expr(token const& col, type_desc* type);
 		virtual ~param_expr();
-	};
-
-	class body_expr : public block_expr {
-	public:
-		body_expr(token const& beg, token const& end);
-		virtual ~body_expr();
 	};
 }

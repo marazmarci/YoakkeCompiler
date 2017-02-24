@@ -78,20 +78,12 @@ namespace yk {
 				expr* body = nullptr;
 				yopt<token> end = None;
 				if (parser->peek().identifier() != ")") {
-					if (auto exp = parser->parse()) {
-						end = parser->match_id(")");
-						if (end.some()) {
-							return new enclose_expr(exp, begin, end.get());
-						}
-						else {
-							throw std::exception("')' expected!");
-						}
-					}
-					else if (auto par = ypar->parse_param()) {
+					if (auto par = ypar->parse_param()) {
 						params.push_back(par);
-						while (ypar->peek().identifier() == ",") {
-							ypar->consume();
-							if (par = ypar->parse_param()) {
+						while (parser->peek().identifier() == ",") {
+							parser->consume();
+							par = ypar->parse_param();
+							if (par) {
 								params.push_back(par);
 							}
 							else {
@@ -100,6 +92,15 @@ namespace yk {
 						}
 						end = parser->match_id(")");
 						if (end.none()) {
+							throw std::exception("')' expected!");
+						}
+					}
+					else if (auto exp = parser->parse()) {
+						end = parser->match_id(")");
+						if (end.some()) {
+							return new enclose_expr(exp, begin, end.get());
+						}
+						else {
 							throw std::exception("')' expected!");
 						}
 					}
@@ -200,7 +201,7 @@ namespace yk {
 		public:
 			const bool right;
 
-		protected:
+		public:
 			binop(ysize prec, bool r)
 				: type_in_parselet(prec), right(r) {
 			}
@@ -209,15 +210,12 @@ namespace yk {
 			type_desc* parse(type_desc* left, token const& begin, type_parser* parser) override {
 				auto rhs = parser->parse(precedence() - (right ? 1 : 0));
 				if (rhs) {
-					return create(left, rhs, begin);
+					return new bin_type_desc(left, rhs, begin);
 				}
 				else {
 					throw std::exception("RHS expected for operator!");
 				}
 			}
-
-		protected:
-			virtual type_desc* create(type_desc* left, type_desc* right, token const& op) = 0;
 		};
 	}
 
@@ -262,6 +260,8 @@ namespace yk {
 
 		// TYPE DESCRIPTOR //////////////////////////////////////////////
 		m_TypeParser.register_rule("Identifier", new type_rules::ident());
+
+		m_TypeParser.register_rule(",", new type_rules::binop(1, false));
 	}
 
 	void yparser::prefix_expr(ystr const& op, ysize prec) {
@@ -292,15 +292,20 @@ namespace yk {
 		auto peek_0 = peek();
 		auto peek_1 = peek(1);
 		yopt<token> name = None;
-		if ((	peek_0.identifier() == "Identifier" && peek_1.identifier() == ":")
-			||	peek_0.identifier() == ":") {
+		if ((peek_0.identifier() == "Identifier" && peek_1.identifier() == ":")
+			|| peek_0.identifier() == ":") {
 			if (peek_0.identifier() == "Identifier") {
 				name = consume();
 			}
 			token semicol = consume();
-			auto type = m_TypeParser.parse();
+			auto type = m_TypeParser.parse(1);
 			if (type) {
-				return new param_expr(name, semicol, type);
+				if (name.some()) {
+					return new param_expr(name.get(), semicol, type);
+				}
+				else {
+					return new param_expr(semicol, type);
+				}
 			}
 			else {
 				throw std::exception("Type expected!");
