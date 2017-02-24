@@ -17,8 +17,8 @@ namespace yk {
 		ymap<ystr, in_rule*>	m_Infix;
 
 	public:
-		prec_parser(token_buffer* buff)
-			: parser(buff) {
+		prec_parser(token_buffer* buff, parser* par = nullptr)
+			: parser(buff, par) {
 		}
 
 	private:

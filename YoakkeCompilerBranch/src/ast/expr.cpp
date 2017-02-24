@@ -61,4 +61,32 @@ namespace yk {
 	mixfix_expr::~mixfix_expr() {
 		for (auto o : Operands) delete o;
 	}
+
+	// Block expression
+	block_expr::block_expr(position const& pos)
+		: expr(pos) {
+	}
+
+	block_expr::~block_expr() { }
+
+	// Function prototype
+	func_proto::func_proto(token const& beg, position const& end, yvec<param_t> const& pars, type_desc* rett)
+		: block_expr(position::interval(position::get(beg), end)),
+		Parameters(pars), ReturnType(rett) {
+	}
+
+	func_proto::~func_proto() {
+		delete ReturnType;
+		for (auto p : Parameters) delete p.second;
+	}
+
+	// Function expression
+	func_expr::func_expr(func_proto* pr, expr* bod)
+		: expr(position::interval(pr->Position, bod->Position)), Prototype(pr), Body(bod) {
+	}
+
+	func_expr::~func_expr() {
+		delete Prototype;
+		delete Body;
+	}
 }

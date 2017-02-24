@@ -11,11 +11,11 @@ namespace yk {
 		friend class parser;
 
 	private:
-		iterator<token>* m_Iter;
+		iterator<token, const char>* m_Iter;
 		yvec<token> m_Buffer;
 
 	public:
-		token_buffer(iterator<token>* iter);
+		token_buffer(iterator<token, const char>* iter);
 
 	public:
 		void clear();

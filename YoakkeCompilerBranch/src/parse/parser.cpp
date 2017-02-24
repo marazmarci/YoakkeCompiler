@@ -1,8 +1,14 @@
 #include "parser.h"
 
 namespace yk {
-	parser::parser(token_buffer* buff)
-		: m_Buffer(buff) {
+	parse_state::parse_state(yvec<token> const& buff)
+		: BufferCopy(buff) {
+	}
+
+	parse_state::~parse_state() { }
+
+	parser::parser(token_buffer* buff, parser* par)
+		: m_Buffer(buff), m_Parent(par) {
 	}
 
 	token const& parser::peek(ysize delta) {
@@ -38,5 +44,17 @@ namespace yk {
 		else {
 			return None;
 		}
+	}
+
+	parse_state parser::get_state() {
+		return parse_state(m_Buffer->m_Buffer);
+	}
+
+	void parser::load_state(parse_state const& st) {
+
+	}
+
+	parser* parser::parent() {
+		return m_Parent;
 	}
 }

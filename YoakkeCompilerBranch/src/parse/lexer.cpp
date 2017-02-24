@@ -2,7 +2,7 @@
 
 namespace yk {
 	void lexer::set_source(const char* src) {
-		m_Src = src;
+		m_Position = src;
 	}
 
 	void lexer::add_skip(lex_skip rule) {
@@ -15,35 +15,35 @@ namespace yk {
 
 	token lexer::next() {
 	begin:
-		if (!(*m_Src)) return token("<eof>", "");
+		if (!(*m_Position)) return token("<eof>", "");
 
 		for (auto& rule : m_Skips) {
-			if (auto res = rule(m_Src)) {
+			if (auto res = rule(m_Position)) {
 				skip(res);
 				goto begin;
 			}
 		}
 
 		for (auto& rule : m_Rules) {
-			auto res = rule(m_Src);
+			auto res = rule(m_Position);
 			if (res.some()) {
 				auto unwrapped = res.get();
-				ystr val = ystr(m_Src, m_Src + unwrapped.second);
+				ystr val = ystr(m_Position, m_Position + unwrapped.second);
 				skip(unwrapped.second);
 				return token(unwrapped.first, val);
 			}
 		}
 
-		ystr err = "Unhandled token: '" + (*m_Src) + ystr("'!");
+		ystr err = "Unhandled token: '" + (*m_Position) + ystr("'!");
 		throw std::exception(err.c_str());
 		return token("", "");
 	}
 
 	bool lexer::has_next() {
-		return *m_Src != '\0';
+		return *m_Position != '\0';
 	}
 
 	void lexer::skip(ysize delta) {
-		m_Src += delta;
+		m_Position += delta;
 	}
 }

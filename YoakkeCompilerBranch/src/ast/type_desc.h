@@ -12,6 +12,11 @@ namespace yk {
 	};
 
 	class ident_type_desc : public type_desc {
-		// TODO
+	public:
+		ystr Identifier;
+
+	public:
+		ident_type_desc(token const& tok);
+		virtual ~ident_type_desc();
 	};
 }

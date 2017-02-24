@@ -6,4 +6,11 @@ namespace yk {
 	}
 
 	type_desc::~type_desc() { }
+
+	// Type identifier
+	ident_type_desc::ident_type_desc(token const& tok)
+		: type_desc(position::get(tok)), Identifier(tok.value()) {
+	}
+
+	ident_type_desc::~ident_type_desc() { }
 }

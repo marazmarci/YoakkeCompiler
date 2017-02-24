@@ -4,6 +4,8 @@
 #include "../parse/token.h"
 
 namespace yk {
+	class type_desc;
+
 	class expr : public ast_node {
 	protected:
 		expr(position const& pos);
@@ -74,6 +76,33 @@ namespace yk {
 	};
 
 	class block_expr : public expr {
+	protected:
+		block_expr(position const& pos);
 
+	public:
+		virtual ~block_expr();
+	};
+
+	class func_proto : public block_expr {
+	private:
+		typedef ypair<token, type_desc*> param_t;
+
+	public:
+		yvec<param_t> Parameters;
+		type_desc* ReturnType;
+
+	public:
+		func_proto(token const& beg, position const& end, yvec<param_t> const& pars, type_desc* rett);
+		virtual ~func_proto();
+	};
+
+	class func_expr : public expr {
+	public:
+		func_proto* Prototype;
+		expr* Body;
+
+	public:
+		func_expr(func_proto* pr, expr* bod);
+		virtual ~func_expr();
 	};
 }

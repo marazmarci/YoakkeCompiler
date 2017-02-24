@@ -8,7 +8,7 @@
 #include "../common.h"
 
 namespace yk {
-	class lexer : public iterator<token> {
+	class lexer : public iterator<token, const char> {
 	private:
 		typedef ysize(*lex_skip)(const char*);
 		typedef yopt<ypair<ystr, ysize>>(*lex_rule)(const char*);
@@ -16,7 +16,6 @@ namespace yk {
 	private:
 		yvec<lex_skip> m_Skips;
 		yvec<lex_rule> m_Rules;
-		const char* m_Src;
 
 	public:
 		void set_source(const char* src);
