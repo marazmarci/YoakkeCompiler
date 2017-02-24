@@ -23,4 +23,14 @@ namespace yk {
 		delete LHS;
 		delete RHS;
 	}
+
+	// Enclosed type desc
+	enclose_type_desc::enclose_type_desc(type_desc* s, token const& beg, token const& end)
+		: type_desc(position::interval(position::get(beg), position::get(end))), 
+		Sub(s), Begin(beg), End(end) {
+	}
+
+	enclose_type_desc::~enclose_type_desc() {
+		delete Sub;
+	}
 }

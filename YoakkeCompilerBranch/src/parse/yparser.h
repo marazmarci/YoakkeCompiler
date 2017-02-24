@@ -1,6 +1,7 @@
 #pragma once
 
 #include "prec_parser.h"
+#include "../ast/stmt.h"
 #include "../ast/expr.h"
 #include "../ast/type_desc.h"
 
@@ -28,5 +29,6 @@ namespace yk {
 		type_desc* parse_type();
 		param_expr* parse_param();
 		expr* parse_body();
+		stmt* parse_stmt();
 	};
 }

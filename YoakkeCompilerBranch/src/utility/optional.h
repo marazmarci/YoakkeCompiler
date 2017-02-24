@@ -36,7 +36,7 @@ namespace yk {
 		}
 
 		~optional() {
-			destruct();
+			//destruct();
 		}
 
 	public:
@@ -53,9 +53,15 @@ namespace yk {
 			return *this;
 		}
 
-		optional<T> const& operator=(optional<T> prev) {
-			std::swap(flag, prev.flag);
-			std::swap(data, prev.data);
+		optional<T> const& operator=(optional<T> const& prev) {
+			destruct();
+			if (prev.flag) {
+				flag = true;
+				new (&data) T(*reinterpret_cast<const T*>(&prev.data));
+			}
+			else {
+				flag = false;
+			}
 			return *this;
 		}
 
@@ -79,7 +85,7 @@ namespace yk {
 	private:
 		void destruct() {
 			if (flag) {
-				//data.~T();
+				data.~T();
 			}
 		}
 	};

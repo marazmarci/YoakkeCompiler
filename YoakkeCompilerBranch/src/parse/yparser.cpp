@@ -217,6 +217,25 @@ namespace yk {
 				}
 			}
 		};
+
+		class enclose : public type_pre_parselet {
+		public:
+			type_desc* parse(token const& begin, type_parser* parser) override {
+				auto sub = parser->parse();
+				if (parser->peek().identifier() == ")") {
+					auto end = parser->consume();
+					if (sub) {
+						return new enclose_type_desc(sub, begin, end);
+					}
+					else {
+						return new ident_type_desc(token("unit", "unit"));
+					}
+				}
+				else {
+					throw std::exception("')' expected!");
+				}
+			}
+		};
 	}
 
 	yparser::yparser(token_buffer* buff)
@@ -260,6 +279,7 @@ namespace yk {
 
 		// TYPE DESCRIPTOR //////////////////////////////////////////////
 		m_TypeParser.register_rule("Identifier", new type_rules::ident());
+		m_TypeParser.register_rule("(", new type_rules::enclose());
 
 		m_TypeParser.register_rule(",", new type_rules::binop(1, false));
 	}
@@ -329,6 +349,30 @@ namespace yk {
 		}
 		else {
 			return nullptr;
+		}
+	}
+
+	stmt* yparser::parse_stmt() {
+		expr* sub = parse_expr();
+		bool need_semicol = false;
+		if (sub) {
+			if (auto binexp = dynamic_cast<bin_expr*>(sub)) {
+				if (binexp->OP.identifier() == "::") {
+					need_semicol = dynamic_cast<block_expr*>(binexp->RHS) == nullptr;
+				}
+			}
+		}
+		if (peek().identifier() == ";") {
+			token semicol = consume();
+			return new expr_stmt(sub, semicol);
+		}
+		else {
+			if (need_semicol) {
+				throw std::exception("';' expected at the end of const assignment!");
+			}
+			else {
+				return new expr_stmt(sub);
+			}
 		}
 	}
 }

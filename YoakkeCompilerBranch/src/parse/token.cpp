@@ -5,6 +5,8 @@ namespace yk {
 		: m_Identifier(id), m_Value(val) {
 	}
 
+	token::~token() { }
+
 	ystr const& token::value() const {
 		return m_Value;
 	}

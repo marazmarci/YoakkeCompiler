@@ -28,13 +28,13 @@ int main(void) {
 	yk::yparser parser(&buffer);
 	lexer.set_source(src.c_str());
 	buffer.clear();
-	//try {
-		auto exp = parser.parse_expr();
-		auto exp2 = exp;
-	//}
-	//catch (std::exception exc) {
-	//	std::cout << "Exception: " << exc.what() << std::endl;
-	//}
+	try {
+		auto stmt = parser.parse_stmt();
+		auto stmt2 = stmt;
+	}
+	catch (std::exception exc) {
+		std::cout << "Exception: " << exc.what() << std::endl;
+	}
 
 	system("PAUSE");
 	return 0;

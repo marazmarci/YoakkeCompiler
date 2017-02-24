@@ -10,6 +10,7 @@ namespace yk {
 
 	public:
 		token(ystr const& id, ystr const& val);
+		~token();
 
 	public:
 		ystr const& value() const;

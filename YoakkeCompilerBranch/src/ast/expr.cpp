@@ -80,7 +80,7 @@ namespace yk {
 	// Function prototype
 	func_proto::func_proto(token const& beg, position const& end, 
 		yvec<param_expr*> const& pars, type_desc* rett)
-		: block_expr(position::interval(position::get(beg), end)),
+		: expr(position::interval(position::get(beg), end)),
 		Parameters(pars), ReturnType(rett) {
 	}
 

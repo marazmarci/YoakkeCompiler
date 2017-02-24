@@ -91,7 +91,7 @@ namespace yk {
 		virtual ~block_expr();
 	};
 
-	class func_proto : public block_expr {
+	class func_proto : public expr {
 	public:
 		yvec<param_expr*> Parameters;
 		type_desc* ReturnType;

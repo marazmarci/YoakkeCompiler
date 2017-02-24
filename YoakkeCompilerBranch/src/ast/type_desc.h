@@ -32,4 +32,15 @@ namespace yk {
 		bin_type_desc(type_desc* l, type_desc* r, token const& o);
 		virtual ~bin_type_desc();
 	};
+
+	class enclose_type_desc : public type_desc {
+	public:
+		token Begin;
+		token End;
+		type_desc* Sub;
+
+	public:
+		enclose_type_desc(type_desc* s, token const& beg, token const& end);
+		virtual ~enclose_type_desc();
+	};
 }

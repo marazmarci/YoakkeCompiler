@@ -107,7 +107,8 @@ namespace yk {
 			"+", "-", "*", "/", "%",
 			"!", ".", "->",
 			":",
-			"{", "}"
+			"{", "}",
+			";"
 		};
 
 		static token_desc symbol(const char* src) {
