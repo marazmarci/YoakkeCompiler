@@ -66,6 +66,9 @@ namespace yk {
 			auto lval = dispatch_gen(exp->LHS); // TODO: check if lvalue
 			auto rval = dispatch_gen(exp->RHS);
 			if (lval) {
+				if (!rval) {
+					throw std::exception("Use of undeduced type!");
+				}
 				if (lval->match(rval)) {
 					return lval;
 				}
@@ -77,14 +80,17 @@ namespace yk {
 				throw std::exception("Type inference not implemented!");
 			}
 		}
+		// TODO
 		return nullptr;
 	}
 
 	type_symbol* expr_checker::dispatch(preury_expr* exp) {
+		// TODO
 		return nullptr;
 	}
 
 	type_symbol* expr_checker::dispatch(postury_expr* exp) {
+		// TODO
 		return nullptr;
 	}
 
@@ -108,7 +114,12 @@ namespace yk {
 			func_exp->Hint = pseudo_func;
 			auto func_t = dispatch_gen(func_exp);
 			if (func_t) {
-				return ((func_type_symbol*)func_t)->ReturnType;
+				if (auto func_ts = dynamic_cast<func_type_symbol*>(func_t)) {
+					return func_ts->ReturnType;
+				}
+				else {
+					throw std::exception("Cannot call non-function values!");
+				}
 			}
 			else {
 				throw std::exception("Cannot call non-function values!");
@@ -160,6 +171,7 @@ namespace yk {
 	}
 
 	type_symbol* expr_checker::dispatch(param_expr* exp) {
+		// TODO
 		return nullptr;
 	}
 
@@ -170,6 +182,9 @@ namespace yk {
 		if (exp->Value) {
 			exp->Hint = hintt;
 			rett = dispatch_gen(exp->Value);
+			if (!rett) {
+				throw std::exception("Use of undeduced type!");
+			}
 			if (hintt) {
 				if (!rett->same(hintt)) {
 					throw std::exception("Wrong type for let!");

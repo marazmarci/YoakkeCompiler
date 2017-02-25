@@ -8,7 +8,10 @@
 namespace yk {
 	namespace let_pat {
 		void define(symbol_table& table, pattern* left, type_symbol* right) {
-			if (auto ip = dynamic_cast<ident_pattern*>(left)) {
+			if (auto sk = dynamic_cast<skip_pattern*>(left)) {
+				return;
+			}
+			else if (auto ip = dynamic_cast<ident_pattern*>(left)) {
 				auto sym_set = table.ref(ip->Identifier);
 				auto typed_set = symbol_table::filter<var_symbol>(sym_set);
 				if (typed_set.size() == 0) {

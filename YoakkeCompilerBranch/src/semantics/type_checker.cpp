@@ -1,6 +1,7 @@
 #include "type_checker.h"
 #include "symbol_table.h"
 #include "type_symbol.h"
+#include "algorithms.h"
 
 namespace yk {
 	type_checker::type_checker(semantic_checker& ch, symbol_table& tab)
@@ -22,10 +23,33 @@ namespace yk {
 	}
 
 	type_symbol* type_checker::dispatch(bin_type_desc* td) {
-		return nullptr;
+		if (td->OP.identifier() == ",") {
+			auto flat = alg::flatten<type_desc, bin_type_desc>(td, ",");
+			yvec<type_symbol*> types;
+			for (auto t : flat) {
+				types.push_back(dispatch_gen(t));
+			}
+			return new tuple_type_symbol(types);
+		}
+		else if (td->OP.identifier() == "->") {
+			// TODO: maybe switch to tuple args instead of list?
+			yvec<type_symbol*> arg_syms;
+			auto args = dispatch_gen(td->LHS);
+			auto rett = dispatch_gen(td->LHS);
+			if (auto arglist = dynamic_cast<tuple_type_symbol*>(args)) {
+				arg_syms = arglist->Types;
+			}
+			else {
+				arg_syms.push_back(args);
+			}
+			return new func_type_symbol(arg_syms, rett);
+		}
+		else {
+			throw std::exception("Type desc unhandled binop!");
+		}
 	}
 
 	type_symbol* type_checker::dispatch(enclose_type_desc* td) {
-		return nullptr;
+		return dispatch_gen(td->Sub);
 	}
 }

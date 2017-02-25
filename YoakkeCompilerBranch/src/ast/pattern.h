@@ -11,6 +11,12 @@ namespace yk {
 		virtual ~pattern();
 	};
 
+	class skip_pattern : public pattern {
+	public:
+		skip_pattern(token const& tok);
+		virtual ~skip_pattern();
+	};
+
 	class ident_pattern : public pattern {
 	public:
 		ystr Identifier;

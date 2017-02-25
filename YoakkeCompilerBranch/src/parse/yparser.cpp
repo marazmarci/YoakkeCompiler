@@ -271,6 +271,13 @@ namespace yk {
 		typedef prefix_parselet<pattern, pattern_parser> pattern_pre_parselet;
 		typedef infix_parselet<pattern, pattern_parser> pattern_in_parselet;
 
+		class skip : public pattern_pre_parselet {
+		public:
+			pattern* parse(token const& begin, pattern_parser* parser) override {
+				return new skip_pattern(begin);
+			}
+		};
+
 		class ident : public pattern_pre_parselet {
 		public:
 			pattern* parse(token const& begin, pattern_parser* parser) override {
@@ -368,6 +375,7 @@ namespace yk {
 		m_TypeParser.register_rule("->", new type_rules::binop(2, false));
 
 		// PATTERN DESCRIPTOR ////////////////////////////////////////////
+		m_PatternParser.register_rule("_", new pattern_rules::skip());
 		m_PatternParser.register_rule("Identifier", new pattern_rules::ident());
 		m_PatternParser.register_rule("(", new pattern_rules::enclose());
 		m_PatternParser.register_rule(",", new pattern_rules::binop(1, false));

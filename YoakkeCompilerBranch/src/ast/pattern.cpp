@@ -7,6 +7,13 @@ namespace yk {
 
 	pattern::~pattern() { }
 
+	// Skip pattern
+	skip_pattern::skip_pattern(token const& tok)
+		: pattern(position::get(tok)) {
+	}
+
+	skip_pattern::~skip_pattern() { }
+
 	// Ident pattern
 	ident_pattern::ident_pattern(token const& tok)
 		: pattern(position::get(tok)), Identifier(tok.value()) {
