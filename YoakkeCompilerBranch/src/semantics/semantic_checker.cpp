@@ -16,11 +16,11 @@ namespace yk {
 		m_StmtChecker.dispatch_gen(st);
 	}
 
-	void semantic_checker::check_expr(expr* exp) {
-		m_ExprChecker.dispatch_gen(exp);
+	type_symbol* semantic_checker::check_expr(expr* exp) {
+		return m_ExprChecker.dispatch_gen(exp);
 	}
 
-	void semantic_checker::check_type(type_desc* ty) {
-		m_TypeChecker.dispatch_gen(ty);
+	type_symbol* semantic_checker::check_type(type_desc* ty) {
+		return m_TypeChecker.dispatch_gen(ty);
 	}
 }

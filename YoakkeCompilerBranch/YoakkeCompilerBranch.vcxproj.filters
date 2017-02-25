@@ -126,6 +126,15 @@
     <ClInclude Include="src\semantics\type_symbol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\semantics\typed_symbol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\semantics\algorithms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\semantics\let_pattern.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -201,6 +210,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\semantics\type_symbol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\semantics\typed_symbol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\semantics\let_pattern.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

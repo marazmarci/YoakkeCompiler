@@ -5,10 +5,15 @@
 namespace yk {
 	builtin_type_symbol* symbol_table::UNIT = nullptr;
 	builtin_type_symbol* symbol_table::INT32 = nullptr;
+	builtin_type_symbol* symbol_table::FLOAT32 = nullptr;
 
 	symbol_table::symbol_table() {
+		m_GlobalScope = new scope();
+		m_CurrentScope = m_GlobalScope;
+
 		decl(UNIT = new builtin_type_symbol("unit"));
 		decl(INT32 = new builtin_type_symbol("i32"));
+		decl(FLOAT32 = new builtin_type_symbol("f32"));
 	}
 
 	bool symbol_table::is_global() {

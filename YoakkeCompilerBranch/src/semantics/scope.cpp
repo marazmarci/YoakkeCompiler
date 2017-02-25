@@ -5,7 +5,12 @@ namespace yk {
 	sym_set* scope::ref(ystr const& id) {
 		auto it = Dict.find(id);
 		if (it == Dict.end()) {
-			return nullptr;
+			if (Parent) {
+				return Parent->ref(id);
+			}
+			else {
+				return nullptr;
+			}
 		}
 		else {
 			return &it->second;

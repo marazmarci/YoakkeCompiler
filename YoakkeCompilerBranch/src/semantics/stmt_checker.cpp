@@ -8,6 +8,6 @@ namespace yk {
 	}
 
 	void stmt_checker::dispatch(expr_stmt* stmt) {
-		m_Checker->check_expr(stmt->Sub);
+		m_Checker.check_expr(stmt->Sub);
 	}
 }

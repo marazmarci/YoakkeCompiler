@@ -24,6 +24,20 @@ namespace yk {
 
 	unit_expr::~unit_expr() { }
 
+	// Integer literal expression
+	int_lit_expr::int_lit_expr(token const& tok)
+		: expr(position::get(tok)), Value(std::atoi(tok.identifier().c_str())) {
+	}
+
+	int_lit_expr::~int_lit_expr() { }
+
+	// Real literal expression
+	real_lit_expr::real_lit_expr(token const& tok)
+		: expr(position::get(tok)), Value(std::atof(tok.identifier().c_str())) {
+	}
+
+	real_lit_expr::~real_lit_expr() { }
+
 	// Binary expression
 	bin_expr::bin_expr(expr* l, expr* r, token const& o)
 		: expr(position::interval(l->Position, r->Position)), LHS(l), RHS(r), OP(o) {

@@ -19,7 +19,7 @@ namespace yk {
 	public:
 		void check(yvec<stmt*> const& prog);
 		void check_stmt(stmt* st);
-		void check_expr(expr* exp);
-		void check_type(type_desc* ty);
+		type_symbol* check_expr(expr* exp);
+		type_symbol* check_type(type_desc* ty);
 	};
 }

@@ -37,6 +37,24 @@ namespace yk {
 		virtual ~unit_expr();
 	};
 
+	class int_lit_expr : public expr {
+	public:
+		int Value;
+
+	public:
+		int_lit_expr(token const& tok);
+		virtual ~int_lit_expr();
+	};
+
+	class real_lit_expr : public expr {
+	public:
+		double Value;
+
+	public:
+		real_lit_expr(token const& tok);
+		virtual ~real_lit_expr();
+	};
+
 	class bin_expr : public expr {
 	public:
 		expr* LHS;

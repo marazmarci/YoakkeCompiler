@@ -1,14 +1,17 @@
 #pragma once
 
 #include "scope.h"
+#include "type_symbol.h"
 
 namespace yk {
 	class builtin_type_symbol;
+	class type_symbol;
 
 	class symbol_table {
 	public:
 		static builtin_type_symbol* UNIT;
 		static builtin_type_symbol* INT32;
+		static builtin_type_symbol* FLOAT32;
 
 	private:
 		scope* m_GlobalScope;

@@ -6,6 +6,7 @@
 namespace yk {
 	class semantic_checker;
 	class symbol_table;
+	class type_symbol;
 
 	class type_checker : public double_dispatcher
 		<type_symbol*, type_desc,
