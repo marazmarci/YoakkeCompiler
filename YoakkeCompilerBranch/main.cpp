@@ -8,6 +8,7 @@
 #include "src\utility\double_dispatcher.h"
 #include "src\ast\expr.h"
 #include "src\unit_testing\expr_unit_test.h"
+#include "src\semantics\semantic_checker.h"
 
 yk::ystr read_file(yk::ystr const& fn) {
 	std::ifstream t(fn);
@@ -28,9 +29,11 @@ int main(void) {
 	yk::yparser parser(&buffer);
 	lexer.set_source(src.c_str());
 	buffer.clear();
+	yk::semantic_checker checker;
 	try {
-		auto stmt = parser.parse_stmt();
-		auto stmt2 = stmt;
+		yk::yvec<yk::stmt*> prog;
+		while (yk::stmt* st = parser.parse_stmt()) prog.push_back(st);
+		checker.check(prog);
 	}
 	catch (std::exception exc) {
 		std::cout << "Exception: " << exc.what() << std::endl;

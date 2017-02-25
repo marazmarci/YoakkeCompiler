@@ -131,6 +131,10 @@
     <ClInclude Include="src\parse\token.h" />
     <ClInclude Include="src\parse\yparser.h" />
     <ClInclude Include="src\parse\ylexer.h" />
+    <ClInclude Include="src\semantics\expr_checker.h" />
+    <ClInclude Include="src\semantics\semantic_checker.h" />
+    <ClInclude Include="src\semantics\stmt_checker.h" />
+    <ClInclude Include="src\semantics\type_checker.h" />
     <ClInclude Include="src\unit_testing\expr_unit_test.h" />
     <ClInclude Include="src\utility\base_of.h" />
     <ClInclude Include="src\utility\double_dispatcher.h" />
@@ -159,6 +163,10 @@
     <ClCompile Include="src\parse\token.cpp" />
     <ClCompile Include="src\parse\yparser.cpp" />
     <ClCompile Include="src\parse\ylexer.cpp" />
+    <ClCompile Include="src\semantics\expr_checker.cpp" />
+    <ClCompile Include="src\semantics\semantic_checker.cpp" />
+    <ClCompile Include="src\semantics\stmt_checker.cpp" />
+    <ClCompile Include="src\semantics\type_checker.cpp" />
     <ClCompile Include="src\unit_testing\expr_unit_test.cpp" />
     <ClCompile Include="src\utility\optional.cpp" />
   </ItemGroup>
