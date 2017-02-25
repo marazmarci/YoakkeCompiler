@@ -238,8 +238,62 @@ namespace yk {
 		};
 	}
 
+	namespace pattern_rules {
+		typedef prec_parser<pattern> pattern_parser;
+		typedef prefix_parselet<pattern, pattern_parser> pattern_pre_parselet;
+		typedef infix_parselet<pattern, pattern_parser> pattern_in_parselet;
+
+		class ident : public pattern_pre_parselet {
+		public:
+			pattern* parse(token const& begin, pattern_parser* parser) override {
+				return new ident_pattern(begin);
+			}
+		};
+
+		class binop : public pattern_in_parselet {
+		public:
+			const bool right;
+
+		public:
+			binop(ysize prec, bool r)
+				: pattern_in_parselet(prec), right(r) {
+			}
+
+		public:
+			pattern* parse(pattern* left, token const& begin, pattern_parser* parser) override {
+				auto rhs = parser->parse(precedence() - (right ? 1 : 0));
+				if (rhs) {
+					return new bin_pattern(left, rhs, begin);
+				}
+				else {
+					throw std::exception("RHS expected for operator!");
+				}
+			}
+		};
+
+		class enclose : public pattern_pre_parselet {
+		public:
+			pattern* parse(token const& begin, pattern_parser* parser) override {
+				auto sub = parser->parse();
+				if (sub) {
+					if (parser->peek().identifier() == ")") {
+						auto end = parser->consume();
+						return new enclose_pattern(sub, begin, end);
+					}
+					else {
+						throw std::exception("')' expected!");
+					}
+				}
+				else {
+					throw std::exception("Pattern expected after '('!");
+				}
+			}
+		};
+	}
+
 	yparser::yparser(token_buffer* buff)
-		: parser(buff), m_ExprParser(buff, this), m_TypeParser(buff, this) {
+		: parser(buff), m_ExprParser(buff, this), m_TypeParser(buff, this), 
+		m_PatternParser(buff, this) {
 		// Atomic
 		m_ExprParser.register_rule("Identifier", new expr_rules::ident());
 		m_ExprParser.register_rule("(", new expr_rules::enclosed());
@@ -277,11 +331,17 @@ namespace yk {
 		infixl_expr(".", 11);
 		m_ExprParser.register_rule("(", new expr_rules::func_call(11));
 
-		// TYPE DESCRIPTOR //////////////////////////////////////////////
+		// TYPE DESCRIPTOR ///////////////////////////////////////////////
 		m_TypeParser.register_rule("Identifier", new type_rules::ident());
 		m_TypeParser.register_rule("(", new type_rules::enclose());
 
 		m_TypeParser.register_rule(",", new type_rules::binop(1, false));
+		m_TypeParser.register_rule("->", new type_rules::binop(2, false));
+
+		// PATTERN DESCRIPTOR ////////////////////////////////////////////
+		m_PatternParser.register_rule("Identifier", new pattern_rules::ident());
+		m_PatternParser.register_rule("(", new pattern_rules::enclose());
+		m_PatternParser.register_rule(",", new pattern_rules::binop(1, false));
 	}
 
 	void yparser::prefix_expr(ystr const& op, ysize prec) {
@@ -306,6 +366,10 @@ namespace yk {
 
 	type_desc* yparser::parse_type() {
 		return m_TypeParser.parse();
+	}
+
+	pattern* yparser::parse_pattern() {
+		return m_PatternParser.parse();
 	}
 
 	param_expr* yparser::parse_param() {

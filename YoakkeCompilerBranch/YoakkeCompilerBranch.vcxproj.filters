@@ -99,6 +99,9 @@
     <ClInclude Include="src\ast\stmt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ast\pattern.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -147,6 +150,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ast\stmt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ast\pattern.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

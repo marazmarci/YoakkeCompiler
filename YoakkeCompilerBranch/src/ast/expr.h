@@ -128,4 +128,9 @@ namespace yk {
 		param_expr(token const& col, type_desc* type);
 		virtual ~param_expr();
 	};
+
+	class let_expr : public expr {
+	public:
+		
+	};
 }
