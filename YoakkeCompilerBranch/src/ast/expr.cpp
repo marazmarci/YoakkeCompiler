@@ -1,5 +1,6 @@
 #include "expr.h"
 #include "type_desc.h"
+#include "pattern.h"
 
 namespace yk {
 	// Expression
@@ -100,8 +101,9 @@ namespace yk {
 	}
 
 	// Block expression
-	body_expr::body_expr(token const& beg, token const& end) 
-		: block_expr(position::interval(position::get(beg), position::get(end))) {
+	body_expr::body_expr(token const& beg, token const& end, yvec<stmt*> const& stmts)
+		: block_expr(position::interval(position::get(beg), position::get(end))),
+		Statements(stmts) {
 	}
 
 	body_expr::~body_expr() { }
@@ -119,5 +121,18 @@ namespace yk {
 
 	param_expr::~param_expr() {
 		delete Type;
+	}
+
+	// Let expression
+	let_expr::let_expr(token const& beg, pattern* l, type_desc* t, expr* v)
+		: expr(position::interval(position::get(beg),
+			v ? v->Position : (t ? t->Position : l->Position))),
+			Left(l), Type(t), Value(v) {
+	}
+
+	let_expr::~let_expr() {
+		delete Left;
+		if (Type) delete Type;
+		if (Value) delete Value;
 	}
 }

@@ -183,6 +183,34 @@ namespace yk {
 				return dynamic_cast<ident_expr*>(left) != nullptr;
 			}
 		};
+		
+		class let : public expr_pre_parselet {
+		public:
+			expr* parse(token const& begin, expr_parser* parser) override {
+				yparser* ypar = reinterpret_cast<yparser*>(parser->parent());
+				auto patt = ypar->parse_pattern();
+				if (patt) {
+					type_desc* type = nullptr;
+					expr* val = nullptr;
+					if (parser->peek().identifier() == ":") {
+						parser->consume();
+						if (!(type = ypar->parse_type())) {
+							throw std::exception("Type expected after ':' in let!");
+						}
+					}
+					if (parser->peek().identifier() == "=") {
+						parser->consume();
+						if (!(val = ypar->parse_expr())) {
+							throw std::exception("Value expected after '=' in let!");
+						}
+					}
+					return new let_expr(begin, patt, type, val);
+				}
+				else {
+					throw std::exception("Pattern expected after 'let'!");
+				}
+			}
+		};
 	}
 
 	namespace type_rules {
@@ -297,6 +325,7 @@ namespace yk {
 		// Atomic
 		m_ExprParser.register_rule("Identifier", new expr_rules::ident());
 		m_ExprParser.register_rule("(", new expr_rules::enclosed());
+		m_ExprParser.register_rule("let", new expr_rules::let());
 
 		m_ExprParser.register_rule("::", new expr_rules::const_asgn(1));
 
@@ -401,11 +430,15 @@ namespace yk {
 	expr* yparser::parse_body() {
 		if (peek().identifier() == "{") {
 			token begin = consume();
-			// TODO
+			
+			yvec<stmt*> stmts;
+			while (stmt* st = parse_stmt()) {
+				stmts.push_back(st);
+			}
 
 			if (peek().identifier() == "}") {
 				token end = consume();
-				return new body_expr(begin, end);
+				return new body_expr(begin, end, stmts);
 			}
 			else {
 				throw std::exception("'}' expected at the end of a body!");
@@ -418,25 +451,30 @@ namespace yk {
 
 	stmt* yparser::parse_stmt() {
 		expr* sub = parse_expr();
-		bool need_semicol = false;
 		if (sub) {
-			if (auto binexp = dynamic_cast<bin_expr*>(sub)) {
-				if (binexp->OP.identifier() == "::") {
-					need_semicol = dynamic_cast<block_expr*>(binexp->RHS) == nullptr;
+			bool need_semicol = false;
+			if (sub) {
+				if (auto binexp = dynamic_cast<bin_expr*>(sub)) {
+					if (binexp->OP.identifier() == "::") {
+						need_semicol = dynamic_cast<block_expr*>(binexp->RHS) == nullptr;
+					}
+				}
+			}
+			if (peek().identifier() == ";") {
+				token semicol = consume();
+				return new expr_stmt(sub, semicol);
+			}
+			else {
+				if (need_semicol) {
+					throw std::exception("';' expected at the end of const assignment!");
+				}
+				else {
+					return new expr_stmt(sub);
 				}
 			}
 		}
-		if (peek().identifier() == ";") {
-			token semicol = consume();
-			return new expr_stmt(sub, semicol);
-		}
 		else {
-			if (need_semicol) {
-				throw std::exception("';' expected at the end of const assignment!");
-			}
-			else {
-				return new expr_stmt(sub);
-			}
+			return nullptr;
 		}
 	}
 }

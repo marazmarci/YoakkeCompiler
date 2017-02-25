@@ -7,6 +7,8 @@
 namespace yk {
 	class type_desc;
 	class param_expr;
+	class pattern;
+	class stmt;
 
 	class expr : public ast_node {
 	protected:
@@ -114,7 +116,10 @@ namespace yk {
 
 	class body_expr : public block_expr {
 	public:
-		body_expr(token const& beg, token const& end);
+		yvec<stmt*> Statements;
+
+	public:
+		body_expr(token const& beg, token const& end, yvec<stmt*> const& stmts);
 		virtual ~body_expr();
 	};
 
@@ -131,6 +136,12 @@ namespace yk {
 
 	class let_expr : public expr {
 	public:
-		
+		pattern* Left;
+		type_desc* Type;
+		expr* Value;
+
+	public:
+		let_expr(token const& beg, pattern* l, type_desc* t, expr* v);
+		virtual ~let_expr();
 	};
 }
