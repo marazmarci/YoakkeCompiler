@@ -2,12 +2,12 @@
 Yoakke is a general-purpose, system-level programming language aiming for performance and safety, while still providing tools for modern programming techniques. While this may sound amazing, the official compiler is developed by a single person, so there is no fast development or rapid updates for it. It started out as a learning project but hopes to grow something bigger.
 
 ## Status of development
-1. Lexical analysis: done
-2. Parsing syntax: in progress
-3. Semantic analysis: not started
-4. IR generation: not started
-5. Optimizations: not started
-6. Compilation: not started
+ * Lexical analysis: done
+ * Parsing syntax: done
+ * Semantic analysis: in progress
+ * IR generation: not started
+ * Optimizations: not started
+ * Compilation: not started
 
 ___
 # Getting started
