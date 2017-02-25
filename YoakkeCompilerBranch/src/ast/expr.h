@@ -9,8 +9,12 @@ namespace yk {
 	class param_expr;
 	class pattern;
 	class stmt;
+	class type_symbol;
 
 	class expr : public ast_node {
+	public:
+		type_symbol* Hint;
+
 	protected:
 		expr(position const& pos);
 

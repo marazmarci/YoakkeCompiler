@@ -3,9 +3,12 @@
 #include "type_symbol.h"
 
 namespace yk {
+	builtin_type_symbol* symbol_table::UNIT = nullptr;
+	builtin_type_symbol* symbol_table::INT32 = nullptr;
+
 	symbol_table::symbol_table() {
-		decl(new builtin_type_symbol("i32"));
-		decl(new builtin_type_symbol("unit"));
+		decl(UNIT = new builtin_type_symbol("unit"));
+		decl(INT32 = new builtin_type_symbol("i32"));
 	}
 
 	bool symbol_table::is_global() {

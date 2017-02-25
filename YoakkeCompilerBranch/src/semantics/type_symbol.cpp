@@ -12,4 +12,11 @@ namespace yk {
 	}
 	
 	builtin_type_symbol::~builtin_type_symbol() { }
+
+	bool builtin_type_symbol::match(type_symbol* other) {
+		if (auto o2 = dynamic_cast<builtin_type_symbol*>(other)) {
+			return o2->Identifier == Identifier;
+		}
+		return false;
+	}
 }

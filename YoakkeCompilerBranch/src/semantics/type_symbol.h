@@ -9,11 +9,17 @@ namespace yk {
 
 	public:
 		virtual ~type_symbol();
+
+	public:
+		virtual bool match(type_symbol* other) = 0;
 	};
 
 	class builtin_type_symbol : public type_symbol {
 	public:
 		builtin_type_symbol(ystr const& id);
 		virtual ~builtin_type_symbol();
+
+	public:
+		virtual bool match(type_symbol* other) override;
 	};
 }
