@@ -12,6 +12,7 @@ namespace yk {
 
 	public:
 		virtual bool match(type_symbol* other) = 0;
+		virtual bool same(type_symbol* other);
 	};
 
 	class builtin_type_symbol : public type_symbol {
@@ -33,5 +34,19 @@ namespace yk {
 
 	public:
 		virtual bool match(type_symbol* other) override;
+	};
+
+	class func_type_symbol : public type_symbol {
+	public:
+		yvec<type_symbol*> ArgTypes;
+		type_symbol* ReturnType;
+
+	public:
+		func_type_symbol(yvec<type_symbol*> const& args, type_symbol* rett);
+		virtual ~func_type_symbol();
+
+	public:
+		virtual bool match(type_symbol* other) override;
+		virtual bool same(type_symbol* other) override;
 	};
 }

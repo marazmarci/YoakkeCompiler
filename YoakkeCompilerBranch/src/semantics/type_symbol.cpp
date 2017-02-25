@@ -7,6 +7,10 @@ namespace yk {
 
 	type_symbol::~type_symbol() { }
 
+	bool type_symbol::same(type_symbol* other) {
+		return match(other);
+	}
+
 	// Builtin type symbol
 	builtin_type_symbol::builtin_type_symbol(ystr const& id)
 		: type_symbol(id) {
@@ -41,5 +45,31 @@ namespace yk {
 			return true;
 		}
 		return false;
+	}
+
+	// Function type symbol
+	func_type_symbol::func_type_symbol(yvec<type_symbol*> const& args, type_symbol* rett) 
+		: type_symbol("function"), ArgTypes(args), ReturnType(rett) {
+	}
+
+	func_type_symbol::~func_type_symbol() { }
+
+	bool func_type_symbol::match(type_symbol* other) {
+		if (auto o2 = dynamic_cast<func_type_symbol*>(other)) {
+			if (o2->ArgTypes.size() != ArgTypes.size()) {
+				return false;
+			}
+			for (ysize i = 0; i < ArgTypes.size(); i++) {
+				if (!(ArgTypes[i]->match(o2->ArgTypes[i]))) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	bool func_type_symbol::same(type_symbol* other) {
+		return match(other) && ((func_type_symbol*)other)->ReturnType->match(ReturnType);
 	}
 }

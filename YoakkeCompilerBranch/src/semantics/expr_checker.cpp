@@ -14,7 +14,7 @@ namespace yk {
 		auto syms = m_Table.ref(exp->identifier);
 		auto typed_set = symbol_table::filter<typed_symbol>(syms);
 		if (exp->Hint) {
-			typed_set = m_Table.filter_typed(typed_set, exp->Hint);
+			typed_set = m_Table.filter_typed_match(typed_set, exp->Hint);
 		}
 		if (typed_set.size() == 0) {
 			throw std::exception("Identifier is undefined!");
@@ -45,7 +45,7 @@ namespace yk {
 			auto rhs_type = dispatch_gen(exp->RHS);
 			auto sym_set = m_Table.ref(ident->identifier);
 			auto typed_set = symbol_table::filter<typed_symbol>(sym_set);
-			typed_set = symbol_table::filter_typed(typed_set, rhs_type);
+			typed_set = symbol_table::filter_typed_match(typed_set, rhs_type);
 			if (typed_set.size()) {
 				throw std::exception("Ambigious constant binding is not allowed!");
 			}
@@ -61,6 +61,21 @@ namespace yk {
 				types.push_back(dispatch_gen(el));
 			}
 			return new tuple_type_symbol(types);
+		}
+		else if (exp->OP.identifier() == "=") {
+			auto lval = dispatch_gen(exp->LHS); // TODO: check if lvalue
+			auto rval = dispatch_gen(exp->RHS);
+			if (lval) {
+				if (lval->match(rval)) {
+					return lval;
+				}
+				else {
+					throw std::exception("Assignment type mismatch!");
+				}
+			}
+			else {
+				throw std::exception("Type inference not implemented!");
+			}
 		}
 		return nullptr;
 	}
@@ -79,18 +94,60 @@ namespace yk {
 	}
 
 	type_symbol* expr_checker::dispatch(mixfix_expr* exp) {
-		return nullptr;
+		if (exp->OP == "call") {
+			auto func_exp = exp->Operands[0];
+			yvec<type_symbol*> args;
+			if (exp->Operands.size() == 2) {
+				auto arglist = alg::flatten<expr, bin_expr>(exp->Operands[1], ",");
+				for (auto arg : arglist) {
+					args.push_back(dispatch_gen(arg));
+				}
+			}
+			// Pseudo-function
+			auto pseudo_func = new func_type_symbol(args, nullptr);
+			func_exp->Hint = pseudo_func;
+			auto func_t = dispatch_gen(func_exp);
+			if (func_t) {
+				return ((func_type_symbol*)func_t)->ReturnType;
+			}
+			else {
+				throw std::exception("Cannot call non-function values!");
+			}
+		}
+		else {
+			throw std::exception("Unimplemented mixfix operator!");
+		}
 	}
 
 	type_symbol* expr_checker::dispatch(func_proto* exp) {
-		return nullptr;
+		yvec<type_symbol*> args;
+		for (auto arg : exp->Parameters) {
+			args.push_back(m_Checker.check_type(arg->Type));
+		}
+		auto rett = m_Checker.check_type(exp->ReturnType);
+		return new func_type_symbol(args, rett);
 	}
 
 	type_symbol* expr_checker::dispatch(func_expr* exp) {
-		// TODO
+		m_Table.push(new scope());
+		auto protot = dispatch(exp->Prototype);
+		yset<ystr> arg_names;
+		for (auto arg : exp->Prototype->Parameters) {
+			if (arg->Name.some()) {
+				auto arg_n = arg->Name.get().identifier();
+				if (arg_names.find(arg_n) != arg_names.end()) {
+					throw std::exception("Parameter already defined!");
+				}
+				arg_names.insert(arg_n);
+			}
+			else {
+				// TODO: WARN
+			}
+		}
 		m_Checker.check_expr(exp->Body);
+		m_Table.pop();
 		
-		return nullptr;
+		return protot;
 	}
 
 	type_symbol* expr_checker::dispatch(body_expr* exp) {
@@ -113,6 +170,11 @@ namespace yk {
 		if (exp->Value) {
 			exp->Hint = hintt;
 			rett = dispatch_gen(exp->Value);
+			if (hintt) {
+				if (!rett->same(hintt)) {
+					throw std::exception("Wrong type for let!");
+				}
+			}
 		}
 		let_pat::define(m_Table, exp->Left, rett);
 		return symbol_table::UNIT;

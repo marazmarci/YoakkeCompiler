@@ -26,7 +26,7 @@ namespace yk {
 		m_CurrentScope = sc;
 	}
 
-	void symbol_table::pop(scope* sc) {
+	void symbol_table::pop() {
 		if (m_CurrentScope == m_GlobalScope) {
 			throw std::exception("Cannot pop global scope!");
 		}

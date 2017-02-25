@@ -23,7 +23,7 @@ namespace yk {
 	public:
 		bool is_global();
 		void push(scope* sc);
-		void pop(scope* sc);
+		void pop();
 		void decl(symbol* sym);
 		sym_set* ref(ystr const& id);
 
@@ -42,7 +42,18 @@ namespace yk {
 		}
 
 		template <typename T>
-		static yvec<T*> filter_typed(yvec<T*>& set, type_symbol* type) {
+		static yvec<T*> filter_typed_same(yvec<T*>& set, type_symbol* type) {
+			yvec<T*> result;
+			for (auto el : set) {
+				if (el->Type->same(type)) {
+					result.push_back(el);
+				}
+			}
+			return result;
+		}
+
+		template <typename T>
+		static yvec<T*> filter_typed_match(yvec<T*>& set, type_symbol* type) {
 			yvec<T*> result;
 			for (auto el : set) {
 				if (el->Type->match(type)) {
