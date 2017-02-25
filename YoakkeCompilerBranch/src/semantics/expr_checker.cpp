@@ -80,8 +80,29 @@ namespace yk {
 				throw std::exception("Type inference not implemented!");
 			}
 		}
-		// TODO
-		return nullptr;
+		else {
+			// Create pseudo-function to match
+			yvec<type_symbol*> args = {dispatch_gen(exp->LHS), dispatch_gen(exp->RHS)};
+			auto pseudo_func = new func_type_symbol(args, nullptr);
+			auto syms = m_Table.ref("bin_op" + exp->OP.identifier());
+			auto typed_set = symbol_table::filter<const_bind_symbol>(syms);
+			typed_set = m_Table.filter_typed_match(typed_set, pseudo_func);
+			if (typed_set.size() == 0) {
+				throw std::exception("Undefined operator!");
+			}
+			else if (typed_set.size() == 1) {
+				auto result_sym = typed_set[0];
+				if (auto func_sym = dynamic_cast<func_type_symbol*>(result_sym->Type)) {
+					return func_sym->ReturnType;
+				}
+				else {
+					throw std::exception("SANITY ERROR");
+				}
+			}
+			else {
+				throw std::exception("Ambigous operator!");
+			}
+		}
 	}
 
 	type_symbol* expr_checker::dispatch(preury_expr* exp) {

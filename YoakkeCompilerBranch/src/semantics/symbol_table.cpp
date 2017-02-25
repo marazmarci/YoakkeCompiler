@@ -1,6 +1,7 @@
 #include "symbol_table.h"
 #include "scope.h"
 #include "type_symbol.h"
+#include "typed_symbol.h"
 
 namespace yk {
 	builtin_type_symbol* symbol_table::UNIT = nullptr;
@@ -14,6 +15,13 @@ namespace yk {
 		decl(UNIT = new builtin_type_symbol("unit"));
 		decl(INT32 = new builtin_type_symbol("i32"));
 		decl(FLOAT32 = new builtin_type_symbol("f32"));
+
+		add_builtin_binop("+", INT32, INT32, INT32);
+	}
+
+	void symbol_table::add_builtin_binop(ystr const& op, type_symbol* l, type_symbol* r, type_symbol* rett) {
+		decl(new const_bind_symbol("bin_op" + op,
+			new builtin_func_type_symbol(yvec<type_symbol*>{l, r}, rett), nullptr));
 	}
 
 	bool symbol_table::is_global() {

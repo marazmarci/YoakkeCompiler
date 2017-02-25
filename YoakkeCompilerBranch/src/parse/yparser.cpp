@@ -8,6 +8,20 @@ namespace yk {
 		typedef prefix_parselet<expr, expr_parser> expr_pre_parselet;
 		typedef infix_parselet<expr, expr_parser> expr_in_parselet;
 
+		class int_literal : public expr_pre_parselet {
+		public:
+			expr* parse(token const& begin, expr_parser* parser) override {
+				return new int_lit_expr(begin);
+			}
+		};
+
+		class real_literal : public expr_pre_parselet {
+		public:
+			expr* parse(token const& begin, expr_parser* parser) override {
+				return new real_lit_expr(begin);
+			}
+		};
+
 		class ident : public expr_pre_parselet {
 		public:
 			expr* parse(token const& begin, expr_parser* parser) override {
@@ -331,6 +345,8 @@ namespace yk {
 		m_PatternParser(buff, this) {
 		// Atomic
 		m_ExprParser.register_rule("Identifier", new expr_rules::ident());
+		m_ExprParser.register_rule("Integer", new expr_rules::int_literal());
+		m_ExprParser.register_rule("Real", new expr_rules::real_literal());
 		m_ExprParser.register_rule("(", new expr_rules::enclosed());
 		m_ExprParser.register_rule("let", new expr_rules::let());
 

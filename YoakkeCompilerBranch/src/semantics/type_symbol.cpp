@@ -72,4 +72,11 @@ namespace yk {
 	bool func_type_symbol::same(type_symbol* other) {
 		return match(other) && ((func_type_symbol*)other)->ReturnType->match(ReturnType);
 	}
+
+	// Builtin function
+	builtin_func_type_symbol::builtin_func_type_symbol(yvec<type_symbol*> const& args, type_symbol* rett)
+		: func_type_symbol(args, rett) {
+	}
+
+	builtin_func_type_symbol::~builtin_func_type_symbol() { }
 }

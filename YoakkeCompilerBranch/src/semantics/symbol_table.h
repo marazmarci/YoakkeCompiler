@@ -20,6 +20,9 @@ namespace yk {
 	public:
 		symbol_table();
 
+	private:
+		void add_builtin_binop(ystr const& op, type_symbol* l, type_symbol* r, type_symbol* rett);
+
 	public:
 		bool is_global();
 		void push(scope* sc);
