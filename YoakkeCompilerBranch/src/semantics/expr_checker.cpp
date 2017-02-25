@@ -1,12 +1,12 @@
 #include "expr_checker.h"
 
 namespace yk {
-	expr_checker::expr_checker(semantic_checker* ch)
-		: m_Checker(ch) {
+	expr_checker::expr_checker(semantic_checker& ch, symbol_table& tab)
+		: m_Checker(ch), m_Table(tab) {
 	}
 
 	void expr_checker::dispatch(ident_expr* exp) {
-
+		
 	}
 
 	void expr_checker::dispatch(unit_expr* exp) {

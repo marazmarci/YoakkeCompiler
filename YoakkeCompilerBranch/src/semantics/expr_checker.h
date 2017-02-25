@@ -5,16 +5,18 @@
 
 namespace yk {
 	class semantic_checker;
+	class symbol_table;
 
 	class expr_checker : public double_dispatcher
 		<void, expr,
 		ident_expr, unit_expr, bin_expr, preury_expr, postury_expr, enclose_expr,
 		mixfix_expr, func_proto, func_expr, body_expr, param_expr, let_expr> {
 	private:
-		semantic_checker* m_Checker;
+		semantic_checker& m_Checker;
+		symbol_table& m_Table;
 
 	public:
-		expr_checker(semantic_checker* ch);
+		expr_checker(semantic_checker& ch, symbol_table& tab);
 
 	public:
 		void dispatch(ident_expr* exp) override;

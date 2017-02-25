@@ -3,8 +3,8 @@
 #include "expr_checker.h"
 
 namespace yk {
-	stmt_checker::stmt_checker(semantic_checker* ch)
-		: m_Checker(ch) {
+	stmt_checker::stmt_checker(semantic_checker& ch, symbol_table& tab)
+		: m_Checker(ch), m_Table(tab) {
 	}
 
 	void stmt_checker::dispatch(expr_stmt* stmt) {

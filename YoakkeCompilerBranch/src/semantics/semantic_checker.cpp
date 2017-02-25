@@ -2,7 +2,8 @@
 
 namespace yk {
 	semantic_checker::semantic_checker()
-		: m_StmtChecker(this), m_ExprChecker(this), m_TypeChecker(this) {
+		: m_StmtChecker(*this, m_SymbolTable), m_ExprChecker(*this, m_SymbolTable), 
+		m_TypeChecker(*this, m_SymbolTable) {
 	}
 
 	void semantic_checker::check(yvec<stmt*> const& prog) {
