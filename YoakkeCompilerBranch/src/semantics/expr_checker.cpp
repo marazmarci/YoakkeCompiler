@@ -199,9 +199,9 @@ namespace yk {
 	type_symbol* expr_checker::dispatch(let_expr* exp) {
 		type_symbol* hintt = nullptr;
 		type_symbol* rett = nullptr;
-		if (exp->Type) hintt = m_Checker.check_type(exp->Type);
+			if (exp->Type) hintt = m_Checker.check_type(exp->Type);
 		if (exp->Value) {
-			exp->Hint = hintt;
+			exp->Value->Hint = hintt;
 			rett = dispatch_gen(exp->Value);
 			if (!rett) {
 				throw std::exception("Use of undeduced type!");

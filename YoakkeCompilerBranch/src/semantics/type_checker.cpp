@@ -35,7 +35,7 @@ namespace yk {
 			// TODO: maybe switch to tuple args instead of list?
 			yvec<type_symbol*> arg_syms;
 			auto args = dispatch_gen(td->LHS);
-			auto rett = dispatch_gen(td->LHS);
+			auto rett = dispatch_gen(td->RHS);
 			if (auto arglist = dynamic_cast<tuple_type_symbol*>(args)) {
 				arg_syms = arglist->Types;
 			}

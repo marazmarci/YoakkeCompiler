@@ -70,7 +70,14 @@ namespace yk {
 	}
 
 	bool func_type_symbol::same(type_symbol* other) {
-		return match(other) && ((func_type_symbol*)other)->ReturnType->match(ReturnType);
+		if (match(other)) {
+			if (auto fts = dynamic_cast<func_type_symbol*>(other)) {
+				if (fts->ReturnType->match(ReturnType)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	// Builtin function
