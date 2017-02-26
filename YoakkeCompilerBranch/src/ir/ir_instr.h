@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ir_opcode.h"
+#include "ir_value.h"
 
 namespace yk {
 	class ir_basic_block;
@@ -33,5 +34,14 @@ namespace yk {
 	public:
 		ir_jmp_instr(ir_basic_block* dest);
 		~ir_jmp_instr();
+	};
+
+	class ir_alloc_instr : public ir_instr, public ir_value {
+	public:
+		ystr Name;
+
+	public:
+		ir_alloc_instr(ystr const& name, ir_type* t);
+		~ir_alloc_instr();
 	};
 }

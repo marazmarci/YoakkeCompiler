@@ -20,4 +20,11 @@ namespace yk {
 	}
 
 	ir_jmp_instr::~ir_jmp_instr() { }
+
+	// Alloca instr
+	ir_alloc_instr::ir_alloc_instr(ystr const& name, ir_type* t)
+		: ir_instr(ir_opcode::alloc), ir_value(t) {
+	}
+
+	ir_alloc_instr::~ir_alloc_instr() { }
 }

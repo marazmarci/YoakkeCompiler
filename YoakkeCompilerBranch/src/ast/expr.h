@@ -3,6 +3,8 @@
 #include "ast_node.h"
 #include "../parse/token.h"
 #include "../utility/optional.h"
+#include "../ast_meta/let_meta.h"
+#include "../ast_meta/func_meta.h"
 
 namespace yk {
 	class type_desc;
@@ -10,6 +12,7 @@ namespace yk {
 	class pattern;
 	class stmt;
 	class type_symbol;
+	class let_meta;
 
 	class expr : public ast_node {
 	public:
@@ -130,6 +133,7 @@ namespace yk {
 	public:
 		func_proto* Prototype;
 		expr* Body;
+		func_meta Meta;
 
 	public:
 		func_expr(func_proto* pr, expr* bod);
@@ -161,6 +165,7 @@ namespace yk {
 		pattern* Left;
 		type_desc* Type;
 		expr* Value;
+		let_meta Meta;
 
 	public:
 		let_expr(token const& beg, pattern* l, type_desc* t, expr* v);

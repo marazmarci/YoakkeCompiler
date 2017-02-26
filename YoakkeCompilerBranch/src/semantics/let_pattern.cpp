@@ -4,10 +4,12 @@
 #include "symbol_table.h"
 #include "algorithms.h"
 #include "typed_symbol.h"
+#include "../ast_meta/let_meta.h"
 
 namespace yk {
 	namespace let_pat {
-		void define(symbol_table& table, pattern* left, type_symbol* right) {
+		// TODO: sub-pattern-> exp as new binexp(exp . IDX)
+		void define(symbol_table& table, pattern* left, type_symbol* right, expr* exp, let_meta& lm) {
 			if (auto sk = dynamic_cast<skip_pattern*>(left)) {
 				return;
 			}
@@ -17,6 +19,7 @@ namespace yk {
 				if (typed_set.size() == 0) {
 					// New symbol
 					table.decl(new var_symbol(ip->Identifier, right));
+					lm.add(ip->Identifier, exp);
 				}
 				else if (typed_set.size() == 1) {
 					// Shadowing
@@ -34,7 +37,8 @@ namespace yk {
 						if (auto rtup = dynamic_cast<tuple_type_symbol*>(right)) {
 							if (rtup->Types.size() == flat.size()) {
 								for (ysize i = 0; i < flat.size(); i++) {
-									define(table, flat[i], rtup->Types[i]);
+									// TODO
+									define(table, flat[i], rtup->Types[i], exp, lm);
 								}
 							}
 							else {
@@ -48,7 +52,8 @@ namespace yk {
 					else {
 						// Unknown typed expansion
 						for (ysize i = 0; i < flat.size(); i++) {
-							define(table, flat[i], nullptr);
+							// TODO
+							define(table, flat[i], nullptr, exp, lm);
 						}
 					}
 				}
@@ -57,7 +62,8 @@ namespace yk {
 				}
 			}
 			else if (auto ep = dynamic_cast<enclose_pattern*>(left)) {
-				return define(table, ep->Sub, right);
+				// TODO
+				return define(table, ep->Sub, right, exp, lm);
 			}
 			else {
 				throw std::exception("UNHANDLED PATTERN");
