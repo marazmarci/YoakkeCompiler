@@ -22,6 +22,8 @@ namespace yk {
 
 	private:
 		void add_builtin_binop(ystr const& op, type_symbol* l, type_symbol* r, type_symbol* rett);
+		void add_builtin_preop(ystr const& op, type_symbol* l, type_symbol* rett);
+		void add_builtin_postop(ystr const& op, type_symbol* l, type_symbol* rett);
 
 	public:
 		bool is_global();

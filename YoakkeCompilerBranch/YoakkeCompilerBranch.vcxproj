@@ -121,6 +121,12 @@
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\debug\expr_prec_printer.h" />
     <ClInclude Include="src\debug\unit_test.h" />
+    <ClInclude Include="src\ir\ir_basic_block.h" />
+    <ClInclude Include="src\ir\ir_function.h" />
+    <ClInclude Include="src\ir\ir_instr.h" />
+    <ClInclude Include="src\ir\ir_module.h" />
+    <ClInclude Include="src\ir\ir_opcode.h" />
+    <ClInclude Include="src\ir\ir_printer.h" />
     <ClInclude Include="src\parse\prec_parser.h" />
     <ClInclude Include="src\parse\infix_parselet.h" />
     <ClInclude Include="src\parse\lexer.h" />
@@ -152,6 +158,7 @@
     <ClInclude Include="src\utility\static_block.h" />
     <ClInclude Include="src\utility\static_max.h" />
     <ClInclude Include="src\utility\static_contains.h" />
+    <ClInclude Include="src\utility\unique_name_gen.h" />
     <ClInclude Include="src\Utility\variant.h" />
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +170,11 @@
     <ClCompile Include="src\ast\type_desc.cpp" />
     <ClCompile Include="src\debug\expr_prec_printer.cpp" />
     <ClCompile Include="src\debug\unit_test.cpp" />
+    <ClCompile Include="src\ir\ir_basic_block.cpp" />
+    <ClCompile Include="src\ir\ir_function.cpp" />
+    <ClCompile Include="src\ir\ir_instr.cpp" />
+    <ClCompile Include="src\ir\ir_module.cpp" />
+    <ClCompile Include="src\ir\ir_printer.cpp" />
     <ClCompile Include="src\parse\lexer.cpp" />
     <ClCompile Include="src\parse\parser.cpp" />
     <ClCompile Include="src\parse\position.cpp" />
@@ -182,6 +194,7 @@
     <ClCompile Include="src\semantics\type_symbol.cpp" />
     <ClCompile Include="src\unit_testing\expr_unit_test.cpp" />
     <ClCompile Include="src\utility\optional.cpp" />
+    <ClCompile Include="src\utility\unique_name_gen.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
