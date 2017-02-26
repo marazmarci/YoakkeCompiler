@@ -15,6 +15,7 @@
 #include "src\ir\ir_function.h"
 #include "src\ir\ir_basic_block.h"
 #include "src\ir\ir_instr.h"
+#include "src\ir\ir_type.h"
 
 yk::ystr read_file(yk::ystr const& fn) {
 	std::ifstream t(fn);
@@ -47,8 +48,12 @@ int main(void) {
 
 	{
 		using namespace yk;
+		auto itype = new ir_int_type(32);
 		ir_module mod;
-		auto fn = new ir_function("main");
+		auto fn = new ir_function("main", itype, yvec<ir_parameter*>{
+			new ir_parameter("", itype),
+			new ir_parameter("", itype),
+		});
 		auto bb = new ir_basic_block("begin");
 		auto bb2 = new ir_basic_block("end");
 		bb->add(new ir_jmp_instr(bb2));

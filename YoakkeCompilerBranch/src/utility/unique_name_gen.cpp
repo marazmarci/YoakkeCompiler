@@ -3,7 +3,7 @@
 
 namespace yk {
 	ystr unique_name_gen::get(ystr const& ids2) {
-		ystr ids = (ids2 == "" ? "0" : ids2);
+		ystr ids = (ids2 == "" ? "%" : ids2);
 		// Cut off number
 		ysize num_part = 0;
 		for (int i = ids.size() - 1; i >= 0; i--) {
@@ -18,8 +18,8 @@ namespace yk {
 
 		auto it = Names.find(ids);
 		if (it == Names.end()) {
-			Names.insert(std::make_pair(ids, 1));
-			return ids;
+			Names.insert(std::make_pair(ids, 0));
+			return ids + "0";
 		}
 		else {
 			return ids + std::to_string(++it->second);

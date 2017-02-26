@@ -3,6 +3,7 @@
 #include "ir_function.h"
 #include "ir_basic_block.h"
 #include "ir_instr.h"
+#include "ir_type.h"
 
 namespace yk {
 	ir_printer::ir_printer(std::ostream& os)
@@ -17,7 +18,15 @@ namespace yk {
 	}
 
 	void ir_printer::print(ir_function* fn) {
-		m_Ostream << fn->Name << "() {" << std::endl;
+		m_Ostream << "def " << fn->ReturnType->Identifier << " @" << fn->Name << "(";
+		if (fn->Parameters.size()) {
+			m_Ostream << fn->Parameters[0]->Type->Identifier << ' ' << fn->Parameters[0]->Name;
+			for (ysize i = 1; i < fn->Parameters.size(); i++) {
+				m_Ostream << ", " 
+					<< fn->Parameters[i]->Type->Identifier << ' ' << fn->Parameters[i]->Name;
+			}
+		}
+		m_Ostream << ") {" << std::endl;
 		for (auto bb : fn->Blocks) {
 			print(bb);
 		}
@@ -27,7 +36,7 @@ namespace yk {
 	void ir_printer::print(ir_basic_block* bb) {
 		m_Ostream << "; label<" << bb->Name << ">:" << std::endl;
 		for (auto i : bb->Instructions) {
-			m_Ostream << "  ";
+			m_Ostream << "    ";
 			print(i);
 			m_Ostream << std::endl;
 		}

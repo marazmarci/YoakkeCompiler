@@ -2,8 +2,17 @@
 #include "ir_basic_block.h"
 
 namespace yk {
-	ir_function::ir_function(ystr const& name) 
-		: Name(name), Module(nullptr) {
+	ir_parameter::ir_parameter(ystr const& name, ir_type* t)
+		: Name(name), Type(t) {
+	}
+
+	ir_parameter::~ir_parameter() { }
+
+	ir_function::ir_function(ystr const& name, ir_type* rett, yvec<ir_parameter*> const& params)
+		: Name(name), Module(nullptr), ReturnType(rett), Parameters(params) {
+		for (auto p : Parameters) {
+			p->Name = NameGen.get(p->Name);
+		}
 	}
 
 	ir_function::~ir_function() {
