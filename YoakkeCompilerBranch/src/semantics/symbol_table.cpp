@@ -16,12 +16,35 @@ namespace yk {
 		decl(INT32 = new builtin_type_symbol("i32"));
 		decl(FLOAT32 = new builtin_type_symbol("f32"));
 
+		// Builtin operations
+		// Integer
 		add_builtin_binop("+", INT32, INT32, INT32);
+		add_builtin_binop("-", INT32, INT32, INT32);
+		add_builtin_binop("*", INT32, INT32, INT32);
+		add_builtin_binop("/", INT32, INT32, INT32);
+		add_builtin_binop("%", INT32, INT32, INT32);
+
+		// Float
+		add_builtin_binop("+", FLOAT32, FLOAT32, FLOAT32);
+		add_builtin_binop("-", FLOAT32, FLOAT32, FLOAT32);
+		add_builtin_binop("*", FLOAT32, FLOAT32, FLOAT32);
+		add_builtin_binop("/", FLOAT32, FLOAT32, FLOAT32);
+		add_builtin_binop("%", FLOAT32, FLOAT32, FLOAT32);
 	}
 
 	void symbol_table::add_builtin_binop(ystr const& op, type_symbol* l, type_symbol* r, type_symbol* rett) {
 		decl(new const_bind_symbol("bin_op" + op,
 			new builtin_func_type_symbol(yvec<type_symbol*>{l, r}, rett), nullptr));
+	}
+
+	void symbol_table::add_builtin_preop(ystr const& op, type_symbol* l, type_symbol* rett) {
+		decl(new const_bind_symbol("pre_op" + op,
+			new builtin_func_type_symbol(yvec<type_symbol*>{l}, rett), nullptr));
+	}
+
+	void symbol_table::add_builtin_postop(ystr const& op, type_symbol* l, type_symbol* rett) {
+		decl(new const_bind_symbol("post_op" + op,
+			new builtin_func_type_symbol(yvec<type_symbol*>{l}, rett), nullptr));
 	}
 
 	bool symbol_table::is_global() {
