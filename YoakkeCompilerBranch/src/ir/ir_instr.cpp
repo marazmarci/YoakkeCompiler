@@ -8,8 +8,8 @@ namespace yk {
 	ir_instr::~ir_instr() { }
 
 	// Return instruction
-	ir_ret_instr::ir_ret_instr() 
-		: ir_instr(ir_opcode::ret) {
+	ir_ret_instr::ir_ret_instr(ir_value* val)
+		: ir_instr(ir_opcode::ret), Value(val) {
 	}
 
 	ir_ret_instr::~ir_ret_instr() { }

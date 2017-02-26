@@ -122,12 +122,14 @@
     <ClInclude Include="src\debug\expr_prec_printer.h" />
     <ClInclude Include="src\debug\unit_test.h" />
     <ClInclude Include="src\ir\ir_basic_block.h" />
+    <ClInclude Include="src\ir\ir_environment.h" />
     <ClInclude Include="src\ir\ir_function.h" />
     <ClInclude Include="src\ir\ir_instr.h" />
     <ClInclude Include="src\ir\ir_module.h" />
     <ClInclude Include="src\ir\ir_opcode.h" />
     <ClInclude Include="src\ir\ir_printer.h" />
     <ClInclude Include="src\ir\ir_type.h" />
+    <ClInclude Include="src\ir\ir_value.h" />
     <ClInclude Include="src\parse\prec_parser.h" />
     <ClInclude Include="src\parse\infix_parselet.h" />
     <ClInclude Include="src\parse\lexer.h" />
@@ -138,6 +140,7 @@
     <ClInclude Include="src\parse\token.h" />
     <ClInclude Include="src\parse\yparser.h" />
     <ClInclude Include="src\parse\ylexer.h" />
+    <ClInclude Include="src\platform\llvm_ir.h" />
     <ClInclude Include="src\semantics\algorithms.h" />
     <ClInclude Include="src\semantics\expr_checker.h" />
     <ClInclude Include="src\semantics\let_pattern.h" />
@@ -172,11 +175,13 @@
     <ClCompile Include="src\debug\expr_prec_printer.cpp" />
     <ClCompile Include="src\debug\unit_test.cpp" />
     <ClCompile Include="src\ir\ir_basic_block.cpp" />
+    <ClCompile Include="src\ir\ir_environment.cpp" />
     <ClCompile Include="src\ir\ir_function.cpp" />
     <ClCompile Include="src\ir\ir_instr.cpp" />
     <ClCompile Include="src\ir\ir_module.cpp" />
     <ClCompile Include="src\ir\ir_printer.cpp" />
     <ClCompile Include="src\ir\ir_type.cpp" />
+    <ClCompile Include="src\ir\ir_value.cpp" />
     <ClCompile Include="src\parse\lexer.cpp" />
     <ClCompile Include="src\parse\parser.cpp" />
     <ClCompile Include="src\parse\position.cpp" />
@@ -184,6 +189,7 @@
     <ClCompile Include="src\parse\token.cpp" />
     <ClCompile Include="src\parse\yparser.cpp" />
     <ClCompile Include="src\parse\ylexer.cpp" />
+    <ClCompile Include="src\platform\llvm_ir.cpp" />
     <ClCompile Include="src\semantics\expr_checker.cpp" />
     <ClCompile Include="src\semantics\let_pattern.cpp" />
     <ClCompile Include="src\semantics\scope.cpp" />

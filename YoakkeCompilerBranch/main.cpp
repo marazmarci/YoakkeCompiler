@@ -16,6 +16,9 @@
 #include "src\ir\ir_basic_block.h"
 #include "src\ir\ir_instr.h"
 #include "src\ir\ir_type.h"
+#include "src\ir\ir_environment.h"
+#include "src\platform\llvm_ir.h"
+#include "src\ir\ir_value.h"
 
 yk::ystr read_file(yk::ystr const& fn) {
 	std::ifstream t(fn);
@@ -48,22 +51,29 @@ int main(void) {
 
 	{
 		using namespace yk;
+		ir_environment::init();
+
 		auto itype = new ir_int_type(32);
+		ir_environment::add_type(itype);
+
 		ir_module mod;
-		auto fn = new ir_function("main", itype, yvec<ir_parameter*>{
-			new ir_parameter("", itype),
-			new ir_parameter("", itype),
-		});
-		auto bb = new ir_basic_block("begin");
-		auto bb2 = new ir_basic_block("end");
-		bb->add(new ir_jmp_instr(bb2));
-		bb2->add(new ir_ret_instr());
+		auto fn = new ir_function("main", itype, yvec<ir_parameter*>{});
+		auto bb = new ir_basic_block("entry");
+		bb->add(new ir_ret_instr(new ir_int_value(32, 0)));
 		fn->add(bb);
-		fn->add(bb2);
 		mod.add(fn);
 
-		ir_printer print(std::cout);
-		print.print(&mod);
+		std::ofstream ofile("C:\\TMP\\YoakkeTest\\llvm_test.txt");
+		if (ofile.good()) {
+			llvm_ir print(ofile);
+			print.print(&mod);
+			ofile.close();
+		}
+		else {
+			std::cout << "Could not open file!" << std::endl;
+		}
+
+		ir_environment::deinit();
 	}
 
 	system("PAUSE");

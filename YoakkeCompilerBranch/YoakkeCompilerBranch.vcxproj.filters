@@ -159,6 +159,15 @@
     <ClInclude Include="src\ir\ir_type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ir\ir_environment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ir\ir_value.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\llvm_ir.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -261,6 +270,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ir\ir_type.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ir\ir_environment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ir\ir_value.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\llvm_ir.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

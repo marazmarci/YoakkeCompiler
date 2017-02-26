@@ -9,12 +9,12 @@ namespace yk {
 	class ir_instr;
 	class ir_value;
 
-	class ir_printer {
+	class llvm_ir {
 	private:
 		std::ostream& m_Ostream;
 
 	public:
-		ir_printer(std::ostream& os);
+		llvm_ir(std::ostream& os);
 
 	public:
 		void print(ir_module* mod);

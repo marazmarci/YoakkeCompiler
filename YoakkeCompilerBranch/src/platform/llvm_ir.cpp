@@ -1,30 +1,32 @@
-#include "ir_printer.h"
-#include "ir_module.h"
-#include "ir_function.h"
-#include "ir_basic_block.h"
-#include "ir_instr.h"
-#include "ir_type.h"
-#include "ir_value.h"
+#include "llvm_ir.h"
+#include "../ir/ir_module.h"
+#include "../ir/ir_function.h"
+#include "../ir/ir_basic_block.h"
+#include "../ir/ir_instr.h"
+#include "../ir/ir_type.h"
+#include "../ir/ir_value.h"
 
 namespace yk {
-	ir_printer::ir_printer(std::ostream& os)
+	llvm_ir::llvm_ir(std::ostream& os)
 		: m_Ostream(os) {
 	}
 
-	void ir_printer::print(ir_module* mod) {
+	void llvm_ir::print(ir_module* mod) {
 		for (auto f : mod->Functions) {
 			print(f);
 			m_Ostream << std::endl;
 		}
 	}
 
-	void ir_printer::print(ir_function* fn) {
-		m_Ostream << "def " << fn->ReturnType->Identifier << " @" << fn->Name << "(";
+	void llvm_ir::print(ir_function* fn) {
+		m_Ostream << "define " << fn->ReturnType->Identifier << " @" << fn->Name << "(";
 		if (fn->Parameters.size()) {
-			m_Ostream << fn->Parameters[0]->Type->Identifier << ' ' << fn->Parameters[0]->Name;
+			m_Ostream << fn->Parameters[0]->Type->Identifier << ' ' 
+				<< fn->Parameters[0]->Name;
 			for (ysize i = 1; i < fn->Parameters.size(); i++) {
-				m_Ostream << ", " 
-					<< fn->Parameters[i]->Type->Identifier << ' ' << fn->Parameters[i]->Name;
+				m_Ostream << ", "
+					<< fn->Parameters[i]->Type->Identifier << ' ' 
+					<< fn->Parameters[i]->Name;
 			}
 		}
 		m_Ostream << ") {" << std::endl;
@@ -34,28 +36,28 @@ namespace yk {
 		m_Ostream << "}" << std::endl;
 	}
 
-	void ir_printer::print(ir_basic_block* bb) {
-		m_Ostream << "; label<" << bb->Name << ">:" << std::endl;
+	void llvm_ir::print(ir_basic_block* bb) {
+		m_Ostream << bb->Name << ':' << std::endl;
 		for (auto i : bb->Instructions) {
-			m_Ostream << "    ";
+			m_Ostream << "  ";
 			print(i);
 			m_Ostream << std::endl;
 		}
 	}
 
-	void ir_printer::print(ir_instr* ins) {
+	void llvm_ir::print(ir_instr* ins) {
 		switch (ins->Opcode) {
-		case ir_opcode::jmp: {
+		/*case ir_opcode::jmp: {
 			auto i2 = reinterpret_cast<ir_jmp_instr*>(ins);
 			m_Ostream << "jmp label<" << i2->Destination->Name << '>';
 			break;
-		}
+		}*/
 
 		case ir_opcode::ret: {
 			auto i2 = reinterpret_cast<ir_ret_instr*>(ins);
 			m_Ostream << "ret";
 			if (i2->Value) {
-				m_Ostream << ' ';
+				m_Ostream << ' ' << i2->Value->Type->Identifier << ' ';
 				print(i2->Value);
 			}
 			break;
@@ -66,7 +68,7 @@ namespace yk {
 		}
 	}
 
-	void ir_printer::print(ir_value* val) {
+	void llvm_ir::print(ir_value* val) {
 		if (auto i_t = dynamic_cast<ir_int_value*>(val)) {
 			m_Ostream << i_t->Value;
 		}

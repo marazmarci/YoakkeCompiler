@@ -4,6 +4,7 @@
 
 namespace yk {
 	class ir_basic_block;
+	class ir_value;
 
 	class ir_instr {
 	public:
@@ -18,7 +19,10 @@ namespace yk {
 
 	class ir_ret_instr : public ir_instr {
 	public:
-		ir_ret_instr();
+		ir_value* Value;
+
+	public:
+		ir_ret_instr(ir_value* val = nullptr);
 		~ir_ret_instr();
 	};
 
