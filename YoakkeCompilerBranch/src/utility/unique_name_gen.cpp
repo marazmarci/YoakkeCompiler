@@ -19,7 +19,7 @@ namespace yk {
 		auto it = Names.find(ids);
 		if (it == Names.end()) {
 			Names.insert(std::make_pair(ids, 0));
-			return ids + "0";
+			return ids;
 		}
 		else {
 			return ids + std::to_string(++it->second);
