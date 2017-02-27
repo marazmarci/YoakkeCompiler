@@ -2,7 +2,7 @@
 
 namespace yk {
 	type_desc::type_desc(position const& pos)
-		: ast_node(pos) {
+		: ast_node(pos), SymbolForm(nullptr) {
 	}
 
 	type_desc::~type_desc() { }

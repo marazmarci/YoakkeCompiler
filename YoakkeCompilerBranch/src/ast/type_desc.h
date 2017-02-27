@@ -5,7 +5,12 @@
 #include "../utility/optional.h"
 
 namespace yk {
+	class type_symbol;
+
 	class type_desc : public ast_node {
+	public:
+		type_symbol* SymbolForm;
+
 	protected:
 		type_desc(position const& pos);
 

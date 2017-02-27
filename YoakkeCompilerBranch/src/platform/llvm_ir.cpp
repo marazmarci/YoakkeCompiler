@@ -19,14 +19,15 @@ namespace yk {
 	}
 
 	void llvm_ir::print(ir_function* fn) {
-		m_Ostream << "define " << fn->ReturnType->Identifier << " @" << fn->Name << "(";
-		if (fn->Parameters.size()) {
-			m_Ostream << fn->Parameters[0]->Type->Identifier << ' ' 
-				<< fn->Parameters[0]->Name;
-			for (ysize i = 1; i < fn->Parameters.size(); i++) {
+		auto proto = fn->Prototype;
+		m_Ostream << "define " << proto->ReturnType->Identifier << " @" << proto->Name << "(";
+		if (proto->Parameters.size()) {
+			m_Ostream << proto->Parameters[0]->Type->Identifier << ' '
+				<< proto->Parameters[0]->Name;
+			for (ysize i = 1; i < proto->Parameters.size(); i++) {
 				m_Ostream << ", "
-					<< fn->Parameters[i]->Type->Identifier << ' ' 
-					<< fn->Parameters[i]->Name;
+					<< proto->Parameters[i]->Type->Identifier << ' '
+					<< proto->Parameters[i]->Name;
 			}
 		}
 		m_Ostream << ") {" << std::endl;
@@ -60,6 +61,12 @@ namespace yk {
 				m_Ostream << ' ' << i2->Value->Type->Identifier << ' ';
 				print(i2->Value);
 			}
+			break;
+		}
+
+		case ir_opcode::alloc: {
+			auto i2 = reinterpret_cast<ir_alloc_instr*>(ins);
+			m_Ostream << '%' << i2->Name << " = alloca " << i2->Type->Identifier;
 			break;
 		}
 

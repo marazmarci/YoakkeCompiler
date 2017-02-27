@@ -11,7 +11,7 @@ namespace yk {
 
 	ir_int_value::ir_int_value(int N, int val) 
 		: ir_literal_value<int>(nullptr, val) {
-		auto t = ir_environment::get_type("int" + std::to_string(N));
+		auto t = ir_environment::get_type("i" + std::to_string(N));
 		if (t == nullptr) {
 			t = new ir_int_type(N);
 			ir_environment::add_type(t);

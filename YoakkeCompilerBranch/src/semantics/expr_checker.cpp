@@ -18,12 +18,10 @@ namespace yk {
 		if (typed_set.size() == 0) {
 			throw std::exception("Identifier is undefined!");
 		}
-		else if (typed_set.size() == 1) {
-			exp->EvalType = typed_set[0]->Type;
-			return exp->EvalType;
-		}
 		else {
-			throw std::exception("Identifier is ambigous!");
+			// Always choose the last one (shadowing previous)
+			exp->EvalType = typed_set[typed_set.size() - 1]->Type;
+			return exp->EvalType;
 		}
 	}
 

@@ -20,4 +20,12 @@ namespace yk {
 	}
 
 	ir_int_type::~ir_int_type() { }
+
+	// TODO
+	// Function
+	ir_func_type::ir_func_type(yvec<ir_type*> const& params, ir_type* rett)
+		: ir_type("func", 0), Parameters(params), ReturnType(rett) {
+	}
+
+	ir_func_type::~ir_func_type() { }
 }

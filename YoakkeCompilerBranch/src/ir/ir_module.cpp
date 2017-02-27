@@ -9,8 +9,9 @@ namespace yk {
 	}
 
 	void ir_module::add(ir_function* func) {
-		func->Module = this;
-		func->Name = NameGen.get(func->Name);
+		auto proto = func->Prototype;
+		proto->Module = this;
+		proto->Name = NameGen.get(proto->Name);
 		Functions.push_back(func);
 	}
 }

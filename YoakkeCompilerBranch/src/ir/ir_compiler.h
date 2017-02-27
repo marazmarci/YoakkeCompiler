@@ -13,19 +13,20 @@ namespace yk {
 	class ir_compiler : public double_dispatcher
 		<ir_value*, ast_node,
 		expr_stmt, let_expr, bin_expr, preury_expr, postury_expr,
-		func_expr, body_expr, list_expr,
+		func_proto, func_expr, body_expr, list_expr,
 		int_lit_expr, real_lit_expr, unit_expr> {
 	private:
 		ir_builder m_Builder;
 
 	public:
-		ir_compiler();
+		ir_compiler(ir_module& mod);
 
 	public:
 		ir_value* dispatch(expr_stmt* stmt) override;
 		ir_value* dispatch(bin_expr* exp) override;
 		ir_value* dispatch(preury_expr* exp) override;
 		ir_value* dispatch(postury_expr* exp) override;
+		ir_value* dispatch(func_proto* exp) override;
 		ir_value* dispatch(func_expr* exp) override;
 		ir_value* dispatch(body_expr* exp) override;
 		ir_value* dispatch(list_expr* exp) override;

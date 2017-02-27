@@ -23,7 +23,7 @@ namespace yk {
 
 	// Alloca instr
 	ir_alloc_instr::ir_alloc_instr(ystr const& name, ir_type* t)
-		: ir_instr(ir_opcode::alloc), ir_value(t) {
+		: ir_instr(ir_opcode::alloc), ir_value(t), Name(name) {
 	}
 
 	ir_alloc_instr::~ir_alloc_instr() { }

@@ -129,7 +129,6 @@
     <ClInclude Include="src\ir\ir_instr.h" />
     <ClInclude Include="src\ir\ir_module.h" />
     <ClInclude Include="src\ir\ir_opcode.h" />
-    <ClInclude Include="src\ir\ir_printer.h" />
     <ClInclude Include="src\ir\ir_type.h" />
     <ClInclude Include="src\ir\ir_value.h" />
     <ClInclude Include="src\parse\prec_parser.h" />
@@ -182,7 +181,6 @@
     <ClCompile Include="src\ir\ir_function.cpp" />
     <ClCompile Include="src\ir\ir_instr.cpp" />
     <ClCompile Include="src\ir\ir_module.cpp" />
-    <ClCompile Include="src\ir\ir_printer.cpp" />
     <ClCompile Include="src\ir\ir_type.cpp" />
     <ClCompile Include="src\ir\ir_value.cpp" />
     <ClCompile Include="src\parse\lexer.cpp" />

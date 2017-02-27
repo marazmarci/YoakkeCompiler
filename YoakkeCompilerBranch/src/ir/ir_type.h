@@ -26,4 +26,14 @@ namespace yk {
 		ir_int_type(ysize sz);
 		virtual ~ir_int_type();
 	};
+
+	class ir_func_type : public ir_type {
+	public:
+		yvec<ir_type*> Parameters;
+		ir_type* ReturnType;
+
+	public:
+		ir_func_type(yvec<ir_type*> const& params, ir_type* rett);
+		virtual ~ir_func_type();
+	};
 }

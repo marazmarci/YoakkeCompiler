@@ -10,7 +10,6 @@
 #include "src\unit_testing\expr_unit_test.h"
 #include "src\semantics\semantic_checker.h"
 #include "src\utility\unique_name_gen.h"
-#include "src\ir\ir_printer.h"
 #include "src\ir\ir_module.h"
 #include "src\ir\ir_function.h"
 #include "src\ir\ir_basic_block.h"
@@ -19,6 +18,7 @@
 #include "src\ir\ir_environment.h"
 #include "src\platform\llvm_ir.h"
 #include "src\ir\ir_value.h"
+#include "src\ir\ir_compiler.h"
 
 yk::ystr read_file(yk::ystr const& fn) {
 	std::ifstream t(fn);
@@ -40,8 +40,8 @@ int main(void) {
 	lexer.set_source(src.c_str());
 	buffer.clear();
 	yk::semantic_checker checker;
+	yk::yvec<yk::stmt*> prog;
 	try {
-		yk::yvec<yk::stmt*> prog;
 		while (yk::stmt* st = parser.parse_stmt()) prog.push_back(st);
 		checker.check(prog);
 	}
@@ -54,14 +54,15 @@ int main(void) {
 		ir_environment::init();
 
 		auto itype = new ir_int_type(32);
+		auto vtype = new ir_void_type();
 		ir_environment::add_type(itype);
+		ir_environment::add_type(vtype);
 
 		ir_module mod;
-		auto fn = new ir_function("main", itype, yvec<ir_parameter*>{});
-		auto bb = new ir_basic_block("entry");
-		bb->add(new ir_ret_instr(new ir_int_value(32, 0)));
-		fn->add(bb);
-		mod.add(fn);
+		ir_compiler compiler(mod);
+		for (auto p : prog) {
+			compiler.dispatch_gen(p);
+		}
 
 		std::ofstream ofile("C:\\TMP\\YoakkeTest\\llvm_test.txt");
 		if (ofile.good()) {
