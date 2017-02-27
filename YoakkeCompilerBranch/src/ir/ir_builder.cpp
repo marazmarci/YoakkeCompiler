@@ -57,6 +57,11 @@ namespace yk {
 
 	void ir_builder::set_bb(ir_basic_block* bb) {
 		m_CurrentBB = bb;
-		m_CurrentFunc = bb->Function;
+		if (bb) {
+			m_CurrentFunc = bb->Function;
+		}
+		else {
+			m_CurrentFunc = nullptr;
+		}
 	}
 }

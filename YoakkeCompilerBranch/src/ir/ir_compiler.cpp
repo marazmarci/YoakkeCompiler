@@ -43,6 +43,23 @@ namespace yk {
 		return nullptr;
 	}
 
+	ir_value* ir_compiler::dispatch(mixfix_expr* exp) {
+		if (exp->OP == "call") {
+			if (auto func = dynamic_cast<ir_function_proto*>(dispatch_gen(exp->Operands[0]))) {
+				// TODO: args
+				//auto args = dispatch_gen(exp->Operands[1]);
+				yvec<ir_value*> args;
+				return new ir_call_instr(func, args);
+			}
+			else {
+				throw std::exception("CALL SANITY");
+			}
+		}
+		else {
+			throw std::exception("Mixfix unimplemented!");
+		}
+	}
+
 	ir_value* ir_compiler::dispatch(func_proto* exp) {
 		yvec<ir_parameter*> params;
 		for (auto p : exp->Parameters) {
@@ -61,11 +78,13 @@ namespace yk {
 	}
 
 	ir_value* ir_compiler::dispatch(func_expr* exp) {
+		auto curr_bb = m_Builder.current_bb();
 		auto proto = (ir_function_proto*)dispatch(exp->Prototype);
 		auto func = new ir_function(proto);
 		m_Builder.set_func(func);
 		dispatch_gen(exp->Body);
 		m_Builder.add_inst(new ir_ret_instr());
+		m_Builder.set_bb(curr_bb);
 		return func;
 	}
 
