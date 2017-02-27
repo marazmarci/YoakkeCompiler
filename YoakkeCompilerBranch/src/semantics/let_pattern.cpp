@@ -1,44 +1,32 @@
 #include "let_pattern.h"
 #include "type_symbol.h"
+#include "../ast/expr.h"
 #include "../ast/pattern.h"
-#include "symbol_table.h"
-#include "typed_symbol.h"
-#include "../ast_meta/let_meta.h"
 
 namespace yk {
 	namespace let_pat {
-		// TODO: sub-pattern-> exp as new binexp(exp . IDX)
-		void define(symbol_table& table, pattern* left, type_symbol* right, expr* exp, let_meta& lm) {
+		static void define_internal(yvec<ypair<ystr, expr*>>& vec, pattern* left, expr* right) {
 			if (auto sk = dynamic_cast<skip_pattern*>(left)) {
 				return;
 			}
 			else if (auto ip = dynamic_cast<ident_pattern*>(left)) {
-				auto sym_set = table.ref(ip->Identifier);
-				auto typed_set = symbol_table::filter<var_symbol>(sym_set);
-				if (typed_set.size() == 0) {
-					// New symbol
-					table.decl(new var_symbol(ip->Identifier, right));
-					lm.add(ip->Identifier, exp, right);
-				}
-				else if (typed_set.size() == 1) {
-					// Shadowing
-					// TODO
-					typed_set[1]->Type = right;
-				}
-				else {
-					throw std::exception("Let sanity!");
-				}
+				vec.push_back(std::make_pair(ip->Identifier, right));
+				return;
 			}
 			else if (auto bp = dynamic_cast<bin_pattern*>(left)) {
 				throw std::exception("UNHANDLED PATTERN (bin)");
 			}
 			else if (auto lp = dynamic_cast<list_pattern*>(left)) {
 				if (right) {
-					if (auto rtup = dynamic_cast<tuple_type_symbol*>(right)) {
+					if (auto rtup = dynamic_cast<tuple_type_symbol*>(right->EvalType)) {
 						if (rtup->Types.size() == lp->List.size()) {
 							for (ysize i = 0; i < lp->List.size(); i++) {
-								// TODO
-								define(table, lp->List[i], rtup->Types[i], exp, lm);
+								auto right_sub = new bin_expr(right,
+									new int_lit_expr(token("Integer", "")),
+									token(".", "."));
+								right_sub->EvalType = rtup->Types[i];
+								define_internal(vec, lp->List[i],
+									right_sub);
 							}
 						}
 						else {
@@ -46,20 +34,22 @@ namespace yk {
 						}
 					}
 					else {
-						throw std::exception("Pattern does not match RHS!");
+						throw std::exception("Pattern does not match (RHS is not tuple)!");
 					}
 				}
 				else {
-					// Unknown typed expansion
-					for (ysize i = 0; i < lp->List.size(); i++) {
-						// TODO
-						define(table, lp->List[i], nullptr, exp, lm);
-					}
+					throw std::exception("Cannot let pattern without RHS!");
 				}
 			}
 			else {
 				throw std::exception("UNHANDLED PATTERN");
 			}
+		}
+
+		yvec<ypair<ystr, expr*>> define(pattern* left, expr* exp) {
+			yvec<ypair<ystr, expr*>> result;
+			define_internal(result, left, exp);
+			return result;
 		}
 	}
 }

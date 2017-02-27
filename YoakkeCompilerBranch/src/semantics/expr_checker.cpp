@@ -19,7 +19,8 @@ namespace yk {
 			throw std::exception("Identifier is undefined!");
 		}
 		else if (typed_set.size() == 1) {
-			return typed_set[0]->Type;
+			exp->EvalType = typed_set[0]->Type;
+			return exp->EvalType;
 		}
 		else {
 			throw std::exception("Identifier is ambigous!");
@@ -27,15 +28,18 @@ namespace yk {
 	}
 
 	type_symbol* expr_checker::dispatch(unit_expr* exp) {
-		return reinterpret_cast<type_symbol*>(symbol_table::UNIT);
+		exp->EvalType = reinterpret_cast<type_symbol*>(symbol_table::UNIT);
+		return exp->EvalType;
 	}
 
 	type_symbol* expr_checker::dispatch(int_lit_expr* exp) {
-		return reinterpret_cast<type_symbol*>(symbol_table::INT32);
+		exp->EvalType = reinterpret_cast<type_symbol*>(symbol_table::INT32);
+		return exp->EvalType;
 	}
 
 	type_symbol* expr_checker::dispatch(real_lit_expr* exp) {
-		return reinterpret_cast<type_symbol*>(symbol_table::FLOAT32);
+		exp->EvalType = reinterpret_cast<type_symbol*>(symbol_table::FLOAT32);
+		return exp->EvalType;
 	}
 
 	type_symbol* expr_checker::dispatch(bin_expr* exp) {
@@ -50,7 +54,8 @@ namespace yk {
 			}
 			else {
 				m_Table.decl(new const_bind_symbol(ident->identifier, rhs_type, exp->RHS));
-				return symbol_table::UNIT;
+				exp->EvalType = symbol_table::UNIT;
+				return exp->EvalType;
 			}
 		}
 		else if (exp->OP.identifier() == "=") {
@@ -61,7 +66,8 @@ namespace yk {
 					throw std::exception("Use of undeduced type!");
 				}
 				if (lval->match(rval)) {
-					return lval;
+					exp->EvalType = lval;
+					return exp->EvalType;
 				}
 				else {
 					throw std::exception("Assignment type mismatch!");
@@ -84,7 +90,8 @@ namespace yk {
 			else if (typed_set.size() == 1) {
 				auto result_sym = typed_set[0];
 				if (auto func_sym = dynamic_cast<func_type_symbol*>(result_sym->Type)) {
-					return func_sym->ReturnType;
+					exp->EvalType = func_sym->ReturnType;
+					return exp->EvalType;
 				}
 				else {
 					throw std::exception("SANITY ERROR");
@@ -108,7 +115,8 @@ namespace yk {
 		else if (typed_set.size() == 1) {
 			auto result_sym = typed_set[0];
 			if (auto func_sym = dynamic_cast<func_type_symbol*>(result_sym->Type)) {
-				return func_sym->ReturnType;
+				exp->EvalType = func_sym->ReturnType;
+				return exp->EvalType;
 			}
 			else {
 				throw std::exception("SANITY ERROR");
@@ -131,7 +139,8 @@ namespace yk {
 		else if (typed_set.size() == 1) {
 			auto result_sym = typed_set[0];
 			if (auto func_sym = dynamic_cast<func_type_symbol*>(result_sym->Type)) {
-				return func_sym->ReturnType;
+				exp->EvalType = func_sym->ReturnType;
+				return exp->EvalType;
 			}
 			else {
 				throw std::exception("SANITY ERROR");
@@ -147,7 +156,8 @@ namespace yk {
 		for (auto el : exp->List) {
 			types.push_back(dispatch_gen(el));
 		}
-		return new tuple_type_symbol(types);
+		exp->EvalType = new tuple_type_symbol(types);
+		return exp->EvalType;
 	}
 
 	type_symbol* expr_checker::dispatch(mixfix_expr* exp) {
@@ -171,7 +181,8 @@ namespace yk {
 			auto func_t = dispatch_gen(func_exp);
 			if (func_t) {
 				if (auto func_ts = dynamic_cast<func_type_symbol*>(func_t)) {
-					return func_ts->ReturnType;
+					exp->EvalType = func_ts->ReturnType;
+					return exp->EvalType;
 				}
 				else {
 					throw std::exception("Cannot call non-function values!");
@@ -192,7 +203,8 @@ namespace yk {
 			args.push_back(m_Checker.check_type(arg->Type));
 		}
 		auto rett = m_Checker.check_type(exp->ReturnType);
-		return new func_type_symbol(args, rett);
+		exp->EvalType = new func_type_symbol(args, rett);
+		return exp->EvalType;
 	}
 
 	type_symbol* expr_checker::dispatch(func_expr* exp) {
@@ -214,7 +226,8 @@ namespace yk {
 		m_Checker.check_expr(exp->Body);
 		m_Table.pop();
 		
-		return protot;
+		exp->EvalType = protot;
+		return exp->EvalType;
 	}
 
 	type_symbol* expr_checker::dispatch(body_expr* exp) {
@@ -245,7 +258,15 @@ namespace yk {
 				}
 			}
 		}
-		let_pat::define(m_Table, exp->Left, rett, exp->Value, exp->Meta);
-		return symbol_table::UNIT;
+		auto defines = let_pat::define(exp->Left, exp->Value);
+		for (auto def : defines) {
+			ystr const& ID = def.first;
+			expr* VALUE = def.second;
+
+			m_Table.decl(new var_symbol(ID, VALUE->EvalType));
+			exp->Matched.push_back(def);
+		}
+		exp->EvalType = symbol_table::UNIT;
+		return exp->EvalType;
 	}
 }

@@ -41,10 +41,10 @@ namespace yk {
 		auto curr_func = m_Builder.current_func();
 		auto curr_block = m_Builder.current_bb();
 		m_Builder.set_bb(curr_func->Blocks[0]);
-		for (auto pair : exp->Meta.Values) {
-			auto ID = std::get<0>(pair);
-			auto EXP = std::get<1>(pair);
-			auto TYPE = std::get<2>(pair);
+		for (auto pair : exp->Matched) {
+			auto ID = pair.first;
+			auto EXP = pair.second;
+			auto TYPE = EXP->EvalType;
 
 			m_Builder.add_inst(new ir_alloc_instr(ID, get_ir_type(TYPE)));
 		}

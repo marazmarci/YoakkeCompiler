@@ -168,13 +168,7 @@
     <ClInclude Include="src\ir\ir_compiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ast_meta\let_meta.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ir\ir_builder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ast_meta\func_meta.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -293,13 +287,7 @@
     <ClCompile Include="src\ir\ir_compiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ast_meta\let_meta.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ir\ir_builder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ast_meta\func_meta.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

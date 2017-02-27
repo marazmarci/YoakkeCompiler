@@ -5,7 +5,7 @@
 namespace yk {
 	// Expression
 	expr::expr(position const& pos)
-		: ast_node(pos), Hint(nullptr) {
+		: ast_node(pos), Hint(nullptr), EvalType(nullptr) {
 	}
 
 	expr::~expr() { }
@@ -105,8 +105,7 @@ namespace yk {
 
 	// Function expression
 	func_expr::func_expr(func_proto* pr, expr* bod)
-		: block_expr(position::interval(pr->Position, bod->Position)), Prototype(pr), Body(bod),
-		Meta("") {
+		: block_expr(position::interval(pr->Position, bod->Position)), Prototype(pr), Body(bod) {
 	}
 
 	func_expr::~func_expr() {

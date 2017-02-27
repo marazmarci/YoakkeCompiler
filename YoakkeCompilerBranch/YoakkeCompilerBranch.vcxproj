@@ -118,8 +118,6 @@
     <ClInclude Include="src\ast\pattern.h" />
     <ClInclude Include="src\ast\stmt.h" />
     <ClInclude Include="src\ast\type_desc.h" />
-    <ClInclude Include="src\ast_meta\func_meta.h" />
-    <ClInclude Include="src\ast_meta\let_meta.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\debug\expr_prec_printer.h" />
     <ClInclude Include="src\debug\unit_test.h" />
@@ -175,8 +173,6 @@
     <ClCompile Include="src\ast\pattern.cpp" />
     <ClCompile Include="src\ast\stmt.cpp" />
     <ClCompile Include="src\ast\type_desc.cpp" />
-    <ClCompile Include="src\ast_meta\func_meta.cpp" />
-    <ClCompile Include="src\ast_meta\let_meta.cpp" />
     <ClCompile Include="src\debug\expr_prec_printer.cpp" />
     <ClCompile Include="src\debug\unit_test.cpp" />
     <ClCompile Include="src\ir\ir_basic_block.cpp" />
