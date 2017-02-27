@@ -3,6 +3,7 @@
 namespace yk {
 	class ir_module;
 	class ir_function;
+	class ir_function_proto;
 	class ir_basic_block;
 	class ir_instr;
 
@@ -19,9 +20,11 @@ namespace yk {
 		ir_function* current_func();
 		ir_basic_block* current_bb();
 		void add_func(ir_function* func);
+		void add_func_proto(ir_function_proto* proto);
 		void add_bb(ir_basic_block* bb);
 		void add_inst(ir_instr* inst);
 		void add_inst_bb_begin(ir_instr* inst);
+		void set_func(ir_function* func);
 		void set_bb(ir_basic_block* bb);
 	};
 }

@@ -14,4 +14,10 @@ namespace yk {
 		proto->Name = NameGen.get(proto->Name);
 		Functions.push_back(func);
 	}
+
+	void ir_module::add(ir_function_proto* proto) {
+		proto->Module = this;
+		proto->Name = NameGen.get(proto->Name);
+		FunctionDecls.push_back(proto);
+	}
 }

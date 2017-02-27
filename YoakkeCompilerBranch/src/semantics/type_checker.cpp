@@ -14,7 +14,8 @@ namespace yk {
 			throw std::exception("Unkown type!");
 		}
 		else if (t_set.size() == 1) {
-			return t_set[0];
+			td->SymbolForm = t_set[0];
+			return td->SymbolForm;
 		}
 		else {
 			throw std::exception("Type is ambigous!");
@@ -33,7 +34,8 @@ namespace yk {
 			else {
 				arg_syms.push_back(args);
 			}
-			return new func_type_symbol(arg_syms, rett);
+			td->SymbolForm = new func_type_symbol(arg_syms, rett);
+			return td->SymbolForm;
 		}
 		else {
 			throw std::exception("Type desc unhandled binop!");
@@ -45,6 +47,7 @@ namespace yk {
 		for (auto t : td->List) {
 			types.push_back(dispatch_gen(t));
 		}
-		return new tuple_type_symbol(types);
+		td->SymbolForm = new tuple_type_symbol(types);
+		return td->SymbolForm;
 	}
 }

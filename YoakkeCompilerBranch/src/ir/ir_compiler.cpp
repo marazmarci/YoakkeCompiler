@@ -17,8 +17,17 @@ namespace yk {
 
 	ir_value* ir_compiler::dispatch(bin_expr* exp) {
 		if (exp->OP.identifier() == "::") {
+			ystr const& ID = ((ident_expr*)exp->LHS)->identifier;
 			if (auto func = dynamic_cast<func_expr*>(exp->RHS)) {
-				dispatch(func);
+				auto fun = (ir_function*)dispatch(func);
+				fun->Prototype->Name = ID;
+				m_Builder.add_func(fun);
+				return nullptr;
+			}
+			else if (auto prot = dynamic_cast<func_proto*>(exp->RHS)) {
+				auto pr = (ir_function_proto*)dispatch(prot);
+				pr->Name = ID;
+				m_Builder.add_func_proto(pr);
 				return nullptr;
 			}
 		}
@@ -54,8 +63,7 @@ namespace yk {
 	ir_value* ir_compiler::dispatch(func_expr* exp) {
 		auto proto = (ir_function_proto*)dispatch(exp->Prototype);
 		auto func = new ir_function(proto);
-		m_Builder.add_func(func);
-		m_Builder.add_bb(new ir_basic_block("entry"));
+		m_Builder.set_func(func);
 		dispatch_gen(exp->Body);
 		m_Builder.add_inst(new ir_ret_instr());
 		return func;

@@ -21,6 +21,10 @@ namespace yk {
 		m_CurrentFunc = func;
 	}
 
+	void ir_builder::add_func_proto(ir_function_proto* proto) {
+		m_Mod->add(proto);
+	}
+
 	void ir_builder::add_bb(ir_basic_block* bb) {
 		m_CurrentFunc->add(bb);
 		m_CurrentBB = bb;
@@ -37,6 +41,17 @@ namespace yk {
 		}
 		else {
 			blck.push_back(inst);
+		}
+	}
+
+	void ir_builder::set_func(ir_function* func) {
+		auto sz = func->Blocks.size();
+		if (sz) {
+			set_bb(func->Blocks[m_CurrentFunc->Blocks.size()]);
+		}
+		else {
+			m_CurrentFunc = func;
+			add_bb(new ir_basic_block("entry"));
 		}
 	}
 

@@ -12,6 +12,10 @@ namespace yk {
 	}
 
 	void llvm_ir::print(ir_module* mod) {
+		for (auto p : mod->FunctionDecls) {
+			print(p);
+			m_Ostream << std::endl;
+		}
 		for (auto f : mod->Functions) {
 			print(f);
 			m_Ostream << std::endl;
@@ -23,11 +27,11 @@ namespace yk {
 		m_Ostream << "define " << proto->ReturnType->Identifier << " @" << proto->Name << "(";
 		if (proto->Parameters.size()) {
 			m_Ostream << proto->Parameters[0]->Type->Identifier << ' '
-				<< proto->Parameters[0]->Name;
+				<< '%' << proto->Parameters[0]->Name;
 			for (ysize i = 1; i < proto->Parameters.size(); i++) {
 				m_Ostream << ", "
 					<< proto->Parameters[i]->Type->Identifier << ' '
-					<< proto->Parameters[i]->Name;
+					<< '%' << proto->Parameters[i]->Name;
 			}
 		}
 		m_Ostream << ") {" << std::endl;
@@ -35,6 +39,17 @@ namespace yk {
 			print(bb);
 		}
 		m_Ostream << "}" << std::endl;
+	}
+
+	void llvm_ir::print(ir_function_proto* pr) {
+		m_Ostream << "declare " << pr->ReturnType->Identifier << " @" << pr->Name << "(";
+		if (pr->Parameters.size()) {
+			m_Ostream << pr->Parameters[0]->Type->Identifier;
+			for (ysize i = 1; i < pr->Parameters.size(); i++) {
+				m_Ostream << ", " << pr->Parameters[i]->Type->Identifier;
+			}
+		}
+		m_Ostream << ')' << std::endl;
 	}
 
 	void llvm_ir::print(ir_basic_block* bb) {

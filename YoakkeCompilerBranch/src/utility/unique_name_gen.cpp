@@ -3,7 +3,7 @@
 
 namespace yk {
 	ystr unique_name_gen::get(ystr const& ids2) {
-		ystr ids = (ids2 == "" ? "%" : ids2);
+		ystr ids = ((ids2.size() == 0) ? "unnamed" : ids2);
 		// Cut off number
 		ysize num_part = 0;
 		for (int i = ids.size() - 1; i >= 0; i--) {

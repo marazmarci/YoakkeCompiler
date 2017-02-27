@@ -6,6 +6,7 @@
 namespace yk {
 	class ir_basic_block;
 	class ir_value;
+	class ir_function_proto;
 
 	class ir_instr {
 	public:
@@ -53,5 +54,15 @@ namespace yk {
 	public:
 		ir_store_instr(ir_value* p, ir_value* v);
 		~ir_store_instr();
+	};
+
+	class ir_call_instr : public ir_instr, public ir_value {
+	public:
+		ir_function_proto* FP;
+		yvec<ir_value*> Args;
+
+	public:
+		ir_call_instr(ir_function_proto* f, yvec<ir_value*> const& a);
+		~ir_call_instr();
 	};
 }

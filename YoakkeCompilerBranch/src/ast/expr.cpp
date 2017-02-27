@@ -26,14 +26,14 @@ namespace yk {
 
 	// Integer literal expression
 	int_lit_expr::int_lit_expr(token const& tok)
-		: expr(position::get(tok)), Value(std::atoi(tok.identifier().c_str())) {
+		: expr(position::get(tok)), Value(std::atoi(tok.value().c_str())) {
 	}
 
 	int_lit_expr::~int_lit_expr() { }
 
 	// Real literal expression
 	real_lit_expr::real_lit_expr(token const& tok)
-		: expr(position::get(tok)), Value(std::atof(tok.identifier().c_str())) {
+		: expr(position::get(tok)), Value(std::atof(tok.value().c_str())) {
 	}
 
 	real_lit_expr::~real_lit_expr() { }

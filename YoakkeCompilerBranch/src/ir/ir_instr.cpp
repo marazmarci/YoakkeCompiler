@@ -1,5 +1,6 @@
 #include "ir_instr.h"
 #include "ir_type.h"
+#include "ir_function.h"
 
 namespace yk {
 	ir_instr::ir_instr(ir_opcode code)
@@ -35,4 +36,11 @@ namespace yk {
 	}
 
 	ir_store_instr::~ir_store_instr() { }
+
+	// Call instruction
+	ir_call_instr::ir_call_instr(ir_function_proto* f, yvec<ir_value*> const& a)
+		: ir_instr(ir_opcode::call), ir_value(f->ReturnType), FP(f), Args(a) {
+	}
+
+	ir_call_instr::~ir_call_instr() { }
 }
