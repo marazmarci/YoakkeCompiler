@@ -36,12 +36,22 @@ namespace yk {
 		~ir_jmp_instr();
 	};
 
-	class ir_alloc_instr : public ir_instr, public ir_value {
+	class ir_alloc_instr : public ir_instr, public ir_named_value {
 	public:
-		ystr Name;
+		ir_type* What;
 
 	public:
 		ir_alloc_instr(ystr const& name, ir_type* t);
 		~ir_alloc_instr();
+	};
+
+	class ir_store_instr : public ir_instr {
+	public:
+		ir_value* Ptr;
+		ir_value* Value;
+
+	public:
+		ir_store_instr(ir_value* p, ir_value* v);
+		~ir_store_instr();
 	};
 }

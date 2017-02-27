@@ -30,6 +30,16 @@ namespace yk {
 		m_CurrentBB->add(inst);
 	}
 
+	void ir_builder::add_inst_bb_begin(ir_instr* inst) {
+		auto& blck = m_CurrentFunc->Blocks[0]->Instructions;
+		if (blck.size()) {
+			blck.insert(blck.begin(), inst);
+		}
+		else {
+			blck.push_back(inst);
+		}
+	}
+
 	void ir_builder::set_bb(ir_basic_block* bb) {
 		m_CurrentBB = bb;
 		m_CurrentFunc = bb->Function;

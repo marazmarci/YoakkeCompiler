@@ -80,13 +80,17 @@ namespace yk {
 			auto EXP = pair.second;
 			auto TYPE = EXP->EvalType;
 
-			m_Builder.add_inst(new ir_alloc_instr(ID, get_ir_type(TYPE)));
+			auto all = new ir_alloc_instr(ID, get_ir_type(TYPE));
+			m_Builder.add_inst_bb_begin(all);
+			if (EXP) {
+				m_Builder.add_inst(new ir_store_instr(all, dispatch_gen(EXP)));
+			}
 		}
 		return nullptr;
 	}
 
 	ir_value* ir_compiler::dispatch(int_lit_expr* exp) {
-		return nullptr;
+		return new ir_int_value(32, exp->Value);
 	}
 
 	ir_value* ir_compiler::dispatch(real_lit_expr* exp) {

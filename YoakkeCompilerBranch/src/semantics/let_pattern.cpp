@@ -20,13 +20,21 @@ namespace yk {
 				if (right) {
 					if (auto rtup = dynamic_cast<tuple_type_symbol*>(right->EvalType)) {
 						if (rtup->Types.size() == lp->List.size()) {
-							for (ysize i = 0; i < lp->List.size(); i++) {
-								auto right_sub = new bin_expr(right,
-									new int_lit_expr(token("Integer", "")),
-									token(".", "."));
-								right_sub->EvalType = rtup->Types[i];
-								define_internal(vec, lp->List[i],
-									right_sub);
+							// List or tuple
+							if (auto rlist = dynamic_cast<list_expr*>(right)) {
+								for (ysize i = 0; i < lp->List.size(); i++) {
+									define_internal(vec, lp->List[i], rlist->List[i]);
+								}
+							}
+							else {
+								for (ysize i = 0; i < lp->List.size(); i++) {
+									auto right_sub = new bin_expr(right,
+										new int_lit_expr(token("Integer", "")),
+										token(".", "."));
+									right_sub->EvalType = rtup->Types[i];
+									define_internal(vec, lp->List[i],
+										right_sub);
+								}
 							}
 						}
 						else {

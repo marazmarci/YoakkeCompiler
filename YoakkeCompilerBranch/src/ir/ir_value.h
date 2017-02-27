@@ -35,4 +35,15 @@ namespace yk {
 		ir_int_value(int N, int val);
 		virtual ~ir_int_value();
 	};
+
+	class ir_named_value : public ir_value {
+	public:
+		ystr Name;
+
+	protected:
+		ir_named_value(ir_type* t, ystr const& n);
+
+	public:
+		virtual ~ir_named_value();
+	};
 }

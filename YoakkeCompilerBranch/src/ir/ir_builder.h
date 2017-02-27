@@ -21,6 +21,7 @@ namespace yk {
 		void add_func(ir_function* func);
 		void add_bb(ir_basic_block* bb);
 		void add_inst(ir_instr* inst);
+		void add_inst_bb_begin(ir_instr* inst);
 		void set_bb(ir_basic_block* bb);
 	};
 }

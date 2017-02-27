@@ -66,7 +66,16 @@ namespace yk {
 
 		case ir_opcode::alloc: {
 			auto i2 = reinterpret_cast<ir_alloc_instr*>(ins);
-			m_Ostream << '%' << i2->Name << " = alloca " << i2->Type->Identifier;
+			m_Ostream << '%' << i2->Name << " = alloca " << i2->What->Identifier;
+			break;
+		}
+
+		case ir_opcode::store: {
+			auto i2 = reinterpret_cast<ir_store_instr*>(ins);
+			m_Ostream << "store " << i2->Value->Type->Identifier << ' ';
+			print(i2->Value);
+			m_Ostream << ", " << i2->Ptr->Type->Identifier << ' ';
+			print(i2->Ptr);
 			break;
 		}
 
@@ -78,6 +87,9 @@ namespace yk {
 	void llvm_ir::print(ir_value* val) {
 		if (auto i_t = dynamic_cast<ir_int_value*>(val)) {
 			m_Ostream << i_t->Value;
+		}
+		else if (auto n_t = dynamic_cast<ir_named_value*>(val)) {
+			m_Ostream << '%' << n_t->Name;
 		}
 		else {
 			throw std::exception("Unsopported value for IR printer!");

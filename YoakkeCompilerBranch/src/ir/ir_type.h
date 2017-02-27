@@ -36,4 +36,13 @@ namespace yk {
 		ir_func_type(yvec<ir_type*> const& params, ir_type* rett);
 		virtual ~ir_func_type();
 	};
+
+	class ir_ptr_type : public ir_type {
+	public:
+		ir_type* Sub;
+
+	public:
+		ir_ptr_type(ir_type* s);
+		virtual ~ir_ptr_type();
+	};
 }

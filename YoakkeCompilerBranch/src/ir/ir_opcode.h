@@ -5,6 +5,7 @@ namespace yk {
 		nop,
 		jmp,
 		alloc,
+		store,
 		ret
 	};
 }

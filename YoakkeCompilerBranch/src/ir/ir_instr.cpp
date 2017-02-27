@@ -1,4 +1,5 @@
 #include "ir_instr.h"
+#include "ir_type.h"
 
 namespace yk {
 	ir_instr::ir_instr(ir_opcode code)
@@ -23,8 +24,15 @@ namespace yk {
 
 	// Alloca instr
 	ir_alloc_instr::ir_alloc_instr(ystr const& name, ir_type* t)
-		: ir_instr(ir_opcode::alloc), ir_value(t), Name(name) {
+		: ir_instr(ir_opcode::alloc), ir_named_value(new ir_ptr_type(t), name), What(t) {
 	}
 
 	ir_alloc_instr::~ir_alloc_instr() { }
+
+	// Store instruction
+	ir_store_instr::ir_store_instr(ir_value* p, ir_value* v)
+		: ir_instr(ir_opcode::store), Ptr(p), Value(v) {
+	}
+
+	ir_store_instr::~ir_store_instr() { }
 }

@@ -20,4 +20,10 @@ namespace yk {
 	}
 
 	ir_int_value::~ir_int_value() { }
+
+	ir_named_value::ir_named_value(ir_type* t, ystr const& n)
+		: ir_value(t), Name(n) {
+	}
+
+	ir_named_value::~ir_named_value() { }
 }
