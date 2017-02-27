@@ -32,7 +32,7 @@ namespace yk {
 	// TODO
 	// Pointer type
 	ir_ptr_type::ir_ptr_type(ir_type* s)
-		: ir_type("*" + s->Identifier, 4), Sub(s) {
+		: ir_type(s->Identifier + "*", 4), Sub(s) {
 	}
 
 	ir_ptr_type::~ir_ptr_type() { }

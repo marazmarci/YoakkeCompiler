@@ -57,6 +57,7 @@ namespace yk {
 		m_Builder.add_func(func);
 		m_Builder.add_bb(new ir_basic_block("entry"));
 		dispatch_gen(exp->Body);
+		m_Builder.add_inst(new ir_ret_instr());
 		return func;
 	}
 

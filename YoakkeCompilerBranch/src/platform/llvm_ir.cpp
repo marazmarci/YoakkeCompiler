@@ -56,10 +56,13 @@ namespace yk {
 
 		case ir_opcode::ret: {
 			auto i2 = reinterpret_cast<ir_ret_instr*>(ins);
-			m_Ostream << "ret";
+			m_Ostream << "ret ";
 			if (i2->Value) {
-				m_Ostream << ' ' << i2->Value->Type->Identifier << ' ';
+				m_Ostream << i2->Value->Type->Identifier << ' ';
 				print(i2->Value);
+			}
+			else {
+				m_Ostream << "void";
 			}
 			break;
 		}
