@@ -66,14 +66,13 @@ namespace yk {
 		delete Sub;
 	}
 
-	// Enclosed expression
-	enclose_expr::enclose_expr(expr* s, token const& beg, token const& end)
-		: expr(position::interval(position::get(beg), position::get(end))),
-		Sub(s), Begin(beg), End(end) {
+	// Expression list expression
+	list_expr::list_expr(yvec<expr*> const& ls)
+		: expr(position::interval(ls[0]->Position, ls[ls.size() - 1]->Position)), List(ls) {
 	}
 
-	enclose_expr::~enclose_expr() {
-		delete Sub;
+	list_expr::~list_expr() {
+		for (auto i : List) delete i;
 	}
 
 	// Mixfix expression
@@ -106,7 +105,8 @@ namespace yk {
 
 	// Function expression
 	func_expr::func_expr(func_proto* pr, expr* bod)
-		: block_expr(position::interval(pr->Position, bod->Position)), Prototype(pr), Body(bod) {
+		: block_expr(position::interval(pr->Position, bod->Position)), Prototype(pr), Body(bod),
+		Meta("") {
 	}
 
 	func_expr::~func_expr() {

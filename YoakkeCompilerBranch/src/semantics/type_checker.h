@@ -10,7 +10,7 @@ namespace yk {
 
 	class type_checker : public double_dispatcher
 		<type_symbol*, type_desc,
-		ident_type_desc, bin_type_desc, enclose_type_desc> {
+		ident_type_desc, bin_type_desc, list_type_desc> {
 	private:
 		semantic_checker& m_Checker;
 		symbol_table& m_Table;
@@ -21,6 +21,6 @@ namespace yk {
 	public:
 		type_symbol* dispatch(ident_type_desc* td) override;
 		type_symbol* dispatch(bin_type_desc* td) override;
-		type_symbol* dispatch(enclose_type_desc* td) override;
+		type_symbol* dispatch(list_type_desc* td) override;
 	};
 }

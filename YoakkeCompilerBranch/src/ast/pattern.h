@@ -37,14 +37,12 @@ namespace yk {
 		virtual ~bin_pattern();
 	};
 
-	class enclose_pattern : public pattern {
+	class list_pattern : public pattern {
 	public:
-		token Begin;
-		token End;
-		pattern* Sub;
+		yvec<pattern*> List;
 
 	public:
-		enclose_pattern(pattern* s, token const& beg, token const& end);
-		virtual ~enclose_pattern();
+		list_pattern(yvec<pattern*> const& ls);
+		virtual ~list_pattern();
 	};
 }

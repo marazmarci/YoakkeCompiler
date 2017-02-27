@@ -145,7 +145,6 @@
     <ClInclude Include="src\parse\yparser.h" />
     <ClInclude Include="src\parse\ylexer.h" />
     <ClInclude Include="src\platform\llvm_ir.h" />
-    <ClInclude Include="src\semantics\algorithms.h" />
     <ClInclude Include="src\semantics\expr_checker.h" />
     <ClInclude Include="src\semantics\let_pattern.h" />
     <ClInclude Include="src\semantics\scope.h" />

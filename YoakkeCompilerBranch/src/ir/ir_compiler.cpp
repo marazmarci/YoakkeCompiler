@@ -10,7 +10,7 @@ namespace yk {
 	}
 
 	ir_value* ir_compiler::dispatch(expr_stmt* stmt) {
-		dispatch_gen(stmt->Sub);
+		return dispatch_gen(stmt->Sub);
 	}
 
 	ir_value* ir_compiler::dispatch(bin_expr* exp) {
@@ -33,7 +33,7 @@ namespace yk {
 		return nullptr;
 	}
 
-	ir_value* ir_compiler::dispatch(enclose_expr* exp) {
+	ir_value* ir_compiler::dispatch(list_expr* exp) {
 		return nullptr;
 	}
 

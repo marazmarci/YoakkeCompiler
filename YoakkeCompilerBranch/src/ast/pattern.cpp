@@ -31,13 +31,12 @@ namespace yk {
 		delete RHS;
 	}
 
-	// Enclosed pattern
-	enclose_pattern::enclose_pattern(pattern* s, token const& beg, token const& end)
-		: pattern(position::interval(position::get(beg), position::get(end))),
-		Sub(s), Begin(beg), End(end) {
+	// List pattern
+	list_pattern::list_pattern(yvec<pattern*> const& ls)
+		: pattern(position::interval(ls[0]->Position, ls[ls.size() - 1]->Position)), List(ls) {
 	}
 
-	enclose_pattern::~enclose_pattern() {
-		delete Sub;
+	list_pattern::~list_pattern() {
+		for (auto i : List) delete i;
 	}
 }

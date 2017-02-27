@@ -1,7 +1,6 @@
 #include "expr_checker.h"
 #include "symbol_table.h"
 #include "typed_symbol.h"
-#include "algorithms.h"
 #include "semantic_checker.h"
 #include "let_pattern.h"
 
@@ -53,14 +52,6 @@ namespace yk {
 				m_Table.decl(new const_bind_symbol(ident->identifier, rhs_type, exp->RHS));
 				return symbol_table::UNIT;
 			}
-		}
-		else if (exp->OP.identifier() == ",") {
-			auto flat = alg::flatten<expr, bin_expr>(exp, ",");
-			yvec<type_symbol*> types;
-			for (auto el : flat) {
-				types.push_back(dispatch_gen(el));
-			}
-			return new tuple_type_symbol(types);
 		}
 		else if (exp->OP.identifier() == "=") {
 			auto lval = dispatch_gen(exp->LHS); // TODO: check if lvalue
@@ -151,23 +142,31 @@ namespace yk {
 		}
 	}
 
-	type_symbol* expr_checker::dispatch(enclose_expr* exp) {
-		exp->Sub->Hint = exp->Hint;
-		return dispatch_gen(exp->Sub);
+	type_symbol* expr_checker::dispatch(list_expr* exp) {
+		yvec<type_symbol*> types;
+		for (auto el : exp->List) {
+			types.push_back(dispatch_gen(el));
+		}
+		return new tuple_type_symbol(types);
 	}
 
 	type_symbol* expr_checker::dispatch(mixfix_expr* exp) {
 		if (exp->OP == "call") {
 			auto func_exp = exp->Operands[0];
-			yvec<type_symbol*> args;
+			yvec<type_symbol*> parameters;
 			if (exp->Operands.size() == 2) {
-				auto arglist = alg::flatten<expr, bin_expr>(exp->Operands[1], ",");
-				for (auto arg : arglist) {
-					args.push_back(dispatch_gen(arg));
+				auto args = exp->Operands[1];
+				if (auto arg_list = dynamic_cast<list_expr*>(args)) {
+					for (auto arg : arg_list->List) {
+						parameters.push_back(dispatch_gen(arg));
+					}
+				}
+				else {
+					parameters.push_back(dispatch_gen(args));
 				}
 			}
 			// Pseudo-function
-			auto pseudo_func = new func_type_symbol(args, nullptr);
+			auto pseudo_func = new func_type_symbol(parameters, nullptr);
 			func_exp->Hint = pseudo_func;
 			auto func_t = dispatch_gen(func_exp);
 			if (func_t) {
@@ -233,7 +232,7 @@ namespace yk {
 	type_symbol* expr_checker::dispatch(let_expr* exp) {
 		type_symbol* hintt = nullptr;
 		type_symbol* rett = nullptr;
-			if (exp->Type) hintt = m_Checker.check_type(exp->Type);
+		if (exp->Type) hintt = m_Checker.check_type(exp->Type);
 		if (exp->Value) {
 			exp->Value->Hint = hintt;
 			rett = dispatch_gen(exp->Value);
@@ -246,7 +245,7 @@ namespace yk {
 				}
 			}
 		}
-		let_pat::define(m_Table, exp->Left, rett);
+		let_pat::define(m_Table, exp->Left, rett, exp->Value, exp->Meta);
 		return symbol_table::UNIT;
 	}
 }

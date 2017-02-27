@@ -3,10 +3,85 @@
 #include "../utility/map_ext.h"
 
 namespace yk {
+	namespace common_rules {
+		template <typename T>
+		using T_parser = prec_parser<T>;
+
+		template <typename T>
+		using T_pre_parselet = prefix_parselet<T, T_parser<T>>;
+		
+		template <typename T>
+		using T_in_parselet = infix_parselet<T, T_parser<T>>;
+
+		template <typename T, typename RET>
+		class ident : public T_pre_parselet<T> {
+		public:
+			T* parse(token const& begin, T_parser<T>* parser) override {
+				return new RET(begin);
+			}
+		};
+
+		template <typename T, typename RET>
+		class binop : public T_in_parselet<T> {
+		public:
+			const bool right;
+
+		public:
+			binop(ysize prec, bool r)
+				: T_in_parselet<T>(prec), right(r) {
+			}
+
+		public:
+			T* parse(T* left, token const& begin, T_parser<T>* parser) override {
+				auto rhs = parser->parse(precedence() - (right ? 1 : 0));
+				if (rhs) {
+					return new RET(left, rhs, begin);
+				}
+				else {
+					throw std::exception("RHS expected for operator!");
+				}
+			}
+		};
+
+		template <typename T, typename RET>
+		class list : public T_in_parselet<T> {
+		public:
+			list(ysize prec)
+				: T_in_parselet<T>(prec) {
+			}
+
+		public:
+			T* parse(T* left, token const& begin, T_parser<T>* parser) override {
+				yvec<T*> list = { left };
+				auto rhs = parser->parse(precedence() - 1);
+				if (rhs) {
+					list.push_back(rhs);
+					while (parser->peek().identifier() == begin.identifier()) {
+						parser->consume();
+						if (rhs = parser->parse(precedence() - 1)) {
+							list.push_back(rhs);
+						}
+						else {
+							throw std::exception("RHS expected for list!");
+						}
+					}
+					return new RET(list);
+				}
+				else {
+					throw std::exception("RHS expected for list!");
+				}
+			}
+		};
+	}
+
 	namespace expr_rules {
 		typedef prec_parser<expr> expr_parser;
 		typedef prefix_parselet<expr, expr_parser> expr_pre_parselet;
 		typedef infix_parselet<expr, expr_parser> expr_in_parselet;
+
+		using ident = common_rules::ident<expr, ident_expr>;
+		using binop = common_rules::binop<expr, bin_expr>;
+		using list = common_rules::list<expr, list_expr>;
 
 		class int_literal : public expr_pre_parselet {
 		public:
@@ -19,34 +94,6 @@ namespace yk {
 		public:
 			expr* parse(token const& begin, expr_parser* parser) override {
 				return new real_lit_expr(begin);
-			}
-		};
-
-		class ident : public expr_pre_parselet {
-		public:
-			expr* parse(token const& begin, expr_parser* parser) override {
-				return new ident_expr(begin);
-			}
-		};
-
-		class binop : public expr_in_parselet {
-		public:
-			const bool right;
-
-		public:
-			binop(ysize prec, bool r)
-				: expr_in_parselet(prec), right(r) {
-			}
-
-		public:
-			expr* parse(expr* left, token const& begin, expr_parser* parser) override {
-				auto rhs = parser->parse(precedence() - (right ? 1 : 0));
-				if (rhs) {
-					return new bin_expr(left, rhs, begin);
-				}
-				else {
-					throw std::exception("RHS expected for operator!");
-				}
 			}
 		};
 
@@ -112,7 +159,7 @@ namespace yk {
 					else if (auto exp = parser->parse()) {
 						end = parser->match_id(")");
 						if (end.some()) {
-							return new enclose_expr(exp, begin, end.get());
+							return exp;
 						}
 						else {
 							throw std::exception("')' expected!");
@@ -232,33 +279,9 @@ namespace yk {
 		typedef prefix_parselet<type_desc, type_parser> type_pre_parselet;
 		typedef infix_parselet<type_desc, type_parser> type_in_parselet;
 
-		class ident : public type_pre_parselet {
-		public:
-			type_desc* parse(token const& begin, type_parser* parser) override {
-				return new ident_type_desc(begin);
-			}
-		};
-
-		class binop : public type_in_parselet {
-		public:
-			const bool right;
-
-		public:
-			binop(ysize prec, bool r)
-				: type_in_parselet(prec), right(r) {
-			}
-
-		public:
-			type_desc* parse(type_desc* left, token const& begin, type_parser* parser) override {
-				auto rhs = parser->parse(precedence() - (right ? 1 : 0));
-				if (rhs) {
-					return new bin_type_desc(left, rhs, begin);
-				}
-				else {
-					throw std::exception("RHS expected for operator!");
-				}
-			}
-		};
+		using ident = common_rules::ident<type_desc, ident_type_desc>;
+		using binop = common_rules::binop<type_desc, bin_type_desc>;
+		using list = common_rules::list<type_desc, list_type_desc>;
 
 		class enclose : public type_pre_parselet {
 		public:
@@ -267,7 +290,7 @@ namespace yk {
 				if (parser->peek().identifier() == ")") {
 					auto end = parser->consume();
 					if (sub) {
-						return new enclose_type_desc(sub, begin, end);
+						return sub;
 					}
 					else {
 						return new ident_type_desc(token("unit", "unit"));
@@ -285,38 +308,14 @@ namespace yk {
 		typedef prefix_parselet<pattern, pattern_parser> pattern_pre_parselet;
 		typedef infix_parselet<pattern, pattern_parser> pattern_in_parselet;
 
+		using ident = common_rules::ident<pattern, ident_pattern>;
+		using binop = common_rules::binop<pattern, bin_pattern>;
+		using list = common_rules::list<pattern, list_pattern>;
+
 		class skip : public pattern_pre_parselet {
 		public:
 			pattern* parse(token const& begin, pattern_parser* parser) override {
 				return new skip_pattern(begin);
-			}
-		};
-
-		class ident : public pattern_pre_parselet {
-		public:
-			pattern* parse(token const& begin, pattern_parser* parser) override {
-				return new ident_pattern(begin);
-			}
-		};
-
-		class binop : public pattern_in_parselet {
-		public:
-			const bool right;
-
-		public:
-			binop(ysize prec, bool r)
-				: pattern_in_parselet(prec), right(r) {
-			}
-
-		public:
-			pattern* parse(pattern* left, token const& begin, pattern_parser* parser) override {
-				auto rhs = parser->parse(precedence() - (right ? 1 : 0));
-				if (rhs) {
-					return new bin_pattern(left, rhs, begin);
-				}
-				else {
-					throw std::exception("RHS expected for operator!");
-				}
 			}
 		};
 
@@ -327,7 +326,7 @@ namespace yk {
 				if (sub) {
 					if (parser->peek().identifier() == ")") {
 						auto end = parser->consume();
-						return new enclose_pattern(sub, begin, end);
+						return sub;
 					}
 					else {
 						throw std::exception("')' expected!");
@@ -353,7 +352,7 @@ namespace yk {
 		m_ExprParser.register_rule("::", new expr_rules::const_asgn(1));
 
 		// Operators
-		infixl_expr(",", 2);
+		m_ExprParser.register_rule(",", new expr_rules::list(2));
 		
 		infixr_expr("=", 3);
 		
@@ -387,14 +386,14 @@ namespace yk {
 		m_TypeParser.register_rule("Identifier", new type_rules::ident());
 		m_TypeParser.register_rule("(", new type_rules::enclose());
 
-		m_TypeParser.register_rule(",", new type_rules::binop(1, false));
+		m_TypeParser.register_rule(",", new type_rules::list(1));
 		m_TypeParser.register_rule("->", new type_rules::binop(2, false));
 
 		// PATTERN DESCRIPTOR ////////////////////////////////////////////
 		m_PatternParser.register_rule("_", new pattern_rules::skip());
 		m_PatternParser.register_rule("Identifier", new pattern_rules::ident());
 		m_PatternParser.register_rule("(", new pattern_rules::enclose());
-		m_PatternParser.register_rule(",", new pattern_rules::binop(1, false));
+		m_PatternParser.register_rule(",", new pattern_rules::list(1));
 	}
 
 	void yparser::prefix_expr(ystr const& op, ysize prec) {

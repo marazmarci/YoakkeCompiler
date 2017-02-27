@@ -1,7 +1,6 @@
 #include "type_checker.h"
 #include "symbol_table.h"
 #include "type_symbol.h"
-#include "algorithms.h"
 
 namespace yk {
 	type_checker::type_checker(semantic_checker& ch, symbol_table& tab)
@@ -23,15 +22,7 @@ namespace yk {
 	}
 
 	type_symbol* type_checker::dispatch(bin_type_desc* td) {
-		if (td->OP.identifier() == ",") {
-			auto flat = alg::flatten<type_desc, bin_type_desc>(td, ",");
-			yvec<type_symbol*> types;
-			for (auto t : flat) {
-				types.push_back(dispatch_gen(t));
-			}
-			return new tuple_type_symbol(types);
-		}
-		else if (td->OP.identifier() == "->") {
+		if (td->OP.identifier() == "->") {
 			// TODO: maybe switch to tuple args instead of list?
 			yvec<type_symbol*> arg_syms;
 			auto args = dispatch_gen(td->LHS);
@@ -49,7 +40,11 @@ namespace yk {
 		}
 	}
 
-	type_symbol* type_checker::dispatch(enclose_type_desc* td) {
-		return dispatch_gen(td->Sub);
+	type_symbol* type_checker::dispatch(list_type_desc* td) {
+		yvec<type_symbol*> types;
+		for (auto t : td->List) {
+			types.push_back(dispatch_gen(t));
+		}
+		return new tuple_type_symbol(types);
 	}
 }

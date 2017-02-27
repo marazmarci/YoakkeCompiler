@@ -33,14 +33,12 @@ namespace yk {
 		virtual ~bin_type_desc();
 	};
 
-	class enclose_type_desc : public type_desc {
+	class list_type_desc : public type_desc {
 	public:
-		token Begin;
-		token End;
-		type_desc* Sub;
+		yvec<type_desc*> List;
 
 	public:
-		enclose_type_desc(type_desc* s, token const& beg, token const& end);
-		virtual ~enclose_type_desc();
+		list_type_desc(yvec<type_desc*> const& ls);
+		virtual ~list_type_desc();
 	};
 }

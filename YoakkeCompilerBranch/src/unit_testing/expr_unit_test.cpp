@@ -32,11 +32,10 @@ namespace yk {
 					parse_expect_not("a + b + c", "(a + (b + c))");
 					parse_expect("a = b = c", "(a = (b = c))");
 					parse_expect_not("a = b = c", "((a = b) = c)");
-					parse_expect("a, b, c, d", "(((a , b) , c) , d)");
 				UNIT_TEST_ENDFUNC()
 
 				UNIT_TEST_FUNC("Grouping")
-					parse_expect("a * (b + c)", "(a * ((b + c)))");
+					parse_expect("a * (b + c)", "(a * (b + c))");
 				UNIT_TEST_ENDFUNC()
 			UNIT_TEST_ENDMOD()
 		}

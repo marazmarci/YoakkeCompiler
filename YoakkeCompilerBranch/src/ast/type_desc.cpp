@@ -24,13 +24,12 @@ namespace yk {
 		delete RHS;
 	}
 
-	// Enclosed type desc
-	enclose_type_desc::enclose_type_desc(type_desc* s, token const& beg, token const& end)
-		: type_desc(position::interval(position::get(beg), position::get(end))), 
-		Sub(s), Begin(beg), End(end) {
+	// List type desc
+	list_type_desc::list_type_desc(yvec<type_desc*> const& ls)
+		: type_desc(position::interval(ls[0]->Position, ls[ls.size() - 1]->Position)), List(ls) {
 	}
 
-	enclose_type_desc::~enclose_type_desc() {
-		delete Sub;
+	list_type_desc::~list_type_desc() {
+		for (auto i : List) delete i;
 	}
 }

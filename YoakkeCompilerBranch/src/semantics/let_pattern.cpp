@@ -2,7 +2,6 @@
 #include "type_symbol.h"
 #include "../ast/pattern.h"
 #include "symbol_table.h"
-#include "algorithms.h"
 #include "typed_symbol.h"
 #include "../ast_meta/let_meta.h"
 
@@ -19,7 +18,7 @@ namespace yk {
 				if (typed_set.size() == 0) {
 					// New symbol
 					table.decl(new var_symbol(ip->Identifier, right));
-					lm.add(ip->Identifier, exp);
+					lm.add(ip->Identifier, exp, right);
 				}
 				else if (typed_set.size() == 1) {
 					// Shadowing
@@ -31,39 +30,32 @@ namespace yk {
 				}
 			}
 			else if (auto bp = dynamic_cast<bin_pattern*>(left)) {
-				if (bp->OP.identifier() == ",") {
-					auto flat = alg::flatten<pattern, bin_pattern>(bp, ",");
-					if (right) {
-						if (auto rtup = dynamic_cast<tuple_type_symbol*>(right)) {
-							if (rtup->Types.size() == flat.size()) {
-								for (ysize i = 0; i < flat.size(); i++) {
-									// TODO
-									define(table, flat[i], rtup->Types[i], exp, lm);
-								}
-							}
-							else {
-								throw std::exception("Pattern does not match (tuple size mismatch)!");
+				throw std::exception("UNHANDLED PATTERN (bin)");
+			}
+			else if (auto lp = dynamic_cast<list_pattern*>(left)) {
+				if (right) {
+					if (auto rtup = dynamic_cast<tuple_type_symbol*>(right)) {
+						if (rtup->Types.size() == lp->List.size()) {
+							for (ysize i = 0; i < lp->List.size(); i++) {
+								// TODO
+								define(table, lp->List[i], rtup->Types[i], exp, lm);
 							}
 						}
 						else {
-							throw std::exception("Pattern does not match RHS!");
+							throw std::exception("Pattern does not match (tuple size mismatch)!");
 						}
 					}
 					else {
-						// Unknown typed expansion
-						for (ysize i = 0; i < flat.size(); i++) {
-							// TODO
-							define(table, flat[i], nullptr, exp, lm);
-						}
+						throw std::exception("Pattern does not match RHS!");
 					}
 				}
 				else {
-					throw std::exception("UNHANDLED PATTERN (bin)");
+					// Unknown typed expansion
+					for (ysize i = 0; i < lp->List.size(); i++) {
+						// TODO
+						define(table, lp->List[i], nullptr, exp, lm);
+					}
 				}
-			}
-			else if (auto ep = dynamic_cast<enclose_pattern*>(left)) {
-				// TODO
-				return define(table, ep->Sub, right, exp, lm);
 			}
 			else {
 				throw std::exception("UNHANDLED PATTERN");

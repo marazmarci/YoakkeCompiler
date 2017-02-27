@@ -18,8 +18,12 @@ namespace yk {
 		return '(' + dispatch_gen(pe->Sub) + pe->OP.value() + ')';
 	}
 
-	ystr expr_prec_printer::dispatch(enclose_expr* ee) {
-		return ee->Begin.value() + dispatch_gen(ee->Sub) + ee->End.value();
+	ystr expr_prec_printer::dispatch(list_expr* ee) {
+		ystr ret = dispatch_gen(ee->List[0]);
+		for (ysize i = 1; i < ee->List.size(); i++) {
+			ret += ", " + dispatch_gen(ee->List[i]);
+		}
+		return ret;
 	}
 
 	ystr expr_prec_printer::dispatch(mixfix_expr* me) {

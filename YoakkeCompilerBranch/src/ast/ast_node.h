@@ -2,6 +2,8 @@
 
 #include "../parse/position.h"
 
+// TODO: abstract away common structures into templates (binop, list, ident)
+
 namespace yk {
 	class ast_node {
 	public:

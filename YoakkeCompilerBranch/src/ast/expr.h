@@ -89,15 +89,13 @@ namespace yk {
 		virtual ~postury_expr();
 	};
 
-	class enclose_expr : public expr {
+	class list_expr : public expr {
 	public:
-		token Begin;
-		token End;
-		expr* Sub;
+		yvec<expr*> List;
 
 	public:
-		enclose_expr(expr* s, token const& beg, token const& end);
-		virtual ~enclose_expr();
+		list_expr(yvec<expr*> const& ls);
+		virtual ~list_expr();
 	};
 
 	class mixfix_expr : public expr {
