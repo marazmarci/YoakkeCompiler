@@ -154,7 +154,7 @@
     <ClInclude Include="src\semantics\type_symbol.h" />
     <ClInclude Include="src\unit_testing\expr_unit_test.h" />
     <ClInclude Include="src\utility\base_of.h" />
-    <ClInclude Include="src\utility\double_dispatcher.h" />
+    <ClInclude Include="src\utility\visitor.h" />
     <ClInclude Include="src\utility\iterator.h" />
     <ClInclude Include="src\utility\map_ext.h" />
     <ClInclude Include="src\utility\optional.h" />
