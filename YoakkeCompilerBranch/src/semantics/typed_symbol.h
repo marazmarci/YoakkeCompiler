@@ -21,8 +21,14 @@ namespace yk {
 
 	class const_bind_symbol : public typed_symbol {
 	public:
-		const_bind_symbol(ystr const& id, type_symbol* ts, expr* exp);
+		const_bind_symbol(ystr const& id, type_symbol* ts);
 		virtual ~const_bind_symbol();
+	};
+
+	class builtin_function_symbol : public const_bind_symbol {
+	public:
+		builtin_function_symbol(ystr const& id, type_symbol* ts);
+		virtual ~builtin_function_symbol();
 	};
 
 	class var_symbol : public typed_symbol {

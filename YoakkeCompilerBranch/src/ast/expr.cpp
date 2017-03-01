@@ -40,7 +40,8 @@ namespace yk {
 
 	// Binary expression
 	bin_expr::bin_expr(expr* l, expr* r, token const& o)
-		: expr(position::interval(l->Position, r->Position)), LHS(l), RHS(r), OP(o) {
+		: expr(position::interval(l->Position, r->Position)), LHS(l), RHS(r), OP(o),
+		Function(nullptr) {
 	}
 
 	bin_expr::~bin_expr() {

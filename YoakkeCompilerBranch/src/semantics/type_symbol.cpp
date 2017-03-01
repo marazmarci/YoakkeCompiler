@@ -79,11 +79,4 @@ namespace yk {
 		}
 		return false;
 	}
-
-	// Builtin function
-	builtin_func_type_symbol::builtin_func_type_symbol(yvec<type_symbol*> const& args, type_symbol* rett)
-		: func_type_symbol(args, rett) {
-	}
-
-	builtin_func_type_symbol::~builtin_func_type_symbol() { }
 }

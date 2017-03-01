@@ -8,6 +8,7 @@ namespace yk {
 		store,
 		load,
 		call,
+		iadd,
 		ret
 	};
 }

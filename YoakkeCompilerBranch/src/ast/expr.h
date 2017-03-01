@@ -13,6 +13,7 @@ namespace yk {
 	class let_meta;
 	class typed_symbol;
 	class var_symbol;
+	class const_bind_symbol;
 
 	class expr : public ast_node, public visitable<expr> {
 	public:
@@ -84,6 +85,7 @@ namespace yk {
 		expr* LHS;
 		expr* RHS;
 		token OP;
+		const_bind_symbol* Function;
 
 	public:
 		bin_expr(expr* l, expr* r, token const& o);

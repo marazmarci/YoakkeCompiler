@@ -33,18 +33,18 @@ namespace yk {
 	}
 
 	void symbol_table::add_builtin_binop(ystr const& op, type_symbol* l, type_symbol* r, type_symbol* rett) {
-		decl(new const_bind_symbol("bin_op" + op,
-			new builtin_func_type_symbol(yvec<type_symbol*>{l, r}, rett), nullptr));
+		decl(new builtin_function_symbol("bin_op" + op,
+			new func_type_symbol(yvec<type_symbol*>{l, r}, rett)));
 	}
 
 	void symbol_table::add_builtin_preop(ystr const& op, type_symbol* l, type_symbol* rett) {
-		decl(new const_bind_symbol("pre_op" + op,
-			new builtin_func_type_symbol(yvec<type_symbol*>{l}, rett), nullptr));
+		decl(new builtin_function_symbol("pre_op" + op,
+			new func_type_symbol(yvec<type_symbol*>{l}, rett)));
 	}
 
 	void symbol_table::add_builtin_postop(ystr const& op, type_symbol* l, type_symbol* rett) {
-		decl(new const_bind_symbol("post_op" + op,
-			new builtin_func_type_symbol(yvec<type_symbol*>{l}, rett), nullptr));
+		decl(new builtin_function_symbol("post_op" + op,
+			new func_type_symbol(yvec<type_symbol*>{l}, rett)));
 	}
 
 	bool symbol_table::is_global() {

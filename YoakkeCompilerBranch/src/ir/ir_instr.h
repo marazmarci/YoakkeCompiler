@@ -74,4 +74,22 @@ namespace yk {
 		ir_load_instr(ystr const& name, ir_value* p);
 		~ir_load_instr();
 	};
+
+	class ir_bin_instr : public ir_instr, public ir_named_value {
+	public:
+		ir_value* Left;
+		ir_value* Right;
+
+	protected:
+		ir_bin_instr(ir_opcode op, ystr const& name, ir_type* t, ir_value* l, ir_value* r);
+
+	public:
+		virtual ~ir_bin_instr();
+	};
+
+	class ir_iadd_instr : public ir_bin_instr {
+	public:
+		ir_iadd_instr(ystr const& name, ir_value* l, ir_value* r);
+		~ir_iadd_instr();
+	};
 }

@@ -61,7 +61,7 @@ namespace yk {
 				throw std::exception("Ambigious constant binding is not allowed!");
 			}
 			else {
-				auto cbs = new const_bind_symbol(ident->identifier, rhs_type, exp.RHS);
+				auto cbs = new const_bind_symbol(ident->identifier, rhs_type);
 				m_Table.decl(cbs);
 				exp.EvalType = symbol_table::UNIT;
 				ident->ValueSymbol = cbs;
@@ -101,6 +101,7 @@ namespace yk {
 				auto result_sym = typed_set[0];
 				if (auto func_sym = dynamic_cast<func_type_symbol*>(result_sym->Type)) {
 					exp.EvalType = func_sym->ReturnType;
+					exp.Function = result_sym;
 					return exp.EvalType;
 				}
 				else {

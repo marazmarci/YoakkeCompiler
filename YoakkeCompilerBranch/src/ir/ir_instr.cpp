@@ -1,6 +1,7 @@
 #include "ir_instr.h"
 #include "ir_type.h"
 #include "ir_function.h"
+#include "ir_environment.h"
 
 namespace yk {
 	ir_instr::ir_instr(ir_opcode code)
@@ -56,4 +57,18 @@ namespace yk {
 	}
 
 	ir_load_instr::~ir_load_instr() { }
+
+	// Abstract binary instruction
+	ir_bin_instr::ir_bin_instr(ir_opcode op, ystr const& name, ir_type* t, ir_value* l, ir_value* r)
+		: ir_instr(op), ir_named_value(t, name), Left(l), Right(r) {
+	}
+
+	ir_bin_instr::~ir_bin_instr() { }
+
+	// Integer add instruction
+	ir_iadd_instr::ir_iadd_instr(ystr const& name, ir_value* l, ir_value* r)
+		: ir_bin_instr(ir_opcode::iadd, name, ir_environment::get_type("i32"), l, r) {
+	}
+
+	ir_iadd_instr::~ir_iadd_instr() { }
 }

@@ -102,6 +102,26 @@ namespace yk {
 			m_Builder.add_inst(inst);
 			return rhs;
 		}
+		else {
+			auto LHS = (*this)(*exp.LHS);
+			auto RHS = (*this)(*exp.RHS);
+			auto sym = exp.Function;
+			if (auto builtin = dynamic_cast<builtin_function_symbol*>(sym)) {
+				if (builtin->identifier == "bin_op+") {
+					auto operator_t = (func_type_symbol*)builtin->Type;
+					auto operand_t = operator_t->ArgTypes[0];
+					if (operand_t->identifier == "i32") {
+						auto ins = new ir_iadd_instr("", LHS, RHS);
+						m_Builder.add_inst(ins);
+						return ins;
+					}
+				}
+				throw std::exception("UNHANDLED BUILTIN");
+			}
+			else {
+				throw std::exception("SAD");
+			}
+		}
 		throw std::exception("UNSUPPORTED OPERATION");
 	}
 

@@ -124,6 +124,15 @@ namespace yk {
 			break;
 		}
 
+		case ir_opcode::iadd: {
+			auto i2 = reinterpret_cast<ir_iadd_instr*>(ins);
+			m_Ostream << '%' << i2->Name << " =  add i32 ";
+			print(i2->Left);
+			m_Ostream << ", ";
+			print(i2->Right);
+			break;
+		}
+
 		default:
 			throw std::exception("Uncovered opcode for IR printer!");
 		}

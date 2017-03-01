@@ -49,10 +49,4 @@ namespace yk {
 		virtual bool match(type_symbol* other) override;
 		virtual bool same(type_symbol* other) override;
 	};
-
-	class builtin_func_type_symbol : public func_type_symbol {
-	public:
-		builtin_func_type_symbol(yvec<type_symbol*> const& args, type_symbol* rett);
-		virtual ~builtin_func_type_symbol();
-	};
 }
