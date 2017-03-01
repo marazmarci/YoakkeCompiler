@@ -35,7 +35,7 @@ namespace yk {
 		META_Visitable(ident_expr, expr)
 
 	public:
-		const ystr Identifier;
+		const ystr identifier;
 		typed_symbol* ValueSymbol;
 
 	public:

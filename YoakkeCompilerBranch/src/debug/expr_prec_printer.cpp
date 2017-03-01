@@ -11,11 +11,11 @@ namespace yk {
 	}
 
 	ystr expr_prec_printer::print(ident_expr& ie) {
-		return ie.Identifier;
+		return ie.identifier;
 	}
 
 	ystr expr_prec_printer::print(bin_expr& be) {
-		return '(' + (*this)(*be.LHS) + ' ' + be.OP.Identifier()
+		return '(' + (*this)(*be.LHS) + ' ' + be.OP.identifier()
 			+ ' ' + (*this)(*be.RHS) + ')';
 	}
 

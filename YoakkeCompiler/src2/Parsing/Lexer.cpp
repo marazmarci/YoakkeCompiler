@@ -154,7 +154,7 @@ namespace yk
 						ident += *m_State.Buffer++;
 					auto it = m_Keywords.find(ident);
 					Token ret(
-						(it == m_Keywords.end()) ? TokenT::Identifier : TokenT::Keyword,
+						(it == m_Keywords.end()) ? TokenT::identifier : TokenT::Keyword,
 						ident, m_State.PosX, m_State.PosY, m_File);
 					m_State.PosX += ident.size();
 					return ret;

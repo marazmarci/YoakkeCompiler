@@ -24,13 +24,13 @@ namespace yk {
 
 	void llvm_ir::print(ir_function* fn) {
 		auto proto = fn->Prototype;
-		m_Ostream << "define " << proto->ReturnType->Identifier << " @" << proto->Name << "(";
+		m_Ostream << "define " << proto->ReturnType->identifier << " @" << proto->Name << "(";
 		if (proto->Parameters.size()) {
-			m_Ostream << proto->Parameters[0]->Type->Identifier << ' '
+			m_Ostream << proto->Parameters[0]->Type->identifier << ' '
 				<< '%' << proto->Parameters[0]->Name;
 			for (ysize i = 1; i < proto->Parameters.size(); i++) {
 				m_Ostream << ", "
-					<< proto->Parameters[i]->Type->Identifier << ' '
+					<< proto->Parameters[i]->Type->identifier << ' '
 					<< '%' << proto->Parameters[i]->Name;
 			}
 		}
@@ -42,11 +42,11 @@ namespace yk {
 	}
 
 	void llvm_ir::print(ir_function_proto* pr) {
-		m_Ostream << "declare " << pr->ReturnType->Identifier << " @" << pr->Name << "(";
+		m_Ostream << "declare " << pr->ReturnType->identifier << " @" << pr->Name << "(";
 		if (pr->Parameters.size()) {
-			m_Ostream << pr->Parameters[0]->Type->Identifier;
+			m_Ostream << pr->Parameters[0]->Type->identifier;
 			for (ysize i = 1; i < pr->Parameters.size(); i++) {
-				m_Ostream << ", " << pr->Parameters[i]->Type->Identifier;
+				m_Ostream << ", " << pr->Parameters[i]->Type->identifier;
 			}
 		}
 		m_Ostream << ')' << std::endl;
@@ -73,7 +73,7 @@ namespace yk {
 			auto i2 = reinterpret_cast<ir_ret_instr*>(ins);
 			m_Ostream << "ret ";
 			if (i2->Value) {
-				m_Ostream << i2->Value->Type->Identifier << ' ';
+				m_Ostream << i2->Value->Type->identifier << ' ';
 				print(i2->Value);
 			}
 			else {
@@ -84,36 +84,36 @@ namespace yk {
 
 		case ir_opcode::alloc: {
 			auto i2 = reinterpret_cast<ir_alloc_instr*>(ins);
-			m_Ostream << '%' << i2->Name << " = alloca " << i2->What->Identifier;
+			m_Ostream << '%' << i2->Name << " = alloca " << i2->What->identifier;
 			break;
 		}
 
 		case ir_opcode::store: {
 			auto i2 = reinterpret_cast<ir_store_instr*>(ins);
-			m_Ostream << "store " << i2->Value->Type->Identifier << ' ';
+			m_Ostream << "store " << i2->Value->Type->identifier << ' ';
 			print(i2->Value);
-			m_Ostream << ", " << i2->Ptr->Type->Identifier << ' ';
+			m_Ostream << ", " << i2->Ptr->Type->identifier << ' ';
 			print(i2->Ptr);
 			break;
 		}
 
 		case ir_opcode::load: {
 			auto i2 = reinterpret_cast<ir_load_instr*>(ins);
-			m_Ostream << '%' << i2->Name << " = load " << i2->Type->Identifier << ", "
-				<< i2->Ptr->Type->Identifier << ' ';
+			m_Ostream << '%' << i2->Name << " = load " << i2->Type->identifier << ", "
+				<< i2->Ptr->Type->identifier << ' ';
 			print(i2->Ptr);
 			break;
 		}
 
 		case ir_opcode::call: {
 			auto i2 = reinterpret_cast<ir_call_instr*>(ins);
-			m_Ostream << "call " << i2->FP->ReturnType->Identifier << " @" << i2->FP->Name 
+			m_Ostream << "call " << i2->FP->ReturnType->identifier << " @" << i2->FP->Name 
 				<< '(';
 			if (i2->Args.size()) {
-				m_Ostream << i2->Args[0]->Type->Identifier << ' ';
+				m_Ostream << i2->Args[0]->Type->identifier << ' ';
 				print(i2->Args[0]);
 				for (ysize i = 1; i < i2->Args.size(); i++) {
-					m_Ostream << ", " << i2->Args[0]->Type->Identifier << ' ';
+					m_Ostream << ", " << i2->Args[0]->Type->identifier << ' ';
 					print(i2->Args[0]);
 				}
 			}

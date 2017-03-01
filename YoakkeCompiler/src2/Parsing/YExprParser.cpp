@@ -9,7 +9,7 @@ namespace yk
 			: ExprParser(lexer, tokbuf, logger, fn)
 		{
 			// EXPRESSION /////////////////////////////////////////////
-			Register(TokenT::Identifier, new IdentExprParselet());
+			Register(TokenT::identifier, new IdentExprParselet());
 			Register("let", new LetParselet(1));
 			AddEnclose(new EncloseParselet("(", ")"));
 
@@ -45,7 +45,7 @@ namespace yk
 			AddInfixLeft("::", 10);
 
 			// TYPE DESCRIPTOR //////////////////////////////////
-			Register(TokenT::Identifier, new IdentTypeParselet());
+			Register(TokenT::identifier, new IdentTypeParselet());
 		}
 
 		void YExprParser::AddPostfix(ystr const& op, ysize prec)

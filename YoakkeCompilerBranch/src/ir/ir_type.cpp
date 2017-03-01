@@ -2,7 +2,7 @@
 
 namespace yk {
 	ir_type::ir_type(ystr const& ident, ysize sz) 
-		: Identifier(ident), Size(sz) {
+		: identifier(ident), Size(sz) {
 	}
 
 	ir_type::~ir_type() { }
@@ -32,7 +32,7 @@ namespace yk {
 	// TODO
 	// Pointer type
 	ir_ptr_type::ir_ptr_type(ir_type* s)
-		: ir_type(s->Identifier + "*", 4), Sub(s) {
+		: ir_type(s->identifier + "*", 4), Sub(s) {
 	}
 
 	ir_ptr_type::~ir_ptr_type() { }

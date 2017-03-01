@@ -19,7 +19,7 @@ namespace yk {
 	}
 
 	type_symbol* expr_checker::check(ident_expr& exp) {
-		auto syms = m_Table.ref(exp.Identifier);
+		auto syms = m_Table.ref(exp.identifier);
 		auto typed_set = symbol_table::filter<typed_symbol>(syms);
 		if (exp.Hint) {
 			typed_set = m_Table.filter_typed_match(typed_set, exp.Hint);
@@ -51,24 +51,24 @@ namespace yk {
 	}
 
 	type_symbol* expr_checker::check(bin_expr& exp) {
-		if (exp.OP.Identifier() == "::") {
+		if (exp.OP.identifier() == "::") {
 			ident_expr* ident = reinterpret_cast<ident_expr*>(exp.LHS);
 			auto rhs_type = (*this)(*exp.RHS);
-			auto sym_set = m_Table.ref(ident->Identifier);
+			auto sym_set = m_Table.ref(ident->identifier);
 			auto typed_set = symbol_table::filter<typed_symbol>(sym_set);
 			typed_set = symbol_table::filter_typed_match(typed_set, rhs_type);
 			if (typed_set.size()) {
 				throw std::exception("Ambigious constant binding is not allowed!");
 			}
 			else {
-				auto cbs = new const_bind_symbol(ident->Identifier, rhs_type, exp.RHS);
+				auto cbs = new const_bind_symbol(ident->identifier, rhs_type, exp.RHS);
 				m_Table.decl(cbs);
 				exp.EvalType = symbol_table::UNIT;
 				ident->ValueSymbol = cbs;
 				return exp.EvalType;
 			}
 		}
-		else if (exp.OP.Identifier() == "=") {
+		else if (exp.OP.identifier() == "=") {
 			auto lval = (*this)(*exp.LHS); // TODO: check if lvalue
 			auto rval = (*this)(*exp.RHS);
 			if (lval) {
@@ -91,7 +91,7 @@ namespace yk {
 			// Create pseudo-function to match
 			yvec<type_symbol*> args = {(*this)(*exp.LHS), (*this)(*exp.RHS)};
 			auto pseudo_func = new func_type_symbol(args, nullptr);
-			auto syms = m_Table.ref("bin_op" + exp.OP.Identifier());
+			auto syms = m_Table.ref("bin_op" + exp.OP.identifier());
 			auto typed_set = symbol_table::filter<const_bind_symbol>(syms);
 			typed_set = m_Table.filter_typed_match(typed_set, pseudo_func);
 			if (typed_set.size() == 0) {
@@ -116,7 +116,7 @@ namespace yk {
 	type_symbol* expr_checker::check(preury_expr& exp) {
 		yvec<type_symbol*> args = { (*this)(*exp.Sub) };
 		auto pseudo_func = new func_type_symbol(args, nullptr);
-		auto syms = m_Table.ref("pre_op" + exp.OP.Identifier());
+		auto syms = m_Table.ref("pre_op" + exp.OP.identifier());
 		auto typed_set = symbol_table::filter<const_bind_symbol>(syms);
 		typed_set = m_Table.filter_typed_match(typed_set, pseudo_func);
 		if (typed_set.size() == 0) {
@@ -140,7 +140,7 @@ namespace yk {
 	type_symbol* expr_checker::check(postury_expr& exp) {
 		yvec<type_symbol*> args = { (*this)(*exp.Sub) };
 		auto pseudo_func = new func_type_symbol(args, nullptr);
-		auto syms = m_Table.ref("post_op" + exp.OP.Identifier());
+		auto syms = m_Table.ref("post_op" + exp.OP.identifier());
 		auto typed_set = symbol_table::filter<const_bind_symbol>(syms);
 		typed_set = m_Table.filter_typed_match(typed_set, pseudo_func);
 		if (typed_set.size() == 0) {
@@ -223,7 +223,7 @@ namespace yk {
 		yset<ystr> arg_names;
 		for (auto arg : exp.Prototype->Parameters) {
 			if (arg->Name.some()) {
-				auto arg_n = arg->Name.get().Identifier();
+				auto arg_n = arg->Name.get().identifier();
 				if (arg_names.find(arg_n) != arg_names.end()) {
 					throw std::exception("Parameter already defined!");
 				}

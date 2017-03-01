@@ -24,13 +24,7 @@ namespace yk {
 	}
 
 	void ir_stmt_compiler::compile(expr_stmt& st) {
-		auto val = m_Parent.compile(*st.Sub);
-		if (auto inst = dynamic_cast<ir_instr*>(val)) {
-			m_Builder.add_inst(inst);
-		}
-		else if (val) {
-			throw std::exception("This value can not be an instruction!");
-		}
+		m_Parent.compile(*st.Sub);
 	}
 
 	// Expression compiler ////////////////////////////////////////////////////
@@ -54,7 +48,7 @@ namespace yk {
 			return val;
 		}
 		else {
-			auto load = new ir_load_instr(sym->Identifier, val);
+			auto load = new ir_load_instr(sym->identifier, val);
 			m_Builder.add_inst(load);
 			return load;
 		}
@@ -81,9 +75,9 @@ namespace yk {
 	}
 
 	ir_value* ir_expr_compiler::compile(bin_expr& exp) {
-		if (exp.OP.Identifier() == "::") {
+		if (exp.OP.identifier() == "::") {
 			auto ID_EXP = ((ident_expr*)exp.LHS);
-			ystr const& ID = ID_EXP->Identifier;
+			ystr const& ID = ID_EXP->identifier;
 			if (auto func = dynamic_cast<func_expr*>(exp.RHS)) {
 				auto fun = (ir_function*)(*this)(*func);
 				fun->Prototype->Name = ID;
@@ -98,6 +92,15 @@ namespace yk {
 				m_Builder.add_func_proto(pr);
 				return nullptr;
 			}
+		}
+		else if (exp.OP.identifier() == "=") {
+			// TODO: Maybe in semantics?
+			exp.LHS->Lvalue = true;
+			auto all = (*this)(*exp.LHS);
+			auto rhs = (*this)(*exp.RHS);
+			auto inst = new ir_store_instr(all, rhs);
+			m_Builder.add_inst(inst);
+			return rhs;
 		}
 		throw std::exception("UNSUPPORTED OPERATION");
 	}
@@ -122,7 +125,9 @@ namespace yk {
 					val.push_back((*this)(*p));
 				}
 
-				return new ir_call_instr(func, val);
+				auto ins = new ir_call_instr(func, val);
+				m_Builder.add_inst(ins);
+				return ins;
 			}
 			else {
 				throw std::exception("CALL SANITY");
@@ -137,7 +142,7 @@ namespace yk {
 		yvec<ir_parameter*> params;
 		for (auto p : exp.Parameters) {
 			if (p->Name.some()) {
-				params.push_back(new ir_parameter(p->Name.get().Identifier(),
+				params.push_back(new ir_parameter(p->Name.get().identifier(),
 					get_ir_type(p->Type->SymbolForm)));
 			}
 			else {
@@ -177,7 +182,7 @@ namespace yk {
 			auto EXP = pair.second;
 			auto TYPE = EXP->EvalType;
 
-			auto all = new ir_alloc_instr(ID->Identifier, get_ir_type(TYPE));
+			auto all = new ir_alloc_instr(ID->identifier, get_ir_type(TYPE));
 			ID->Value = all;
 			m_Builder.add_inst_bb_begin(all);
 			if (EXP) {
@@ -192,10 +197,10 @@ namespace yk {
 			return ir_environment::get_type("void");
 		}
 		if (auto builtin = dynamic_cast<builtin_type_symbol*>(ts)) {
-			if (builtin->Identifier == "unit") {
+			if (builtin->identifier == "unit") {
 				return ir_environment::get_type("void");
 			}
-			return ir_environment::get_type(builtin->Identifier);
+			return ir_environment::get_type(builtin->identifier);
 		}
 
 		throw std::exception("Unsupported IR type!");

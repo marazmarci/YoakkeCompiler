@@ -8,7 +8,8 @@ namespace yk {
 	}
 
 	ir_basic_block::~ir_basic_block() {
-		for (auto ins : Instructions) delete ins;
+		// TODO
+		//for (auto ins : Instructions) delete ins;
 	}
 
 	void ir_basic_block::add(ir_instr* ins) {

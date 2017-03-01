@@ -31,7 +31,7 @@ namespace yk
 		class IdentExpr : public Expr
 		{
 		public:
-			ystr Identifier;
+			ystr identifier;
 
 		public:
 			IdentExpr(parse::Token const& tok);

@@ -19,7 +19,7 @@ namespace yk {
 
 	class ident_pattern : public pattern {
 	public:
-		ystr Identifier;
+		ystr identifier;
 
 	public:
 		ident_pattern(token const& tok);

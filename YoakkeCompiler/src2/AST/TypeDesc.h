@@ -18,7 +18,7 @@ namespace yk
 		class IdentTypeDesc : public TypeDesc
 		{
 		public:
-			ystr Identifier;
+			ystr identifier;
 
 		public:
 			IdentTypeDesc(parse::Token const& tok);

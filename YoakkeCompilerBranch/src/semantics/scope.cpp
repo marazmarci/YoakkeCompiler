@@ -18,10 +18,10 @@ namespace yk {
 	}
 
 	void scope::decl(symbol* sym) {
-		auto it = Dict.find(sym->Identifier);
+		auto it = Dict.find(sym->identifier);
 		if (it == Dict.end()) {
 			sym_set set{ sym };
-			Dict.insert(std::make_pair(sym->Identifier, set));
+			Dict.insert(std::make_pair(sym->identifier, set));
 		}
 		else {
 			it->second.push_back(sym);

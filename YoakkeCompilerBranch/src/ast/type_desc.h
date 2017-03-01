@@ -26,7 +26,7 @@ namespace yk {
 		META_Visitable(ident_type_desc, type_desc)
 
 	public:
-		ystr Identifier;
+		ystr identifier;
 
 	public:
 		ident_type_desc(token const& tok);

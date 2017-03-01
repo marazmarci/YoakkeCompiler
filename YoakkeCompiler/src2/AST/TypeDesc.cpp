@@ -15,7 +15,7 @@ namespace yk
 		}
 
 		IdentTypeDesc::IdentTypeDesc(parse::Token const& tok)
-			: TypeDesc(parse::Position::Get(tok)), Identifier(tok.Value)
+			: TypeDesc(parse::Position::Get(tok)), identifier(tok.Value)
 		{
 		}
 

@@ -20,7 +20,7 @@ namespace yk {
 
 	bool builtin_type_symbol::match(type_symbol* other) {
 		if (auto o2 = dynamic_cast<builtin_type_symbol*>(other)) {
-			return o2->Identifier == Identifier;
+			return o2->identifier == identifier;
 		}
 		return false;
 	}

@@ -10,7 +10,7 @@ namespace yk {
 				return;
 			}
 			else if (auto ip = dynamic_cast<ident_pattern*>(left)) {
-				vec.push_back(std::make_pair(ip->Identifier, right));
+				vec.push_back(std::make_pair(ip->identifier, right));
 				return;
 			}
 			else if (auto bp = dynamic_cast<bin_pattern*>(left)) {

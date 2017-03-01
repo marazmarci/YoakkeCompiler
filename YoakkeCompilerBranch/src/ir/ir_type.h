@@ -5,7 +5,7 @@
 namespace yk {
 	class ir_type {
 	public:
-		ystr Identifier;
+		ystr identifier;
 		ysize Size;
 
 	protected:

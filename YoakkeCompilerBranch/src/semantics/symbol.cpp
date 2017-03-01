@@ -2,7 +2,7 @@
 
 namespace yk {
 	symbol::symbol(ystr const& ident)
-		: Identifier(ident) {
+		: identifier(ident) {
 	}
 
 	symbol::~symbol() { }

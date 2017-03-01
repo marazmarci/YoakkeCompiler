@@ -18,7 +18,7 @@ namespace yk {
 	}
 
 	void ir_environment::add_type(ir_type* t) {
-		TypeTable.insert(std::make_pair(t->Identifier, t));
+		TypeTable.insert(std::make_pair(t->identifier, t));
 	}
 
 	ir_type* ir_environment::get_type(ystr const& id) {

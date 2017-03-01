@@ -14,7 +14,7 @@ namespace yk {
 	}
 
 	type_symbol* type_checker::check(ident_type_desc& td) {
-		auto sym_set = m_Table.ref(td.Identifier);
+		auto sym_set = m_Table.ref(td.identifier);
 		auto t_set = symbol_table::filter<type_symbol>(sym_set);
 		if (t_set.size() == 0) {
 			throw std::exception("Unkown type!");
@@ -29,7 +29,7 @@ namespace yk {
 	}
 
 	type_symbol* type_checker::check(bin_type_desc& td) {
-		if (td.OP.Identifier() == "->") {
+		if (td.OP.identifier() == "->") {
 			// TODO: maybe switch to tuple args instead of list?
 			yvec<type_symbol*> arg_syms;
 			auto args = (*this)(*td.LHS);

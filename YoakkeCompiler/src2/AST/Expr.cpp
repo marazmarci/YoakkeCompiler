@@ -17,7 +17,7 @@ namespace yk
 
 		// Ident expression
 		IdentExpr::IdentExpr(parse::Token const& tok)
-			: Expr(parse::Position::Get(tok)), Identifier(tok.Value)
+			: Expr(parse::Position::Get(tok)), identifier(tok.Value)
 		{
 		}
 
@@ -27,7 +27,7 @@ namespace yk
 
 		ystr IdentExpr::UnitTestPrint()
 		{
-			return Identifier;
+			return identifier;
 		}
 
 		// Abstract unary expression

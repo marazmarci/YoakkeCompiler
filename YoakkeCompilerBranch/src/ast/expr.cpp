@@ -12,7 +12,7 @@ namespace yk {
 
 	// Identifier expression
 	ident_expr::ident_expr(token const& tok)
-		: expr(position::get(tok)), Identifier(tok.value()), ValueSymbol(nullptr) {
+		: expr(position::get(tok)), identifier(tok.value()), ValueSymbol(nullptr) {
 	}
 
 	ident_expr::~ident_expr() { }

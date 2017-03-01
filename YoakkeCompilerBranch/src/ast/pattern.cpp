@@ -16,7 +16,7 @@ namespace yk {
 
 	// Ident pattern
 	ident_pattern::ident_pattern(token const& tok)
-		: pattern(position::get(tok)), Identifier(tok.value()) {
+		: pattern(position::get(tok)), identifier(tok.value()) {
 	}
 
 	ident_pattern::~ident_pattern() { }

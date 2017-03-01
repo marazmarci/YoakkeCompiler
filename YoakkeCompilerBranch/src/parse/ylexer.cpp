@@ -58,7 +58,7 @@ namespace yk {
 			"let", "_"
 		};
 
-		static token_desc Identifier(const char* src) {
+		static token_desc identifier(const char* src) {
 			ysize skip = 0;
 			if (std::isalpha(*src) || *src == '_') {
 				while (std::isalnum(*src) || *src == '_') {
@@ -129,7 +129,7 @@ namespace yk {
 		add_skip(lex_rules::multi_line_comment);
 
 		// Actual tokenization
-		add_rule(lex_rules::Identifier);
+		add_rule(lex_rules::identifier);
 		add_rule(lex_rules::numeric_literal);
 		add_rule(lex_rules::symbol);
 	}

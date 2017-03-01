@@ -9,7 +9,7 @@ namespace yk
 	{
 		enum class TokenT
 		{
-			Epsilon, Symbol, Keyword, Identifier, Integer, Real
+			Epsilon, Symbol, Keyword, identifier, Integer, Real
 		};
 
 		class Token

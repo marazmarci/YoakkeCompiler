@@ -18,7 +18,7 @@ namespace yk
 				os << "EPSILON";
 				break;
 
-			case TokenT::Identifier:
+			case TokenT::identifier:
 				os << "IDENTIFIER";
 				break;
 
