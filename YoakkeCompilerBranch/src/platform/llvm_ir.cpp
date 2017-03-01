@@ -107,6 +107,9 @@ namespace yk {
 
 		case ir_opcode::call: {
 			auto i2 = reinterpret_cast<ir_call_instr*>(ins);
+			if (i2->Type->identifier != "void") {
+				m_Ostream << '%' << i2->Name << " = ";
+			}
 			m_Ostream << "call " << i2->FP->ReturnType->identifier << " @" << i2->FP->Name 
 				<< '(';
 			if (i2->Args.size()) {

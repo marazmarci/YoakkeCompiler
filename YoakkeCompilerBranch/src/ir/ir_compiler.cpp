@@ -108,16 +108,17 @@ namespace yk {
 	ir_value* ir_expr_compiler::compile(mixfix_expr& exp) {
 		if (exp.OP == "call") {
 			if (auto func = dynamic_cast<ir_function_proto*>((*this)(*exp.Operands[0]))) {
-				// TODO: args
-				auto exp_list = exp.Operands[1];
 				yvec<expr*> args_e;
-				if (auto arg_pre = dynamic_cast<list_expr*>(exp_list)) {
-					for (auto a : arg_pre->List) {
-						args_e.push_back(a);
+				if (exp.Operands.size() == 2) {
+					auto exp_list = exp.Operands[1];
+					if (auto arg_pre = dynamic_cast<list_expr*>(exp_list)) {
+						for (auto a : arg_pre->List) {
+							args_e.push_back(a);
+						}
 					}
-				}
-				else if (exp_list) {
-					args_e.push_back(exp_list);
+					else if (exp_list) {
+						args_e.push_back(exp_list);
+					}
 				}
 				
 				yvec<ir_value*> val;
@@ -125,7 +126,7 @@ namespace yk {
 					val.push_back((*this)(*p));
 				}
 
-				auto ins = new ir_call_instr(func, val);
+				auto ins = new ir_call_instr("", func, val);
 				m_Builder.add_inst(ins);
 				return ins;
 			}

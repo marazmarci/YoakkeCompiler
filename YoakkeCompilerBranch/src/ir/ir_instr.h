@@ -56,13 +56,13 @@ namespace yk {
 		~ir_store_instr();
 	};
 
-	class ir_call_instr : public ir_instr, public ir_value {
+	class ir_call_instr : public ir_instr, public ir_named_value {
 	public:
 		ir_function_proto* FP;
 		yvec<ir_value*> Args;
 
 	public:
-		ir_call_instr(ir_function_proto* f, yvec<ir_value*> const& a);
+		ir_call_instr(ystr const& name, ir_function_proto* f, yvec<ir_value*> const& a);
 		~ir_call_instr();
 	};
 
