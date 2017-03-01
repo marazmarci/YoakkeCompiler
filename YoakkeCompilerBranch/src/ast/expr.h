@@ -11,8 +11,12 @@ namespace yk {
 	class stmt;
 	class type_symbol;
 	class let_meta;
+	class typed_symbol;
 
-	class expr : public ast_node {
+	class expr : public ast_node, public visitable<expr> {
+	public:
+		META_BaseVisitable(expr)
+
 	public:
 		type_symbol* Hint;
 		type_symbol* EvalType;
@@ -26,7 +30,11 @@ namespace yk {
 
 	class ident_expr : public expr {
 	public:
-		const ystr identifier;
+		META_Visitable(ident_expr, expr)
+
+	public:
+		const ystr Identifier;
+		typed_symbol* ValueSymbol;
 
 	public:
 		ident_expr(token const& tok);
@@ -35,11 +43,17 @@ namespace yk {
 
 	class unit_expr : public expr {
 	public:
+		META_Visitable(unit_expr, expr)
+
+	public:
 		unit_expr(token const& beg, token const& end);
 		virtual ~unit_expr();
 	};
 
 	class int_lit_expr : public expr {
+	public:
+		META_Visitable(int_lit_expr, expr)
+
 	public:
 		int Value;
 
@@ -50,6 +64,9 @@ namespace yk {
 
 	class real_lit_expr : public expr {
 	public:
+		META_Visitable(real_lit_expr, expr)
+
+	public:
 		double Value;
 
 	public:
@@ -58,6 +75,9 @@ namespace yk {
 	};
 
 	class bin_expr : public expr {
+	public:
+		META_Visitable(bin_expr, expr)
+
 	public:
 		expr* LHS;
 		expr* RHS;
@@ -70,6 +90,9 @@ namespace yk {
 
 	class preury_expr : public expr {
 	public:
+		META_Visitable(preury_expr, expr)
+
+	public:
 		expr* Sub;
 		token OP;
 
@@ -79,6 +102,9 @@ namespace yk {
 	};
 
 	class postury_expr : public expr {
+	public:
+		META_Visitable(postury_expr, expr)
+
 	public:
 		expr* Sub;
 		token OP;
@@ -90,6 +116,9 @@ namespace yk {
 
 	class list_expr : public expr {
 	public:
+		META_Visitable(list_expr, expr)
+
+	public:
 		yvec<expr*> List;
 
 	public:
@@ -98,6 +127,9 @@ namespace yk {
 	};
 
 	class mixfix_expr : public expr {
+	public:
+		META_Visitable(mixfix_expr, expr)
+
 	public:
 		ystr OP;
 		yvec<expr*> Operands;
@@ -117,6 +149,9 @@ namespace yk {
 
 	class func_proto : public expr {
 	public:
+		META_Visitable(func_proto, expr)
+
+	public:
 		yvec<param_expr*> Parameters;
 		type_desc* ReturnType;
 
@@ -128,6 +163,9 @@ namespace yk {
 
 	class func_expr : public block_expr {
 	public:
+		META_Visitable(func_expr, expr)
+
+	public:
 		func_proto* Prototype;
 		expr* Body;
 
@@ -137,6 +175,9 @@ namespace yk {
 	};
 
 	class body_expr : public block_expr {
+	public:
+		META_Visitable(body_expr, expr)
+
 	public:
 		yvec<stmt*> Statements;
 
@@ -157,6 +198,9 @@ namespace yk {
 	};
 
 	class let_expr : public expr {
+	public:
+		META_Visitable(let_expr, expr)
+
 	public:
 		pattern* Left;
 		type_desc* Type;

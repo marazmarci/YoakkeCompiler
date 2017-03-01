@@ -14,6 +14,6 @@ namespace yk {
 
 	public:
 		ystr const& value() const;
-		ystr const& identifier() const;
+		ystr const& Identifier() const;
 	};
 }

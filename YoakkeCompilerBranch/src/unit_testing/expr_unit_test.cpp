@@ -7,7 +7,7 @@
 #define PARSE(x) lexer.set_source(x);							\
 				buffer.clear();									\
 				exp = parser.parse_expr();						\
-				result = exp ? printer.dispatch_gen(exp) : ""
+				result = exp ? printer(*exp) : ""
 #define parse_expect(x, y) PARSE(x); UNIT_TEST_EXPECT(result == y, x == y)
 #define parse_expect_not(x, y) PARSE(x); UNIT_TEST_EXPECT_NOT(result == y, x != y)
 namespace yk {

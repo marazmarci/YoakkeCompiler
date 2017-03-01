@@ -1,15 +1,16 @@
 #pragma once
 
 #include "../ast/stmt.h"
-#include "../utility/double_dispatcher.h"
+#include "../utility/visitor.h"
 
 namespace yk {
 	class semantic_checker;
 	class symbol_table;
 
-	class stmt_checker : public double_dispatcher
-		<void, stmt,
-		expr_stmt> {
+	class stmt_checker : public visitor<stmt, void> {
+	public:
+		META_Visitor(stmt_checker, check)
+
 	private:
 		semantic_checker& m_Checker;
 		symbol_table& m_Table;
@@ -18,6 +19,7 @@ namespace yk {
 		stmt_checker(semantic_checker& ch, symbol_table& tab);
 
 	public:
-		void dispatch(expr_stmt* stmt) override;
+		void check(stmt& st);
+		void check(expr_stmt& st);
 	};
 }

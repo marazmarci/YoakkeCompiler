@@ -13,14 +13,14 @@ namespace yk {
 	}
 
 	void semantic_checker::check_stmt(stmt* st) {
-		m_StmtChecker.dispatch_gen(st);
+		m_StmtChecker(*st);
 	}
 
 	type_symbol* semantic_checker::check_expr(expr* exp) {
-		return m_ExprChecker.dispatch_gen(exp);
+		return m_ExprChecker(*exp);
 	}
 
 	type_symbol* semantic_checker::check_type(type_desc* ty) {
-		return m_TypeChecker.dispatch_gen(ty);
+		return m_TypeChecker(*ty);
 	}
 }

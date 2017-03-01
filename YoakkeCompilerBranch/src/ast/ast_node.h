@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../parse/position.h"
+#include "../utility/visitor.h"
 
 // TODO: abstract away common structures into templates (binop, list, ident)
 

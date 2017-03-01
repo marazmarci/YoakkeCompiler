@@ -97,6 +97,22 @@ namespace yk {
 			break;
 		}
 
+		case ir_opcode::call: {
+			auto i2 = reinterpret_cast<ir_call_instr*>(ins);
+			m_Ostream << "call " << i2->FP->ReturnType->Identifier << " @" << i2->FP->Name 
+				<< '(';
+			if (i2->Args.size()) {
+				m_Ostream << i2->Args[0]->Type->Identifier << ' ';
+				print(i2->Args[0]);
+				for (ysize i = 1; i < i2->Args.size(); i++) {
+					m_Ostream << ", " << i2->Args[0]->Type->Identifier << ' ';
+					print(i2->Args[0]);
+				}
+			}
+			m_Ostream << ')';
+			break;
+		}
+
 		default:
 			throw std::exception("Uncovered opcode for IR printer!");
 		}

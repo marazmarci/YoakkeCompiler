@@ -56,7 +56,7 @@ namespace yk {
 				auto rhs = parser->parse(precedence() - 1);
 				if (rhs) {
 					list.push_back(rhs);
-					while (parser->peek().identifier() == begin.identifier()) {
+					while (parser->peek().Identifier() == begin.Identifier()) {
 						parser->consume();
 						if (rhs = parser->parse(precedence() - 1)) {
 							list.push_back(rhs);
@@ -138,10 +138,10 @@ namespace yk {
 				type_desc* rett = nullptr;
 				expr* body = nullptr;
 				yopt<token> end = None;
-				if (parser->peek().identifier() != ")") {
+				if (parser->peek().Identifier() != ")") {
 					if (auto par = ypar->parse_param()) {
 						params.push_back(par);
-						while (parser->peek().identifier() == ",") {
+						while (parser->peek().Identifier() == ",") {
 							parser->consume();
 							par = ypar->parse_param();
 							if (par) {
@@ -172,7 +172,7 @@ namespace yk {
 				else {
 					end = parser->consume();
 				}
-				if (parser->peek().identifier() == "->") {
+				if (parser->peek().Identifier() == "->") {
 					parser->consume();
 					if (!(rett = ypar->parse_type())) {
 						throw std::exception("Type expected after '->'!");
@@ -216,14 +216,14 @@ namespace yk {
 				yvec<expr*> operands;
 				operands.push_back(left);
 				auto last = parser->peek();
-				if (last.identifier() != ")") {
+				if (last.Identifier() != ")") {
 					auto params = parser->parse();
 					if (!params) {
 						throw std::exception("Parameters expected!");
 					}
 					operands.push_back(params);
 					last = parser->peek();
-					if (last.identifier() != ")") {
+					if (last.Identifier() != ")") {
 						throw std::exception("')' expected!");
 					}
 				}
@@ -253,13 +253,13 @@ namespace yk {
 				if (patt) {
 					type_desc* type = nullptr;
 					expr* val = nullptr;
-					if (parser->peek().identifier() == ":") {
+					if (parser->peek().Identifier() == ":") {
 						parser->consume();
 						if (!(type = ypar->parse_type())) {
 							throw std::exception("Type expected after ':' in let!");
 						}
 					}
-					if (parser->peek().identifier() == "=") {
+					if (parser->peek().Identifier() == "=") {
 						parser->consume();
 						if (!(val = ypar->parse_expr())) {
 							throw std::exception("Value expected after '=' in let!");
@@ -287,7 +287,7 @@ namespace yk {
 		public:
 			type_desc* parse(token const& begin, type_parser* parser) override {
 				auto sub = parser->parse();
-				if (parser->peek().identifier() == ")") {
+				if (parser->peek().Identifier() == ")") {
 					auto end = parser->consume();
 					if (sub) {
 						return sub;
@@ -324,7 +324,7 @@ namespace yk {
 			pattern* parse(token const& begin, pattern_parser* parser) override {
 				auto sub = parser->parse();
 				if (sub) {
-					if (parser->peek().identifier() == ")") {
+					if (parser->peek().Identifier() == ")") {
 						auto end = parser->consume();
 						return sub;
 					}
@@ -428,9 +428,9 @@ namespace yk {
 		auto peek_0 = peek();
 		auto peek_1 = peek(1);
 		yopt<token> name = None;
-		if ((peek_0.identifier() == "Identifier" && peek_1.identifier() == ":")
-			|| peek_0.identifier() == ":") {
-			if (peek_0.identifier() == "Identifier") {
+		if ((peek_0.Identifier() == "Identifier" && peek_1.Identifier() == ":")
+			|| peek_0.Identifier() == ":") {
+			if (peek_0.Identifier() == "Identifier") {
 				name = consume();
 			}
 			token semicol = consume();
@@ -451,7 +451,7 @@ namespace yk {
 	}
 
 	expr* yparser::parse_body() {
-		if (peek().identifier() == "{") {
+		if (peek().Identifier() == "{") {
 			token begin = consume();
 			
 			yvec<stmt*> stmts;
@@ -459,7 +459,7 @@ namespace yk {
 				stmts.push_back(st);
 			}
 
-			if (peek().identifier() == "}") {
+			if (peek().Identifier() == "}") {
 				token end = consume();
 				return new body_expr(begin, end, stmts);
 			}
@@ -478,12 +478,12 @@ namespace yk {
 			bool need_semicol = false;
 			if (sub) {
 				if (auto binexp = dynamic_cast<bin_expr*>(sub)) {
-					if (binexp->OP.identifier() == "::") {
+					if (binexp->OP.Identifier() == "::") {
 						need_semicol = dynamic_cast<block_expr*>(binexp->RHS) == nullptr;
 					}
 				}
 			}
-			if (peek().identifier() == ";") {
+			if (peek().Identifier() == ";") {
 				token semicol = consume();
 				return new expr_stmt(sub, semicol);
 			}

@@ -7,7 +7,10 @@
 namespace yk {
 	class type_symbol;
 
-	class type_desc : public ast_node {
+	class type_desc : public ast_node, public visitable<type_desc> {
+	public:
+		META_BaseVisitable(type_desc)
+
 	public:
 		type_symbol* SymbolForm;
 
@@ -20,6 +23,9 @@ namespace yk {
 
 	class ident_type_desc : public type_desc {
 	public:
+		META_Visitable(ident_type_desc, type_desc)
+
+	public:
 		ystr Identifier;
 
 	public:
@@ -28,6 +34,9 @@ namespace yk {
 	};
 
 	class bin_type_desc : public type_desc {
+	public:
+		META_Visitable(bin_type_desc, type_desc)
+
 	public:
 		type_desc* LHS;
 		type_desc* RHS;
@@ -39,6 +48,9 @@ namespace yk {
 	};
 
 	class list_type_desc : public type_desc {
+	public:
+		META_Visitable(list_type_desc, type_desc)
+
 	public:
 		yvec<type_desc*> List;
 

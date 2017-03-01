@@ -1,17 +1,16 @@
 #pragma once
 
 #include "../ast/expr.h"
-#include "../utility/double_dispatcher.h"
+#include "../utility/visitor.h"
 
 namespace yk {
 	class semantic_checker;
 	class symbol_table;
 
-	class expr_checker : public double_dispatcher
-		<type_symbol*, expr,
-		ident_expr, unit_expr, int_lit_expr, real_lit_expr, bin_expr, preury_expr, 
-		postury_expr, list_expr, mixfix_expr, func_proto, func_expr, body_expr, 
-		param_expr, let_expr> {
+	class expr_checker : public visitor<expr, type_symbol*> {
+	public:
+		META_Visitor(expr_checker, check)
+
 	private:
 		semantic_checker& m_Checker;
 		symbol_table& m_Table;
@@ -20,19 +19,20 @@ namespace yk {
 		expr_checker(semantic_checker& ch, symbol_table& tab);
 
 	public:
-		type_symbol* dispatch(ident_expr* exp) override;
-		type_symbol* dispatch(unit_expr* exp) override;
-		type_symbol* dispatch(int_lit_expr* exp) override;
-		type_symbol* dispatch(real_lit_expr* exp) override;
-		type_symbol* dispatch(bin_expr* exp) override;
-		type_symbol* dispatch(preury_expr* exp) override;
-		type_symbol* dispatch(postury_expr* exp) override;
-		type_symbol* dispatch(list_expr* exp) override;
-		type_symbol* dispatch(mixfix_expr* exp) override;
-		type_symbol* dispatch(func_proto* exp) override;
-		type_symbol* dispatch(func_expr* exp) override;
-		type_symbol* dispatch(body_expr* exp) override;
-		type_symbol* dispatch(param_expr* exp) override;
-		type_symbol* dispatch(let_expr* exp) override;
+		type_symbol* check(expr& exp);
+		type_symbol* check(ident_expr& exp);
+		type_symbol* check(unit_expr& exp);
+		type_symbol* check(int_lit_expr& exp);
+		type_symbol* check(real_lit_expr& exp);
+		type_symbol* check(bin_expr& exp);
+		type_symbol* check(preury_expr& exp);
+		type_symbol* check(postury_expr& exp);
+		type_symbol* check(list_expr& exp);
+		type_symbol* check(mixfix_expr& exp);
+		type_symbol* check(func_proto& exp);
+		type_symbol* check(func_expr& exp);
+		type_symbol* check(body_expr& exp);
+		type_symbol* check(param_expr& exp);
+		type_symbol* check(let_expr& exp);
 	};
 }

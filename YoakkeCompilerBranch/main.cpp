@@ -5,7 +5,6 @@
 #include "src\parse\ylexer.h"
 #include "src\parse\yparser.h"
 #include "src\utility\static_block.h"
-#include "src\utility\double_dispatcher.h"
 #include "src\ast\expr.h"
 #include "src\unit_testing\expr_unit_test.h"
 #include "src\semantics\semantic_checker.h"
@@ -61,7 +60,7 @@ int main(void) {
 		ir_module mod;
 		ir_compiler compiler(mod);
 		for (auto p : prog) {
-			compiler.dispatch_gen(p);
+			compiler.compile(*p);
 		}
 
 		std::ofstream ofile("C:\\TMP\\YoakkeTest\\llvm_test.txt");

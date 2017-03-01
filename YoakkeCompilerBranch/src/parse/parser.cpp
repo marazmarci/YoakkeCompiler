@@ -37,7 +37,7 @@ namespace yk {
 
 	yopt<token> parser::match_id(ystr const& val) {
 		auto tok = peek();
-		if (tok.identifier() == val) {
+		if (tok.Identifier() == val) {
 			consume();
 			return tok;
 		}

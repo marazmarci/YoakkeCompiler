@@ -11,7 +11,7 @@ namespace yk {
 		return m_Value;
 	}
 
-	ystr const& token::identifier() const {
+	ystr const& token::Identifier() const {
 		return m_Identifier;
 	}
 }

@@ -43,7 +43,7 @@ namespace yk {
 		}
 
 		ysize get_precedence() {
-			auto parser = ext::get_value(m_Infix, peek().identifier());
+			auto parser = ext::get_value(m_Infix, peek().Identifier());
 			if (parser) {
 				return parser->precedence();
 			}
@@ -56,7 +56,7 @@ namespace yk {
 
 		T* parse(ysize prec) {
 			auto lookahead = peek();
-			pre_rule* pre_parselet = ext::get_value(m_Prefix, lookahead.identifier());
+			pre_rule* pre_parselet = ext::get_value(m_Prefix, lookahead.Identifier());
 			if (!pre_parselet) {
 				return nullptr;
 			}
@@ -65,7 +65,7 @@ namespace yk {
 			if (left) {
 				while (prec < get_precedence()) {
 					lookahead = peek();
-					in_rule* in_parselet = ext::get_value(m_Infix, lookahead.identifier());
+					in_rule* in_parselet = ext::get_value(m_Infix, lookahead.Identifier());
 					if (!in_parselet) {
 						throw std::exception("No matching infix parselet!");
 					}
