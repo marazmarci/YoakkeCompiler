@@ -116,8 +116,8 @@ namespace yk {
 				m_Ostream << i2->Args[0]->Type->identifier << ' ';
 				print(i2->Args[0]);
 				for (ysize i = 1; i < i2->Args.size(); i++) {
-					m_Ostream << ", " << i2->Args[0]->Type->identifier << ' ';
-					print(i2->Args[0]);
+					m_Ostream << ", " << i2->Args[i]->Type->identifier << ' ';
+					print(i2->Args[i]);
 				}
 			}
 			m_Ostream << ')';
