@@ -3,6 +3,7 @@
 #include "typed_symbol.h"
 #include "semantic_checker.h"
 #include "let_pattern.h"
+#include "typed_symbol.h"
 
 namespace yk {
 	expr_checker::expr_checker(semantic_checker& ch, symbol_table& tab)
@@ -272,8 +273,9 @@ namespace yk {
 			ystr const& ID = def.first;
 			expr* VALUE = def.second;
 
-			m_Table.decl(new var_symbol(ID, VALUE->EvalType));
-			exp.Matched.push_back(def);
+			auto sym = new var_symbol(ID, VALUE->EvalType);
+			m_Table.decl(sym);
+			exp.Matched.push_back(std::make_pair(sym, VALUE));
 		}
 		exp.EvalType = symbol_table::UNIT;
 		return exp.EvalType;

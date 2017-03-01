@@ -65,4 +65,13 @@ namespace yk {
 		ir_call_instr(ir_function_proto* f, yvec<ir_value*> const& a);
 		~ir_call_instr();
 	};
+
+	class ir_load_instr : public ir_instr, public ir_named_value {
+	public:
+		ir_value* Ptr;
+
+	public:
+		ir_load_instr(ystr const& name, ir_value* p);
+		~ir_load_instr();
+	};
 }

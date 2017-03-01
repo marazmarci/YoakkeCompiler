@@ -12,6 +12,7 @@ namespace yk {
 	class type_symbol;
 	class let_meta;
 	class typed_symbol;
+	class var_symbol;
 
 	class expr : public ast_node, public visitable<expr> {
 	public:
@@ -20,6 +21,7 @@ namespace yk {
 	public:
 		type_symbol* Hint;
 		type_symbol* EvalType;
+		bool Lvalue;
 
 	protected:
 		expr(position const& pos);
@@ -205,7 +207,7 @@ namespace yk {
 		pattern* Left;
 		type_desc* Type;
 		expr* Value;
-		yvec<ypair<ystr, expr*>> Matched;
+		yvec<ypair<var_symbol*, expr*>> Matched;
 
 	public:
 		let_expr(token const& beg, pattern* l, type_desc* t, expr* v);

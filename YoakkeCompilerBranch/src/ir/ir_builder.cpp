@@ -35,13 +35,8 @@ namespace yk {
 	}
 
 	void ir_builder::add_inst_bb_begin(ir_instr* inst) {
-		auto& blck = m_CurrentFunc->Blocks[0]->Instructions;
-		if (blck.size()) {
-			blck.insert(blck.begin(), inst);
-		}
-		else {
-			blck.push_back(inst);
-		}
+		auto& blck = m_CurrentFunc->Blocks[0];
+		blck->add_begin(inst);
 	}
 
 	void ir_builder::set_func(ir_function* func) {
@@ -65,3 +60,4 @@ namespace yk {
 		}
 	}
 }
+

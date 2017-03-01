@@ -18,5 +18,9 @@ namespace yk {
 
 	public:
 		void add(ir_instr* ins);
+		void add_begin(ir_instr* ins);
+
+	private:
+		void rename_instr(ir_instr* ins);
 	};
 }

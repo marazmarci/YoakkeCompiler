@@ -5,7 +5,7 @@
 namespace yk {
 	// Expression
 	expr::expr(position const& pos)
-		: ast_node(pos), Hint(nullptr), EvalType(nullptr) {
+		: ast_node(pos), Hint(nullptr), EvalType(nullptr), Lvalue(false) {
 	}
 
 	expr::~expr() { }

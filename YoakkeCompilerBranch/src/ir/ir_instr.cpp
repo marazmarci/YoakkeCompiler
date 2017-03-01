@@ -43,4 +43,17 @@ namespace yk {
 	}
 
 	ir_call_instr::~ir_call_instr() { }
+
+	// Load instruction
+	ir_load_instr::ir_load_instr(ystr const& name, ir_value* p) 
+		: ir_instr(ir_opcode::load), ir_named_value(nullptr, name), Ptr(p) {
+		if (auto ptrt = dynamic_cast<ir_ptr_type*>(p->Type)) {
+			Type = ptrt->Sub;
+		}
+		else {
+			throw std::exception("Can not load non-ptr type!");
+		}
+	}
+
+	ir_load_instr::~ir_load_instr() { }
 }

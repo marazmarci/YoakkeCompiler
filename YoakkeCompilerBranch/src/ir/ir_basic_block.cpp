@@ -12,10 +12,23 @@ namespace yk {
 	}
 
 	void ir_basic_block::add(ir_instr* ins) {
-		if (auto alloc = dynamic_cast<ir_alloc_instr*>(ins)) {
-			alloc->Name = Function->NameGen.get(alloc->Name);
-		}
-
+		rename_instr(ins);
 		Instructions.push_back(ins);
+	}
+
+	void ir_basic_block::add_begin(ir_instr* ins) {
+		rename_instr(ins);
+		if (Instructions.size()) {
+			Instructions.insert(Instructions.begin(), ins);
+		}
+		else {
+			Instructions.push_back(ins);
+		}
+	}
+
+	void ir_basic_block::rename_instr(ir_instr* ins) {
+		if (auto named = dynamic_cast<ir_named_value*>(ins)) {
+			named->Name = Function->NameGen.get(named->Name);
+		}
 	}
 }

@@ -97,6 +97,14 @@ namespace yk {
 			break;
 		}
 
+		case ir_opcode::load: {
+			auto i2 = reinterpret_cast<ir_load_instr*>(ins);
+			m_Ostream << '%' << i2->Name << " = load " << i2->Type->Identifier << ", "
+				<< i2->Ptr->Type->Identifier << ' ';
+			print(i2->Ptr);
+			break;
+		}
+
 		case ir_opcode::call: {
 			auto i2 = reinterpret_cast<ir_call_instr*>(ins);
 			m_Ostream << "call " << i2->FP->ReturnType->Identifier << " @" << i2->FP->Name 

@@ -48,7 +48,16 @@ namespace yk {
 	}
 
 	ir_value* ir_expr_compiler::compile(ident_expr& exp) {
-		return exp.ValueSymbol->Value;
+		auto sym = exp.ValueSymbol;
+		auto val = sym->Value;
+		if (exp.Lvalue || dynamic_cast<ir_function_proto*>(val)) {
+			return val;
+		}
+		else {
+			auto load = new ir_load_instr(sym->Identifier, val);
+			m_Builder.add_inst(load);
+			return load;
+		}
 	}
 
 	ir_value* ir_expr_compiler::compile(unit_expr& exp) {
@@ -168,7 +177,8 @@ namespace yk {
 			auto EXP = pair.second;
 			auto TYPE = EXP->EvalType;
 
-			auto all = new ir_alloc_instr(ID, get_ir_type(TYPE));
+			auto all = new ir_alloc_instr(ID->Identifier, get_ir_type(TYPE));
+			ID->Value = all;
 			m_Builder.add_inst_bb_begin(all);
 			if (EXP) {
 				m_Builder.add_inst(new ir_store_instr(all, (*this)(*EXP)));

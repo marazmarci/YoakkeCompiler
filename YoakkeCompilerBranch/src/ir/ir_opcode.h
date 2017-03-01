@@ -6,6 +6,7 @@ namespace yk {
 		jmp,
 		alloc,
 		store,
+		load,
 		call,
 		ret
 	};
