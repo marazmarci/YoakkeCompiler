@@ -4,7 +4,6 @@
 
 #include "src\parse\ylexer.h"
 #include "src\parse\yparser.h"
-#include "src\utility\static_block.h"
 #include "src\ast\expr.h"
 #include "src\unit_testing\expr_unit_test.h"
 #include "src\semantics\semantic_checker.h"

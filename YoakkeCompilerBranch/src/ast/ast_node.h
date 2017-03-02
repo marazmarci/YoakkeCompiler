@@ -3,7 +3,10 @@
 #include "../parse/position.h"
 #include "../utility/visitor.h"
 
-// TODO: abstract away common structures into templates (binop, list, ident)
+/*
+The base class for the nodes in the AST.
+Contains positional information.
+*/
 
 namespace yk {
 	class ast_node {
