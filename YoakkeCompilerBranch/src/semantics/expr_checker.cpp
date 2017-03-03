@@ -224,11 +224,14 @@ namespace yk {
 		yset<ystr> arg_names;
 		for (auto arg : exp.Prototype->Parameters) {
 			if (arg->Name.some()) {
-				auto arg_n = arg->Name.get().identifier();
+				auto arg_n = arg->Name.get().value();
 				if (arg_names.find(arg_n) != arg_names.end()) {
 					throw std::exception("Parameter already defined!");
 				}
 				arg_names.insert(arg_n);
+				auto sym = new var_symbol(arg_n, arg->Type->SymbolForm);
+				m_Table.decl(sym);
+				arg->ValueSymbol = sym;
 			}
 			else {
 				// TODO: WARN

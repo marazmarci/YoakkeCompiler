@@ -8,16 +8,7 @@ namespace yk {
 	class ir_module;
 	class ir_basic_block;
 	class ir_type;
-
-	class ir_parameter {
-	public:
-		ystr Name;
-		ir_type* Type;
-
-	public:
-		ir_parameter(ystr const& name, ir_type* t);
-		virtual ~ir_parameter();
-	};
+	class ir_parameter;
 
 	class ir_function_proto : public ir_value {
 	public:

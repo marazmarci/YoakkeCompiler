@@ -163,7 +163,7 @@ namespace yk {
 		yvec<ir_parameter*> params;
 		for (auto p : exp.Parameters) {
 			if (p->Name.some()) {
-				params.push_back(new ir_parameter(p->Name.get().identifier(),
+				params.push_back(new ir_parameter(p->Name.get().value(),
 					get_ir_type(p->Type->SymbolForm)));
 			}
 			else {
@@ -181,6 +181,17 @@ namespace yk {
 		auto proto = (ir_function_proto*)(*this)(*exp.Prototype);
 		auto func = new ir_function(proto);
 		m_Builder.set_func(func);
+		for (ysize i = 0; i < exp.Prototype->Parameters.size(); i++) {
+			auto param = exp.Prototype->Parameters[i];
+			if (param->Name.some()) {
+				auto ID = param->Name.get().value();
+				auto TYPE = param->Type->SymbolForm;
+				auto all = new ir_alloc_instr(ID, get_ir_type(TYPE));
+				param->ValueSymbol->Value = all;
+				m_Builder.add_inst_bb_begin(all);
+				m_Builder.add_inst(new ir_store_instr(all, proto->Parameters[i]));
+			}
+		}
 		(*this)(*exp.Body);
 		m_Builder.add_inst(new ir_ret_instr());
 		m_Builder.set_bb(curr_bb);

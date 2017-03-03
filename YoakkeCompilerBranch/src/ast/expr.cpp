@@ -130,7 +130,7 @@ namespace yk {
 
 	param_expr::param_expr(token const& col, type_desc* type)
 		: expr(position::interval(position::get(col), type->Position)),
-		Name(None), Type(type) {
+		Name(None), Type(type), ValueSymbol(nullptr) {
 	}
 
 	param_expr::~param_expr() {

@@ -46,4 +46,10 @@ namespace yk {
 	public:
 		virtual ~ir_named_value();
 	};
+
+	class ir_parameter : public ir_named_value {
+	public:
+		ir_parameter(ystr const& name, ir_type* t);
+		virtual ~ir_parameter();
+	};
 }

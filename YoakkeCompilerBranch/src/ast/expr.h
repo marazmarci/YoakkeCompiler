@@ -194,6 +194,7 @@ namespace yk {
 	public:
 		yopt<token> Name;
 		type_desc* Type;
+		typed_symbol* ValueSymbol;
 
 	public:
 		param_expr(token const& name, token const& col, type_desc* type);

@@ -3,12 +3,6 @@
 #include "ir_type.h"
 
 namespace yk {
-	ir_parameter::ir_parameter(ystr const& name, ir_type* t)
-		: Name(name), Type(t) {
-	}
-
-	ir_parameter::~ir_parameter() { }
-
 	ir_function_proto::ir_function_proto(ystr const& id, ir_type* rett, yvec<ir_parameter*> const& params)
 		: ir_value(nullptr), Name(id), Module(nullptr), ReturnType(rett), Parameters(params) {
 		for (auto p : Parameters) {

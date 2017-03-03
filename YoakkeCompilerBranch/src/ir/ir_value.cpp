@@ -26,4 +26,10 @@ namespace yk {
 	}
 
 	ir_named_value::~ir_named_value() { }
+
+	ir_parameter::ir_parameter(ystr const& name, ir_type* t)
+		: ir_named_value(t, name) {
+	}
+
+	ir_parameter::~ir_parameter() { }
 }
