@@ -96,6 +96,27 @@ namespace yk {
 			}
 		}
 
+		static token_desc string_literal(const char* src) {
+			ystr res = "";
+			if (*src == '"') {
+				src++;
+				res += '"';
+				// TODO: escapes
+				while (*src && *src != '"') {
+					res += *src++;
+				}
+				if (*src == '"') {
+					src++;
+					res += '"';
+					return std::make_pair("String", res.length());
+				}
+				else {
+					throw std::exception("Premature EOF for string literal!");
+				}
+			}
+			return None;
+		}
+
 		static const yset<ystr> symbols = {
 			"(", ")",
 			"::",
@@ -108,7 +129,7 @@ namespace yk {
 			"!", ".", "->",
 			":",
 			"{", "}",
-			";"
+			";", "#"
 		};
 
 		static token_desc symbol(const char* src) {
@@ -131,6 +152,7 @@ namespace yk {
 		// Actual tokenization
 		add_rule(lex_rules::identifier);
 		add_rule(lex_rules::numeric_literal);
+		add_rule(lex_rules::string_literal);
 		add_rule(lex_rules::symbol);
 	}
 }

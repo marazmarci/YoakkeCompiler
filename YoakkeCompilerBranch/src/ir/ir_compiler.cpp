@@ -6,6 +6,9 @@
 #include "../semantics/type_symbol.h"
 #include "../ast/type_desc.h"
 #include "../semantics/typed_symbol.h"
+#include "../utility/map_ext.h"
+#include "../ast/expr.h"
+#include "../ast/node_tag.h"
 
 namespace yk {
 	// Generic compiler ///////////////////////////////////////////////////////
@@ -94,7 +97,21 @@ namespace yk {
 			}
 			else if (auto prot = dynamic_cast<func_proto*>(exp.RHS)) {
 				auto pr = (ir_function_proto*)(*this)(*prot);
-				pr->Name = ID;
+				// TODO: Check in semantics, not here!
+				foreign_node_tag* f_tag = nullptr;
+				if (auto t = ext::get_value(prot->Tags, ystr("foreign"))) {
+					f_tag = (foreign_node_tag*)t;
+				}
+				else {
+					throw std::exception("foreign needed for function prototype alone!");
+				}
+				if (f_tag->Name.some()) {
+					ystr strval = f_tag->Name.get().value();
+					pr->Name = strval.substr(1, strval.length() - 2);
+				}
+				else {
+					pr->Name = ID;
+				}
 				ID_EXP->ValueSymbol->Value = pr;
 				m_Builder.add_func_proto(pr);
 				return nullptr;

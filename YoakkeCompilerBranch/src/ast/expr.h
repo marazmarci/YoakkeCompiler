@@ -14,6 +14,7 @@ namespace yk {
 	class typed_symbol;
 	class var_symbol;
 	class const_bind_symbol;
+	class node_tag;
 
 	class expr : public ast_node, public visitable<expr> {
 	public:
@@ -158,10 +159,12 @@ namespace yk {
 	public:
 		yvec<param_expr*> Parameters;
 		type_desc* ReturnType;
+		ymap<ystr, node_tag*> Tags;
 
 	public:
 		func_proto(token const& beg, position const& end, 
-			yvec<param_expr*> const& pars, type_desc* rett);
+			yvec<param_expr*> const& pars, type_desc* rett,
+			ymap<ystr, node_tag*> const& tags);
 		virtual ~func_proto();
 	};
 

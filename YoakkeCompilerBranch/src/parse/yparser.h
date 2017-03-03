@@ -5,6 +5,7 @@
 #include "../ast/expr.h"
 #include "../ast/type_desc.h"
 #include "../ast/pattern.h"
+#include "../ast/node_tag.h"
 
 namespace yk {
 	typedef ypair<token, type_desc*> param_pair;
@@ -30,5 +31,6 @@ namespace yk {
 		param_expr* parse_param();
 		expr* parse_body();
 		stmt* parse_stmt();
+		node_tag* parse_tag();
 	};
 }

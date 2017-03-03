@@ -94,9 +94,10 @@ namespace yk {
 
 	// Function prototype
 	func_proto::func_proto(token const& beg, position const& end, 
-		yvec<param_expr*> const& pars, type_desc* rett)
+		yvec<param_expr*> const& pars, type_desc* rett,
+		ymap<ystr, node_tag*> const& tags)
 		: expr(position::interval(position::get(beg), end)),
-		Parameters(pars), ReturnType(rett) {
+		Parameters(pars), ReturnType(rett), Tags(tags) {
 	}
 
 	func_proto::~func_proto() {

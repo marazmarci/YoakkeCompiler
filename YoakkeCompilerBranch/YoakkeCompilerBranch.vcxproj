@@ -117,6 +117,7 @@
     <ClInclude Include="src\ast\expr.h" />
     <ClInclude Include="src\ast\pattern.h" />
     <ClInclude Include="src\ast\stmt.h" />
+    <ClInclude Include="src\ast\node_tag.h" />
     <ClInclude Include="src\ast\type_desc.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\debug\expr_prec_printer.h" />
@@ -163,6 +164,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\ast\ast_node.cpp" />
     <ClCompile Include="src\ast\expr.cpp" />
+    <ClCompile Include="src\ast\node_tag.cpp" />
     <ClCompile Include="src\ast\pattern.cpp" />
     <ClCompile Include="src\ast\stmt.cpp" />
     <ClCompile Include="src\ast\type_desc.cpp" />

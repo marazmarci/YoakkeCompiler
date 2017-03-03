@@ -178,15 +178,24 @@ namespace yk {
 						throw std::exception("Type expected after '->'!");
 					}
 				}
+				ymap<ystr, node_tag*> tags;
+				while (ypar->peek().identifier() == "#") {
+					if (auto t = ypar->parse_tag()) {
+						tags.insert(std::make_pair(t->Name, t));
+					}
+					else {
+						throw std::exception("SANITY");
+					}
+				}
 				body = ypar->parse_body();
 				if (params.size() || rett || body) {
 					func_proto* proto = nullptr;
 					if (rett) {
-						proto = new func_proto(begin, rett->Position, params, rett);
+						proto = new func_proto(begin, rett->Position, params, rett, tags);
 					}
 					else {
 						proto = new func_proto(begin, position::get(end.get()), params, 
-							new ident_type_desc(token("unit", "unit")));
+							new ident_type_desc(token("unit", "unit")), tags);
 					}
 					if (body) {
 						return new func_expr(proto, body);
@@ -499,5 +508,30 @@ namespace yk {
 		else {
 			return nullptr;
 		}
+	}
+
+	node_tag* yparser::parse_tag() {
+		if (peek().identifier() == "#") {
+			auto hashm = consume();
+			if (peek().identifier() == "Identifier") {
+				auto ident = consume();
+				if (ident.value() == "foreign") {
+					if (peek().identifier() == "String") {
+						auto param = consume();
+						return new foreign_node_tag(hashm, ident, param);
+					}
+					else {
+						return new foreign_node_tag(hashm, ident, None);
+					}
+				}
+				else {
+					throw std::exception("Unknown directive!");
+				}
+			}
+			else {
+				throw std::exception("Directive expected after '#'!");
+			}
+		}
+		return nullptr;
 	}
 }
