@@ -24,7 +24,14 @@ namespace yk {
 	}
 
 	void ir_stmt_compiler::compile(expr_stmt& st) {
-		m_Parent.compile(*st.Sub);
+		// TODO: Separate const assignment from others
+		if (st.Semicol.some() || dynamic_cast<block_expr*>(st.Sub) || 
+			(dynamic_cast<bin_expr*>(st.Sub) && ((bin_expr*)st.Sub)->OP.identifier() == "::")) {
+			m_Parent.compile(*st.Sub);
+		}
+		else {
+			m_Builder.add_inst(new ir_ret_instr(m_Parent.compile(*st.Sub)));
+		}
 	}
 
 	// Expression compiler ////////////////////////////////////////////////////
@@ -193,7 +200,10 @@ namespace yk {
 			}
 		}
 		(*this)(*exp.Body);
-		m_Builder.add_inst(new ir_ret_instr());
+		auto& ins_ls = m_Builder.current_bb()->Instructions;
+		if (ins_ls[ins_ls.size() - 1]->Opcode != ir_opcode::ret) {
+			m_Builder.add_inst(new ir_ret_instr());
+		}
 		m_Builder.set_bb(curr_bb);
 		return func;
 	}
