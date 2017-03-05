@@ -3,89 +3,77 @@
 #include <stdexcept>
 
 namespace yk {
-	struct NoneT {};
-	extern NoneT None;
+	class none_t { };
+	extern none_t None;
 
 	template <typename T>
 	class optional {
 	private:
-		bool flag;
-		union { T data; };
+		bool m_Flag;
+		union { T m_Data; };
 
 	public:
-		optional()
-			: flag(false) {
+		optional() 
+			: m_Flag(false) {
 		}
 
-		optional(T const& val)
-			: flag(true), data(val) {
+		optional(none_t n)
+			: m_Flag(false) {
 		}
 
-		optional(NoneT const& val)
-			: flag(false) {
+		optional(T const& d)
+			: m_Flag(true) {
+			new (&m_Data) T(d);
 		}
 
-		optional(const optional<T>& prev)
-			: flag(prev.flag) {
-			new (&data) T(*reinterpret_cast<const T*>(&prev.data));
-		}
-
-		optional(optional<T>&& prev)
-			: flag(prev.flag) {
-			new (&data) T(std::move(*reinterpret_cast<T*>(&prev.data)));
+		optional(optional<T> const& opt)
+			: m_Flag(opt.m_Flag) {
+			if (m_Flag) {
+				new (&m_Data) T(opt.m_Data);
+			}
 		}
 
 		~optional() {
-			//destruct();
+			destruct();
 		}
 
 	public:
-		optional<T> const& operator=(T const& el) {
-			destruct();
-			flag = true;
-			std::memcpy(&data, &el, sizeof(T));
-			return *this;
-		}
-
-		optional<T> const& operator=(NoneT const& el) {
-			destruct();
-			flag = false;
-			return *this;
-		}
-
-		optional<T> const& operator=(optional<T> const& prev) {
-			destruct();
-			if (prev.flag) {
-				flag = true;
-				new (&data) T(*reinterpret_cast<const T*>(&prev.data));
-			}
-			else {
-				flag = false;
+		optional<T> const& operator=(optional<T> const& other) {
+			m_Flag = other.m_Flag;
+			if (m_Flag) {
+				new (&m_Data) T(other.m_Data);
 			}
 			return *this;
 		}
 
-		inline bool some() const {
-			return flag;
-		}
-
-		inline bool none() const {
-			return !flag;
+		optional<T> const& operator=(none_t other) {
+			destruct();
+			m_Flag = false;
+			return *this;
 		}
 
 		T& get() {
-			if (flag) {
-				return data;
+			if (m_Flag) {
+				return m_Data;
 			}
 			else {
-				throw std::exception("Tried to fetch optional<T> without actual data!");
+				throw std::exception("Tried to get optional value without value");
 			}
+		}
+
+		bool some() {
+			return m_Flag;
+		}
+
+		bool none() {
+			return !m_Flag;
 		}
 
 	private:
 		void destruct() {
-			if (flag) {
-				data.~T();
+			if (m_Flag) {
+				m_Data.~T();
+				m_Flag = false;
 			}
 		}
 	};

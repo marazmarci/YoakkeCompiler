@@ -1,5 +1,5 @@
 #include "optional.h"
 
 namespace yk {
-	NoneT None;
+	none_t None;
 }
