@@ -219,4 +219,17 @@ namespace yk {
 		let_expr(token const& beg, pattern* l, type_desc* t, expr* v);
 		virtual ~let_expr();
 	};
+
+	class const_asgn_expr : public expr {
+	public:
+		META_Visitable(const_asgn_expr, expr)
+
+	public:
+		ident_expr* LHS;
+		expr* RHS;
+
+	public:
+		const_asgn_expr(ident_expr* l, expr* r);
+		virtual ~const_asgn_expr();
+	};
 }

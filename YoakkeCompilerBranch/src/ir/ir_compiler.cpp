@@ -28,8 +28,9 @@ namespace yk {
 
 	void ir_stmt_compiler::compile(expr_stmt& st) {
 		// TODO: Separate const assignment from others
-		if (st.Semicol.some() || dynamic_cast<block_expr*>(st.Sub) || 
-			(dynamic_cast<bin_expr*>(st.Sub) && ((bin_expr*)st.Sub)->OP.identifier() == "::")) {
+		if (	st.Semicol.some() 
+			||	dynamic_cast<block_expr*>(st.Sub) 
+			||	dynamic_cast<const_asgn_expr*>(st.Sub)) {
 			m_Parent.compile(*st.Sub);
 		}
 		else {
@@ -44,7 +45,8 @@ namespace yk {
 			expr,
 			ident_expr, unit_expr, int_lit_expr, real_lit_expr, 
 			preury_expr, postury_expr, bin_expr,
-			mixfix_expr, func_proto, func_expr, body_expr, let_expr);
+			mixfix_expr, func_proto, func_expr, body_expr, let_expr,
+			const_asgn_expr);
 	}
 
 	ir_value* ir_expr_compiler::compile(expr& exp) {
@@ -85,39 +87,7 @@ namespace yk {
 	}
 
 	ir_value* ir_expr_compiler::compile(bin_expr& exp) {
-		if (exp.OP.identifier() == "::") {
-			auto ID_EXP = ((ident_expr*)exp.LHS);
-			ystr const& ID = ID_EXP->identifier;
-			if (auto func = dynamic_cast<func_expr*>(exp.RHS)) {
-				auto fun = (ir_function*)(*this)(*func);
-				fun->Prototype->Name = ID;
-				ID_EXP->ValueSymbol->Value = fun->Prototype;
-				m_Builder.add_func(fun);
-				return nullptr;
-			}
-			else if (auto prot = dynamic_cast<func_proto*>(exp.RHS)) {
-				auto pr = (ir_function_proto*)(*this)(*prot);
-				// TODO: Check in semantics, not here!
-				foreign_node_tag* f_tag = nullptr;
-				if (auto t = ext::get_value(prot->Tags, ystr("foreign"))) {
-					f_tag = (foreign_node_tag*)t;
-				}
-				else {
-					throw std::exception("foreign needed for function prototype alone!");
-				}
-				if (f_tag->Name.some()) {
-					ystr strval = f_tag->Name.get().value();
-					pr->Name = strval.substr(1, strval.length() - 2);
-				}
-				else {
-					pr->Name = ID;
-				}
-				ID_EXP->ValueSymbol->Value = pr;
-				m_Builder.add_func_proto(pr);
-				return nullptr;
-			}
-		}
-		else if (exp.OP.identifier() == "=") {
+		if (exp.OP.identifier() == "=") {
 			// TODO: Maybe in semantics?
 			exp.LHS->Lvalue = true;
 			auto all = (*this)(*exp.LHS);
@@ -249,6 +219,39 @@ namespace yk {
 			}
 		}
 		return nullptr;
+	}
+
+	ir_value* ir_expr_compiler::compile(const_asgn_expr& exp) {
+		auto ID_EXP = ((ident_expr*)exp.LHS);
+		ystr const& ID = ID_EXP->identifier;
+		if (auto func = dynamic_cast<func_expr*>(exp.RHS)) {
+			auto fun = (ir_function*)(*this)(*func);
+			fun->Prototype->Name = ID;
+			ID_EXP->ValueSymbol->Value = fun->Prototype;
+			m_Builder.add_func(fun);
+			return nullptr;
+		}
+		else if (auto prot = dynamic_cast<func_proto*>(exp.RHS)) {
+			auto pr = (ir_function_proto*)(*this)(*prot);
+			// TODO: Check in semantics, not here!
+			foreign_node_tag* f_tag = nullptr;
+			if (auto t = ext::get_value(prot->Tags, ystr("foreign"))) {
+				f_tag = (foreign_node_tag*)t;
+			}
+			else {
+				throw std::exception("foreign needed for function prototype alone!");
+			}
+			if (f_tag->Name.some()) {
+				ystr strval = f_tag->Name.get().value();
+				pr->Name = strval.substr(1, strval.length() - 2);
+			}
+			else {
+				pr->Name = ID;
+			}
+			ID_EXP->ValueSymbol->Value = pr;
+			m_Builder.add_func_proto(pr);
+			return nullptr;
+		}
 	}
 
 	ir_type* ir_expr_compiler::get_ir_type(type_symbol* ts) {

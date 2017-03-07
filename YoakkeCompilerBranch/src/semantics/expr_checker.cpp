@@ -11,7 +11,7 @@ namespace yk {
 		META_Visitables(expr,
 			ident_expr, unit_expr, int_lit_expr, real_lit_expr, bin_expr, preury_expr,
 			postury_expr, list_expr, mixfix_expr, func_proto, func_expr, body_expr,
-			param_expr, let_expr);
+			param_expr, let_expr, const_asgn_expr);
 	}
 
 	type_symbol* expr_checker::check(expr& exp) {
@@ -51,24 +51,7 @@ namespace yk {
 	}
 
 	type_symbol* expr_checker::check(bin_expr& exp) {
-		if (exp.OP.identifier() == "::") {
-			ident_expr* ident = reinterpret_cast<ident_expr*>(exp.LHS);
-			auto rhs_type = (*this)(*exp.RHS);
-			auto sym_set = m_Table.ref(ident->identifier);
-			auto typed_set = symbol_table::filter<typed_symbol>(sym_set);
-			typed_set = symbol_table::filter_typed_match(typed_set, rhs_type);
-			if (typed_set.size()) {
-				throw std::exception("Ambigious constant binding is not allowed!");
-			}
-			else {
-				auto cbs = new const_bind_symbol(ident->identifier, rhs_type);
-				m_Table.decl(cbs);
-				exp.EvalType = symbol_table::UNIT;
-				ident->ValueSymbol = cbs;
-				return exp.EvalType;
-			}
-		}
-		else if (exp.OP.identifier() == "=") {
+		if (exp.OP.identifier() == "=") {
 			auto lval = (*this)(*exp.LHS); // TODO: check if lvalue
 			auto rval = (*this)(*exp.RHS);
 			if (lval) {
@@ -283,5 +266,23 @@ namespace yk {
 		}
 		exp.EvalType = symbol_table::UNIT;
 		return exp.EvalType;
+	}
+
+	type_symbol* expr_checker::check(const_asgn_expr& exp) {
+		ident_expr* ident = exp.LHS;
+		auto rhs_type = (*this)(*exp.RHS);
+		auto sym_set = m_Table.ref(ident->identifier);
+		auto typed_set = symbol_table::filter<typed_symbol>(sym_set);
+		typed_set = symbol_table::filter_typed_match(typed_set, rhs_type);
+		if (typed_set.size()) {
+			throw std::exception("Ambigious constant binding is not allowed!");
+		}
+		else {
+			auto cbs = new const_bind_symbol(ident->identifier, rhs_type);
+			m_Table.decl(cbs);
+			exp.EvalType = symbol_table::UNIT;
+			ident->ValueSymbol = cbs;
+			return exp.EvalType;
+		}
 	}
 }

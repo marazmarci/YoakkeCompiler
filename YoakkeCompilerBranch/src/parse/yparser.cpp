@@ -32,7 +32,7 @@ namespace yk {
 			}
 
 		public:
-			T* parse(T* left, token const& begin, T_parser<T>* parser) override {
+			virtual T* parse(T* left, token const& begin, T_parser<T>* parser) override {
 				auto rhs = parser->parse(precedence() - (right ? 1 : 0));
 				if (rhs) {
 					return new RET(left, rhs, begin);
@@ -251,6 +251,16 @@ namespace yk {
 		public:
 			bool matches(expr* left) override {
 				return dynamic_cast<ident_expr*>(left) != nullptr;
+			}
+
+			expr* parse(expr* left, token const& begin, expr_parser* parser) override {
+				auto rhs = parser->parse(precedence() - (right ? 1 : 0));
+				if (rhs) {
+					return new const_asgn_expr((ident_expr*)left, rhs);
+				}
+				else {
+					throw std::exception("RHS expected for operator!");
+				}
 			}
 		};
 		

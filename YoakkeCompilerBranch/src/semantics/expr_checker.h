@@ -34,5 +34,6 @@ namespace yk {
 		type_symbol* check(body_expr& exp);
 		type_symbol* check(param_expr& exp);
 		type_symbol* check(let_expr& exp);
+		type_symbol* check(const_asgn_expr& exp);
 	};
 }

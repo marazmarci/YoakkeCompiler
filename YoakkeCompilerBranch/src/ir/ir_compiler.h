@@ -52,6 +52,7 @@ namespace yk {
 		ir_value* compile(func_expr& exp);
 		ir_value* compile(body_expr& exp);
 		ir_value* compile(let_expr& exp);
+		ir_value* compile(const_asgn_expr& exp);
 
 	private:
 		ir_type* get_ir_type(type_symbol* ts);

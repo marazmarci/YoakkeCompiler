@@ -150,4 +150,15 @@ namespace yk {
 		if (Type) delete Type;
 		if (Value) delete Value;
 	}
+
+	// Const assignment expression
+	const_asgn_expr::const_asgn_expr(ident_expr* l, expr* r)
+		: expr(position::interval(l->Position, r->Position)),
+		LHS(l), RHS(r) {
+	}
+
+	const_asgn_expr::~const_asgn_expr() {
+		delete LHS;
+		delete RHS;
+	}
 }
