@@ -9,6 +9,7 @@ namespace yk {
 	class ir_basic_block;
 	class ir_instr;
 	class ir_value;
+	class ir_type;
 
 	class llvm_ir {
 	private:
@@ -26,5 +27,6 @@ namespace yk {
 
 	private:
 		void print(ir_value* val);
+		void print(ir_type* ty);
 	};
 }

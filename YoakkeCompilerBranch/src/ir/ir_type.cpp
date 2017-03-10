@@ -21,6 +21,13 @@ namespace yk {
 
 	ir_int_type::~ir_int_type() { }
 
+	// Real (n bits)
+	ir_real_type::ir_real_type(ysize sz)
+		: ir_type("f" + std::to_string(sz), sz) {
+	}
+
+	ir_real_type::~ir_real_type() { }
+
 	// TODO
 	// Function
 	ir_func_type::ir_func_type(yvec<ir_type*> const& params, ir_type* rett)

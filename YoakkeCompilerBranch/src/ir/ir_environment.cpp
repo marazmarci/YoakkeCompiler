@@ -7,6 +7,10 @@ namespace yk {
 	ymap<ystr, ir_type*> ir_environment::TypeTable;
 
 	void ir_environment::init() {
+		// Add builtin types for lookup
+		ir_environment::add_type(new ir_void_type());
+		ir_environment::add_type(new ir_int_type(32));
+		ir_environment::add_type(new ir_real_type(32));
 	}
 
 	void ir_environment::deinit() {

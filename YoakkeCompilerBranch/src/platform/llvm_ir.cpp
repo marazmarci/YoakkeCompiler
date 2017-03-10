@@ -5,6 +5,7 @@
 #include "../ir/ir_instr.h"
 #include "../ir/ir_type.h"
 #include "../ir/ir_value.h"
+#include "../environment/memory.h"
 
 namespace yk {
 	llvm_ir::llvm_ir(std::ostream& os)
@@ -24,14 +25,16 @@ namespace yk {
 
 	void llvm_ir::print(ir_function* fn) {
 		auto proto = fn->Prototype;
-		m_Ostream << "define " << proto->ReturnType->identifier << " @" << proto->Name << "(";
+		m_Ostream << "define ";
+		print(proto->ReturnType);
+		m_Ostream << " @" << proto->Name << "(";
 		if (proto->Parameters.size()) {
-			m_Ostream << proto->Parameters[0]->Type->identifier << ' '
-				<< '%' << proto->Parameters[0]->Name;
+			print(proto->Parameters[0]->Type);
+			m_Ostream << " %" << proto->Parameters[0]->Name;
 			for (ysize i = 1; i < proto->Parameters.size(); i++) {
-				m_Ostream << ", "
-					<< proto->Parameters[i]->Type->identifier << ' '
-					<< '%' << proto->Parameters[i]->Name;
+				m_Ostream << ", ";
+				print(proto->Parameters[i]->Type);
+				m_Ostream << " %" << proto->Parameters[i]->Name;
 			}
 		}
 		m_Ostream << ") {" << std::endl;
@@ -42,11 +45,14 @@ namespace yk {
 	}
 
 	void llvm_ir::print(ir_function_proto* pr) {
-		m_Ostream << "declare " << pr->ReturnType->identifier << " @" << pr->Name << "(";
+		m_Ostream << "declare ";
+		print(pr->ReturnType);
+		m_Ostream << " @" << pr->Name << "(";
 		if (pr->Parameters.size()) {
-			m_Ostream << pr->Parameters[0]->Type->identifier;
+			print(pr->Parameters[0]->Type);
 			for (ysize i = 1; i < pr->Parameters.size(); i++) {
-				m_Ostream << ", " << pr->Parameters[i]->Type->identifier;
+				m_Ostream << ", ";
+				print(pr->Parameters[i]->Type);
 			}
 		}
 		m_Ostream << ')' << std::endl;
@@ -73,7 +79,8 @@ namespace yk {
 			auto i2 = reinterpret_cast<ir_ret_instr*>(ins);
 			m_Ostream << "ret ";
 			if (i2->Value) {
-				m_Ostream << i2->Value->Type->identifier << ' ';
+				print(i2->Value->Type);
+				m_Ostream << ' ';
 				print(i2->Value);
 			}
 			else {
@@ -84,23 +91,31 @@ namespace yk {
 
 		case ir_opcode::alloc: {
 			auto i2 = reinterpret_cast<ir_alloc_instr*>(ins);
-			m_Ostream << '%' << i2->Name << " = alloca " << i2->What->identifier;
+			m_Ostream << '%' << i2->Name << " = alloca ";
+			print(i2->What);
 			break;
 		}
 
 		case ir_opcode::store: {
 			auto i2 = reinterpret_cast<ir_store_instr*>(ins);
-			m_Ostream << "store " << i2->Value->Type->identifier << ' ';
+			m_Ostream << "store ";
+			print(i2->Value->Type);
+			m_Ostream << ' ';
 			print(i2->Value);
-			m_Ostream << ", " << i2->Ptr->Type->identifier << ' ';
+			m_Ostream << ", ";
+			print(i2->Ptr->Type);
+			m_Ostream << ' ';
 			print(i2->Ptr);
 			break;
 		}
 
 		case ir_opcode::load: {
 			auto i2 = reinterpret_cast<ir_load_instr*>(ins);
-			m_Ostream << '%' << i2->Name << " = load " << i2->Type->identifier << ", "
-				<< i2->Ptr->Type->identifier << ' ';
+			m_Ostream << '%' << i2->Name << " = load ";
+			print(i2->Type);
+			m_Ostream << ", ";
+			print(i2->Ptr->Type);
+			m_Ostream << ' ';
 			print(i2->Ptr);
 			break;
 		}
@@ -110,13 +125,17 @@ namespace yk {
 			if (i2->Type->identifier != "void") {
 				m_Ostream << '%' << i2->Name << " = ";
 			}
-			m_Ostream << "call " << i2->FP->ReturnType->identifier << " @" << i2->FP->Name 
-				<< '(';
+			m_Ostream << "call ";
+			print(i2->FP->ReturnType);
+			m_Ostream<< " @" << i2->FP->Name << '(';
 			if (i2->Args.size()) {
-				m_Ostream << i2->Args[0]->Type->identifier << ' ';
+				print(i2->Args[0]->Type);
+				m_Ostream << ' ';
 				print(i2->Args[0]);
 				for (ysize i = 1; i < i2->Args.size(); i++) {
-					m_Ostream << ", " << i2->Args[i]->Type->identifier << ' ';
+					m_Ostream << ", ";
+					print(i2->Args[i]->Type);
+					m_Ostream << ' ';
 					print(i2->Args[i]);
 				}
 			}
@@ -142,11 +161,53 @@ namespace yk {
 		if (auto i_t = dynamic_cast<ir_int_value*>(val)) {
 			m_Ostream << i_t->Value;
 		}
+		else if (auto r_t = dynamic_cast<ir_real_value*>(val)) {
+			m_Ostream << "0x";
+			auto val = r_t->Value;
+			auto swapped = mem::swap_endian(r_t->Value);
+			auto sarr = (ybyte*)&swapped;
+			for (ysize i = 0; i < sizeof(swapped) * 2; i++) {
+				// TODO: cut for float only
+				if (i > 8) {
+					m_Ostream << '0';
+				}
+				else {
+					m_Ostream << "0123456789ABCDEF"[i % 2 ? 
+							((sarr[i / 2] & 0x0f) >> 0)
+						:	((sarr[i / 2] & 0xf0) >> 4)
+					];
+				}
+			}
+		}
 		else if (auto n_t = dynamic_cast<ir_named_value*>(val)) {
 			m_Ostream << '%' << n_t->Name;
 		}
 		else {
 			throw std::exception("Unsopported value for IR printer!");
+		}
+	}
+
+	void llvm_ir::print(ir_type* ty) {
+		if (auto v_t = dynamic_cast<ir_void_type*>(ty)) {
+			m_Ostream << "void";
+		}
+		else if (auto i_t = dynamic_cast<ir_int_type*>(ty)) {
+			m_Ostream << i_t->identifier;
+		}
+		else if (auto r_t = dynamic_cast<ir_real_type*>(ty)) {
+			if (r_t->Size == 32) {
+				m_Ostream << "float";
+			}
+			else {
+				m_Ostream << r_t->identifier;
+			}
+		}
+		else if (auto p_t = dynamic_cast<ir_ptr_type*>(ty)) {
+			print(p_t->Sub);
+			m_Ostream << '*';
+		}
+		else {
+			throw std::exception("Unsopported type for IR printer!");
 		}
 	}
 }

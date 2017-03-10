@@ -51,11 +51,6 @@ int main(void) {
 		using namespace yk;
 		ir_environment::init();
 
-		auto itype = new ir_int_type(32);
-		auto vtype = new ir_void_type();
-		ir_environment::add_type(itype);
-		ir_environment::add_type(vtype);
-
 		ir_module mod;
 		ir_compiler compiler(mod);
 		for (auto p : prog) {

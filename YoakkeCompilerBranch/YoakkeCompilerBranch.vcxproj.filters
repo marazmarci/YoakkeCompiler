@@ -153,6 +153,9 @@
     <ClInclude Include="src\ast\node_tag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\environment\memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

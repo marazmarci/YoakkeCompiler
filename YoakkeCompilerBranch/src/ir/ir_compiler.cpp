@@ -75,7 +75,7 @@ namespace yk {
 	}
 
 	ir_value* ir_expr_compiler::compile(real_lit_expr& exp) {
-		return nullptr;
+		return new ir_real_value(32, exp.Value);
 	}
 
 	ir_value* ir_expr_compiler::compile(preury_expr& exp) {

@@ -122,6 +122,7 @@
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\debug\expr_prec_printer.h" />
     <ClInclude Include="src\debug\unit_test.h" />
+    <ClInclude Include="src\environment\memory.h" />
     <ClInclude Include="src\ir\ir_basic_block.h" />
     <ClInclude Include="src\ir\ir_builder.h" />
     <ClInclude Include="src\ir\ir_compiler.h" />

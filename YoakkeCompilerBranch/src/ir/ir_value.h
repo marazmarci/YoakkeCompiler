@@ -36,6 +36,12 @@ namespace yk {
 		virtual ~ir_int_value();
 	};
 
+	class ir_real_value : public ir_literal_value<double> {
+	public:
+		ir_real_value(int N, double val);
+		virtual ~ir_real_value();
+	};
+
 	class ir_named_value : public ir_value {
 	public:
 		ystr Name;
