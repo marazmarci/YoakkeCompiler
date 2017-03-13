@@ -2,6 +2,7 @@
 #include "ir_module.h"
 #include "ir_function.h"
 #include "ir_basic_block.h"
+#include "ir_instr.h"
 
 namespace yk {
 	ir_builder::ir_builder(ir_module* mod)
@@ -31,7 +32,12 @@ namespace yk {
 	}
 
 	void ir_builder::add_inst(ir_instr* inst) {
-		m_CurrentBB->add(inst);
+		if (inst->Opcode == ir_opcode::alloc) {
+			add_inst_bb_begin(inst);
+		}
+		else {
+			m_CurrentBB->add(inst);
+		}
 	}
 
 	void ir_builder::add_inst_bb_begin(ir_instr* inst) {

@@ -9,6 +9,7 @@ namespace yk {
 	class ir_basic_block;
 	class ir_type;
 	class ir_parameter;
+	class ir_alloc_instr;
 
 	class ir_function_proto : public ir_value {
 	public:

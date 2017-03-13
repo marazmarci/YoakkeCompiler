@@ -6,6 +6,7 @@ namespace yk {
 	class ir_function_proto;
 	class ir_basic_block;
 	class ir_instr;
+	class ir_alloc_instr;
 
 	class ir_builder {
 	private:

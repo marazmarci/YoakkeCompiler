@@ -28,7 +28,7 @@ yk::ystr read_file(yk::ystr const& fn) {
 	return "";
 }
 
-int main(void) {
+int main(int argc, char* argv[]) {
 	yk::unit_testing::test_expr_parser();
 	
 	auto src = read_file("C:\\TMP\\YoakkeTest\\tokenizer.txt");

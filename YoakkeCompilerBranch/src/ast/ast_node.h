@@ -5,7 +5,7 @@
 
 /*
 The base class for the nodes in the AST.
-Contains positional information.
+Contains positional information for error reporting.
 */
 
 namespace yk {
@@ -13,8 +13,10 @@ namespace yk {
 	public:
 		const position Position;
 
-	public:
+	protected:
 		ast_node(position const& pos);
+
+	public:
 		virtual ~ast_node();
 	};
 }

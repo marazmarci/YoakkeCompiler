@@ -4,7 +4,12 @@
 #include "../parse/token.h"
 #include "../utility/optional.h"
 
+/*
+Every expression used in the AST.
+*/
+
 namespace yk {
+	// Type declarations
 	class type_desc;
 	class param_expr;
 	class pattern;

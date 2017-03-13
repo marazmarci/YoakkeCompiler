@@ -1,6 +1,7 @@
 #include "ir_function.h"
 #include "ir_basic_block.h"
 #include "ir_type.h"
+#include "ir_instr.h"
 
 namespace yk {
 	ir_function_proto::ir_function_proto(ystr const& id, ir_type* rett, yvec<ir_parameter*> const& params)
