@@ -2,6 +2,7 @@
 
 #include <map>
 #include <optional>
+#include <functional>
 
 namespace yk {
 	template<

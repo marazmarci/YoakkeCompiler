@@ -10,3 +10,14 @@
 *.log
 YoakkeCompiler/src/Parsing/ExprParser.cpp~RFcdfbad9.TMP
 *.TMP
+*.ipch
+*.ipch
+*.db-shm
+*.db-shm
+*.ipch
+*.ipch
+*.ipch
+.vs/YoakkeCompiler/v15/ipch/AutoPCH/YOAKKECOMPILERBRANCH2-3df5f346/MAIN-543eb5c3/MAIN.ipch
+*.ipch
+*.db-wal
+*.ipch
