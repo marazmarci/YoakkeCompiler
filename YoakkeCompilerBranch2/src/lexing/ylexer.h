@@ -19,8 +19,8 @@ namespace yk {
 		ylexer(ystr const& file);
 
 	public:
-		lexer_state get_pos() override;
-		void set_pos(lexer_state pos) override;
+		lexer_state get_state() override;
+		void set_state(lexer_state pos) override;
 
 		token next() override;
 		bool has_next() override;

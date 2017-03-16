@@ -30,11 +30,11 @@ namespace yk {
 		add_symbol(";", ytoken_t::Semicol);
 	}
 
-	lexer_state ylexer::get_pos() {
+	lexer_state ylexer::get_state() {
 		return std::make_pair(m_Ptr, m_Position);
 	}
 
-	void ylexer::set_pos(lexer_state pos) {
+	void ylexer::set_state(lexer_state pos) {
 		m_Ptr = pos.first;
 		m_Position = pos.second;
 	}

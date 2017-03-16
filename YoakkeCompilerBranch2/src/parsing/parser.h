@@ -9,9 +9,16 @@ namespace yk {
 	class parser {
 	private:
 		lexer& m_Lexer;
-		yvec<token>& m_Tokens;
+		yvec<token>& m_Buffer;
 
 	public:
 		parser(lexer& lex, yvec<token>& buff);
+
+	public:
+		token const& peek(ysize delta = 0);
+		token consume();
+
+		parser_state get_state();
+		void load_state(parser_state const& st);
 	};
 }
