@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <map>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -36,4 +37,7 @@ namespace yk {
 
 	template <typename T, class Alloc = std::allocator<T>>
 	using yvec = std::vector<T, Alloc>;
+
+	template <typename T>
+	using yshared_ptr = std::shared_ptr<T>;
 }
