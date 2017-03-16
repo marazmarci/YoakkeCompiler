@@ -118,11 +118,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\ast\expr.cpp" />
+    <ClCompile Include="src\ast\node.cpp" />
     <ClCompile Include="src\lexing\position.cpp" />
     <ClCompile Include="src\lexing\ylexer.cpp" />
     <ClCompile Include="src\parsing\parser.cpp" />
+    <ClCompile Include="src\parsing\yparser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ast\expr.h" />
+    <ClInclude Include="src\ast\node.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\lexing\lexer.h" />
     <ClInclude Include="src\lexing\position.h" />
@@ -132,6 +137,7 @@
     <ClInclude Include="src\parsing\parselet.h" />
     <ClInclude Include="src\parsing\parser.h" />
     <ClInclude Include="src\parsing\prec_parser.h" />
+    <ClInclude Include="src\parsing\yparser.h" />
     <ClInclude Include="src\utility\opt_map.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

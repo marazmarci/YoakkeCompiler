@@ -27,6 +27,15 @@
     <ClCompile Include="src\parsing\parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ast\node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ast\expr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\parsing\yparser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h">
@@ -47,16 +56,25 @@
     <ClInclude Include="src\lexing\ytoken_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\parsing\parser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\lexing\lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\parsing\parselet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\parsing\parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\parsing\prec_parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ast\node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ast\expr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parsing\yparser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

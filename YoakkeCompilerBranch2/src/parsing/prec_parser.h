@@ -22,32 +22,34 @@ namespace yk {
 		}
 
 	public:
-		void register_rule(token::type_t const& val, yshared_ptr<pre_rule> r) {
-			if (auto p = m_Prefix.at(val)) {
+		template <typename TT>
+		void register_rule(TT const& val, yshared_ptr<pre_rule> r) {
+			if (auto p = m_Prefix.at((token::type_t)val)) {
 				throw std::exception("Prefix parselet already defined!");
 			}
-			m_Prefix.insert(std::make_pair(val, r));
+			m_Prefix.insert(std::make_pair((token::type_t)val, r));
 		}
 
-		void register_rule(token::type_t const& val, yshared_ptr<in_rule> r) {
-			if (auto p = m_Infix.at(val)) {
+		template <typename TT>
+		void register_rule(TT const& val, yshared_ptr<in_rule> r) {
+			if (auto p = m_Infix.at((token::type_t)val)) {
 				throw std::exception("Infix parselet already defined!");
 			}
-			m_Infix.insert(std::make_pair(val, r));
+			m_Infix.insert(std::make_pair((token::type_t)val, r));
 		}
 
 		yshared_ptr<T> parse(P& par, ysize prec = 0) {
 			auto lookahead = peek();
 			if (auto pre_parselet = m_Prefix.at(lookahead.Type)) {
 				lookahead = consume();
-				auto left = pre_parselet->parse(lookahead, par);
+				auto left = pre_parselet.value().get()->parse(lookahead, par);
 				if (left) {
 					while (prec < get_precedence()) {
 						lookahead = peek();
-						if (auto in_parselet = m_infix.at(lookahead.Type)) {
+						if (auto in_parselet_o = m_Infix.at(lookahead.Type)) {
+							auto in_parselet = in_parselet_o.value().get();
 							if (in_parselet->matches(left)) {
 								lookahead = consume();
-								auto newleft = 
 								if (!(left = in_parselet->parse(left, lookahead, par))) {
 									throw std::exception("Parse RHS returned with null");
 								}
@@ -68,9 +70,8 @@ namespace yk {
 
 	private:
 		ysize get_precedence() {
-			auto parser = ext::get_value(m_Infix, peek().identifier());
 			if (auto parselet = m_Infix.at(peek().Type)) {
-				return parselet->precedence();
+				return parselet.value().get()->precedence();
 			}
 			return 0;
 		}
