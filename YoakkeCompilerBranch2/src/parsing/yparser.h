@@ -17,6 +17,6 @@ namespace yk {
 		yparser(ystr const& file);
 
 	public:
-		yshared_ptr<expr> parse_expr();
+		yshared_ptr<expr> parse_expr(ysize prec = 0);
 	};
 }
