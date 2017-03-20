@@ -18,5 +18,11 @@ namespace yk {
 
 	public:
 		yshared_ptr<expr> parse_expr(ysize prec = 0);
+
+	private:
+		template <typename T, typename... Args>
+		void register_expr(ytoken_t tt, Args... args) {
+			m_ExprParser.register_rule(tt, std::make_shared<T>(args...));
+		}
 	};
 }

@@ -22,6 +22,6 @@ namespace yk {
 	public:
 		virtual yshared_ptr<T> parse(yshared_ptr<T> left, token const& begin, P& parser) = 0;
 		inline ysize precedence() const { return m_Precedence; }
-		virtual bool matches(yshared_ptr<T> left) { return true; }
+		virtual bool matches(yshared_ptr<T> left, P& parser) { return true; }
 	};
 }

@@ -48,7 +48,7 @@ namespace yk {
 						lookahead = peek();
 						if (auto in_parselet_o = m_Infix.at(lookahead.Type)) {
 							auto in_parselet = in_parselet_o.value().get();
-							if (in_parselet->matches(left)) {
+							if (in_parselet->matches(left, par)) {
 								lookahead = consume();
 								if (!(left = in_parselet->parse(left, lookahead, par))) {
 									throw std::exception("Parse RHS returned with null");
