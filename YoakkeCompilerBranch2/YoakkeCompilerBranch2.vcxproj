@@ -123,7 +123,10 @@
     <ClCompile Include="src\lexing\position.cpp" />
     <ClCompile Include="src\lexing\ylexer.cpp" />
     <ClCompile Include="src\parsing\parser.cpp" />
+    <ClCompile Include="src\parsing\parse_error.cpp" />
     <ClCompile Include="src\parsing\yparser.cpp" />
+    <ClCompile Include="src\utility\fmt_in.cpp" />
+    <ClCompile Include="src\utility\fmt_out.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ast\expr.h" />
@@ -136,8 +139,11 @@
     <ClInclude Include="src\lexing\ytoken_t.h" />
     <ClInclude Include="src\parsing\parselet.h" />
     <ClInclude Include="src\parsing\parser.h" />
+    <ClInclude Include="src\parsing\parse_error.h" />
     <ClInclude Include="src\parsing\prec_parser.h" />
     <ClInclude Include="src\parsing\yparser.h" />
+    <ClInclude Include="src\utility\fmt_in.h" />
+    <ClInclude Include="src\utility\fmt_out.h" />
     <ClInclude Include="src\utility\opt_map.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
