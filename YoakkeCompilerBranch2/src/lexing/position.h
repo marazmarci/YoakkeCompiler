@@ -18,6 +18,7 @@ namespace yk {
 		position End;
 
 	public:
+		interval();
 		interval(position const& st, ysize len);
 		interval(interval const& a, interval const& b);
 	};

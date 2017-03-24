@@ -25,9 +25,28 @@ namespace yk {
 		add_symbol("{", ytoken_t::Lbrace);
 		add_symbol("}", ytoken_t::Rbrace);
 		add_symbol(":", ytoken_t::Colon);
-		add_symbol("::", ytoken_t::Dcolon);
 		add_symbol("->", ytoken_t::Arrow);
 		add_symbol(";", ytoken_t::Semicol);
+
+		// Operators
+		add_symbol("::", ytoken_t::Dcolon);
+		add_symbol(",", ytoken_t::Comma);
+		add_symbol("=", ytoken_t::Asgn);
+		add_symbol("||", ytoken_t::Or);
+		add_symbol("&&", ytoken_t::And);
+		add_symbol("==", ytoken_t::Eq);
+		add_symbol("<>", ytoken_t::Neq);
+		add_symbol(">", ytoken_t::Gr);
+		add_symbol("<", ytoken_t::Le);
+		add_symbol(">=", ytoken_t::Goe);
+		add_symbol("<=", ytoken_t::Loe);
+		add_symbol("+", ytoken_t::Add);
+		add_symbol("-", ytoken_t::Sub);
+		add_symbol("*", ytoken_t::Mul);
+		add_symbol("/", ytoken_t::Div);
+		add_symbol("%", ytoken_t::Mod);
+		add_symbol(".", ytoken_t::Dot);
+		add_symbol("!", ytoken_t::Not);
 	}
 
 	lexer_state ylexer::get_state() {

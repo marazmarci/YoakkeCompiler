@@ -15,8 +15,19 @@ namespace yk {
 		Lbrace,
 		Rbrace,
 		Colon,
-		Dcolon,
 		Arrow,
 		Semicol,
+
+		Dcolon,
+		Comma,
+		Asgn,
+		Or,
+		And,
+		Eq, Neq,
+		Gr, Le, Goe, Loe,
+		Add, Sub,
+		Mul, Div, Mod,
+		Dot,
+		Not
 	};
 }

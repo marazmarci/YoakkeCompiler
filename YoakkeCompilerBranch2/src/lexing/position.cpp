@@ -5,6 +5,10 @@ namespace yk {
 		: Row(r), Col(c) {
 	}
 
+	interval::interval()
+		: Start(0, 0), End(0, 0) {
+	}
+
 	interval::interval(position const& st, ysize len)
 		: Start(st.Row, st.Col - len), End(st) {
 	}

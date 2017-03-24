@@ -2,6 +2,8 @@
 #include "expr.h"
 
 namespace yk {
+	// Abstract expression
+
 	expr::expr(interval const& pos)
 		: node(pos) {
 	}
@@ -32,30 +34,25 @@ namespace yk {
 
 	real_lit_expr::~real_lit_expr() { }
 
-	// Prefix unary expression
+	// List expression
 
-	preury_expr::preury_expr(token const& op, yshared_ptr<expr> sub)
-		: expr(interval(op.Position, sub->Position)),
-		Operator(op), Sub(sub) {
+	list_expr::list_expr(yshared_ptr<expr>& left)
+		: expr(left->Position) {
+		Expressions.push_back(left);
 	}
 
-	preury_expr::~preury_expr() { }
+	list_expr::~list_expr() { }
 
-	// Post unary  expression
-
-	postury_expr::postury_expr(token const& op, yshared_ptr<expr> sub)
-		: expr(interval(sub->Position, op.Position)),
-		Operator(op), Sub(sub) {
+	void list_expr::add(yshared_ptr<expr>& exp) {
+		Expressions.push_back(exp);
+		Position.End = exp->Position.End;
 	}
 
-	postury_expr::~postury_expr() { }
+	// Function call expression
 
-	// Binary expression
-
-	bin_expr::bin_expr(token const& op, yshared_ptr<expr> lhs, yshared_ptr<expr> rhs)
-		: expr(interval(lhs->Position, rhs->Position)),
-		Operator(op), LHS(lhs), RHS(rhs) {
+	call_expr::call_expr(yshared_ptr<expr>& fn, std::vector<yshared_ptr<expr>>& args, token const& end)
+		: expr(interval(fn->Position, end.Position)), Function(fn), Args(args) {
 	}
 
-	bin_expr::~bin_expr() { }
+	call_expr::~call_expr() { }
 }
