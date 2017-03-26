@@ -6,7 +6,7 @@
 token const& m_tok_ = parser.peek();	\
 throw expect_parse_err(x,				\
 	yparser::format_token(m_tok_),		\
-	parser.file(), m_tok_.Position)		\
+	parser.file(), m_tok_.Position)
 
 namespace yk {
 	namespace expr_rules {
@@ -150,7 +150,7 @@ namespace yk {
 		};
 
 		using lbinop		= bin<false, binop_expr>;
-		using rbinop		= bin<true, binop_expr>;
+		using rbinop		= bin<true,	binop_expr>;
 		using asgn			= bin<true, asgn_expr>;
 	}
 
@@ -204,18 +204,21 @@ namespace yk {
 	}
 
 	ystr yparser::format_token(token const& t) {
-		if (t.Type == (int)ytoken_t::Ident) {
+		switch (ytoken_t(t.Type)) {
+		case ytoken_t::Ident:
 			return "identifier";
-		}
-		if (t.Type == (int)ytoken_t::Integer) {
+
+		case ytoken_t::Integer:
 			return "integer literal";
-		}
-		if (t.Type == (int)ytoken_t::Real) {
+
+		case ytoken_t::Real:
 			return "real literal";
-		}
-		if (t.Type == (int)ytoken_t::Epsilon) {
+
+		case ytoken_t::Epsilon:
 			return "end of file";
+
+		default:
+			return "'" + t.Value + "'";
 		}
-		return "'" + t.Value + "'";
 	}
 }

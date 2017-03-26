@@ -28,9 +28,8 @@ namespace yk {
 			}
 			ystr line;
 			line_at(is, beg.Row) >> line;
-			os << line << std::endl;
-			os << skip(beg.Col) <<
-				repeat(len, '^');
+			os	<< line << std::endl
+				<< skip(beg.Col) << repeat(len, '^');
 		}
 		else {
 			os << "<could not sample error source>";
