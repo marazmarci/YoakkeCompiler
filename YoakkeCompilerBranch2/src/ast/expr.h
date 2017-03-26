@@ -94,10 +94,10 @@ namespace yk {
 	class call_expr : public expr {
 	public:
 		yshared_ptr<expr> Function;
-		std::vector<yshared_ptr<expr>> Args;
+		yshared_ptr<expr> Args;
 
 	public:
-		call_expr(yshared_ptr<expr>& fn, std::vector<yshared_ptr<expr>>& args, token const& end);
+		call_expr(yshared_ptr<expr>& fn, yshared_ptr<expr>& args, token const& end);
 		virtual ~call_expr();
 	};
 }

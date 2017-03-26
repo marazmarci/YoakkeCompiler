@@ -50,7 +50,7 @@ namespace yk {
 
 	// Function call expression
 
-	call_expr::call_expr(yshared_ptr<expr>& fn, std::vector<yshared_ptr<expr>>& args, token const& end)
+	call_expr::call_expr(yshared_ptr<expr>& fn, yshared_ptr<expr>& args, token const& end)
 		: expr(interval(fn->Position, end.Position)), Function(fn), Args(args) {
 	}
 

@@ -13,26 +13,17 @@ namespace yk {
 		using expr_pre_parselet	= prefix_parselet<expr, yparser>;
 		using expr_in_parselet	= infix_parselet<expr, yparser>;
 
-		class ident : public expr_pre_parselet {
+		template <typename Return_T>
+		class pass : public expr_pre_parselet {
 		public:
 			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
-				return std::make_shared<ident_expr>(begin);
+				return std::make_shared<Return_T>(begin);
 			}
 		};
 
-		class int_lit : public expr_pre_parselet {
-		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
-				return std::make_shared<int_lit_expr>(begin);
-			}
-		};
-
-		class real_lit : public expr_pre_parselet {
-		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
-				return std::make_shared<real_lit_expr>(begin);
-			}
-		};
+		using ident =		pass<ident_expr>;
+		using int_lit =		pass<int_lit_expr>;
+		using real_lit =	pass<real_lit_expr>;
 
 		class enclose : public expr_pre_parselet {
 		public:
@@ -68,7 +59,6 @@ namespace yk {
 					return std::make_shared<preury_expr>(begin, right);
 				}
 				else {
-
 					throw_expect("right-hand side operand");
 				}
 			}
@@ -118,17 +108,9 @@ namespace yk {
 		public:
 			yshared_ptr<expr> parse(
 				yshared_ptr<expr> left, token const& begin, yparser& parser) override {
-				auto ls = std::vector<yshared_ptr<expr>>();
-				do {
-					if (auto rhs = parser.parse_expr(precedence() - 1)) {
-						ls.push_back(rhs);
-					}
-					else {
-						throw_expect("argument");
-					}
-				} while (parser.match(ytoken_t::Comma));
+				auto args = parser.parse_expr();
 				if (auto tok = parser.match(ytoken_t::Rpar)) {
-					return std::make_shared<call_expr>(left, ls, tok.value());
+					return std::make_shared<call_expr>(left, args, tok.value());
 				}
 				else {
 					throw_expect("')'");
@@ -136,7 +118,7 @@ namespace yk {
 			}
 		};
 
-		template <bool RIGHT, typename RETT>
+		template <bool Right, typename Return_T>
 		class bin : public expr_in_parselet {
 		public:
 			bin(ysize prec)
@@ -146,8 +128,8 @@ namespace yk {
 		public:
 			yshared_ptr<expr> parse(
 				yshared_ptr<expr> left, token const& begin, yparser& parser) override {
-				if (auto rhs = parser.parse_expr(precedence() - (RIGHT ? 1 : 0))) {
-					return std::make_shared<RETT>(begin, left, rhs);
+				if (auto rhs = parser.parse_expr(precedence() - (Right ? 1 : 0))) {
+					return std::make_shared<Return_T>(begin, left, rhs);
 				}
 				else {
 					throw_expect("expression");
@@ -155,10 +137,9 @@ namespace yk {
 			}
 		};
 
-		template <bool RIGHT, typename RETT>
-		class bin_lident : public bin<RIGHT, RETT> {
+		class const_asgn : public bin<true, const_asgn_expr> {
 		public:
-			bin_lident(ysize prec)
+			const_asgn(ysize prec)
 				: bin(prec) {
 			}
 
@@ -171,7 +152,6 @@ namespace yk {
 		using lbinop		= bin<false, binop_expr>;
 		using rbinop		= bin<true, binop_expr>;
 		using asgn			= bin<true, asgn_expr>;
-		using const_asgn	= bin_lident<true, const_asgn_expr>;
 	}
 
 	yparser::yparser(ystr const& file)
