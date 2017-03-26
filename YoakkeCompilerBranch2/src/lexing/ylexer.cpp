@@ -10,7 +10,7 @@ namespace yk {
 		: m_File(file), m_Position(0, 0) {
 		std::ifstream stream(file);
 		if (stream.good()) {
-			m_Src = std::string((std::istreambuf_iterator<char>(stream)),
+			m_Src = ystr((std::istreambuf_iterator<char>(stream)),
 				(std::istreambuf_iterator<char>()));
 			m_Ptr = &m_Src[0];
 		}

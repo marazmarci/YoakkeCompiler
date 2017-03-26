@@ -17,7 +17,7 @@ namespace yk {
 	std::ostream& operator<<(std::ostream& out, repeat const& rep) {
 		int cnt = rep.Count;
 		char c = rep.Ch;
-		while (cnt-- >= 0) {
+		while (cnt-- > 0) {
 			out << c;
 		}
 		return out;

@@ -1,5 +1,12 @@
 #include "yparser.h"
+#include "parse_error.h"
 #include "../ast/expr.h"
+
+#define throw_expect(x)					\
+token const& m_tok_ = parser.peek();	\
+throw expect_parse_err(x,				\
+	yparser::format_token(m_tok_),		\
+	parser.file(), m_tok_.Position)		\
 
 namespace yk {
 	namespace expr_rules {
@@ -35,11 +42,13 @@ namespace yk {
 						return sub;
 					}
 					else {
-						throw std::exception("')' expected!");
+						token const& tok = parser.peek();
+						throw_expect("')'");
 					}
 				}
 				else {
-					throw std::exception("Expression expected after '('!");
+					token const& tok = parser.peek();
+					throw_expect("expression");
 				}
 			}
 		};
@@ -59,7 +68,8 @@ namespace yk {
 					return std::make_shared<preury_expr>(begin, right);
 				}
 				else {
-					throw std::exception("RHS expected!");
+
+					throw_expect("right-hand side operand");
 				}
 			}
 		};
@@ -92,7 +102,7 @@ namespace yk {
 						ls->add(rhs);
 					}
 					else {
-						throw std::exception("RHS expected for ','!");
+						throw_expect("expression");
 					}
 				} while (parser.match(ytoken_t::Comma));
 				return ls;
@@ -114,14 +124,14 @@ namespace yk {
 						ls.push_back(rhs);
 					}
 					else {
-						throw std::exception("RHS expected for ',' (args)!");
+						throw_expect("argument");
 					}
 				} while (parser.match(ytoken_t::Comma));
 				if (auto tok = parser.match(ytoken_t::Rpar)) {
 					return std::make_shared<call_expr>(left, ls, tok.value());
 				}
 				else {
-					throw std::exception("')' expected for call!");
+					throw_expect("')'");
 				}
 			}
 		};
@@ -140,7 +150,7 @@ namespace yk {
 					return std::make_shared<RETT>(begin, left, rhs);
 				}
 				else {
-					throw std::exception("RHS expected for operator!");
+					throw_expect("expression");
 				}
 			}
 		};
@@ -165,7 +175,8 @@ namespace yk {
 	}
 
 	yparser::yparser(ystr const& file)
-		: parser(m_Lexer, m_Buffer), m_Lexer(file), m_ExprParser(m_Lexer, m_Buffer) {
+		: parser(m_Lexer, m_Buffer), m_File(file), m_Lexer(file), 
+		m_ExprParser(m_Lexer, m_Buffer) {
 		// Literals
 		register_expr<expr_rules::ident>	(ytoken_t::Ident);
 		register_expr<expr_rules::int_lit>	(ytoken_t::Integer);
@@ -206,5 +217,25 @@ namespace yk {
 
 	yshared_ptr<expr> yparser::parse_expr(ysize prec) {
 		return m_ExprParser.parse(*this, prec);
+	}
+
+	ystr const& yparser::file() const {
+		return m_File;
+	}
+
+	ystr yparser::format_token(token const& t) {
+		if (t.Type == (int)ytoken_t::Ident) {
+			return "identifier";
+		}
+		if (t.Type == (int)ytoken_t::Integer) {
+			return "integer literal";
+		}
+		if (t.Type == (int)ytoken_t::Real) {
+			return "real literal";
+		}
+		if (t.Type == (int)ytoken_t::Epsilon) {
+			return "end of file";
+		}
+		return "'" + t.Value + "'";
 	}
 }

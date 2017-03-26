@@ -12,13 +12,13 @@ namespace yk {
 
 	class expect_parse_err : public parse_err {
 	private:
-		std::string m_What;
-		std::string m_Got;
-		std::string m_File;
+		ystr m_What;
+		ystr m_Got;
+		ystr m_File;
 		interval m_Position;
 
 	public:
-		expect_parse_err(std::string const& wh, std::string const& g, std::string const& file, interval const& pos);
+		expect_parse_err(ystr const& wh, ystr const& g, ystr const& file, interval const& pos);
 
 	public:
 		virtual void print(std::ostream& os) const override;
