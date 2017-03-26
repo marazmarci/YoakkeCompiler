@@ -40,26 +40,39 @@ namespace yk {
 		virtual ~real_lit_expr();
 	};
 
-	template <std::size_t TAG>
 	class ury_expr : public expr {
 	public:
 		token Operator;
 		yshared_ptr<expr> Sub;
 
-	public:
-		ury_expr(token const& op, yshared_ptr<expr> sub)
-			: expr(TAG == 0 ? interval(op.Position, sub->Position)
-							: interval(sub->Position, op.Position)),
-			Operator(op), Sub(sub) {
+	protected:
+		ury_expr(token const& op, yshared_ptr<expr> sub, interval const& pos)
+			: expr(pos), Operator(op), Sub(sub) {
 		}
 
+	public:
 		virtual ~ury_expr() { }
 	};
 
-	using preury_expr	= ury_expr<0>;
-	using postury_expr	= ury_expr<1>;
+	class preury_expr : public ury_expr {
+	public:
+		preury_expr(token const& op, yshared_ptr<expr> sub)
+			: ury_expr(op, sub, interval(op.Position, sub->Position)) {
+		}
 
-	template <std::size_t TAG>
+		virtual ~preury_expr() { }
+	};
+
+	class postury_expr : public ury_expr {
+	public:
+		postury_expr(token const& op, yshared_ptr<expr> sub)
+			: ury_expr(op, sub, interval(sub->Position, op.Position)) {
+		}
+
+		virtual ~postury_expr() { }
+	};
+
+	template <std::size_t>
 	class bin_expr : public expr {
 	public:
 		token Operator;
