@@ -109,6 +109,7 @@
 //------------------------------------------------------------------------------
 
 #include "unisyn.hpp"
+#include <xtl.hpp>
 
 #if defined(_MSC_VER) && !defined(_CPPRTTI)
     /// Disabling RTTI in MSVC is known to enable compiler optimizations that

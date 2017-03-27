@@ -6,11 +6,14 @@
 #include "src\utility\fmt_out.h"
 #include "src\utility\fmt_in.h"
 #include "src\parsing\parse_error.h"
+#include "src\debug\debug_printer.h"
 
 int main(void) {
 	try {
 		yk::yparser parser("C:/TMP/YoakkeTest/tokenizer.txt");
 		auto exp = parser.parse_expr();
+		yk::dbg_printer::print(std::cout, exp);
+		std::cout << std::endl;
 	}
 	catch (yk::yerror& err) {
 		std::cout << err << std::endl;

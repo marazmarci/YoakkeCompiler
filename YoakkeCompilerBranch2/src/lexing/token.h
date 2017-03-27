@@ -14,6 +14,10 @@ namespace yk {
 		interval Position;
 
 	public:
+		token()
+			: Type(0), Value(""), Position(position(0, 0), 0) {
+		}
+
 		template <typename T>
 		token(T tt, ystr const& val, position const& pos)
 			: Type(static_cast<type_t>(tt)), Value(val),
