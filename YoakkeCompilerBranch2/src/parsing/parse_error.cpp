@@ -3,11 +3,6 @@
 #include "../utility/fmt_out.h"
 
 namespace yk {
-	std::ostream& operator<<(std::ostream& os, parse_err const& err) {
-		err.print(os);
-		return os;
-	}
-
 	// Expect error
 
 	expect_parse_err::expect_parse_err(ystr const& wh, ystr const& g, ystr const& file, interval const& pos) 

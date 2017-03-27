@@ -127,6 +127,7 @@
     <ClCompile Include="src\parsing\yparser.cpp" />
     <ClCompile Include="src\utility\fmt_in.cpp" />
     <ClCompile Include="src\utility\fmt_out.cpp" />
+    <ClCompile Include="src\yerror.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ast\expr.h" />
@@ -145,6 +146,7 @@
     <ClInclude Include="src\utility\fmt_in.h" />
     <ClInclude Include="src\utility\fmt_out.h" />
     <ClInclude Include="src\utility\opt_map.h" />
+    <ClInclude Include="src\yerror.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

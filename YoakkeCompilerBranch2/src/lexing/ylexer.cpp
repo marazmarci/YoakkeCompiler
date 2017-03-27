@@ -4,6 +4,7 @@
 
 #include "ylexer.h"
 #include "token.h"
+#include "lex_error.h"
 
 namespace yk {
 	ylexer::ylexer(ystr const& file)
@@ -15,7 +16,7 @@ namespace yk {
 			m_Ptr = &m_Src[0];
 		}
 		else {
-			throw std::exception("Could not open file for lexing!");
+			throw lex_no_file_err(m_File);
 		}
 
 		add_symbol("(", ytoken_t::Lpar);
@@ -94,7 +95,8 @@ namespace yk {
 					advance();
 				}
 				else {
-					throw std::exception("Unexpected EOF");
+					throw unexpected_eof(m_File, m_Position, 
+						"Multi-line comment must end before EOF! Use: '*/'");
 				}
 			}
 			goto begin;
@@ -148,7 +150,7 @@ namespace yk {
 			}
 		}
 		// Unknown
-		throw std::exception("Unknown token!");
+		throw unknown_tok_err(ystr{ *m_Ptr }, m_File, m_Position);
 	}
 
 	bool ylexer::has_next() {
