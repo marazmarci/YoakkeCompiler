@@ -38,13 +38,13 @@ namespace yk {
 
 	list_expr::list_expr(yshared_ptr<expr>& left)
 		: expr(left->Position) {
-		Expressions.push_back(left);
+		Elements.push_back(left);
 	}
 
 	list_expr::~list_expr() { }
 
 	void list_expr::add(yshared_ptr<expr>& exp) {
-		Expressions.push_back(exp);
+		Elements.push_back(exp);
 		Position.End = exp->Position.End;
 	}
 
