@@ -262,7 +262,7 @@ namespace yk {
 				}
 				else {
 					token const& tok = parser.peek();
-					throw_expect("pattern");
+					throw_expect("type");
 				}
 			}
 		};
@@ -282,7 +282,7 @@ namespace yk {
 						ls->add(rhs);
 					}
 					else {
-						throw_expect("pattern");
+						throw_expect("type");
 					}
 				} while (parser.match(ytoken_t::Comma));
 				return ls;
@@ -303,7 +303,7 @@ namespace yk {
 					return std::make_shared<bin_pattern>(begin, left, rhs);
 				}
 				else {
-					throw_expect("pattern");
+					throw_expect("type");
 				}
 			}
 		};
