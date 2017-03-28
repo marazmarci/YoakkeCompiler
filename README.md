@@ -1,3 +1,5 @@
+<img src="https://raw.githubusercontent.com/LPeter1997/YoakkeCompiler/master/ylogo.png" width="512">
+
 # What is Yoakke?
 Yoakke is a general-purpose, system-level programming language aiming for performance and safety, while still providing tools for modern programming techniques. While this may sound amazing, the official compiler is developed by a single person, so there is no fast development or rapid updates for it. It started out as a learning project but hopes to grow something bigger.
 
