@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 #include "utility\opt_map.h"
@@ -40,4 +41,7 @@ namespace yk {
 
 	template <typename T>
 	using yshared_ptr = std::shared_ptr<T>;
+
+	template <typename T>
+	using yset = std::set<T>;
 }

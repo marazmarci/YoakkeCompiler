@@ -130,6 +130,7 @@
     <ClCompile Include="src\parsing\parser.cpp" />
     <ClCompile Include="src\parsing\parse_error.cpp" />
     <ClCompile Include="src\parsing\yparser.cpp" />
+    <ClCompile Include="src\semantics\scope.cpp" />
     <ClCompile Include="src\utility\fmt_in.cpp" />
     <ClCompile Include="src\utility\fmt_out.cpp" />
     <ClCompile Include="src\yerror.cpp" />
@@ -152,6 +153,8 @@
     <ClInclude Include="src\parsing\parse_error.h" />
     <ClInclude Include="src\parsing\prec_parser.h" />
     <ClInclude Include="src\parsing\yparser.h" />
+    <ClInclude Include="src\semantics\scope.h" />
+    <ClInclude Include="src\semantics\symbol.h" />
     <ClInclude Include="src\utility\fmt_in.h" />
     <ClInclude Include="src\utility\fmt_out.h" />
     <ClInclude Include="src\utility\opt_map.h" />
