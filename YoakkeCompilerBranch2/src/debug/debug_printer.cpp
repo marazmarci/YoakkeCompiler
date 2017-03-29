@@ -15,7 +15,7 @@ namespace mch {
 	template <> struct bindings<binop_expr>		{ Members(binop_expr::Operator, binop_expr::LHS, binop_expr::RHS); };
 	template <> struct bindings<asgn_expr>		{ Members(asgn_expr::Operator, asgn_expr::LHS, asgn_expr::RHS); };
 	template <> struct bindings<const_asgn_expr>{ Members(const_asgn_expr::Operator, const_asgn_expr::LHS, const_asgn_expr::RHS); };
-	template <> struct bindings<list_expr>		{ Members(list_expr::Expressions); };
+	template <> struct bindings<list_expr>		{ Members(list_expr::Elements); };
 	template <> struct bindings<call_expr>		{ Members(call_expr::Function, call_expr::Args); };
 }
 

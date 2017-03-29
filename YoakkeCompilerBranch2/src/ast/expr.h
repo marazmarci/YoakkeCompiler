@@ -94,7 +94,7 @@ namespace yk {
 
 	class list_expr : public expr {
 	public:
-		std::vector<yshared_ptr<expr>> Elements;
+		yvec<yshared_ptr<expr>> Elements;
 
 	public:
 		list_expr(yshared_ptr<expr>& left);

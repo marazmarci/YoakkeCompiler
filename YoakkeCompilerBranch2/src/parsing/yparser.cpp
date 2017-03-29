@@ -163,7 +163,7 @@ namespace yk {
 		template <typename Return_T>
 		class pass : public pat_pre_parselet {
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
+			yshared_ptr<pattern> parse(token const& begin, yparser& parser) override {
 				return std::make_shared<Return_T>(begin);
 			}
 		};
@@ -235,23 +235,23 @@ namespace yk {
 	}
 
 	namespace type_rules {
-		using type_pre_parselet = prefix_parselet<pattern, yparser>;
-		using type_in_parselet = infix_parselet<pattern, yparser>;
+		using type_pre_parselet = prefix_parselet<type_desc, yparser>;
+		using type_in_parselet = infix_parselet<type_desc, yparser>;
 
 		template <typename Return_T>
 		class pass : public type_pre_parselet {
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
+			yshared_ptr<type_desc> parse(token const& begin, yparser& parser) override {
 				return std::make_shared<Return_T>(begin);
 			}
 		};
 
-		using ident = pass<ident_pattern>;
+		using ident = pass<ident_type_desc>;
 
 		class enclose : public type_pre_parselet {
 		public:
-			yshared_ptr<pattern> parse(token const& begin, yparser& parser) override {
-				if (auto sub = parser.parse_pattern()) {
+			yshared_ptr<type_desc> parse(token const& begin, yparser& parser) override {
+				if (auto sub = parser.parse_type_desc()) {
 					if (parser.match(ytoken_t::Rpar)) {
 						return sub;
 					}
@@ -274,11 +274,11 @@ namespace yk {
 			}
 
 		public:
-			yshared_ptr<pattern> parse(
-				yshared_ptr<pattern> left, token const& begin, yparser& parser) override {
-				auto ls = std::make_shared<list_pattern>(left);
+			yshared_ptr<type_desc> parse(
+				yshared_ptr<type_desc> left, token const& begin, yparser& parser) override {
+				auto ls = std::make_shared<list_type_desc>(left);
 				do {
-					if (auto rhs = parser.parse_pattern(precedence() - 1)) {
+					if (auto rhs = parser.parse_type_desc(precedence() - 1)) {
 						ls->add(rhs);
 					}
 					else {
@@ -297,10 +297,10 @@ namespace yk {
 			}
 
 		public:
-			yshared_ptr<pattern> parse(
-				yshared_ptr<pattern> left, token const& begin, yparser& parser) override {
-				if (auto rhs = parser.parse_expr(precedence() - (Right ? 1 : 0))) {
-					return std::make_shared<bin_pattern>(begin, left, rhs);
+			yshared_ptr<type_desc> parse(
+				yshared_ptr<type_desc> left, token const& begin, yparser& parser) override {
+				if (auto rhs = parser.parse_type_desc(precedence() - (Right ? 1 : 0))) {
+					return std::make_shared<bin_type_desc>(begin, left, rhs);
 				}
 				else {
 					throw_expect("type");
@@ -390,6 +390,14 @@ namespace yk {
 
 	yshared_ptr<expr> yparser::parse_expr(ysize prec) {
 		return m_ExprParser.parse(*this, prec);
+	}
+
+	yshared_ptr<pattern> yparser::parse_pattern(ysize prec) {
+		return m_PatternParser.parse(*this, prec);
+	}
+
+	yshared_ptr<type_desc> yparser::parse_type_desc(ysize prec) {
+		return m_TypeDescParser.parse(*this, prec);
 	}
 
 	ystr const& yparser::file() const {
