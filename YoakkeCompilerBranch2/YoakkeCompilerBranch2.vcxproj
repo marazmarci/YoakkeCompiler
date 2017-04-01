@@ -151,10 +151,14 @@
     <ClInclude Include="src\lexing\token.h" />
     <ClInclude Include="src\lexing\ylexer.h" />
     <ClInclude Include="src\lexing\ytoken_t.h" />
+    <ClInclude Include="src\parsing\expr_rules.h" />
     <ClInclude Include="src\parsing\parselet.h" />
     <ClInclude Include="src\parsing\parser.h" />
     <ClInclude Include="src\parsing\parse_error.h" />
+    <ClInclude Include="src\parsing\pattern_rules.h" />
     <ClInclude Include="src\parsing\prec_parser.h" />
+    <ClInclude Include="src\parsing\rules.h" />
+    <ClInclude Include="src\parsing\type_rules.h" />
     <ClInclude Include="src\parsing\yparser.h" />
     <ClInclude Include="src\semantics\scope.h" />
     <ClInclude Include="src\semantics\symbol.h" />

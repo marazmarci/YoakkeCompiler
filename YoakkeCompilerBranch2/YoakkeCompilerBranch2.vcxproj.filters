@@ -143,5 +143,17 @@
     <ClInclude Include="src\ast\stmt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\parsing\expr_rules.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parsing\rules.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parsing\pattern_rules.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parsing\type_rules.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
