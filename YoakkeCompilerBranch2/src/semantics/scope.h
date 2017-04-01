@@ -17,7 +17,7 @@ namespace yk {
 	public:
 		void set_parent(yshared_ptr<scope>& ptr);
 
-		yopt<sym_set&> ref(ystr const& key);
+		yopt<sym_set*> ref(ystr const& key);
 		void decl(yshared_ptr<symbol>& sym);
 	};
 }

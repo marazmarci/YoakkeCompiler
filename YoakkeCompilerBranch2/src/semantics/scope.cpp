@@ -13,9 +13,9 @@ namespace yk {
 		m_Parent = ptr;
 	}
 
-	yopt<sym_set&> scope::ref(ystr const& key) {
+	yopt<sym_set*> scope::ref(ystr const& key) {
 		if (auto set_opt = m_Symbols.at(key)) {
-			return set_opt.value().get();
+			return &set_opt.value().get();
 		}
 		if (m_Parent) {
 			return m_Parent->ref(key);
@@ -28,7 +28,7 @@ namespace yk {
 			set_opt->get().insert(sym);
 		}
 		else {
-			m_Symbols.insert(sym_set{ sym });
+			m_Symbols.insert(std::make_pair(sym->Identifier, sym_set{ sym }));
 		}
 	}
 }

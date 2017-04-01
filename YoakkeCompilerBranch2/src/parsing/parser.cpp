@@ -16,6 +16,7 @@ namespace yk {
 	token parser::consume() {
 		auto tok = peek();
 		m_Buffer.erase(m_Buffer.begin());
+		m_Last = tok;
 		return tok;
 	}
 
@@ -26,5 +27,9 @@ namespace yk {
 	void parser::load_state(parser_state const& st) {
 		m_Lexer.set_state(st.first);
 		m_Buffer = st.second;
+	}
+
+	token const& parser::last() const {
+		return m_Last;
 	}
 }

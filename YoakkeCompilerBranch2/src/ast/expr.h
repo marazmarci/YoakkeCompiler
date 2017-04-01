@@ -5,6 +5,8 @@
 #include "../lexing/token.h"
 
 namespace yk {
+	class stmt;
+
 	class expr : public node {
 	protected:
 		expr(interval const& pos);
@@ -12,6 +14,8 @@ namespace yk {
 	public:
 		virtual ~expr();
 	};
+
+	class braced_expr {};
 
 	class ident_expr : public expr {
 	public:
@@ -112,5 +116,14 @@ namespace yk {
 	public:
 		call_expr(yshared_ptr<expr>& fn, yshared_ptr<expr>& args, token const& end);
 		virtual ~call_expr();
+	};
+
+	class block_expr : public expr, public braced_expr {
+	public:
+		yvec<yshared_ptr<stmt>> Statements;
+
+	public:
+		block_expr(yvec<yshared_ptr<stmt>> sts, token const& beg, token const& end);
+		virtual ~block_expr();
 	};
 }

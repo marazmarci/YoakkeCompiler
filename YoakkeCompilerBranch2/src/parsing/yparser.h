@@ -8,6 +8,7 @@ namespace yk {
 	class expr;
 	class pattern;
 	class type_desc;
+	class stmt;
 
 	class yparser : public parser {
 	private:
@@ -26,7 +27,8 @@ namespace yk {
 		yshared_ptr<expr> parse_expr(ysize prec = 0);
 		yshared_ptr<pattern> parse_pattern(ysize prec = 0);
 		yshared_ptr<type_desc> parse_type_desc(ysize prec = 0);
-		
+		yshared_ptr<stmt> parse_stmt();
+
 		ystr const& file() const;
 
 	private:

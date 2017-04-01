@@ -12,7 +12,7 @@ int main(void) {
 	try {
 		yk::yparser parser("C:/TMP/YoakkeTest/tokenizer.txt");
 		auto exp = parser.parse_expr();
-		yk::dbg_printer::print(std::cout, exp);
+		//yk::dbg_printer::print(std::cout, exp);
 		std::cout << std::endl;
 	}
 	catch (yk::yerror& err) {

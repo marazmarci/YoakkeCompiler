@@ -55,4 +55,12 @@ namespace yk {
 	}
 
 	call_expr::~call_expr() { }
+
+	// Block expression
+
+	block_expr::block_expr(yvec<yshared_ptr<stmt>> sts, token const& beg, token const& end)
+		: expr(interval(beg.Position, end.Position)), Statements(sts) {
+	}
+
+	block_expr::~block_expr() { }
 }

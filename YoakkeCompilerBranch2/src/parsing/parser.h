@@ -11,6 +11,7 @@ namespace yk {
 	private:
 		lexer& m_Lexer;
 		yvec<token>& m_Buffer;
+		token m_Last;
 
 	public:
 		parser(lexer& lex, yvec<token>& buff);
@@ -31,5 +32,6 @@ namespace yk {
 
 		parser_state get_state();
 		void load_state(parser_state const& st);
+		token const& last() const;
 	};
 }

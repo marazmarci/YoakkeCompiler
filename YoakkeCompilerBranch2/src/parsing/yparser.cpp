@@ -3,6 +3,7 @@
 #include "../ast/expr.h"
 #include "../ast/pattern.h"
 #include "../ast/type_desc.h"
+#include "../ast/stmt.h"
 
 #define throw_expect(x)					\
 { token const& m_tok_ = parser.peek();	\
@@ -42,6 +43,22 @@ namespace yk {
 				else {
 					token const& tok = parser.peek();
 					throw_expect("expression");
+				}
+			}
+		};
+
+		class block : public expr_pre_parselet {
+		public:
+			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
+				yvec<yshared_ptr<stmt>> body;
+				while (auto st = parser.parse_stmt()) {
+					body.push_back(st);
+				}
+				if (auto endbr = parser.match(ytoken_t::Rbrace)) {
+					return std::make_shared<block_expr>(body, begin, endbr.value());
+				}
+				else {
+					throw_expect("'}'");
 				}
 			}
 		};
@@ -117,6 +134,10 @@ namespace yk {
 				else {
 					throw_expect("')'");
 				}
+			}
+
+			bool matches(yshared_ptr<expr> left, yparser& parser) override {
+				return parser.last().Type != (std::size_t)ytoken_t::Rbrace;
 			}
 		};
 
@@ -331,6 +352,7 @@ namespace yk {
 
 		// Enclosing
 		register_expr<expr_rules::enclose>(ytoken_t::Lpar);
+		register_expr<expr_rules::block>(ytoken_t::Lbrace);
 
 		// Operators
 		register_expr<expr_rules::const_asgn>(ytoken_t::Dcolon, 1);
@@ -382,10 +404,10 @@ namespace yk {
 
 		// TODO: Consider precedence of ',' and '->'
 		// List
-		register_type_desc<type_rules::list>(ytoken_t::Comma, 2);
+		register_type_desc<type_rules::list>(ytoken_t::Comma, 1);
 
 		// Function
-		register_type_desc<type_rules::lbinop>(ytoken_t::Arrow, 1);
+		register_type_desc<type_rules::lbinop>(ytoken_t::Arrow, 2);
 	}
 
 	yshared_ptr<expr> yparser::parse_expr(ysize prec) {
@@ -398,6 +420,13 @@ namespace yk {
 
 	yshared_ptr<type_desc> yparser::parse_type_desc(ysize prec) {
 		return m_TypeDescParser.parse(*this, prec);
+	}
+
+	yshared_ptr<stmt> yparser::parse_stmt() {
+		if (auto exp = parse_expr()) {
+			return std::make_shared<expr_stmt>(exp, match(ytoken_t::Semicol));
+		}
+		return nullptr;
 	}
 
 	ystr const& yparser::file() const {
