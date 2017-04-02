@@ -6,6 +6,8 @@
 
 namespace yk {
 	class stmt;
+	class pattern;
+	class type_desc;
 
 	class expr : public node {
 	protected:
@@ -15,7 +17,7 @@ namespace yk {
 		virtual ~expr();
 	};
 
-	class braced_expr {};
+	class braced_expr { };
 
 	class ident_expr : public expr {
 	public:
@@ -125,5 +127,28 @@ namespace yk {
 	public:
 		block_expr(yvec<yshared_ptr<stmt>> sts, token const& beg, token const& end);
 		virtual ~block_expr();
+	};
+
+	class fnproto_expr : public expr, public braced_expr {
+	public:
+		using param_t = ypair<yopt<token>, yshared_ptr<type_desc>>;
+
+	public:
+		yvec<param_t> Parameters;
+		yshared_ptr<type_desc> ReturnType;
+
+	public:
+		fnproto_expr(yvec<param_t> params, yshared_ptr<type_desc> ret, token const& begpar, token const& endpar);
+		virtual ~fnproto_expr();
+	};
+
+	class fn_expr : public expr, public braced_expr {
+	public:
+		yshared_ptr<fnproto_expr> Prototype;
+		yshared_ptr<block_expr> Body;
+
+	public:
+		fn_expr(yshared_ptr<fnproto_expr> proto, yshared_ptr<block_expr> bd);
+		virtual ~fn_expr();
 	};
 }

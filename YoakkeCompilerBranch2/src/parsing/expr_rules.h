@@ -76,6 +76,22 @@ namespace yk {
 			}
 		};
 
+		class let : public expr_pre_parselet {
+		public:
+			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
+				yvec<yshared_ptr<stmt>> body;
+				while (auto st = parser.parse_stmt()) {
+					body.push_back(st);
+				}
+				if (auto endbr = parser.match(ytoken_t::Rbrace)) {
+					return std::make_shared<block_expr>(body, begin, endbr.value());
+				}
+				else {
+					throw_expect("'}'");
+				}
+			}
+		};
+
 		class postury : public expr_in_parselet {
 		public:
 			postury(ysize prec)

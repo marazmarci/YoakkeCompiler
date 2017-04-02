@@ -48,6 +48,9 @@ namespace yk {
 		add_symbol("%", ytoken_t::Mod);
 		add_symbol(".", ytoken_t::Dot);
 		add_symbol("!", ytoken_t::Not);
+
+		// Keywords
+		add_keyword("let", ytoken_t::Let);
 	}
 
 	lexer_state ylexer::get_state() {

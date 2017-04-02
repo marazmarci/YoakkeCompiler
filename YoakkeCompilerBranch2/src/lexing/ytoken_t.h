@@ -28,6 +28,8 @@ namespace yk {
 		Add, Sub,
 		Mul, Div, Mod,
 		Dot,
-		Not
+		Not,
+
+		Let
 	};
 }

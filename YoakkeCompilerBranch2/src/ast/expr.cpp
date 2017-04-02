@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include "expr.h"
+#include "type_desc.h"
 
 namespace yk {
 	// Abstract expression
@@ -63,4 +64,22 @@ namespace yk {
 	}
 
 	block_expr::~block_expr() { }
+
+	// Function prototype
+
+	fnproto_expr::fnproto_expr(yvec<param_t> params, yshared_ptr<type_desc> ret, token const& begpar, token const& endpar)
+		: expr(interval(begpar.Position, ret ? ret->Position : endpar.Position)),
+		Parameters(params), ReturnType(ret) {
+	}
+
+	fnproto_expr::~fnproto_expr() { }
+
+	// Function expression
+
+	fn_expr::fn_expr(yshared_ptr<fnproto_expr> proto, yshared_ptr<block_expr> bd)
+		: expr(interval(proto->Position, bd->Position)),
+		Prototype(proto), Body(bd) {
+	}
+
+	fn_expr::~fn_expr() { }
 }
