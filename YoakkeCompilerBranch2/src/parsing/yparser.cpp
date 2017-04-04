@@ -27,6 +27,9 @@ namespace yk {
 		register_expr<expr_rules::enclose>(ytoken_t::Lpar);
 		register_expr<expr_rules::block>(ytoken_t::Lbrace);
 
+		// Prefix elements
+		register_expr<expr_rules::let>(ytoken_t::Let);
+
 		// Operators
 		register_expr<expr_rules::const_asgn>(ytoken_t::Dcolon, 1);
 		register_expr<expr_rules::list>(ytoken_t::Comma, 2);

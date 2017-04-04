@@ -151,4 +151,15 @@ namespace yk {
 		fn_expr(yshared_ptr<fnproto_expr> proto, yshared_ptr<block_expr> bd);
 		virtual ~fn_expr();
 	};
+
+	class let_expr : public expr {
+	public:
+		yshared_ptr<pattern> Pattern;
+		yshared_ptr<type_desc> Type;
+		yshared_ptr<expr> Value;
+
+	public:
+		let_expr(yshared_ptr<pattern> pat, yshared_ptr<type_desc> ty, yshared_ptr<expr> val, token const& beg);
+		virtual ~let_expr();
+	};
 }

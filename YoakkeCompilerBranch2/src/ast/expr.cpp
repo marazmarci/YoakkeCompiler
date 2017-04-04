@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include "expr.h"
 #include "type_desc.h"
+#include "pattern.h"
 
 namespace yk {
 	// Abstract expression
@@ -82,4 +83,12 @@ namespace yk {
 	}
 
 	fn_expr::~fn_expr() { }
+
+	// Let expression
+
+	let_expr::let_expr(yshared_ptr<pattern> pat, yshared_ptr<type_desc> ty, yshared_ptr<expr> val, token const& beg)
+		: expr(interval(beg.Position, val ? val->Position : (ty ? ty->Position : pat->Position))) {
+	}
+
+	let_expr::~let_expr() { }
 }
