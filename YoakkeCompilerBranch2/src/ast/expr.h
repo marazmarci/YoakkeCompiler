@@ -28,6 +28,12 @@ namespace yk {
 		virtual ~ident_expr();
 	};
 
+	class unit_expr : public expr {
+	public:
+		unit_expr(token const& beg, token const& end);
+		virtual ~unit_expr();
+	};
+
 	class int_lit_expr : public expr {
 	public:
 		long long int Value;

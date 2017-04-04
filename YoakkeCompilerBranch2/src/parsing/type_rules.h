@@ -12,7 +12,7 @@ namespace yk {
 		template <typename Return_T>
 		class pass : public type_pre_parselet {
 		public:
-			yshared_ptr<type_desc> parse(token const& begin, yparser& parser) override {
+			yshared_ptr<type_desc> parse(token const& begin, yparser& par) override {
 				return std::make_shared<Return_T>(begin);
 			}
 		};
@@ -21,19 +21,19 @@ namespace yk {
 
 		class enclose : public type_pre_parselet {
 		public:
-			yshared_ptr<type_desc> parse(token const& begin, yparser& parser) override {
-				if (auto sub = parser.parse_type_desc()) {
-					if (parser.match(ytoken_t::Rpar)) {
+			yshared_ptr<type_desc> parse(token const& begin, yparser& par) override {
+				if (auto sub = par.parse_type_desc()) {
+					if (par.match(ytoken_t::Rpar)) {
 						return sub;
 					}
 					else {
-						token const& tok = parser.peek();
-						throw_expect("')'");
+						token const& tok = par.peek();
+						throw_expect("')'", par);
 					}
 				}
 				else {
-					token const& tok = parser.peek();
-					throw_expect("type");
+					token const& tok = par.peek();
+					throw_expect("type", par);
 				}
 			}
 		};
@@ -46,16 +46,16 @@ namespace yk {
 
 		public:
 			yshared_ptr<type_desc> parse(
-				yshared_ptr<type_desc> left, token const& begin, yparser& parser) override {
+				yshared_ptr<type_desc> left, token const& begin, yparser& par) override {
 				auto ls = std::make_shared<list_type_desc>(left);
 				do {
-					if (auto rhs = parser.parse_type_desc(precedence() - 1)) {
+					if (auto rhs = par.parse_type_desc(precedence() - 1)) {
 						ls->add(rhs);
 					}
 					else {
-						throw_expect("type");
+						throw_expect("type", par);
 					}
-				} while (parser.match(ytoken_t::Comma));
+				} while (par.match(ytoken_t::Comma));
 				return ls;
 			}
 		};
@@ -69,12 +69,12 @@ namespace yk {
 
 		public:
 			yshared_ptr<type_desc> parse(
-				yshared_ptr<type_desc> left, token const& begin, yparser& parser) override {
-				if (auto rhs = parser.parse_type_desc(precedence() - (Right ? 1 : 0))) {
+				yshared_ptr<type_desc> left, token const& begin, yparser& par) override {
+				if (auto rhs = par.parse_type_desc(precedence() - (Right ? 1 : 0))) {
 					return std::make_shared<bin_type_desc>(begin, left, rhs);
 				}
 				else {
-					throw_expect("type");
+					throw_expect("type", par);
 				}
 			}
 		};

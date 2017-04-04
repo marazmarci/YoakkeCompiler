@@ -20,6 +20,14 @@ namespace yk {
 	
 	ident_expr::~ident_expr() { }
 
+	// Unit expression
+
+	unit_expr::unit_expr(token const& beg, token const& end)
+		: expr(interval(beg.Position, end.Position)) {
+	}
+
+	unit_expr::~unit_expr() { }
+
 	// Integer literal expression
 
 	int_lit_expr::int_lit_expr(token const& tok)

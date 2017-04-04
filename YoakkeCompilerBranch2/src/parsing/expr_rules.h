@@ -12,7 +12,7 @@ namespace yk {
 		template <typename Return_T>
 		class pass : public expr_pre_parselet {
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
+			yshared_ptr<expr> parse(token const& begin, yparser& par) override {
 				return std::make_shared<Return_T>(begin);
 			}
 		};
@@ -23,7 +23,37 @@ namespace yk {
 
 		class enclose : public expr_pre_parselet {
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
+			yshared_ptr<expr> parse(token const& begin, yparser& par) override {
+				if (auto rpar = par.match(ytoken_t::Rpar)) {
+					// ()
+					if (par.match(ytoken_t::Arrow)) {
+						// () ->
+						if (auto rett = par.parse_type_desc()) {
+							auto proto = std::make_shared<fnproto_expr>(
+								yvec<fnproto_expr::param_t>{}, rett, begin, rpar);
+							if (auto lbrace = par.match(ytoken_t::Lbrace)) {
+								return std::make_shared<fn_expr>(proto, par.parse_block(lbrace.value()));
+							}
+							else {
+								return proto;
+							}
+						}
+						else {
+							throw_expect("return type", par);
+						}
+					}
+					else if (auto lbrace = par.match(ytoken_t::Lbrace)) {
+						// () {}
+						auto proto = std::make_shared<fnproto_expr>(
+							yvec<fnproto_expr::param_t>{}, nullptr, begin, rpar);
+						return std::make_shared<fn_expr>(proto, par.parse_block(lbrace.value()));
+					}
+					else {
+						return std::make_shared<unit_expr>();
+					}
+				}
+				// TODO: rest
+				/*
 				if (auto sub = parser.parse_expr()) {
 					if (parser.match(ytoken_t::Rpar)) {
 						return sub;
@@ -37,22 +67,15 @@ namespace yk {
 					token const& tok = parser.peek();
 					throw_expect("expression");
 				}
+				*/
+				return nullptr;
 			}
 		};
 
 		class block : public expr_pre_parselet {
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
-				yvec<yshared_ptr<stmt>> body;
-				while (auto st = parser.parse_stmt()) {
-					body.push_back(st);
-				}
-				if (auto endbr = parser.match(ytoken_t::Rbrace)) {
-					return std::make_shared<block_expr>(body, begin, endbr.value());
-				}
-				else {
-					throw_expect("'}'");
-				}
+			yshared_ptr<expr> parse(token const& begin, yparser& par) override {
+				return par.parse_block(begin);
 			}
 		};
 
@@ -66,40 +89,40 @@ namespace yk {
 			}
 
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
-				if (auto right = parser.parse_expr(m_Precedence)) {
+			yshared_ptr<expr> parse(token const& begin, yparser& par) override {
+				if (auto right = par.parse_expr(m_Precedence)) {
 					return std::make_shared<preury_expr>(begin, right);
 				}
 				else {
-					throw_expect("right-hand side operand");
+					throw_expect("right-hand side operand", par);
 				}
 			}
 		};
 
 		class let : public expr_pre_parselet {
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& parser) override {
-				if (auto pat = parser.parse_pattern()) {
+			yshared_ptr<expr> parse(token const& begin, yparser& par) override {
+				if (auto pat = par.parse_pattern()) {
 					yshared_ptr<type_desc> type = nullptr;
-					if (parser.match(ytoken_t::Colon)) {
-						if (type = parser.parse_type_desc()) {
+					if (par.match(ytoken_t::Colon)) {
+						if (type = par.parse_type_desc()) {
 						}
 						else {
-							throw_expect("type");
+							throw_expect("type", par);
 						}
 					}
-					yshared_ptr<type_desc> val = nullptr;
-					if (parser.match(ytoken_t::Asgn)) {
-						if (val = parser.parse_expr()) {
+					yshared_ptr<expr> val = nullptr;
+					if (par.match(ytoken_t::Asgn)) {
+						if (val = par.parse_expr()) {
 						}
 						else {
-							throw_expect("expression");
+							throw_expect("expression", par);
 						}
 					}
 					return std::make_shared<let_expr>(pat, type, val, begin);
 				}
 				else {
-					throw_expect("pattern");
+					throw_expect("pattern", par);
 				}
 			}
 		};
@@ -112,7 +135,7 @@ namespace yk {
 
 		public:
 			yshared_ptr<expr> parse(
-				yshared_ptr<expr> left, token const& begin, yparser& parser) override {
+				yshared_ptr<expr> left, token const& begin, yparser& par) override {
 				return std::make_shared<postury_expr>(begin, left);
 			}
 		};
@@ -125,16 +148,16 @@ namespace yk {
 
 		public:
 			yshared_ptr<expr> parse(
-				yshared_ptr<expr> left, token const& begin, yparser& parser) override {
+				yshared_ptr<expr> left, token const& begin, yparser& par) override {
 				auto ls = std::make_shared<list_expr>(left);
 				do {
-					if (auto rhs = parser.parse_expr(precedence() - 1)) {
+					if (auto rhs = par.parse_expr(precedence() - 1)) {
 						ls->add(rhs);
 					}
 					else {
-						throw_expect("expression");
+						throw_expect("expression", par);
 					}
-				} while (parser.match(ytoken_t::Comma));
+				} while (par.match(ytoken_t::Comma));
 				return ls;
 			}
 		};
@@ -147,13 +170,13 @@ namespace yk {
 
 		public:
 			yshared_ptr<expr> parse(
-				yshared_ptr<expr> left, token const& begin, yparser& parser) override {
-				auto args = parser.parse_expr();
-				if (auto tok = parser.match(ytoken_t::Rpar)) {
+				yshared_ptr<expr> left, token const& begin, yparser& par) override {
+				auto args = par.parse_expr();
+				if (auto tok = par.match(ytoken_t::Rpar)) {
 					return std::make_shared<call_expr>(left, args, tok.value());
 				}
 				else {
-					throw_expect("')'");
+					throw_expect("')'", par);
 				}
 			}
 
@@ -171,12 +194,12 @@ namespace yk {
 
 		public:
 			yshared_ptr<expr> parse(
-				yshared_ptr<expr> left, token const& begin, yparser& parser) override {
-				if (auto rhs = parser.parse_expr(precedence() - (Right ? 1 : 0))) {
+				yshared_ptr<expr> left, token const& begin, yparser& par) override {
+				if (auto rhs = par.parse_expr(precedence() - (Right ? 1 : 0))) {
 					return std::make_shared<Return_T>(begin, left, rhs);
 				}
 				else {
-					throw_expect("expression");
+					throw_expect("expression", par);
 				}
 			}
 		};
@@ -188,7 +211,7 @@ namespace yk {
 			}
 
 		public:
-			bool matches(yshared_ptr<expr> left, yparser& parser) override {
+			bool matches(yshared_ptr<expr> left, yparser& par) override {
 				return std::dynamic_pointer_cast<ident_expr>(left) != nullptr;
 			}
 		};

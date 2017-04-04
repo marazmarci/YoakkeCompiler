@@ -4,6 +4,7 @@
 #include "expr_rules.h"
 #include "pattern_rules.h"
 #include "type_rules.h"
+#include "rules.h"
 
 namespace yk {
 	yparser::yparser(ystr const& file)
@@ -103,6 +104,19 @@ namespace yk {
 			return std::make_shared<expr_stmt>(exp, match(ytoken_t::Semicol));
 		}
 		return nullptr;
+	}
+
+	yshared_ptr<block_expr> yparser::parse_block(token const& begin) {
+		yvec<yshared_ptr<stmt>> body;
+		while (auto st = parse_stmt()) {
+			body.push_back(st);
+		}
+		if (auto endbr = match(ytoken_t::Rbrace)) {
+			return std::make_shared<block_expr>(body, begin, endbr.value());
+		}
+		else {
+			throw_expect("'}'", *this);
+		}
 	}
 
 	ystr const& yparser::file() const {
