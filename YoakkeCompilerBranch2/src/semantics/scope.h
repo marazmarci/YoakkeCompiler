@@ -15,6 +15,7 @@ namespace yk {
 		scope();
 
 	public:
+		yshared_ptr<scope> get_parent();
 		void set_parent(yshared_ptr<scope>& ptr);
 
 		yopt<sym_set*> ref(ystr const& key);

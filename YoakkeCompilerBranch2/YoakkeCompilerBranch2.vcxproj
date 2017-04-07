@@ -133,6 +133,7 @@
     <ClCompile Include="src\parsing\yparser.cpp" />
     <ClCompile Include="src\semantics\scope.cpp" />
     <ClCompile Include="src\semantics\symbol.cpp" />
+    <ClCompile Include="src\semantics\symbol_table.cpp" />
     <ClCompile Include="src\utility\fmt_in.cpp" />
     <ClCompile Include="src\utility\fmt_out.cpp" />
     <ClCompile Include="src\yerror.cpp" />

@@ -6,6 +6,10 @@ namespace yk {
 		: m_Parent(nullptr) {
 	}
 
+	yshared_ptr<scope> scope::get_parent() {
+		return m_Parent;
+	}
+
 	void scope::set_parent(yshared_ptr<scope>& ptr) {
 		if (m_Parent) {
 			throw std::exception("Cannot set parent twice for scope!");
