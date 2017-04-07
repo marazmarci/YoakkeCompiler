@@ -27,3 +27,4 @@ YoakkeCompiler/src/Parsing/ExprParser.cpp~RFcdfbad9.TMP
 *.ipch
 *.ipch
 *.ipch
+.vs
