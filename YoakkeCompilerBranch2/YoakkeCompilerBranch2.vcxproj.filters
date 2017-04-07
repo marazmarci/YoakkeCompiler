@@ -155,5 +155,8 @@
     <ClInclude Include="src\parsing\type_rules.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\semantics\symbol_table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

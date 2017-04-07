@@ -4,7 +4,7 @@
 
 namespace yk {
 	class symbol;
-	using sym_set = yset<yshared_ptr<symbol>>;
+	using sym_set = yvec<yshared_ptr<symbol>>;
 
 	class scope {
 	private:

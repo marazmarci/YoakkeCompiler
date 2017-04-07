@@ -25,7 +25,7 @@ namespace yk {
 
 	void scope::decl(yshared_ptr<symbol>& sym) {
 		if (auto set_opt = m_Symbols.at(sym->Identifier)) {
-			set_opt->get().insert(sym);
+			set_opt->get().push_back(sym);
 		}
 		else {
 			m_Symbols.insert(std::make_pair(sym->Identifier, sym_set{ sym }));

@@ -162,6 +162,7 @@
     <ClInclude Include="src\parsing\yparser.h" />
     <ClInclude Include="src\semantics\scope.h" />
     <ClInclude Include="src\semantics\symbol.h" />
+    <ClInclude Include="src\semantics\symbol_table.h" />
     <ClInclude Include="src\utility\fmt_in.h" />
     <ClInclude Include="src\utility\fmt_out.h" />
     <ClInclude Include="src\utility\opt_map.h" />

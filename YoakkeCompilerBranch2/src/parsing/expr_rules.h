@@ -30,7 +30,7 @@ namespace yk {
 						// () ->
 						if (auto rett = par.parse_type_desc()) {
 							auto proto = std::make_shared<fnproto_expr>(
-								yvec<fnproto_expr::param_t>{}, rett, begin, rpar);
+								yvec<fnproto_expr::param_t>{}, rett, begin, rpar.value());
 							if (auto lbrace = par.match(ytoken_t::Lbrace)) {
 								return std::make_shared<fn_expr>(proto, par.parse_block(lbrace.value()));
 							}
@@ -45,30 +45,72 @@ namespace yk {
 					else if (auto lbrace = par.match(ytoken_t::Lbrace)) {
 						// () {}
 						auto proto = std::make_shared<fnproto_expr>(
-							yvec<fnproto_expr::param_t>{}, nullptr, begin, rpar);
+							yvec<fnproto_expr::param_t>{}, nullptr, begin, rpar.value());
 						return std::make_shared<fn_expr>(proto, par.parse_block(lbrace.value()));
 					}
 					else {
-						return std::make_shared<unit_expr>();
+						return std::make_shared<unit_expr>(begin, rpar.value());
 					}
 				}
-				// TODO: rest
-				/*
-				if (auto sub = parser.parse_expr()) {
-					if (parser.match(ytoken_t::Rpar)) {
-						return sub;
+				else if ((par.peek().Type == (ysize)ytoken_t::Colon)
+						|| (par.peek().Type == (ysize)ytoken_t::Ident
+						&& par.peek(1).Type == (ysize)ytoken_t::Colon)) {
+					// (<ident>:
+					std::vector<fnproto_expr::param_t> params;
+					do {
+						yopt<token> id = par.match(ytoken_t::Ident);
+						if (par.match(ytoken_t::Colon)) {
+							if (auto type = par.parse_type_desc(1)) {
+								params.push_back({ id, type });
+							}
+							else {
+								throw_expect("type", par);
+							}
+						}
+						else if (id) {
+							throw_expect("':'", par);
+						}
+					} while (par.match(ytoken_t::Comma));
+					// (<ident>: ...)
+					if (auto rpar = par.match(ytoken_t::Rpar)) {
+						yshared_ptr<type_desc> rett = nullptr;
+						if (par.match(ytoken_t::Arrow)) {
+							// (<ident>: ...) ->
+							if (rett = par.parse_type_desc()) {
+							}
+							else {
+								throw_expect("'->'", par);
+							}
+						}
+						auto proto = std::make_shared<fnproto_expr>(params, rett, begin, rpar.value());
+						if (auto lbrace = par.match(ytoken_t::Lbrace)) {
+							auto body = par.parse_block(lbrace.value());
+							return std::make_shared<fn_expr>(proto, body);
+						}
+						else if (rett) {
+							return proto;
+						}
+						else {
+							throw_expect("explicit return type for function declaration", par);
+						}
 					}
 					else {
-						token const& tok = parser.peek();
-						throw_expect("')'");
+						throw_expect("')'", par);
 					}
 				}
 				else {
-					token const& tok = parser.peek();
-					throw_expect("expression");
+					if (auto expr = par.parse_expr()) {
+						if (auto rpar = par.match(ytoken_t::Rpar)) {
+							return expr;
+						}
+						else {
+							throw_expect("')'", par);
+						}
+					}
+					else {
+						throw_expect("expression", par);
+					}
 				}
-				*/
-				return nullptr;
 			}
 		};
 

@@ -5,7 +5,7 @@
 namespace yk {
 	class symbol {
 	public:
-		ystr Identifier;
+		const ystr Identifier;
 
 	protected:
 		symbol(ystr const& id);

@@ -87,6 +87,21 @@ namespace yk {
 		register_type_desc<type_rules::lbinop>(ytoken_t::Arrow, 2);
 	}
 
+	yvec<yshared_ptr<stmt>> yparser::parse_program() {
+		yvec<yshared_ptr<stmt>> ls;
+		while (auto st = parse_stmt()) {
+			if (auto exp = std::dynamic_pointer_cast<expr_stmt>(st)) {
+				if (std::dynamic_pointer_cast<const_asgn_expr>(exp->Expression)) {
+				}
+				else {
+					throw std::exception("TODO error: only const asgn can be global");
+				}
+			}
+			ls.push_back(st);
+		}
+		return ls;
+	}
+
 	yshared_ptr<expr> yparser::parse_expr(ysize prec) {
 		return m_ExprParser.parse(*this, prec);
 	}
