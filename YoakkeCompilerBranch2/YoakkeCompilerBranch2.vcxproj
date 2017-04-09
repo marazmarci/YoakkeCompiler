@@ -132,8 +132,10 @@
     <ClCompile Include="src\parsing\parse_error.cpp" />
     <ClCompile Include="src\parsing\yparser.cpp" />
     <ClCompile Include="src\semantics\scope.cpp" />
+    <ClCompile Include="src\semantics\semantic_checker.cpp" />
     <ClCompile Include="src\semantics\symbol.cpp" />
     <ClCompile Include="src\semantics\symbol_table.cpp" />
+    <ClCompile Include="src\semantics\type_symbol.cpp" />
     <ClCompile Include="src\utility\fmt_in.cpp" />
     <ClCompile Include="src\utility\fmt_out.cpp" />
     <ClCompile Include="src\yerror.cpp" />
@@ -162,8 +164,10 @@
     <ClInclude Include="src\parsing\type_rules.h" />
     <ClInclude Include="src\parsing\yparser.h" />
     <ClInclude Include="src\semantics\scope.h" />
+    <ClInclude Include="src\semantics\semantic_checker.h" />
     <ClInclude Include="src\semantics\symbol.h" />
     <ClInclude Include="src\semantics\symbol_table.h" />
+    <ClInclude Include="src\semantics\type_symbol.h" />
     <ClInclude Include="src\utility\fmt_in.h" />
     <ClInclude Include="src\utility\fmt_out.h" />
     <ClInclude Include="src\utility\opt_map.h" />

@@ -1,11 +1,18 @@
 #include "symbol_table.h"
-
 #include "symbol.h"
+#include "type_symbol.h"
 
 namespace yk {
 	symbol_table::symbol_table() {
 		m_Global = std::make_shared<scope>();
 		m_Current = m_Global;
+
+		// Add native types
+
+		decl(std::make_shared<native_type_symbol>("unit"));
+		decl(std::make_shared<native_type_symbol>("bool"));
+		decl(std::make_shared<native_type_symbol>("i32"));
+		decl(std::make_shared<native_type_symbol>("f32"));
 	}
 
 	void symbol_table::push(yshared_ptr<scope>& sc) {
@@ -31,7 +38,7 @@ namespace yk {
 		}
 	}
 
-	void symbol_table::decl(yshared_ptr<symbol>& sym) {
+	void symbol_table::decl(yshared_ptr<symbol> sym) {
 		m_Current->decl(sym);
 	}
 }

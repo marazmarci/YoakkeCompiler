@@ -72,6 +72,12 @@
     <ClCompile Include="src\semantics\symbol_table.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\semantics\type_symbol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\semantics\semantic_checker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h">
@@ -159,6 +165,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\semantics\symbol_table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\semantics\type_symbol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\semantics\semantic_checker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

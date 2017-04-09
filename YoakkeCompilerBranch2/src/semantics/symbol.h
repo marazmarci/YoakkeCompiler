@@ -9,5 +9,8 @@ namespace yk {
 
 	protected:
 		symbol(ystr const& id);
+
+	public:
+		virtual ~symbol();
 	};
 }
