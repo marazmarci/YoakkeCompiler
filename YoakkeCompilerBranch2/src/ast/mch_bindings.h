@@ -37,6 +37,7 @@ namespace mch {
 	template <> struct bindings<list_pattern>	{ Members(list_pattern::Elements); };
 
 	// Type descriptors
+	template <> struct bindings<unit_type_desc> { };
 	template <> struct bindings<ident_type_desc>{ Members(ident_type_desc::Identifier); };
 	template <> struct bindings<bin_type_desc>	{ Members(bin_type_desc::Operator, bin_type_desc::LHS, bin_type_desc::RHS); };
 	template <> struct bindings<list_type_desc> { Members(list_type_desc::Elements); };

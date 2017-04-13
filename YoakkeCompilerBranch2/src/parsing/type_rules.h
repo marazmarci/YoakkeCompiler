@@ -32,8 +32,13 @@ namespace yk {
 					}
 				}
 				else {
-					token const& tok = par.peek();
-					throw_expect("type", par);
+					if (auto end = par.match(ytoken_t::Rpar)) {
+						return std::make_shared<unit_type_desc>(begin, end);
+					}
+					else {
+						token const& tok = par.peek();
+						throw_expect("type", par);
+					}
 				}
 			}
 		};

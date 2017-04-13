@@ -12,6 +12,12 @@ namespace yk {
 		virtual ~type_desc();
 	};
 
+	class unit_type_desc : public type_desc {
+	public:
+		unit_type_desc(token const& beg, token const& end);
+		virtual ~unit_type_desc();
+	};
+
 	class ident_type_desc : public type_desc {
 	public:
 		ystr Identifier;

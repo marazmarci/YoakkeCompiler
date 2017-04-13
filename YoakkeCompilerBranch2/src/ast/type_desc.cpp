@@ -9,6 +9,14 @@ namespace yk {
 
 	type_desc::~type_desc() { }
 
+	// Unit type descriptor
+
+	unit_type_desc::unit_type_desc(token const& beg, token const& end)
+		: type_desc(interval(beg.Position, end.Position)) {
+	}
+
+	unit_type_desc::~unit_type_desc() { }
+
 	// Identifier type descriptor
 
 	ident_type_desc::ident_type_desc(token const& tok)
