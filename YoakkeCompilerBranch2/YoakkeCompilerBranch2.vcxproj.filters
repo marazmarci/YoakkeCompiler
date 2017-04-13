@@ -173,5 +173,8 @@
     <ClInclude Include="src\semantics\semantic_checker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ast\mch_bindings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

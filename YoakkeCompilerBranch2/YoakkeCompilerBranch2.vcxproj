@@ -142,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ast\expr.h" />
+    <ClInclude Include="src\ast\mch_bindings.h" />
     <ClInclude Include="src\ast\node.h" />
     <ClInclude Include="src\ast\pattern.h" />
     <ClInclude Include="src\ast\stmt.h" />
