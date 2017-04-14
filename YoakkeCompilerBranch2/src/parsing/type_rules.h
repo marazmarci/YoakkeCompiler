@@ -33,7 +33,7 @@ namespace yk {
 				}
 				else {
 					if (auto end = par.match(ytoken_t::Rpar)) {
-						return std::make_shared<unit_type_desc>(begin, end);
+						return std::make_shared<unit_type_desc>(begin, end.value());
 					}
 					else {
 						token const& tok = par.peek();

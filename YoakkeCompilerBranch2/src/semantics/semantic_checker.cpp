@@ -26,7 +26,7 @@ namespace yk {
 		mch::var<long long> ival;
 		mch::var<long double> dval;
 		mch::var<token> tok;
-		mch::var<expr> exp1, exp2;
+		mch::var<yshared_ptr<expr>> exp1, exp2;
 		mch::var<yvec<yshared_ptr<expr>>> exp_list;
 		mch::var<yshared_ptr<pattern>> patt;
 		mch::var<yvec<yshared_ptr<stmt>>> stmt_list;
@@ -92,10 +92,11 @@ namespace yk {
 	yshared_ptr<type_symbol> semantic_checker::check_type(yshared_ptr<type_desc> ty) {
 		mch::var<ystr> str;
 		mch::var<token> tok;
-		mch::var<yshared_ptr<type_desc>> type1, type1;
+		mch::var<yshared_ptr<type_desc>> type1, type2;
 		mch::var<yvec<yshared_ptr<type_desc>>> type_list;
 
-		Match(*ty.get()) {
+		Match(*ty.get()) 
+		{
 			Case(unit_expr) {
 				return symbol_table::UNIT_T;
 			}
@@ -158,5 +159,6 @@ namespace yk {
 				throw std::exception("Unhandled visit for semantic check (type)!");
 			}
 		}
+		EndMatch
 	}
 }
