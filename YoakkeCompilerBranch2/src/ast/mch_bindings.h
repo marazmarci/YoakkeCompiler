@@ -15,8 +15,8 @@ namespace mch {
 	template <> struct bindings<expr_stmt>		{ Members(expr_stmt::Expression, expr_stmt::Semicol); };
 
 	// Expressions
-	template <> struct bindings<ident_expr>		{ Members(ident_expr::Identifier); };
 	template <> struct bindings<unit_expr>		{ };
+	template <> struct bindings<ident_expr>		{ Members(ident_expr::Identifier); };
 	template <> struct bindings<int_lit_expr>	{ Members(int_lit_expr::Value); };
 	template <> struct bindings<real_lit_expr>	{ Members(real_lit_expr::Value); };
 	template <> struct bindings<preury_expr>	{ Members(preury_expr::Operator, preury_expr::Sub); };

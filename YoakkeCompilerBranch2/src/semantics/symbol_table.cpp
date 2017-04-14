@@ -3,6 +3,13 @@
 #include "type_symbol.h"
 
 namespace yk {
+	yshared_ptr<type_symbol> symbol_table::UNIT_T
+		= std::make_shared<native_type_symbol>("unit");
+	yshared_ptr<type_symbol> symbol_table::I32_T
+		= std::make_shared<native_type_symbol>("i32");
+	yshared_ptr<type_symbol> symbol_table::F32_T
+		= std::make_shared<native_type_symbol>("f32");
+
 	symbol_table::symbol_table() {
 		m_Global = std::make_shared<scope>();
 		m_Current = m_Global;
@@ -38,7 +45,20 @@ namespace yk {
 		}
 	}
 
+	sym_set const* symbol_table::ref_global(ystr const& ident) {
+		if (auto set = m_Global->ref(ident)) {
+			return set.value();
+		}
+		else {
+			return nullptr;
+		}
+	}
+
 	void symbol_table::decl(yshared_ptr<symbol> sym) {
 		m_Current->decl(sym);
+	}
+
+	void symbol_table::decl_global(yshared_ptr<symbol> sym) {
+		m_Global->decl(sym);
 	}
 }

@@ -15,7 +15,7 @@ namespace yk {
 
 	public:
 		void check_stmt(yshared_ptr<stmt> st);
-		void check_expr(yshared_ptr<expr> ex);
-		void check_type(yshared_ptr<type_desc> ty);
+		yshared_ptr<type_symbol> check_expr(yshared_ptr<expr> ex);
+		yshared_ptr<type_symbol> check_type(yshared_ptr<type_desc> ty);
 	};
 }
