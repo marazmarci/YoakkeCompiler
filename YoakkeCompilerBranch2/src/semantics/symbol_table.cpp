@@ -16,10 +16,13 @@ namespace yk {
 
 		// Add native types
 
-		decl(std::make_shared<native_type_symbol>("unit"));
-		decl(std::make_shared<native_type_symbol>("bool"));
-		decl(std::make_shared<native_type_symbol>("i32"));
-		decl(std::make_shared<native_type_symbol>("f32"));
+		decl(UNIT_T);
+		decl(I32_T);
+		decl(F32_T);
+
+		// Add native operators
+
+
 	}
 
 	void symbol_table::push(yshared_ptr<scope>& sc) {
