@@ -8,8 +8,12 @@ namespace yk {
 	class stmt;
 	class pattern;
 	class type_desc;
+	class type_symbol;
 
 	class expr : public node {
+	public:
+		yshared_ptr<type_symbol> HintType;
+
 	protected:
 		expr(interval const& pos);
 

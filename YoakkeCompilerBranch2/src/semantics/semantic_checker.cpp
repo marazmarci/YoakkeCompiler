@@ -2,6 +2,7 @@
 #include "type_symbol.h"
 #include "../ast/mch_bindings.h"
 #include "../lexing/ytoken_t.h"
+#include "typed_symbol.h"
 
 namespace yk {
 	void semantic_checker::check_stmt(yshared_ptr<stmt> st) {
@@ -41,7 +42,24 @@ namespace yk {
 				return symbol_table::UNIT_T;
 			}
 			Case(ident_expr, str) {
-				// TODO
+				auto set = m_Table.ref_filter<typed_symbol>(str);
+				bool hint_changed = false;
+				if (auto hint = ex->HintType) {
+					auto prevsz = set.size();
+					set = symbol_table::filter_typed_match(set, hint);
+					hint_changed = prevsz != set.size();
+				}
+				if (set.empty()) {
+					if (hint_changed) {
+						throw std::exception("TODO: no such symbol (hint mismatch?)");
+					}
+					else {
+						throw std::exception("TODO: no such symbol");
+					}
+				}
+				// Choose the last one, this enables shadowing
+				auto sym = set[set.size() - 1];
+				return sym->Type;
 			}
 			Case(int_lit_expr, ival) {
 				return symbol_table::I32_T;

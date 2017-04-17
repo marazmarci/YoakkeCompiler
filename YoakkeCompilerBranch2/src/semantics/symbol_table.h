@@ -50,5 +50,27 @@ namespace yk {
 		yvec<yshared_ptr<T>> ref_global_filter(ystr const& id) {
 			return filter<T>(ref_global(id));
 		}
+
+		template <typename T>
+		static yvec<yshared_ptr<T>> filter_typed_same(yvec<yshared_ptr<T>> const& vec, yshared_ptr<type_symbol> ty) {
+			yvec<yshared_ptr<T>> res;
+			for (auto el : vec) {
+				if (ty->same(el)) {
+					res.push_back(el);
+				}
+			}
+			return res;
+		}
+
+		template <typename T>
+		static yvec<yshared_ptr<T>> filter_typed_match(yvec<yshared_ptr<T>> const& vec, yshared_ptr<type_symbol> ty) {
+			yvec<yshared_ptr<T>> res;
+			for (auto el : vec) {
+				if (ty->match(el)) {
+					res.push_back(el);
+				}
+			}
+			return res;
+		}
 	};
 }

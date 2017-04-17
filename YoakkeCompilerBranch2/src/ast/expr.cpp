@@ -7,7 +7,7 @@ namespace yk {
 	// Abstract expression
 
 	expr::expr(interval const& pos)
-		: node(pos) {
+		: node(pos), HintType(nullptr) {
 	}
 
 	expr::~expr() { }
