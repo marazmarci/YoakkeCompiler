@@ -5,8 +5,8 @@
 #include "typed_symbol.h"
 
 namespace yk {
-	void semantic_checker::check_stmt(yshared_ptr<stmt> st) {
-		mch::var<yshared_ptr<expr>> expression;
+	void semantic_checker::check_stmt(ysptr<stmt> st) {
+		mch::var<ysptr<expr>> expression;
 		mch::var<bool> semicol;
 
 		Match(*st.get())
@@ -22,19 +22,19 @@ namespace yk {
 		EndMatch
 	}
 
-	yshared_ptr<type_symbol> semantic_checker::check_expr(yshared_ptr<expr> ex) {
+	ysptr<type_symbol> semantic_checker::check_expr(ysptr<expr> ex) {
 		mch::var<ystr> str;
 		mch::var<long long> ival;
 		mch::var<long double> dval;
 		mch::var<token> tok;
-		mch::var<yshared_ptr<expr>> exp1, exp2;
-		mch::var<yvec<yshared_ptr<expr>>> exp_list;
-		mch::var<yshared_ptr<pattern>> patt;
-		mch::var<yvec<yshared_ptr<stmt>>> stmt_list;
+		mch::var<ysptr<expr>> exp1, exp2;
+		mch::var<yvec<ysptr<expr>>> exp_list;
+		mch::var<ysptr<pattern>> patt;
+		mch::var<yvec<ysptr<stmt>>> stmt_list;
 		mch::var<yvec<fnproto_expr::param_t>> param_list;
-		mch::var<yshared_ptr<fnproto_expr>> proto;
-		mch::var<yshared_ptr<type_desc>> type;
-		mch::var<yshared_ptr<block_expr>> block;
+		mch::var<ysptr<fnproto_expr>> proto;
+		mch::var<ysptr<type_desc>> type;
+		mch::var<ysptr<block_expr>> block;
 
 		Match(*ex.get()) 
 		{
@@ -107,11 +107,11 @@ namespace yk {
 		EndMatch
 	}
 
-	yshared_ptr<type_symbol> semantic_checker::check_type(yshared_ptr<type_desc> ty) {
+	ysptr<type_symbol> semantic_checker::check_type(ysptr<type_desc> ty) {
 		mch::var<ystr> str;
 		mch::var<token> tok;
-		mch::var<yshared_ptr<type_desc>> type1, type2;
-		mch::var<yvec<yshared_ptr<type_desc>>> type_list;
+		mch::var<ysptr<type_desc>> type1, type2;
+		mch::var<yvec<ysptr<type_desc>>> type_list;
 
 		Match(*ty.get()) 
 		{
@@ -132,46 +132,20 @@ namespace yk {
 				if (tok.Type == (ysize)ytoken_t::Arrow) {
 					auto left = check_type(type1);
 					auto right = check_type(type2);
-					ystr t_name = fn_type_symbol::create_name(left, right);
-					auto t_set = m_Table.ref_global_filter<type_symbol>(t_name);
-					if (t_set.empty()) {
-						// Create the symbol
-						auto sym = std::make_shared<fn_type_symbol>(left, right);
-						m_Table.decl_global(sym);
-					}
-					else if (t_set.size() > 1) {
-						// Sanity error
-						throw std::exception("Sanity error: multiple definitions of the same function type");
-					}
-					else {
-						// Already exists one, grab it
-						return t_set[0];
-					}
+					auto sym = std::make_shared<fn_type_symbol>(left, right);
+					return m_Table.decl_type_once(sym);
 				}
 				else {
 					throw std::exception("TODO: no such type operator");
 				}
 			}
 			Case(list_type_desc, type_list) {
-				yvec<yshared_ptr<type_symbol>> syms;
+				yvec<ysptr<type_symbol>> syms;
 				for (auto& el : type_list) {
 					syms.push_back(check_type(el));
 				}
-				ystr t_name = tuple_type_symbol::create_name(syms);
-				auto t_set = m_Table.ref_global_filter<type_symbol>(t_name);
-				if (t_set.empty()) {
-					// Create the symbol
-					auto sym = std::make_shared<tuple_type_symbol>(syms);
-					m_Table.decl_global(sym);
-				}
-				else if (t_set.size() > 1) {
-					// Sanity error
-					throw std::exception("Sanity error: multiple definitions of the same function type");
-				}
-				else {
-					// Already exists one, grab it
-					return t_set[0];
-				}
+				auto sym = std::make_shared<tuple_type_symbol>(syms);
+				return m_Table.decl_type_once(sym);
 			}
 			Otherwise() {
 				throw std::exception("Unhandled visit for semantic check (type)!");

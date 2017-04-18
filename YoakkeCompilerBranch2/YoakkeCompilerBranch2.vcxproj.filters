@@ -78,6 +78,9 @@
     <ClCompile Include="src\semantics\semantic_checker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\semantics\typed_symbol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h">
@@ -174,6 +177,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ast\mch_bindings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\semantics\typed_symbol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

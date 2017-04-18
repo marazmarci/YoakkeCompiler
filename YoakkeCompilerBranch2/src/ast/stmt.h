@@ -16,11 +16,11 @@ namespace yk {
 
 	class expr_stmt : public stmt {
 	public:
-		yshared_ptr<expr> Expression;
+		ysptr<expr> Expression;
 		bool Semicol;
 
 	public:
-		expr_stmt(yshared_ptr<expr>& exp, yopt<token> semicol);
+		expr_stmt(ysptr<expr>& exp, yopt<token> semicol);
 		virtual ~expr_stmt();
 	};
 }

@@ -25,13 +25,13 @@ namespace yk {
 		yparser(ystr const& file);
 
 	public:
-		yvec<yshared_ptr<stmt>> parse_program();
+		yvec<ysptr<stmt>> parse_program();
 		
-		yshared_ptr<expr> parse_expr(ysize prec = 0);
-		yshared_ptr<pattern> parse_pattern(ysize prec = 0);
-		yshared_ptr<type_desc> parse_type_desc(ysize prec = 0);
-		yshared_ptr<stmt> parse_stmt();
-		yshared_ptr<block_expr> parse_block(token const& begin);
+		ysptr<expr> parse_expr(ysize prec = 0);
+		ysptr<pattern> parse_pattern(ysize prec = 0);
+		ysptr<type_desc> parse_type_desc(ysize prec = 0);
+		ysptr<stmt> parse_stmt();
+		ysptr<block_expr> parse_block(token const& begin);
 
 		ystr const& file() const;
 

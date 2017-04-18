@@ -12,7 +12,7 @@ namespace yk {
 
 	class expr : public node {
 	public:
-		yshared_ptr<type_symbol> HintType;
+		ysptr<type_symbol> HintType;
 
 	protected:
 		expr(interval const& pos);
@@ -59,10 +59,10 @@ namespace yk {
 	class ury_expr : public expr {
 	public:
 		token Operator;
-		yshared_ptr<expr> Sub;
+		ysptr<expr> Sub;
 
 	protected:
-		ury_expr(token const& op, yshared_ptr<expr> sub, interval const& pos)
+		ury_expr(token const& op, ysptr<expr> sub, interval const& pos)
 			: expr(pos), Operator(op), Sub(sub) {
 		}
 
@@ -72,7 +72,7 @@ namespace yk {
 
 	class preury_expr : public ury_expr {
 	public:
-		preury_expr(token const& op, yshared_ptr<expr> sub)
+		preury_expr(token const& op, ysptr<expr> sub)
 			: ury_expr(op, sub, interval(op.Position, sub->Position)) {
 		}
 
@@ -81,7 +81,7 @@ namespace yk {
 
 	class postury_expr : public ury_expr {
 	public:
-		postury_expr(token const& op, yshared_ptr<expr> sub)
+		postury_expr(token const& op, ysptr<expr> sub)
 			: ury_expr(op, sub, interval(sub->Position, op.Position)) {
 		}
 
@@ -92,11 +92,11 @@ namespace yk {
 	class bin_expr : public expr {
 	public:
 		token Operator;
-		yshared_ptr<expr> LHS;
-		yshared_ptr<expr> RHS;
+		ysptr<expr> LHS;
+		ysptr<expr> RHS;
 
 	public:
-		bin_expr(token const& op, yshared_ptr<expr> lhs, yshared_ptr<expr> rhs)
+		bin_expr(token const& op, ysptr<expr> lhs, ysptr<expr> rhs)
 			: expr(interval(lhs->Position, rhs->Position)),
 			Operator(op), LHS(lhs), RHS(rhs) {
 		}
@@ -110,66 +110,66 @@ namespace yk {
 
 	class list_expr : public expr {
 	public:
-		yvec<yshared_ptr<expr>> Elements;
+		yvec<ysptr<expr>> Elements;
 
 	public:
-		list_expr(yshared_ptr<expr>& left);
+		list_expr(ysptr<expr>& left);
 		virtual ~list_expr();
 
 	public:
-		void add(yshared_ptr<expr>& exp);
+		void add(ysptr<expr>& exp);
 	};
 
 	class call_expr : public expr {
 	public:
-		yshared_ptr<expr> Function;
-		yshared_ptr<expr> Args;
+		ysptr<expr> Function;
+		ysptr<expr> Args;
 
 	public:
-		call_expr(yshared_ptr<expr>& fn, yshared_ptr<expr>& args, token const& end);
+		call_expr(ysptr<expr>& fn, ysptr<expr>& args, token const& end);
 		virtual ~call_expr();
 	};
 
 	class block_expr : public expr, public braced_expr {
 	public:
-		yvec<yshared_ptr<stmt>> Statements;
+		yvec<ysptr<stmt>> Statements;
 
 	public:
-		block_expr(yvec<yshared_ptr<stmt>> sts, token const& beg, token const& end);
+		block_expr(yvec<ysptr<stmt>> sts, token const& beg, token const& end);
 		virtual ~block_expr();
 	};
 
 	class fnproto_expr : public expr, public braced_expr {
 	public:
-		using param_t = ypair<yopt<token>, yshared_ptr<type_desc>>;
+		using param_t = ypair<yopt<token>, ysptr<type_desc>>;
 
 	public:
 		yvec<param_t> Parameters;
-		yshared_ptr<type_desc> ReturnType;
+		ysptr<type_desc> ReturnType;
 
 	public:
-		fnproto_expr(yvec<param_t> params, yshared_ptr<type_desc> ret, token const& begpar, token const& endpar);
+		fnproto_expr(yvec<param_t> params, ysptr<type_desc> ret, token const& begpar, token const& endpar);
 		virtual ~fnproto_expr();
 	};
 
 	class fn_expr : public expr, public braced_expr {
 	public:
-		yshared_ptr<fnproto_expr> Prototype;
-		yshared_ptr<block_expr> Body;
+		ysptr<fnproto_expr> Prototype;
+		ysptr<block_expr> Body;
 
 	public:
-		fn_expr(yshared_ptr<fnproto_expr> proto, yshared_ptr<block_expr> bd);
+		fn_expr(ysptr<fnproto_expr> proto, ysptr<block_expr> bd);
 		virtual ~fn_expr();
 	};
 
 	class let_expr : public expr {
 	public:
-		yshared_ptr<pattern> Pattern;
-		yshared_ptr<type_desc> Type;
-		yshared_ptr<expr> Value;
+		ysptr<pattern> Pattern;
+		ysptr<type_desc> Type;
+		ysptr<expr> Value;
 
 	public:
-		let_expr(yshared_ptr<pattern> pat, yshared_ptr<type_desc> ty, yshared_ptr<expr> val, token const& beg);
+		let_expr(ysptr<pattern> pat, ysptr<type_desc> ty, ysptr<expr> val, token const& beg);
 		virtual ~let_expr();
 	};
 }

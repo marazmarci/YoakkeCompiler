@@ -24,23 +24,23 @@ namespace yk {
 	class bin_pattern : public pattern {
 	public:
 		token Operator;
-		yshared_ptr<pattern> LHS;
-		yshared_ptr<pattern> RHS;
+		ysptr<pattern> LHS;
+		ysptr<pattern> RHS;
 
 	public:
-		bin_pattern(token const& op, yshared_ptr<pattern> lhs, yshared_ptr<pattern> rhs);
+		bin_pattern(token const& op, ysptr<pattern> lhs, ysptr<pattern> rhs);
 		virtual ~bin_pattern();
 	};
 
 	class list_pattern : public pattern {
 	public:
-		std::vector<yshared_ptr<pattern>> Elements;
+		std::vector<ysptr<pattern>> Elements;
 
 	public:
-		list_pattern(yshared_ptr<pattern>& left);
+		list_pattern(ysptr<pattern>& left);
 		virtual ~list_pattern();
 
 	public:
-		void add(yshared_ptr<pattern>& exp);
+		void add(ysptr<pattern>& exp);
 	};
 }

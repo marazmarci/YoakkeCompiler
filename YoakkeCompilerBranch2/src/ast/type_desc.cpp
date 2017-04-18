@@ -27,7 +27,7 @@ namespace yk {
 
 	// Binary type descriptor
 
-	bin_type_desc::bin_type_desc(token const& op, yshared_ptr<type_desc> lhs, yshared_ptr<type_desc> rhs)
+	bin_type_desc::bin_type_desc(token const& op, ysptr<type_desc> lhs, ysptr<type_desc> rhs)
 		: type_desc(interval(lhs->Position, rhs->Position)),
 		Operator(op), LHS(lhs), RHS(rhs) {
 	}
@@ -36,14 +36,14 @@ namespace yk {
 
 	// List type descriptor
 
-	list_type_desc::list_type_desc(yshared_ptr<type_desc>& left)
+	list_type_desc::list_type_desc(ysptr<type_desc>& left)
 		: type_desc(left->Position) {
 		Elements.push_back(left);
 	}
 
 	list_type_desc::~list_type_desc() { }
 
-	void list_type_desc::add(yshared_ptr<type_desc>& exp) {
+	void list_type_desc::add(ysptr<type_desc>& exp) {
 		Elements.push_back(exp);
 		Position.End = exp->Position.End;
 	}

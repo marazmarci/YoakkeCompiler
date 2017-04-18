@@ -19,7 +19,7 @@ namespace yk {
 
 	// Binary pattern
 
-	bin_pattern::bin_pattern(token const& op, yshared_ptr<pattern> lhs, yshared_ptr<pattern> rhs)
+	bin_pattern::bin_pattern(token const& op, ysptr<pattern> lhs, ysptr<pattern> rhs)
 		: pattern(interval(lhs->Position, rhs->Position)),
 		Operator(op), LHS(lhs), RHS(rhs) {
 	}
@@ -28,14 +28,14 @@ namespace yk {
 
 	// List pattern
 
-	list_pattern::list_pattern(yshared_ptr<pattern>& left)
+	list_pattern::list_pattern(ysptr<pattern>& left)
 		: pattern(left->Position) {
 		Elements.push_back(left);
 	}
 
 	list_pattern::~list_pattern() { }
 
-	void list_pattern::add(yshared_ptr<pattern>& exp) {
+	void list_pattern::add(ysptr<pattern>& exp) {
 		Elements.push_back(exp);
 		Position.End = exp->Position.End;
 	}

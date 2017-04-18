@@ -87,8 +87,8 @@ namespace yk {
 		register_type_desc<type_rules::lbinop>(ytoken_t::Arrow, 2);
 	}
 
-	yvec<yshared_ptr<stmt>> yparser::parse_program() {
-		yvec<yshared_ptr<stmt>> ls;
+	yvec<ysptr<stmt>> yparser::parse_program() {
+		yvec<ysptr<stmt>> ls;
 		while (auto st = parse_stmt()) {
 			if (auto exp = std::dynamic_pointer_cast<expr_stmt>(st)) {
 				if (std::dynamic_pointer_cast<const_asgn_expr>(exp->Expression)) {
@@ -102,27 +102,27 @@ namespace yk {
 		return ls;
 	}
 
-	yshared_ptr<expr> yparser::parse_expr(ysize prec) {
+	ysptr<expr> yparser::parse_expr(ysize prec) {
 		return m_ExprParser.parse(*this, prec);
 	}
 
-	yshared_ptr<pattern> yparser::parse_pattern(ysize prec) {
+	ysptr<pattern> yparser::parse_pattern(ysize prec) {
 		return m_PatternParser.parse(*this, prec);
 	}
 
-	yshared_ptr<type_desc> yparser::parse_type_desc(ysize prec) {
+	ysptr<type_desc> yparser::parse_type_desc(ysize prec) {
 		return m_TypeDescParser.parse(*this, prec);
 	}
 
-	yshared_ptr<stmt> yparser::parse_stmt() {
+	ysptr<stmt> yparser::parse_stmt() {
 		if (auto exp = parse_expr()) {
 			return std::make_shared<expr_stmt>(exp, match(ytoken_t::Semicol));
 		}
 		return nullptr;
 	}
 
-	yshared_ptr<block_expr> yparser::parse_block(token const& begin) {
-		yvec<yshared_ptr<stmt>> body;
+	ysptr<block_expr> yparser::parse_block(token const& begin) {
+		yvec<ysptr<stmt>> body;
 		while (auto st = parse_stmt()) {
 			body.push_back(st);
 		}

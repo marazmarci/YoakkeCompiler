@@ -46,21 +46,21 @@ namespace yk {
 
 	// List expression
 
-	list_expr::list_expr(yshared_ptr<expr>& left)
+	list_expr::list_expr(ysptr<expr>& left)
 		: expr(left->Position) {
 		Elements.push_back(left);
 	}
 
 	list_expr::~list_expr() { }
 
-	void list_expr::add(yshared_ptr<expr>& exp) {
+	void list_expr::add(ysptr<expr>& exp) {
 		Elements.push_back(exp);
 		Position.End = exp->Position.End;
 	}
 
 	// Function call expression
 
-	call_expr::call_expr(yshared_ptr<expr>& fn, yshared_ptr<expr>& args, token const& end)
+	call_expr::call_expr(ysptr<expr>& fn, ysptr<expr>& args, token const& end)
 		: expr(interval(fn->Position, end.Position)), Function(fn), Args(args) {
 	}
 
@@ -68,7 +68,7 @@ namespace yk {
 
 	// Block expression
 
-	block_expr::block_expr(yvec<yshared_ptr<stmt>> sts, token const& beg, token const& end)
+	block_expr::block_expr(yvec<ysptr<stmt>> sts, token const& beg, token const& end)
 		: expr(interval(beg.Position, end.Position)), Statements(sts) {
 	}
 
@@ -76,7 +76,7 @@ namespace yk {
 
 	// Function prototype
 
-	fnproto_expr::fnproto_expr(yvec<param_t> params, yshared_ptr<type_desc> ret, token const& begpar, token const& endpar)
+	fnproto_expr::fnproto_expr(yvec<param_t> params, ysptr<type_desc> ret, token const& begpar, token const& endpar)
 		: expr(interval(begpar.Position, ret ? ret->Position : endpar.Position)),
 		Parameters(params), ReturnType(ret) {
 	}
@@ -85,7 +85,7 @@ namespace yk {
 
 	// Function expression
 
-	fn_expr::fn_expr(yshared_ptr<fnproto_expr> proto, yshared_ptr<block_expr> bd)
+	fn_expr::fn_expr(ysptr<fnproto_expr> proto, ysptr<block_expr> bd)
 		: expr(interval(proto->Position, bd->Position)),
 		Prototype(proto), Body(bd) {
 	}
@@ -94,7 +94,7 @@ namespace yk {
 
 	// Let expression
 
-	let_expr::let_expr(yshared_ptr<pattern> pat, yshared_ptr<type_desc> ty, yshared_ptr<expr> val, token const& beg)
+	let_expr::let_expr(ysptr<pattern> pat, ysptr<type_desc> ty, ysptr<expr> val, token const& beg)
 		: expr(interval(beg.Position, val ? val->Position : (ty ? ty->Position : pat->Position))) {
 	}
 

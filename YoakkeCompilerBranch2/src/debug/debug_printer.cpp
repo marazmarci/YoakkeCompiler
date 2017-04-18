@@ -20,13 +20,13 @@ namespace mch {
 }
 
 namespace yk {
-	void dbg_printer::print(std::ostream& os, yshared_ptr<expr> const& what) {
+	void dbg_printer::print(std::ostream& os, ysptr<expr> const& what) {
 		mch::var<ystr> str;
 		mch::var<long long> ival;
 		mch::var<long double> dval;
 		mch::var<token> tok;
-		mch::var<yshared_ptr<expr>> exp, exp2;
-		mch::var<yvec<yshared_ptr<expr>>> list;
+		mch::var<ysptr<expr>> exp, exp2;
+		mch::var<yvec<ysptr<expr>>> list;
 
 		Match (*what.get())
 		{

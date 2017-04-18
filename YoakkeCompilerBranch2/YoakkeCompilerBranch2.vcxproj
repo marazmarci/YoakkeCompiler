@@ -135,6 +135,7 @@
     <ClCompile Include="src\semantics\semantic_checker.cpp" />
     <ClCompile Include="src\semantics\symbol.cpp" />
     <ClCompile Include="src\semantics\symbol_table.cpp" />
+    <ClCompile Include="src\semantics\typed_symbol.cpp" />
     <ClCompile Include="src\semantics\type_symbol.cpp" />
     <ClCompile Include="src\utility\fmt_in.cpp" />
     <ClCompile Include="src\utility\fmt_out.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="src\semantics\semantic_checker.h" />
     <ClInclude Include="src\semantics\symbol.h" />
     <ClInclude Include="src\semantics\symbol_table.h" />
+    <ClInclude Include="src\semantics\typed_symbol.h" />
     <ClInclude Include="src\semantics\type_symbol.h" />
     <ClInclude Include="src\utility\fmt_in.h" />
     <ClInclude Include="src\utility\fmt_out.h" />

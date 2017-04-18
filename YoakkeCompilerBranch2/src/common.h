@@ -40,7 +40,7 @@ namespace yk {
 	using yvec = std::vector<T, Alloc>;
 
 	template <typename T>
-	using yshared_ptr = std::shared_ptr<T>;
+	using ysptr = std::shared_ptr<T>;
 
 	template <typename T>
 	using yset = std::set<T>;

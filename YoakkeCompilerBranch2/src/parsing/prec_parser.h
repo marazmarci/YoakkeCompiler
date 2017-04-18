@@ -13,8 +13,8 @@ namespace yk {
 		typedef infix_parselet<T, P> in_rule;
 
 	private:
-		yopt_map<token::type_t, yshared_ptr<pre_rule>>	m_Prefix;
-		yopt_map<token::type_t, yshared_ptr<in_rule>>	m_Infix;
+		yopt_map<token::type_t, ysptr<pre_rule>>	m_Prefix;
+		yopt_map<token::type_t, ysptr<in_rule>>	m_Infix;
 
 	public:
 		prec_parser(lexer& lex, yvec<token>& buff)
@@ -23,7 +23,7 @@ namespace yk {
 
 	public:
 		template <typename TT>
-		void register_rule(TT const& val, yshared_ptr<pre_rule> r) {
+		void register_rule(TT const& val, ysptr<pre_rule> r) {
 			if (auto p = m_Prefix.at((token::type_t)val)) {
 				throw std::exception("Prefix parselet already defined!");
 			}
@@ -31,14 +31,14 @@ namespace yk {
 		}
 
 		template <typename TT>
-		void register_rule(TT const& val, yshared_ptr<in_rule> r) {
+		void register_rule(TT const& val, ysptr<in_rule> r) {
 			if (auto p = m_Infix.at((token::type_t)val)) {
 				throw std::exception("Infix parselet already defined!");
 			}
 			m_Infix.insert(std::make_pair((token::type_t)val, r));
 		}
 
-		yshared_ptr<T> parse(P& par, ysize prec = 0) {
+		ysptr<T> parse(P& par, ysize prec = 0) {
 			auto lookahead = peek();
 			if (auto pre_parselet = m_Prefix.at(lookahead.Type)) {
 				lookahead = consume();

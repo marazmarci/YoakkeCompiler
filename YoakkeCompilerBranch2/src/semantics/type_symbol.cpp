@@ -7,11 +7,11 @@ namespace yk {
 
 	type_symbol::~type_symbol() { }
 
-	bool type_symbol::same(yshared_ptr<type_symbol> other) {
+	bool type_symbol::same(ysptr<type_symbol> other) {
 		return match(other);
 	}
 
-	bool type_symbol::match(yshared_ptr<type_symbol> other) {
+	bool type_symbol::match(ysptr<type_symbol> other) {
 		return Identifier == other->Identifier;
 	}
 
@@ -25,17 +25,17 @@ namespace yk {
 
 	// Function type symbol
 
-	ystr fn_type_symbol::create_name(yshared_ptr<type_symbol> p, yshared_ptr<type_symbol> r) {
+	ystr fn_type_symbol::create_name(ysptr<type_symbol> p, ysptr<type_symbol> r) {
 		return "((" + p->Identifier + ")->(" + r->Identifier + "))";
 	}
 
-	fn_type_symbol::fn_type_symbol(yshared_ptr<type_symbol> p, yshared_ptr<type_symbol> r)
+	fn_type_symbol::fn_type_symbol(ysptr<type_symbol> p, ysptr<type_symbol> r)
 		: type_symbol(create_name(p, r)), Parameters(p), Return(r) {
 	}
 	
 	fn_type_symbol::~fn_type_symbol() { }
 
-	bool fn_type_symbol::same(yshared_ptr<type_symbol> other) {
+	bool fn_type_symbol::same(ysptr<type_symbol> other) {
 		if (match(other)) {
 			auto o2 = std::dynamic_pointer_cast<fn_type_symbol>(other);
 			return Return->same(o2->Return);
@@ -43,7 +43,7 @@ namespace yk {
 		return false;
 	}
 	
-	bool fn_type_symbol::match(yshared_ptr<type_symbol> other) {
+	bool fn_type_symbol::match(ysptr<type_symbol> other) {
 		// Just check parameters
 		if (auto o2 = std::dynamic_pointer_cast<fn_type_symbol>(other)) {
 			return Parameters->same(o2->Parameters);
@@ -53,7 +53,7 @@ namespace yk {
 
 	// Tuple type symbol
 
-	ystr tuple_type_symbol::create_name(yvec<yshared_ptr<type_symbol>> const& ls) {
+	ystr tuple_type_symbol::create_name(yvec<ysptr<type_symbol>> const& ls) {
 		ystr res = "(";
 		if (ls.size()) {
 			res += ls[0]->Identifier;
@@ -65,17 +65,17 @@ namespace yk {
 		return res;
 	}
 
-	tuple_type_symbol::tuple_type_symbol(yvec<yshared_ptr<type_symbol>>& ls)
+	tuple_type_symbol::tuple_type_symbol(yvec<ysptr<type_symbol>>& ls)
 		: type_symbol(create_name(ls)), Elements(ls) {
 	}
 
 	tuple_type_symbol::~tuple_type_symbol() { }
 
-	bool tuple_type_symbol::same(yshared_ptr<type_symbol> other) {
+	bool tuple_type_symbol::same(ysptr<type_symbol> other) {
 		return match(other);
 	}
 
-	bool tuple_type_symbol::match(yshared_ptr<type_symbol> other) {
+	bool tuple_type_symbol::match(ysptr<type_symbol> other) {
 		if (auto o2 = std::dynamic_pointer_cast<tuple_type_symbol>(other)) {
 			if (Elements.size() == o2->Elements.size()) {
 				for (std::size_t i = 0; i < Elements.size(); i++) {

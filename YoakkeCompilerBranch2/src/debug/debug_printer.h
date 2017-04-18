@@ -11,6 +11,6 @@ namespace yk {
 		dbg_printer() = delete;
 
 	public:
-		static void print(std::ostream& os, yshared_ptr<expr> const& expr);
+		static void print(std::ostream& os, ysptr<expr> const& expr);
 	};
 }

@@ -6,11 +6,11 @@ namespace yk {
 		: m_Parent(nullptr) {
 	}
 
-	yshared_ptr<scope> scope::get_parent() {
+	ysptr<scope> scope::get_parent() {
 		return m_Parent;
 	}
 
-	void scope::set_parent(yshared_ptr<scope>& ptr) {
+	void scope::set_parent(ysptr<scope>& ptr) {
 		if (m_Parent) {
 			throw std::exception("Cannot set parent twice for scope!");
 		}
@@ -27,7 +27,7 @@ namespace yk {
 		return {};
 	}
 
-	void scope::decl(yshared_ptr<symbol>& sym) {
+	void scope::decl(ysptr<symbol>& sym) {
 		if (auto set_opt = m_Symbols.at(sym->Identifier)) {
 			set_opt->get().push_back(sym);
 		}

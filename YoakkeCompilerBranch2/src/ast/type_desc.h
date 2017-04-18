@@ -30,23 +30,23 @@ namespace yk {
 	class bin_type_desc : public type_desc {
 	public:
 		token Operator;
-		yshared_ptr<type_desc> LHS;
-		yshared_ptr<type_desc> RHS;
+		ysptr<type_desc> LHS;
+		ysptr<type_desc> RHS;
 
 	public:
-		bin_type_desc(token const& op, yshared_ptr<type_desc> lhs, yshared_ptr<type_desc> rhs);
+		bin_type_desc(token const& op, ysptr<type_desc> lhs, ysptr<type_desc> rhs);
 		virtual ~bin_type_desc();
 	};
 
 	class list_type_desc : public type_desc {
 	public:
-		std::vector<yshared_ptr<type_desc>> Elements;
+		std::vector<ysptr<type_desc>> Elements;
 
 	public:
-		list_type_desc(yshared_ptr<type_desc>& left);
+		list_type_desc(ysptr<type_desc>& left);
 		virtual ~list_type_desc();
 
 	public:
-		void add(yshared_ptr<type_desc>& exp);
+		void add(ysptr<type_desc>& exp);
 	};
 }

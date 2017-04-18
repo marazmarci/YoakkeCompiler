@@ -12,7 +12,7 @@ namespace yk {
 		template <typename Return_T>
 		class pass : public type_pre_parselet {
 		public:
-			yshared_ptr<type_desc> parse(token const& begin, yparser& par) override {
+			ysptr<type_desc> parse(token const& begin, yparser& par) override {
 				return std::make_shared<Return_T>(begin);
 			}
 		};
@@ -21,7 +21,7 @@ namespace yk {
 
 		class enclose : public type_pre_parselet {
 		public:
-			yshared_ptr<type_desc> parse(token const& begin, yparser& par) override {
+			ysptr<type_desc> parse(token const& begin, yparser& par) override {
 				if (auto sub = par.parse_type_desc()) {
 					if (par.match(ytoken_t::Rpar)) {
 						return sub;
@@ -50,8 +50,8 @@ namespace yk {
 			}
 
 		public:
-			yshared_ptr<type_desc> parse(
-				yshared_ptr<type_desc> left, token const& begin, yparser& par) override {
+			ysptr<type_desc> parse(
+				ysptr<type_desc> left, token const& begin, yparser& par) override {
 				auto ls = std::make_shared<list_type_desc>(left);
 				do {
 					if (auto rhs = par.parse_type_desc(precedence() - 1)) {
@@ -73,8 +73,8 @@ namespace yk {
 			}
 
 		public:
-			yshared_ptr<type_desc> parse(
-				yshared_ptr<type_desc> left, token const& begin, yparser& par) override {
+			ysptr<type_desc> parse(
+				ysptr<type_desc> left, token const& begin, yparser& par) override {
 				if (auto rhs = par.parse_type_desc(precedence() - (Right ? 1 : 0))) {
 					return std::make_shared<bin_type_desc>(begin, left, rhs);
 				}

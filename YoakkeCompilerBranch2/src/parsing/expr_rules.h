@@ -12,7 +12,7 @@ namespace yk {
 		template <typename Return_T>
 		class pass : public expr_pre_parselet {
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& par) override {
+			ysptr<expr> parse(token const& begin, yparser& par) override {
 				return std::make_shared<Return_T>(begin);
 			}
 		};
@@ -23,7 +23,7 @@ namespace yk {
 
 		class enclose : public expr_pre_parselet {
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& par) override {
+			ysptr<expr> parse(token const& begin, yparser& par) override {
 				if (auto rpar = par.match(ytoken_t::Rpar)) {
 					// ()
 					if (par.match(ytoken_t::Arrow)) {
@@ -73,7 +73,7 @@ namespace yk {
 					} while (par.match(ytoken_t::Comma));
 					// (<ident>: ...)
 					if (auto rpar = par.match(ytoken_t::Rpar)) {
-						yshared_ptr<type_desc> rett = nullptr;
+						ysptr<type_desc> rett = nullptr;
 						if (par.match(ytoken_t::Arrow)) {
 							// (<ident>: ...) ->
 							if (rett = par.parse_type_desc()) {
@@ -116,7 +116,7 @@ namespace yk {
 
 		class block : public expr_pre_parselet {
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& par) override {
+			ysptr<expr> parse(token const& begin, yparser& par) override {
 				return par.parse_block(begin);
 			}
 		};
@@ -131,7 +131,7 @@ namespace yk {
 			}
 
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& par) override {
+			ysptr<expr> parse(token const& begin, yparser& par) override {
 				if (auto right = par.parse_expr(m_Precedence)) {
 					return std::make_shared<preury_expr>(begin, right);
 				}
@@ -143,9 +143,9 @@ namespace yk {
 
 		class let : public expr_pre_parselet {
 		public:
-			yshared_ptr<expr> parse(token const& begin, yparser& par) override {
+			ysptr<expr> parse(token const& begin, yparser& par) override {
 				if (auto pat = par.parse_pattern()) {
-					yshared_ptr<type_desc> type = nullptr;
+					ysptr<type_desc> type = nullptr;
 					if (par.match(ytoken_t::Colon)) {
 						if (type = par.parse_type_desc()) {
 						}
@@ -153,7 +153,7 @@ namespace yk {
 							throw_expect("type", par);
 						}
 					}
-					yshared_ptr<expr> val = nullptr;
+					ysptr<expr> val = nullptr;
 					if (par.match(ytoken_t::Asgn)) {
 						if (val = par.parse_expr()) {
 						}
@@ -176,8 +176,8 @@ namespace yk {
 			}
 
 		public:
-			yshared_ptr<expr> parse(
-				yshared_ptr<expr> left, token const& begin, yparser& par) override {
+			ysptr<expr> parse(
+				ysptr<expr> left, token const& begin, yparser& par) override {
 				return std::make_shared<postury_expr>(begin, left);
 			}
 		};
@@ -189,8 +189,8 @@ namespace yk {
 			}
 
 		public:
-			yshared_ptr<expr> parse(
-				yshared_ptr<expr> left, token const& begin, yparser& par) override {
+			ysptr<expr> parse(
+				ysptr<expr> left, token const& begin, yparser& par) override {
 				auto ls = std::make_shared<list_expr>(left);
 				do {
 					if (auto rhs = par.parse_expr(precedence() - 1)) {
@@ -211,8 +211,8 @@ namespace yk {
 			}
 
 		public:
-			yshared_ptr<expr> parse(
-				yshared_ptr<expr> left, token const& begin, yparser& par) override {
+			ysptr<expr> parse(
+				ysptr<expr> left, token const& begin, yparser& par) override {
 				auto args = par.parse_expr();
 				if (auto tok = par.match(ytoken_t::Rpar)) {
 					return std::make_shared<call_expr>(left, args, tok.value());
@@ -222,7 +222,7 @@ namespace yk {
 				}
 			}
 
-			bool matches(yshared_ptr<expr> left, yparser& parser) override {
+			bool matches(ysptr<expr> left, yparser& parser) override {
 				return parser.last().Type != (std::size_t)ytoken_t::Rbrace;
 			}
 		};
@@ -235,8 +235,8 @@ namespace yk {
 			}
 
 		public:
-			yshared_ptr<expr> parse(
-				yshared_ptr<expr> left, token const& begin, yparser& par) override {
+			ysptr<expr> parse(
+				ysptr<expr> left, token const& begin, yparser& par) override {
 				if (auto rhs = par.parse_expr(precedence() - (Right ? 1 : 0))) {
 					return std::make_shared<Return_T>(begin, left, rhs);
 				}
@@ -253,7 +253,7 @@ namespace yk {
 			}
 
 		public:
-			bool matches(yshared_ptr<expr> left, yparser& par) override {
+			bool matches(ysptr<expr> left, yparser& par) override {
 				return std::dynamic_pointer_cast<ident_expr>(left) != nullptr;
 			}
 		};

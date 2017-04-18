@@ -4,21 +4,21 @@
 
 namespace yk {
 	class symbol;
-	using sym_set = yvec<yshared_ptr<symbol>>;
+	using sym_set = yvec<ysptr<symbol>>;
 
 	class scope {
 	private:
-		yshared_ptr<scope> m_Parent;
+		ysptr<scope> m_Parent;
 		yopt_map<ystr, sym_set> m_Symbols;
 
 	public:
 		scope();
 
 	public:
-		yshared_ptr<scope> get_parent();
-		void set_parent(yshared_ptr<scope>& ptr);
+		ysptr<scope> get_parent();
+		void set_parent(ysptr<scope>& ptr);
 
 		yopt<sym_set*> ref(ystr const& key);
-		void decl(yshared_ptr<symbol>& sym);
+		void decl(ysptr<symbol>& sym);
 	};
 }

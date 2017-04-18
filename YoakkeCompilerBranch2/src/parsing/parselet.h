@@ -6,7 +6,7 @@ namespace yk {
 	template <typename T, typename P>
 	class prefix_parselet {
 	public:
-		virtual yshared_ptr<T> parse(token const& begin, P& parser) = 0;
+		virtual ysptr<T> parse(token const& begin, P& parser) = 0;
 	};
 
 	template <typename T, typename P>
@@ -20,8 +20,8 @@ namespace yk {
 		}
 
 	public:
-		virtual yshared_ptr<T> parse(yshared_ptr<T> left, token const& begin, P& parser) = 0;
+		virtual ysptr<T> parse(ysptr<T> left, token const& begin, P& parser) = 0;
 		inline ysize precedence() const { return m_Precedence; }
-		virtual bool matches(yshared_ptr<T> left, P& parser) { return true; }
+		virtual bool matches(ysptr<T> left, P& parser) { return true; }
 	};
 }
