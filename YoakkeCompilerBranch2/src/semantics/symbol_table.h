@@ -3,6 +3,7 @@
 #include "../common.h"
 #include "scope.h"
 #include "../lexing/ytoken_t.h"
+#include "type_symbol.h"
 
 namespace yk {
 	class symbol;
@@ -23,6 +24,9 @@ namespace yk {
 
 	private:
 		void decl_builtin_bin_op(ytoken_t op, ysptr<type_symbol> left, ysptr<type_symbol> right, ysptr<type_symbol> result);
+
+	public:
+		ysptr<type_symbol> create_bin_op_type(ysptr<type_symbol> left, ysptr<type_symbol> right, ysptr<type_symbol> result);
 
 	public:
 		void push(ysptr<scope>& sc);
@@ -76,7 +80,7 @@ namespace yk {
 			t_set = filter_typed_same(t_set, ref);
 			if (t_set.empty()) {
 				// Create the symbol
-				decl(std::static_pointer_cast<symbol>(ref));
+				decl(ref);
 				return ref;
 			}
 			else if (t_set.size() > 1) {

@@ -8,16 +8,32 @@
 #include "src\utility\fmt_in.h"
 #include "src\parsing\parse_error.h"
 #include "src\debug\debug_printer.h"
+#include "src\semantics\semantic_checker.h"
 
 int main(void) {
 	try {
 		yk::yparser parser("C:/TMP/YoakkeTest/tokenizer.txt");
-		std::chrono::time_point<std::chrono::system_clock> start, end;
+		yk::semantic_checker checker;
+
+		std::chrono::time_point<std::chrono::system_clock> 
+			start, parse_e, semantic_e;
+
 		start = std::chrono::system_clock::now();
+		
 		auto prg = parser.parse_program();
-		end = std::chrono::system_clock::now();
-		std::chrono::duration<double> elapsed = end - start;
-		std::cout << "Parsing took: " << elapsed.count() << " s." << std::endl;
+		
+		parse_e = std::chrono::system_clock::now();
+
+		for (auto st : prg) {
+			checker.check_stmt(st);
+		}
+
+		semantic_e = std::chrono::system_clock::now();
+
+		std::chrono::duration<double> parse_t = parse_e - start;
+		std::chrono::duration<double> semantic_t = semantic_e - parse_e;
+		std::cout << "Parsing took: " << parse_t.count() << " s." << std::endl;
+		std::cout << "Semantic analysis took: " << semantic_t.count() << " s." << std::endl;
 	}
 	catch (yk::yerror& err) {
 		std::cout << err << std::endl;

@@ -27,7 +27,8 @@ namespace yk {
 		mch::var<long long> ival;
 		mch::var<long double> dval;
 		mch::var<token> tok;
-		mch::var<ysptr<expr>> exp1, exp2;
+		mch::var<ysptr<expr>> exp1;
+		mch::var<ysptr<expr>> exp2;
 		mch::var<yvec<ysptr<expr>>> exp_list;
 		mch::var<ysptr<pattern>> patt;
 		mch::var<yvec<ysptr<stmt>>> stmt_list;
@@ -54,7 +55,8 @@ namespace yk {
 						throw std::exception("TODO: no such symbol (hint mismatch?)");
 					}
 					else {
-						throw std::exception("TODO: no such symbol");
+						std::string err = "TODO: no such symbol: " + str;
+						throw std::exception(err.c_str());
 					}
 				}
 				// Choose the last one, this enables shadowing
@@ -74,13 +76,40 @@ namespace yk {
 				// TODO
 			}
 			Case(binop_expr, tok, exp1, exp2) {
-				// TODO
+				auto left = check_expr(exp1);
+				auto right = check_expr(exp2);
+				auto sym_name = const_typed_symbol::create_bin_op_name(ytoken_t(tok.Type));
+				auto sym_set = m_Table.ref_filter<const_typed_symbol>(sym_name);
+				// Create dummy type
+				auto dummy_ty = m_Table.create_bin_op_type(left, right, symbol_table::UNIT_T);
+				// Filter with dummy
+				sym_set = symbol_table::filter_typed_match(sym_set, dummy_ty);
+				if (sym_set.empty()) {
+					throw std::exception("TODO: no such binary operator!");
+				}
+				else if (sym_set.size() > 1) {
+					throw std::exception("Sanity error: multiple binary operators match");
+				}
+				else {
+					auto op = sym_set[0];
+					if (auto ty = std::dynamic_pointer_cast<fn_type_symbol>(op->Type)) {
+						return ty->Return;
+					}
+					else {
+						throw std::exception("Sanity exception: Not function symbol passed (binop)");
+					}
+				}
 			}
 			Case(asgn_expr, exp1, exp2) {
 				// TODO
 			}
 			Case(const_asgn_expr, exp1, exp2) {
-				// TODO
+				auto left = std::dynamic_pointer_cast<ident_expr>(exp1);
+				auto right = check_expr(exp2);
+				auto sym = std::make_shared
+					<const_typed_symbol>(left->Identifier, right);
+				m_Table.decl(sym);
+				return symbol_table::UNIT_T;
 			}
 			Case(list_expr, exp_list) {
 				// TODO
@@ -89,13 +118,67 @@ namespace yk {
 				// TODO
 			}
 			Case(block_expr, stmt_list) {
-				// TODO
+				// TODO: return actual type
+				m_Table.push(std::make_shared<scope>());
+				for (auto st : stmt_list) {
+					check_stmt(st);
+				}
+				m_Table.pop();
+				return symbol_table::UNIT_T;
 			}
 			Case(fnproto_expr, param_list, type) {
 				// TODO
 			}
 			Case(fn_expr, proto, block) {
-				// TODO
+				// TODO: warn if no parameter name
+				m_Table.push(std::make_shared<scope>());
+
+				// Parameters ////////////////////////////////////////
+				yvec<ysptr<type_symbol>> params;
+				for (auto par : proto->Parameters) {
+					auto par_ty = check_type(par.second);
+					params.push_back(par_ty);
+					if (auto name = par.first) {
+						auto par_sym = std::make_shared
+							<var_typed_symbol>(name.value().Value, par_ty);
+						m_Table.decl(par_sym);
+					}
+				}
+				//////////////////////////////////////////////////////
+
+				// Return type
+				ysptr<type_symbol> ret;
+
+				if (proto->ReturnType) {
+					ret = check_type(proto->ReturnType);
+				}
+				else {
+					ret = symbol_table::UNIT_T;
+				}
+
+				// Create the type
+				ysptr<type_symbol> fn_ty;
+				if (params.empty()) {
+					fn_ty = std::make_shared<fn_type_symbol>
+						(symbol_table::UNIT_T, ret);
+				}
+				else if (params.size() > 1) {
+					ysptr<type_symbol> par_tpl = 
+						std::make_shared<tuple_type_symbol>(params);
+					par_tpl = m_Table.decl_type_once(par_tpl);
+					fn_ty = std::make_shared<fn_type_symbol>
+						(par_tpl, ret);
+				}
+				else {
+					fn_ty = std::make_shared<fn_type_symbol>
+						(params[0], ret);
+				}
+
+				check_expr(block);
+				m_Table.pop();
+
+				fn_ty = m_Table.decl_type_once(fn_ty);
+				return fn_ty;
 			}
 			Case(let_expr, patt, type, exp1) {
 				// TODO

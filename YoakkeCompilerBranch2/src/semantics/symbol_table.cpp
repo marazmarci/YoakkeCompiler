@@ -22,7 +22,7 @@ namespace yk {
 		decl(F32_T);
 
 		// Add native operators
-		
+
 		//									 (A  ,  B)  ->  C
 		decl_builtin_bin_op(ytoken_t::Add, I32_T, I32_T, I32_T);
 		decl_builtin_bin_op(ytoken_t::Sub, I32_T, I32_T, I32_T);
@@ -32,14 +32,17 @@ namespace yk {
 	}
 
 	void symbol_table::decl_builtin_bin_op(ytoken_t op, ysptr<type_symbol> left, ysptr<type_symbol> right, ysptr<type_symbol> result) {
+		auto ty = create_bin_op_type(left, right, result);
+		auto sym = builtin_typed_symbol::create_bin_op(op, ty);
+		decl(sym);
+	}
+
+	ysptr<type_symbol> symbol_table::create_bin_op_type(ysptr<type_symbol> left, ysptr<type_symbol> right, ysptr<type_symbol> result) {
 		auto params = std::make_shared<tuple_type_symbol>
 			(yvec<ysptr<type_symbol>>{ left, right });
 		auto params2 = decl_type_once(params);
 		auto ftype = std::make_shared<fn_type_symbol>(params2, result);
-		auto ftype2 = decl_type_once(ftype);
-
-		auto sym = builtin_typed_symbol::create_bin_op(op, ftype2);
-		decl(sym);
+		return decl_type_once(ftype);
 	}
 
 	void symbol_table::push(ysptr<scope>& sc) {
