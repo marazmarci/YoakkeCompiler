@@ -18,6 +18,7 @@ namespace yk {
 		};
 
 		using ident = pass<ident_pattern>;
+		using ignore = pass<ignore_pattern>;
 
 		class enclose : public pat_pre_parselet {
 		public:
@@ -32,8 +33,13 @@ namespace yk {
 					}
 				}
 				else {
-					token const& tok = par.peek();
-					throw_expect("pattern", par);
+					if (auto end = par.match(ytoken_t::Rpar)) {
+						return std::make_shared<unit_pattern>(begin, end.value());
+					}
+					else {
+						token const& tok = par.peek();
+						throw_expect("pattern", par);
+					}
 				}
 			}
 		};

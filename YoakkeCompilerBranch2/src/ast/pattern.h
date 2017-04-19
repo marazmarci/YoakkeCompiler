@@ -12,6 +12,18 @@ namespace yk {
 		virtual ~pattern();
 	};
 
+	class ignore_pattern : public pattern {
+	public:
+		ignore_pattern(token const& tok);
+		virtual ~ignore_pattern();
+	};
+
+	class unit_pattern : public pattern {
+	public:
+		unit_pattern(token const& beg, token const& end);
+		virtual ~unit_pattern();
+	};
+
 	class ident_pattern : public pattern {
 	public:
 		ystr Identifier;

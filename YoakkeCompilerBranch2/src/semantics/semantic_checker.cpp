@@ -5,6 +5,7 @@
 #include "../ast/stmt.h"
 #include "../ast/expr.h"
 #include "../ast/type_desc.h"
+#include "../ast/pattern.h"
 #include "../utility/match.h"
 
 namespace yk {
@@ -208,6 +209,55 @@ namespace yk {
 			EndCase
 			CaseOther()
 				throw std::exception("Unhandled visit for semantic check (type)!");
+			EndCase
+		EndMatch
+	}
+
+	yvec<let_expr::entry_t> semantic_checker::match_pattern_expr(ysptr<pattern> pat, ysptr<type_symbol> ty, ysptr<expr> exp) {
+		yvec<let_expr::entry_t> res;
+		match_pattern_expr_impl(res, pat, ty, exp, ty.get() != nullptr, 
+			exp.get() != nullptr);
+		return res;
+	}
+
+	void semantic_checker::match_pattern_expr_impl(yvec<let_expr::entry_t>& res, 
+		ysptr<pattern> pat, ysptr<type_symbol> ty, ysptr<expr> exp, 
+		bool c_type, bool c_exp) {
+		let_expr::entry_t trip;
+		Match(pat.get())
+			Case(ignore_pattern)
+				return;
+		EndCase
+			Case(unit_pattern)
+				ysptr<type_symbol> final_ty = nullptr;
+				ysptr<type_symbol> exp_res = nullptr;
+				if (c_exp) {
+					if (std::dynamic_pointer_cast<unit_expr>(exp)) {
+						exp_res = symbol_table::UNIT_T;
+					}
+					else {
+						throw std::exception("TODO: Pattern match failed for unit! (expr)");
+					}
+					final_ty = exp_res;
+				}
+				if (c_type) {
+					if (symbol_table::UNIT_T->same(ty)) {
+					}
+					else {
+						throw std::exception("TODO: Pattern match failed for unit! (type)");
+					}
+					final_ty = ty;
+				}
+				if (c_exp && c_type) {
+					if (exp_res->same(ty)) {
+					}
+					else {
+						throw std::exception("TODO: Pattern type-expression mismatch!");
+					}
+				}
+			EndCase
+			CaseOther()
+				throw std::exception("Unhandled visit for pattern matching (expression)!");
 			EndCase
 		EndMatch
 	}

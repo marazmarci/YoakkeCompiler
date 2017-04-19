@@ -9,6 +9,22 @@ namespace yk {
 
 	pattern::~pattern() { }
 
+	// Ignore pattern
+
+	ignore_pattern::ignore_pattern(token const& tok)
+		: pattern(tok.Position) {
+	}
+
+	ignore_pattern::~ignore_pattern() { }
+
+	// Unit pattern
+
+	unit_pattern::unit_pattern(token const& beg, token const& end)
+		: pattern(interval(beg.Position, end.Position)) {
+	}
+
+	unit_pattern::~unit_pattern() { }
+
 	// Identifier pattern
 
 	ident_pattern::ident_pattern(token const& tok)

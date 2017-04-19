@@ -64,6 +64,7 @@ namespace yk {
 	void yparser::init_pattern() {
 		// Literals
 		register_pattern<pat_rules::ident>(ytoken_t::Ident);
+		register_pattern<pat_rules::ignore>(ytoken_t::Ignore);
 
 		// Enclose
 		register_pattern<pat_rules::enclose>(ytoken_t::Lpar);

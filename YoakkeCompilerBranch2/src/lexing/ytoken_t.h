@@ -17,6 +17,7 @@ namespace yk {
 		Colon,
 		Arrow,
 		Semicol,
+		Ignore,
 
 		Dcolon,
 		Comma,

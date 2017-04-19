@@ -51,6 +51,7 @@ namespace yk {
 
 		// Keywords
 		add_keyword("let", ytoken_t::Let);
+		add_keyword("_", ytoken_t::Ignore);
 	}
 
 	lexer_state ylexer::get_state() {
