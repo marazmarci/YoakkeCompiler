@@ -72,7 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\intermediates\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)dependencies\mach7\include;$(ProjectDir)dependencies\xtl\include;$(ProjectDir)dependencies\cppft\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)dependencies\boost\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -124,7 +124,6 @@
     <ClCompile Include="src\ast\pattern.cpp" />
     <ClCompile Include="src\ast\stmt.cpp" />
     <ClCompile Include="src\ast\type_desc.cpp" />
-    <ClCompile Include="src\debug\debug_printer.cpp" />
     <ClCompile Include="src\lexing\lex_error.cpp" />
     <ClCompile Include="src\lexing\position.cpp" />
     <ClCompile Include="src\lexing\ylexer.cpp" />
@@ -143,13 +142,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ast\expr.h" />
-    <ClInclude Include="src\ast\mch_bindings.h" />
     <ClInclude Include="src\ast\node.h" />
     <ClInclude Include="src\ast\pattern.h" />
     <ClInclude Include="src\ast\stmt.h" />
     <ClInclude Include="src\ast\type_desc.h" />
     <ClInclude Include="src\common.h" />
-    <ClInclude Include="src\debug\debug_printer.h" />
     <ClInclude Include="src\lexing\lexer.h" />
     <ClInclude Include="src\lexing\lex_error.h" />
     <ClInclude Include="src\lexing\position.h" />
@@ -173,6 +170,7 @@
     <ClInclude Include="src\semantics\type_symbol.h" />
     <ClInclude Include="src\utility\fmt_in.h" />
     <ClInclude Include="src\utility\fmt_out.h" />
+    <ClInclude Include="src\utility\match.h" />
     <ClInclude Include="src\utility\opt_map.h" />
     <ClInclude Include="src\yerror.h" />
   </ItemGroup>

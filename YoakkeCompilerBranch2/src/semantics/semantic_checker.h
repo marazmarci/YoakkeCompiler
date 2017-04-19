@@ -14,8 +14,8 @@ namespace yk {
 		symbol_table m_Table;
 
 	public:
-		void check_stmt(ysptr<stmt> st);
-		ysptr<type_symbol> check_expr(ysptr<expr> ex);
-		ysptr<type_symbol> check_type(ysptr<type_desc> ty);
+		void				check_stmt(ysptr<stmt> st);
+		ysptr<type_symbol>	check_expr(ysptr<expr> ex);
+		ysptr<type_symbol>	check_type(ysptr<type_desc> ty);
 	};
 }

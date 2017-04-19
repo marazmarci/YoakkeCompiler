@@ -7,7 +7,6 @@
 #include "src\utility\fmt_out.h"
 #include "src\utility\fmt_in.h"
 #include "src\parsing\parse_error.h"
-#include "src\debug\debug_printer.h"
 #include "src\semantics\semantic_checker.h"
 
 int main(void) {
