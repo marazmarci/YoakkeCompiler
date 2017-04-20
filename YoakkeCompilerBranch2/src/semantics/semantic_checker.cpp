@@ -90,6 +90,12 @@ namespace yk {
 			Case(const_asgn_expr, LHS, RHS)
 				auto left = std::dynamic_pointer_cast<ident_expr>(LHS);
 				auto right = check_expr(RHS);
+				auto sym_set = m_Table.ref_filter<const_typed_symbol>(left->Identifier);
+				sym_set = symbol_table::filter_typed_match(sym_set, right);
+				if (!sym_set.empty()) {
+					std::string err = "TODO: cannot shadow constant assignment: " + left->Identifier;
+					throw std::exception(err.c_str());
+				}
 				auto sym = std::make_shared
 					<const_typed_symbol>(left->Identifier, right);
 				m_Table.decl(sym);
@@ -175,6 +181,9 @@ namespace yk {
 				ysptr<type_symbol> val_sym = nullptr;
 				if (Type) {
 					ty_sym = check_type(Type);
+					if (Value) {
+						Value->HintType = ty_sym;
+					}
 					fin_sym = ty_sym;
 				}
 				if (Value) {
