@@ -95,7 +95,8 @@ namespace yk {
 	// Let expression
 
 	let_expr::let_expr(ysptr<pattern> pat, ysptr<type_desc> ty, ysptr<expr> val, token const& beg)
-		: expr(interval(beg.Position, val ? val->Position : (ty ? ty->Position : pat->Position))) {
+		: expr(interval(beg.Position, val ? val->Position : (ty ? ty->Position : pat->Position))),
+		Pattern(pat), Type(ty), Value(val) {
 	}
 
 	let_expr::~let_expr() { }

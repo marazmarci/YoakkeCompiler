@@ -165,7 +165,30 @@ namespace yk {
 				return fn_ty;
 			EndCase
 			Case(let_expr, Pattern, Type, Value)
-				// TODO
+				ysptr<type_symbol> fin_sym = nullptr;
+				ysptr<type_symbol> ty_sym = nullptr;
+				ysptr<type_symbol> val_sym = nullptr;
+				if (Type) {
+					ty_sym = check_type(Type);
+					fin_sym = ty_sym;
+				}
+				if (Value) {
+					val_sym = check_expr(Value);
+					fin_sym = val_sym;
+				}
+				if (ty_sym && val_sym) {
+					if (!ty_sym->same(val_sym)) {
+						throw std::exception("TODO: let type-value mismatch!");
+					}
+				}
+				auto entries = match_pattern_expr(Pattern, fin_sym);
+				for (auto e : entries) {
+					// TODO: type is null?
+					auto var_sym = std::make_shared
+						<var_typed_symbol>(e.first, e.second);
+					m_Table.decl(var_sym);
+				}
+				return symbol_table::UNIT_T;
 			EndCase
 			CaseOther()
 				throw std::exception("Unhandled visit for semantic check (expression)!");
