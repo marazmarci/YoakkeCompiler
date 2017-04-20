@@ -193,7 +193,7 @@ namespace yk {
 				ysptr<expr> left, token const& begin, yparser& par) override {
 				auto ls = std::make_shared<list_expr>(left);
 				do {
-					if (auto rhs = par.parse_expr(precedence() - 1)) {
+					if (auto rhs = par.parse_expr(precedence() + 1)) {
 						ls->add(rhs);
 					}
 					else {

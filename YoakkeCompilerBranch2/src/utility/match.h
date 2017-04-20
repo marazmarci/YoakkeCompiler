@@ -10,7 +10,7 @@
 #define Match(x) { auto to_be_matched__ = x;
 #define EndMatch }
 
-#define __DISP__(x)				auto x = to_be_matched__2->x;
+#define __DISP__(x)				auto& x = to_be_matched__2->x;
 
 #define Dispatch0()
 #define Dispatch1(x)								__DISP__(x);

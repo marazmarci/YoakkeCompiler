@@ -55,7 +55,7 @@ namespace yk {
 				ysptr<pattern> left, token const& begin, yparser& par) override {
 				auto ls = std::make_shared<list_pattern>(left);
 				do {
-					if (auto rhs = par.parse_pattern(precedence() - 1)) {
+					if (auto rhs = par.parse_pattern(precedence() + 1)) {
 						ls->add(rhs);
 					}
 					else {

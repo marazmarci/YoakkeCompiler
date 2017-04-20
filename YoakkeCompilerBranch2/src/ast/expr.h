@@ -164,9 +164,6 @@ namespace yk {
 
 	class let_expr : public expr {
 	public:
-		using entry_t = ytriplet<ystr, ysptr<type_symbol>, ysptr<expr>>;
-
-	public:
 		ysptr<pattern> Pattern;
 		ysptr<type_desc> Type;
 		ysptr<expr> Value;

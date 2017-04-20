@@ -54,7 +54,7 @@ namespace yk {
 				ysptr<type_desc> left, token const& begin, yparser& par) override {
 				auto ls = std::make_shared<list_type_desc>(left);
 				do {
-					if (auto rhs = par.parse_type_desc(precedence() - 1)) {
+					if (auto rhs = par.parse_type_desc(precedence() + 1)) {
 						ls->add(rhs);
 					}
 					else {

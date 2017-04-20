@@ -20,7 +20,7 @@ namespace yk {
 		ysptr<type_symbol>	check_type(ysptr<type_desc> ty);
 
 	private:
-		yvec<let_expr::entry_t> match_pattern_expr(ysptr<pattern> pat, ysptr<type_symbol> ty, ysptr<expr> exp);
-		void match_pattern_expr_impl(yvec<let_expr::entry_t>& res, ysptr<pattern> pat, ysptr<type_symbol> ty, ysptr<expr> exp, bool c_type, bool c_exp);
+		yvec<ypair<ystr, ysptr<type_symbol>>> match_pattern_expr(ysptr<pattern> pat, ysptr<type_symbol> ty);
+		void match_pattern_expr_impl(yvec<ypair<ystr, ysptr<type_symbol>>>& res, ysptr<pattern> pat, ysptr<type_symbol> ty, bool c_type);
 	};
 }
