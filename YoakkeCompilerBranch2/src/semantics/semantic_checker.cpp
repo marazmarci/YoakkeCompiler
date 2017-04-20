@@ -96,7 +96,12 @@ namespace yk {
 				return symbol_table::UNIT_T;
 			EndCase
 			Case(list_expr, Elements)
-				// TODO
+				yvec<ysptr<type_symbol>> types;
+				for (auto e : Elements) {
+					types.push_back(check_expr(e));
+				}
+				auto sym = std::make_shared<tuple_type_symbol>(types);
+				return m_Table.decl_type_once(sym);
 			EndCase
 			Case(call_expr, Function, Args)
 				// TODO
