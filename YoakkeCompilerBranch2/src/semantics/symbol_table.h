@@ -24,9 +24,13 @@ namespace yk {
 
 	private:
 		void decl_builtin_bin_op(ytoken_t op, ysptr<type_symbol> left, ysptr<type_symbol> right, ysptr<type_symbol> result);
+		void decl_builtin_preury_op(ytoken_t op, ysptr<type_symbol> sub, ysptr<type_symbol> result);
+		void decl_builtin_postury_op(ytoken_t op, ysptr<type_symbol> sub, ysptr<type_symbol> result);
 
 	public:
 		ysptr<type_symbol> create_bin_op_type(ysptr<type_symbol> left, ysptr<type_symbol> right, ysptr<type_symbol> result);
+		ysptr<type_symbol> create_preury_op_type(ysptr<type_symbol> sub, ysptr<type_symbol> result);
+		ysptr<type_symbol> create_postury_op_type(ysptr<type_symbol> sub, ysptr<type_symbol> result);
 
 	public:
 		void push(ysptr<scope>& sc);

@@ -54,15 +54,60 @@ namespace yk {
 				return symbol_table::F32_T;
 			EndCase
 			Case(preury_expr, Operator, Sub)
-				// TODO
+				auto subt = check_expr(Sub);
+				auto sym_name = const_typed_symbol::
+					create_preury_op_name(ytoken_t(Operator.Type));
+				auto sym_set = m_Table.ref_filter<const_typed_symbol>(sym_name);
+				// Create dummy type
+				auto dummy_ty = m_Table.create_preury_op_type(subt, symbol_table::UNIT_T);
+				// Filter with dummy
+				sym_set = symbol_table::filter_typed_match(sym_set, dummy_ty);
+				if (sym_set.empty()) {
+					throw std::exception("TODO: no such preury operator!");
+				}
+				else if (sym_set.size() > 1) {
+					throw std::exception("Sanity error: multiple preury operators match");
+				}
+				else {
+					auto op = sym_set[0];
+					if (auto ty = std::dynamic_pointer_cast<fn_type_symbol>(op->Type)) {
+						return ty->Return;
+					}
+					else {
+						throw std::exception("Sanity exception: Not function symbol passed (preury)");
+					}
+				}
 			EndCase
 			Case(postury_expr, Operator, Sub)
-				// TODO
+				auto subt = check_expr(Sub);
+				auto sym_name = const_typed_symbol::
+					create_postury_op_name(ytoken_t(Operator.Type));
+				auto sym_set = m_Table.ref_filter<const_typed_symbol>(sym_name);
+				// Create dummy type
+				auto dummy_ty = m_Table.create_postury_op_type(subt, symbol_table::UNIT_T);
+				// Filter with dummy
+				sym_set = symbol_table::filter_typed_match(sym_set, dummy_ty);
+				if (sym_set.empty()) {
+					throw std::exception("TODO: no such postury operator!");
+				}
+				else if (sym_set.size() > 1) {
+					throw std::exception("Sanity error: multiple postury operators match");
+				}
+				else {
+					auto op = sym_set[0];
+					if (auto ty = std::dynamic_pointer_cast<fn_type_symbol>(op->Type)) {
+						return ty->Return;
+					}
+					else {
+						throw std::exception("Sanity exception: Not function symbol passed (postury)");
+					}
+				}
 			EndCase
 			Case(binop_expr, Operator, LHS, RHS)
 				auto left = check_expr(LHS);
 				auto right = check_expr(RHS);
-				auto sym_name = const_typed_symbol::create_bin_op_name(ytoken_t(Operator.Type));
+				auto sym_name = const_typed_symbol::
+					create_bin_op_name(ytoken_t(Operator.Type));
 				auto sym_set = m_Table.ref_filter<const_typed_symbol>(sym_name);
 				// Create dummy type
 				auto dummy_ty = m_Table.create_bin_op_type(left, right, symbol_table::UNIT_T);
@@ -85,7 +130,13 @@ namespace yk {
 				}
 			EndCase
 			Case(asgn_expr, LHS, RHS)
-				// TODO
+				// TODO: If left has no type yet, here we can assign it
+				auto left = check_expr(LHS);
+				auto right = check_expr(RHS);
+				if (!left->same(right)) {
+					throw std::exception("TODO: Assignment type mismatch!");
+				}
+				return symbol_table::UNIT_T;
 			EndCase
 			Case(const_asgn_expr, LHS, RHS)
 				auto left = std::dynamic_pointer_cast<ident_expr>(LHS);
