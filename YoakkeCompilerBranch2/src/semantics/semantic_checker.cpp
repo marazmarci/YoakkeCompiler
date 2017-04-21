@@ -110,7 +110,25 @@ namespace yk {
 				return m_Table.decl_type_once(sym);
 			EndCase
 			Case(call_expr, Function, Args)
-				// TODO
+				ysptr<type_symbol> args_ty = nullptr;
+				if (Args) {
+					args_ty = check_expr(Args);
+				}
+				else {
+					args_ty = symbol_table::UNIT_T;
+				}
+				// Create dummy type
+				auto dummy_ty = std::make_shared
+					<fn_type_symbol>(args_ty, symbol_table::UNIT_T);
+				// Help call with filtering
+				Function->HintType = dummy_ty;
+				auto fn_ty = check_expr(Function);
+				if (auto tt = std::dynamic_pointer_cast<fn_type_symbol>(fn_ty)) {
+					return tt->Return;
+				}
+				else {
+					throw std::exception("TODO: cannot call non-function expression!");
+				}
 			EndCase
 			Case(block_expr, Statements)
 				// TODO: return actual type
