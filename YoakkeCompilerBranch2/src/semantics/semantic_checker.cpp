@@ -11,8 +11,32 @@
 namespace yk {
 	void semantic_checker::check_stmt(ysptr<stmt> st) {
 		Match(st.get())
-			Case(expr_stmt, Expression, Semicol)
-				check_expr(Expression);
+			Case(expr_stmt, Expression, Semicol, Return)
+				if (auto braced = 
+					std::dynamic_pointer_cast<braced_expr>(Expression)) {
+					braced->ReturnDestination = false;
+					check_expr(Expression);
+				}
+				else if (!Semicol
+					&& !std::dynamic_pointer_cast<const_asgn_expr>(Expression)) {
+					Return = true;
+					auto rett = check_expr(Expression);
+					auto ret_dest = m_Table.get_enclosing_return_dest();
+					if (!ret_dest) {
+						throw std::exception("Sanity error: no enclosing return destination!");
+					}
+					if (auto exp_ty = ret_dest->get_return_type()) {
+						if (!exp_ty->same(rett)) {
+							throw std::exception("TODO: return type mismatch!");
+						}
+					}
+					else {
+						ret_dest->set_return_type(rett);
+					}
+				}
+				else {
+					check_expr(Expression);
+				}
 				return;
 			EndCase
 			CaseOther()
@@ -181,21 +205,33 @@ namespace yk {
 					throw std::exception("TODO: cannot call non-function expression!");
 				}
 			EndCase
-			Case(block_expr, Statements)
+			Case(block_expr, Statements, ReturnDestination)
 				// TODO: return actual type
-				m_Table.push(std::make_shared<scope>());
+				auto sc = std::make_shared<scope>();
+				if (ReturnDestination) {
+					sc->mark_return_dest();
+				}
+				m_Table.push(sc);
 				for (auto st : Statements) {
 					check_stmt(st);
 				}
 				m_Table.pop();
-				return symbol_table::UNIT_T;
+				if (auto rett = sc->get_return_type()) {
+					return rett;
+				}
+				else {
+					return symbol_table::UNIT_T;
+				}
 			EndCase
 			Case(fnproto_expr, Parameters, ReturnType)
 				// TODO
 			EndCase
 			Case(fn_expr, Prototype, Body)
 				// TODO: warn if no parameter name
-				m_Table.push(std::make_shared<scope>());
+				// Functions stop returning anyways
+				auto sc = std::make_shared<scope>();
+				sc->mark_return_dest();
+				m_Table.push(sc);
 
 				// Parameters ////////////////////////////////////////
 				yvec<ysptr<type_symbol>> params;
@@ -211,7 +247,7 @@ namespace yk {
 				//////////////////////////////////////////////////////
 
 				// Return type
-				ysptr<type_symbol> ret;
+				ysptr<type_symbol> ret = nullptr;
 
 				if (Prototype->ReturnType) {
 					ret = check_type(Prototype->ReturnType);
@@ -238,8 +274,13 @@ namespace yk {
 						(params[0], ret);
 				}
 
-				check_expr(Body);
+				auto body_t = check_expr(Body);
 				m_Table.pop();
+
+				// Check if body returned what return type needs
+				if (!ret->same(body_t)) {
+					throw std::exception("TODO: function return type mismatch!");
+				}
 
 				fn_ty = m_Table.decl_type_once(fn_ty);
 				return fn_ty;

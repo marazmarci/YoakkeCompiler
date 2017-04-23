@@ -38,6 +38,7 @@ namespace yk {
 		sym_set const* ref(ystr const& ident);
 		void decl(ysptr<symbol> sym);
 		ysptr<type_symbol> decl_type_once(ysptr<type_symbol> ref);
+		scope* get_enclosing_return_dest();
 
 		template <typename T>
 		static yvec<ysptr<T>> filter(sym_set const* set) {

@@ -113,4 +113,8 @@ namespace yk {
 			return t_set[0];
 		}
 	}
+
+	scope* symbol_table::get_enclosing_return_dest() {
+		return m_Current->get_enclosing_return_dest();
+	}
 }

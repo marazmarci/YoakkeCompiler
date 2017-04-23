@@ -4,12 +4,15 @@
 
 namespace yk {
 	class symbol;
+	class type_symbol;
 	using sym_set = yvec<ysptr<symbol>>;
 
 	class scope {
 	private:
 		ysptr<scope> m_Parent;
 		yopt_map<ystr, sym_set> m_Symbols;
+		bool m_ReturnDest;
+		ysptr<type_symbol> m_ReturnType;
 
 	public:
 		scope();
@@ -20,5 +23,12 @@ namespace yk {
 
 		yopt<sym_set*> ref(ystr const& key);
 		void decl(ysptr<symbol>& sym);
+
+		void mark_return_dest();
+
+		ysptr<type_symbol> get_return_type();
+		void set_return_type(ysptr<type_symbol> rt);
+
+		scope* get_enclosing_return_dest();
 	};
 }

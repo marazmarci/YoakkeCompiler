@@ -21,7 +21,14 @@ namespace yk {
 		virtual ~expr();
 	};
 
-	class braced_expr { };
+	class braced_expr {
+	public:
+		bool ReturnDestination;
+
+	public:
+		braced_expr();
+		virtual ~braced_expr();
+	};
 
 	class ident_expr : public expr {
 	public:
@@ -138,8 +145,9 @@ namespace yk {
 		block_expr(yvec<ysptr<stmt>> sts, token const& beg, token const& end);
 		virtual ~block_expr();
 	};
-
-	class fnproto_expr : public expr, public braced_expr {
+	
+	// TODO: Why did I do this?
+	class fnproto_expr : public expr /*, public braced_expr */ {
 	public:
 		using param_t = ypair<yopt<token>, ysptr<type_desc>>;
 
@@ -152,6 +160,7 @@ namespace yk {
 		virtual ~fnproto_expr();
 	};
 
+	// TODO: separate from prototype
 	class fn_expr : public expr, public braced_expr {
 	public:
 		ysptr<fnproto_expr> Prototype;

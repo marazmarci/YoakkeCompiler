@@ -3,7 +3,7 @@
 
 namespace yk {
 	scope::scope()
-		: m_Parent(nullptr) {
+		: m_Parent(nullptr), m_ReturnDest(false), m_ReturnType(nullptr) {
 	}
 
 	ysptr<scope> scope::get_parent() {
@@ -34,5 +34,27 @@ namespace yk {
 		else {
 			m_Symbols.insert(std::make_pair(sym->Identifier, sym_set{ sym }));
 		}
+	}
+
+	void scope::mark_return_dest() {
+		m_ReturnDest = true;
+	}
+
+	ysptr<type_symbol> scope::get_return_type() {
+		return m_ReturnType;
+	}
+
+	void scope::set_return_type(ysptr<type_symbol> rt) {
+		m_ReturnType = rt;
+	}
+
+	scope* scope::get_enclosing_return_dest() {
+		if (m_ReturnDest) {
+			return this;
+		}
+		if (m_Parent) {
+			return m_Parent->get_enclosing_return_dest();
+		}
+		return nullptr;
 	}
 }

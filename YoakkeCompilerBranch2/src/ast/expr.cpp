@@ -12,6 +12,13 @@ namespace yk {
 
 	expr::~expr() { }
 
+	// Braced expression (does not inherit from expression)
+	braced_expr::braced_expr()
+		: ReturnDestination(true) {
+	}
+
+	braced_expr::~braced_expr() { }
+
 	// Identifier expression
 
 	ident_expr::ident_expr(token const& tok)

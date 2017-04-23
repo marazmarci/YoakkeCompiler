@@ -15,7 +15,8 @@ namespace yk {
 	expr_stmt::expr_stmt(ysptr<expr>& exp, yopt<token> semicol)
 		: stmt(interval(exp->Position, 
 			semicol.has_value() ? semicol.value().Position : exp->Position)),
-			Expression(exp), Semicol(semicol.has_value()) {
+			Expression(exp), Semicol(semicol.has_value()),
+			Return(false) {
 	}
 
 	expr_stmt::~expr_stmt() { }

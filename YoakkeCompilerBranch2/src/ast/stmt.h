@@ -18,6 +18,7 @@ namespace yk {
 	public:
 		ysptr<expr> Expression;
 		bool Semicol;
+		bool Return;
 
 	public:
 		expr_stmt(ysptr<expr>& exp, yopt<token> semicol);
