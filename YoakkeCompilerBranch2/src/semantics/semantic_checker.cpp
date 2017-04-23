@@ -154,10 +154,19 @@ namespace yk {
 				}
 			EndCase
 			Case(asgn_expr, LHS, RHS)
-				// TODO: If left has no type yet, here we can assign it
 				auto left = check_expr(LHS);
 				auto right = check_expr(RHS);
-				if (!left->same(right)) {
+				if (auto l_unk =
+					std::dynamic_pointer_cast<unknown_type_symbol>(left)) {
+					if (auto r_unk =
+						std::dynamic_pointer_cast<unknown_type_symbol>(right)) {
+						throw std::exception("TODO: both left and right are unknown!");
+					}
+					else {
+						l_unk->Owner->Type = right;
+					}
+				}
+				else if (!left->same(right)) {
 					throw std::exception("TODO: Assignment type mismatch!");
 				}
 				return symbol_table::UNIT_T;
@@ -307,10 +316,18 @@ namespace yk {
 				}
 				auto entries = match_pattern_expr(Pattern, fin_sym);
 				for (auto e : entries) {
-					// TODO: type is null?
-					auto var_sym = std::make_shared
-						<var_typed_symbol>(e.first, e.second);
-					m_Table.decl(var_sym);
+					if (e.second) {
+						auto var_sym = std::make_shared
+							<var_typed_symbol>(e.first, e.second);
+						m_Table.decl(var_sym);
+					}
+					else {
+						auto var_sym = std::make_shared
+							<var_typed_symbol>(e.first, nullptr);
+						auto unk_ty = std::make_shared<unknown_type_symbol>(var_sym);
+						var_sym->Type = unk_ty;
+						m_Table.decl(var_sym);
+					}
 				}
 				return symbol_table::UNIT_T;
 			EndCase

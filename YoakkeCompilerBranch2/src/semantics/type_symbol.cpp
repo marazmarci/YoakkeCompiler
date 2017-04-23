@@ -88,4 +88,20 @@ namespace yk {
 		}
 		return false;
 	}
+
+	// Unknown type symbol
+
+	unknown_type_symbol::unknown_type_symbol(ysptr<typed_symbol> o) 
+		: type_symbol("@unknown"), Owner(o) {
+	}
+
+	unknown_type_symbol::~unknown_type_symbol() { }
+
+	bool unknown_type_symbol::same(ysptr<type_symbol> other) {
+		return false;
+	}
+
+	bool unknown_type_symbol::match(ysptr<type_symbol> other) {
+		return false;
+	}
 }

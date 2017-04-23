@@ -3,6 +3,8 @@
 #include "symbol.h"
 
 namespace yk {
+	class typed_symbol;
+
 	class type_symbol : public symbol {
 	protected:
 		type_symbol(ystr const& id);
@@ -48,6 +50,19 @@ namespace yk {
 	public:
 		tuple_type_symbol(yvec<ysptr<type_symbol>>& ls);
 		virtual ~tuple_type_symbol();
+
+	public:
+		virtual bool same(ysptr<type_symbol> other) override;
+		virtual bool match(ysptr<type_symbol> other) override;
+	};
+
+	class unknown_type_symbol : public type_symbol {
+	public:
+		ysptr<typed_symbol> Owner;
+
+	public:
+		unknown_type_symbol(ysptr<typed_symbol> o);
+		virtual ~unknown_type_symbol();
 
 	public:
 		virtual bool same(ysptr<type_symbol> other) override;
