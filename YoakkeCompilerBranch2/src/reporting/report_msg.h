@@ -19,6 +19,7 @@ namespace yk {
 
 		class lex_err : public err { };
 		class parse_err : public err { };
+		class semantic_err : public err { };
 
 		class unexpected_eof : public lex_err {
 		private:
@@ -62,6 +63,10 @@ namespace yk {
 
 		public:
 			virtual void print(std::ostream& os) const override;
+		};
+
+		class undef_symbol : public semantic_err {
+
 		};
 	}
 }

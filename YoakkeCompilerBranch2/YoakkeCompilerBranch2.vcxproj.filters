@@ -39,9 +39,6 @@
     <ClCompile Include="src\utility\fmt_out.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utility\fmt_in.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ast\pattern.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,9 +117,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\utility\fmt_out.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utility\fmt_in.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ast\pattern.h">
