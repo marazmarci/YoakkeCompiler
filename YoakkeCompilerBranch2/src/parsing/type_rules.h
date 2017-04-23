@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rules.h"
+#include "common_rules.h"
 #include "yparser.h"
 #include "../ast/type_desc.h"
 
@@ -9,15 +9,7 @@ namespace yk {
 		using type_pre_parselet = prefix_parselet<type_desc, yparser>;
 		using type_in_parselet = infix_parselet<type_desc, yparser>;
 
-		template <typename Return_T>
-		class pass : public type_pre_parselet {
-		public:
-			ysptr<type_desc> parse(token const& begin, yparser& par) override {
-				return std::make_shared<Return_T>(begin);
-			}
-		};
-
-		using ident = pass<ident_type_desc>;
+		using ident = common_rules::pass<type_pre_parselet, ident_type_desc>;
 
 		class enclose : public type_pre_parselet {
 		public:
@@ -28,7 +20,7 @@ namespace yk {
 					}
 					else {
 						token const& tok = par.peek();
-						throw_expect("')'", par);
+						expect_error("')'", "", par);
 					}
 				}
 				else {
@@ -37,7 +29,7 @@ namespace yk {
 					}
 					else {
 						token const& tok = par.peek();
-						throw_expect("type", par);
+						expect_error("type", "", par);
 					}
 				}
 			}
@@ -58,7 +50,7 @@ namespace yk {
 						ls->add(rhs);
 					}
 					else {
-						throw_expect("type", par);
+						expect_error("type", "", par);
 					}
 				} while (par.match(ytoken_t::Comma));
 				return ls;
@@ -79,7 +71,7 @@ namespace yk {
 					return std::make_shared<bin_type_desc>(begin, left, rhs);
 				}
 				else {
-					throw_expect("type", par);
+					expect_error("type", "", par);
 				}
 			}
 		};

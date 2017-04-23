@@ -1,25 +1,18 @@
 #pragma once
 
-#include "rules.h"
 #include "yparser.h"
 #include "../ast/expr.h"
+#include "../reporting/report_stream.h"
+#include "common_rules.h"
 
 namespace yk {
 	namespace expr_rules {
 		using expr_pre_parselet = prefix_parselet<expr, yparser>;
-		using expr_in_parselet = infix_parselet<expr, yparser>;
+		using expr_in_parselet	= infix_parselet<expr,	yparser>;
 
-		template <typename Return_T>
-		class pass : public expr_pre_parselet {
-		public:
-			ysptr<expr> parse(token const& begin, yparser& par) override {
-				return std::make_shared<Return_T>(begin);
-			}
-		};
-
-		using ident = pass<ident_expr>;
-		using int_lit = pass<int_lit_expr>;
-		using real_lit = pass<real_lit_expr>;
+		using ident		= common_rules::pass<expr_pre_parselet, ident_expr>;
+		using int_lit	= common_rules::pass<expr_pre_parselet,	int_lit_expr>;
+		using real_lit	= common_rules::pass<expr_pre_parselet, real_lit_expr>;
 
 		class enclose : public expr_pre_parselet {
 		public:
@@ -39,7 +32,7 @@ namespace yk {
 							}
 						}
 						else {
-							throw_expect("return type", par);
+							expect_error("return type", "", par);
 						}
 					}
 					else if (auto lbrace = par.match(ytoken_t::Lbrace)) {
@@ -64,11 +57,11 @@ namespace yk {
 								params.push_back({ id, type });
 							}
 							else {
-								throw_expect("type", par);
+								expect_error("type", "", par);
 							}
 						}
 						else if (id) {
-							throw_expect("':'", par);
+							expect_error("':'", "", par);
 						}
 					} while (par.match(ytoken_t::Comma));
 					// (<ident>: ...)
@@ -79,23 +72,27 @@ namespace yk {
 							if (rett = par.parse_type_desc()) {
 							}
 							else {
-								throw_expect("'->'", par);
+								expect_error("'->'", "", par);
 							}
 						}
 						auto proto = std::make_shared<fnproto_expr>(params, rett, begin, rpar.value());
 						if (auto lbrace = par.match(ytoken_t::Lbrace)) {
-							auto body = par.parse_block(lbrace.value());
-							return std::make_shared<fn_expr>(proto, body);
+							if (auto body = par.parse_block(lbrace.value())) {
+								return std::make_shared<fn_expr>(proto, body);
+							}
+							else {
+								return nullptr;
+							}
 						}
 						else if (rett) {
 							return proto;
 						}
 						else {
-							throw_expect("explicit return type for function declaration", par);
+							expect_error("explicit return type for function declaration", "", par);
 						}
 					}
 					else {
-						throw_expect("')'", par);
+						expect_error("')'", "", par);
 					}
 				}
 				else {
@@ -104,11 +101,11 @@ namespace yk {
 							return expr;
 						}
 						else {
-							throw_expect("')'", par);
+							expect_error("')'", "", par);
 						}
 					}
 					else {
-						throw_expect("expression", par);
+						expect_error("expression", "", par);
 					}
 				}
 			}
@@ -136,7 +133,7 @@ namespace yk {
 					return std::make_shared<preury_expr>(begin, right);
 				}
 				else {
-					throw_expect("right-hand side operand", par);
+					expect_error("right-hand side operand", "", par);
 				}
 			}
 		};
@@ -150,7 +147,7 @@ namespace yk {
 						if (type = par.parse_type_desc()) {
 						}
 						else {
-							throw_expect("type", par);
+							expect_error("type", "", par);
 						}
 					}
 					ysptr<expr> val = nullptr;
@@ -158,13 +155,13 @@ namespace yk {
 						if (val = par.parse_expr()) {
 						}
 						else {
-							throw_expect("expression", par);
+							expect_error("expression", "", par);
 						}
 					}
 					return std::make_shared<let_expr>(pat, type, val, begin);
 				}
 				else {
-					throw_expect("pattern", par);
+					expect_error("pattern", "", par);
 				}
 			}
 		};
@@ -197,7 +194,7 @@ namespace yk {
 						ls->add(rhs);
 					}
 					else {
-						throw_expect("expression", par);
+						expect_error("expression", "", par);
 					}
 				} while (par.match(ytoken_t::Comma));
 				return ls;
@@ -218,7 +215,7 @@ namespace yk {
 					return std::make_shared<call_expr>(left, args, tok.value());
 				}
 				else {
-					throw_expect("')'", par);
+					expect_error("')'", "", par);
 				}
 			}
 
@@ -241,7 +238,7 @@ namespace yk {
 					return std::make_shared<Return_T>(begin, left, rhs);
 				}
 				else {
-					throw_expect("expression", par);
+					expect_error("expression", "", par);
 				}
 			}
 		};

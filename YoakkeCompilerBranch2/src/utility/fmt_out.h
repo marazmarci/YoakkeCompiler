@@ -30,7 +30,17 @@ namespace yk {
 		}
 	};
 
+	struct part_until {
+		const char* Begin;
+		char What;
+
+		part_until(const char* beg, char w)
+			: Begin(beg), What(w) {
+		}
+	};
+
 	std::ostream& operator<<(std::ostream& out, cmd_pos const& pos);
 	std::ostream& operator<<(std::ostream& out, skip const& sk);
 	std::ostream& operator<<(std::ostream& out, repeat const& rep);
+	std::ostream& operator<<(std::ostream& out, part_until const& po);
 }

@@ -4,11 +4,11 @@
 #include "expr_rules.h"
 #include "pattern_rules.h"
 #include "type_rules.h"
-#include "rules.h"
+#include "common_rules.h"
 
 namespace yk {
 	yparser::yparser(ystr const& file)
-		: parser(m_Lexer, m_Buffer), m_File(file), m_Lexer(file), 
+		: parser(m_Lexer, m_Buffer), m_File(file), m_Lexer(m_File), 
 		m_ExprParser(m_Lexer, m_Buffer),
 		m_PatternParser(m_Lexer, m_Buffer),
 		m_TypeDescParser(m_Lexer, m_Buffer) {
@@ -131,11 +131,11 @@ namespace yk {
 			return std::make_shared<block_expr>(body, begin, endbr.value());
 		}
 		else {
-			throw_expect("'}'", *this);
+			expect_error("'}'", "", *this);
 		}
 	}
 
-	ystr const& yparser::file() const {
+	file_handle const& yparser::file() const {
 		return m_File;
 	}
 
@@ -150,8 +150,11 @@ namespace yk {
 		case ytoken_t::Real:
 			return "real literal";
 
-		case ytoken_t::Epsilon:
+		case ytoken_t::EndOfFile:
 			return "end of file";
+
+		case ytoken_t::Epsilon:
+			return "<unknown>";
 
 		default:
 			return "'" + t.Value + "'";

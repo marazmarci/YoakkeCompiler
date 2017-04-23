@@ -3,6 +3,7 @@
 #include "parser.h"
 #include "prec_parser.h"
 #include "../lexing/ylexer.h"
+#include "../lexing/file_handle.h"
 
 namespace yk {
 	class expr;
@@ -13,7 +14,7 @@ namespace yk {
 
 	class yparser : public parser {
 	private:
-		ystr m_File;
+		file_handle m_File;
 		yvec<token> m_Buffer;
 		ylexer m_Lexer;
 
@@ -33,7 +34,7 @@ namespace yk {
 		ysptr<stmt> parse_stmt();
 		ysptr<block_expr> parse_block(token const& begin);
 
-		ystr const& file() const;
+		file_handle const& file() const;
 
 	private:
 		template <typename T, typename... Args>

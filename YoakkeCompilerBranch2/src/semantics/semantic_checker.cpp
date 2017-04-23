@@ -215,7 +215,6 @@ namespace yk {
 				}
 			EndCase
 			Case(block_expr, Statements, ReturnDestination)
-				// TODO: return actual type
 				auto sc = std::make_shared<scope>();
 				if (ReturnDestination) {
 					sc->mark_return_dest();

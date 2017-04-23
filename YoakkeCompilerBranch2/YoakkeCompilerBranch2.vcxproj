@@ -81,6 +81,7 @@
       <SDLCheck>true</SDLCheck>
       <CompileAs>CompileAsCpp</CompileAs>
       <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -124,12 +125,13 @@
     <ClCompile Include="src\ast\pattern.cpp" />
     <ClCompile Include="src\ast\stmt.cpp" />
     <ClCompile Include="src\ast\type_desc.cpp" />
-    <ClCompile Include="src\lexing\lex_error.cpp" />
+    <ClCompile Include="src\lexing\file_handle.cpp" />
     <ClCompile Include="src\lexing\position.cpp" />
     <ClCompile Include="src\lexing\ylexer.cpp" />
     <ClCompile Include="src\parsing\parser.cpp" />
-    <ClCompile Include="src\parsing\parse_error.cpp" />
     <ClCompile Include="src\parsing\yparser.cpp" />
+    <ClCompile Include="src\reporting\report_msg.cpp" />
+    <ClCompile Include="src\reporting\report_stream.cpp" />
     <ClCompile Include="src\semantics\scope.cpp" />
     <ClCompile Include="src\semantics\semantic_checker.cpp" />
     <ClCompile Include="src\semantics\symbol.cpp" />
@@ -138,7 +140,6 @@
     <ClCompile Include="src\semantics\type_symbol.cpp" />
     <ClCompile Include="src\utility\fmt_in.cpp" />
     <ClCompile Include="src\utility\fmt_out.cpp" />
-    <ClCompile Include="src\yerror.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ast\expr.h" />
@@ -147,21 +148,22 @@
     <ClInclude Include="src\ast\stmt.h" />
     <ClInclude Include="src\ast\type_desc.h" />
     <ClInclude Include="src\common.h" />
+    <ClInclude Include="src\lexing\file_handle.h" />
     <ClInclude Include="src\lexing\lexer.h" />
-    <ClInclude Include="src\lexing\lex_error.h" />
     <ClInclude Include="src\lexing\position.h" />
     <ClInclude Include="src\lexing\token.h" />
     <ClInclude Include="src\lexing\ylexer.h" />
     <ClInclude Include="src\lexing\ytoken_t.h" />
+    <ClInclude Include="src\parsing\common_rules.h" />
     <ClInclude Include="src\parsing\expr_rules.h" />
     <ClInclude Include="src\parsing\parselet.h" />
     <ClInclude Include="src\parsing\parser.h" />
-    <ClInclude Include="src\parsing\parse_error.h" />
     <ClInclude Include="src\parsing\pattern_rules.h" />
     <ClInclude Include="src\parsing\prec_parser.h" />
-    <ClInclude Include="src\parsing\rules.h" />
     <ClInclude Include="src\parsing\type_rules.h" />
     <ClInclude Include="src\parsing\yparser.h" />
+    <ClInclude Include="src\reporting\report_msg.h" />
+    <ClInclude Include="src\reporting\report_stream.h" />
     <ClInclude Include="src\semantics\scope.h" />
     <ClInclude Include="src\semantics\semantic_checker.h" />
     <ClInclude Include="src\semantics\symbol.h" />
@@ -172,7 +174,6 @@
     <ClInclude Include="src\utility\fmt_out.h" />
     <ClInclude Include="src\utility\match.h" />
     <ClInclude Include="src\utility\opt_map.h" />
-    <ClInclude Include="src\yerror.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

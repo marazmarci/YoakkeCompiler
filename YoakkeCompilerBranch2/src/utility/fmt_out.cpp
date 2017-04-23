@@ -22,4 +22,13 @@ namespace yk {
 		}
 		return out;
 	}
+
+	std::ostream& operator<<(std::ostream& out, part_until const& po) {
+		const char* c = po.Begin;
+		char stop = po.What;
+		while (*c != stop) {
+			out << *c++;
+		}
+		return out;
+	}
 }

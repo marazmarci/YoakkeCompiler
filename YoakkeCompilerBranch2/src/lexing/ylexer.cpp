@@ -4,21 +4,16 @@
 
 #include "ylexer.h"
 #include "token.h"
-#include "lex_error.h"
+#include "../reporting/report_stream.h"
 
 namespace yk {
-	ylexer::ylexer(ystr const& file)
-		: m_File(file), m_Position(0, 0) {
-		std::ifstream stream(file);
-		if (stream.good()) {
-			m_Src = ystr((std::istreambuf_iterator<char>(stream)),
-				(std::istreambuf_iterator<char>()));
-			m_Ptr = &m_Src[0];
-		}
-		else {
-			throw lex_no_file_err(m_File);
-		}
+	ylexer::ylexer(file_handle& file)
+		: m_FileHandle(file), 
+		  m_Position(0, 0), m_LastVisible(0, 0) {
+		// Set the pointer to the beginning of the file
+		m_Ptr = m_FileHandle.ptr();
 
+		// Symbols
 		add_symbol("(", ytoken_t::Lpar);
 		add_symbol(")", ytoken_t::Rpar);
 		add_symbol("[", ytoken_t::Lsqbr);
@@ -67,7 +62,7 @@ namespace yk {
 	begin:
 		// EOF
 		if (!has_next()) {
-			return token(ytoken_t::Epsilon, "", m_Position);
+			return token(ytoken_t::EndOfFile, "", m_Position);
 		}
 		// Whitespace
 		if (std::isspace(*m_Ptr)) {
@@ -99,8 +94,11 @@ namespace yk {
 					advance();
 				}
 				else {
-					throw unexpected_eof(m_File, m_Position, 
-						"Multi-line comment must end before EOF! Use: '*/'");
+					rep::r()
+						<< rep::unexpected_eof(m_FileHandle, m_LastVisible,
+							"Multi-line comment must end before end-of-file! Use: '*/' to end the comment.\nNote: Yoakke supports nested comments!")
+						<< rep::endr;
+					return token(ytoken_t::Epsilon, "", m_Position);
 				}
 			}
 			goto begin;
@@ -154,7 +152,12 @@ namespace yk {
 			}
 		}
 		// Unknown
-		throw unknown_tok_err(ystr{ *m_Ptr }, m_File, m_Position);
+		rep::r()
+			<< rep::unrecognized_char(m_FileHandle, m_Position, *m_Ptr)
+			<< rep::endr;
+		// Skip
+		advance();
+		return token(ytoken_t::Epsilon, "", m_Position);
 	}
 
 	bool ylexer::has_next() {
@@ -177,6 +180,9 @@ namespace yk {
 				m_Position.Col = 0;
 			}
 			else {
+				if (!std::isspace(curr)) {
+					m_LastVisible = m_Position;
+				}
 				m_Position.Col++;
 			}
 		}

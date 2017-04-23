@@ -4,19 +4,20 @@
 #include "../common.h"
 #include "position.h"
 #include "ytoken_t.h"
+#include "file_handle.h"
 
 namespace yk {
 	class ylexer : public lexer {
 	private:
-		ystr m_File;
-		ystr m_Src;
+		file_handle& m_FileHandle;
 		const char* m_Ptr;
 		position m_Position;
-		ymap<ystr, ytoken_t> m_Symbols;
-		yopt_map<ystr, ytoken_t> m_Keywords;
+		position m_LastVisible;
+		ymap<ystr, ytoken_t>		m_Symbols;
+		yopt_map<ystr, ytoken_t>	m_Keywords;
 
 	public:
-		ylexer(ystr const& file);
+		ylexer(file_handle& file);
 
 	public:
 		lexer_state get_state() override;

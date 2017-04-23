@@ -1,24 +1,16 @@
 #pragma once
 
-#include "rules.h"
+#include "common_rules.h"
 #include "yparser.h"
 #include "../ast/pattern.h"
 
 namespace yk {
 	namespace pat_rules {
-		using pat_pre_parselet = prefix_parselet<pattern, yparser>;
-		using pat_in_parselet = infix_parselet<pattern, yparser>;
+		using pat_pre_parselet	= prefix_parselet<pattern, yparser>;
+		using pat_in_parselet	= infix_parselet<pattern, yparser>;
 
-		template <typename Return_T>
-		class pass : public pat_pre_parselet {
-		public:
-			ysptr<pattern> parse(token const& begin, yparser& par) override {
-				return std::make_shared<Return_T>(begin);
-			}
-		};
-
-		using ident = pass<ident_pattern>;
-		using ignore = pass<ignore_pattern>;
+		using ident		= common_rules::pass<pat_pre_parselet, ident_pattern>;
+		using ignore	= common_rules::pass<pat_pre_parselet, ignore_pattern>;
 
 		class enclose : public pat_pre_parselet {
 		public:
@@ -29,7 +21,7 @@ namespace yk {
 					}
 					else {
 						token const& tok = par.peek();
-						throw_expect("')'", par);
+						expect_error("')'", "", par);
 					}
 				}
 				else {
@@ -38,7 +30,7 @@ namespace yk {
 					}
 					else {
 						token const& tok = par.peek();
-						throw_expect("pattern", par);
+						expect_error("pattern", "", par);
 					}
 				}
 			}
@@ -59,7 +51,7 @@ namespace yk {
 						ls->add(rhs);
 					}
 					else {
-						throw_expect("pattern", par);
+						expect_error("pattern", "", par);
 					}
 				} while (par.match(ytoken_t::Comma));
 				return ls;
@@ -80,7 +72,7 @@ namespace yk {
 					return std::make_shared<bin_pattern>(begin, left, rhs);
 				}
 				else {
-					throw_expect("pattern", par);
+					expect_error("pattern", "", par);
 				}
 			}
 		};

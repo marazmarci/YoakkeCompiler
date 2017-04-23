@@ -6,11 +6,19 @@ namespace yk {
 	template <typename T, typename P>
 	class prefix_parselet {
 	public:
+		using return_type = T;
+		using parser_type = P;
+
+	public:
 		virtual ysptr<T> parse(token const& begin, P& parser) = 0;
 	};
 
 	template <typename T, typename P>
 	class infix_parselet {
+	public:
+		using return_type = T;
+		using parser_type = P;
+
 	private:
 		ysize m_Precedence;
 

@@ -4,6 +4,7 @@
 
 namespace yk {
 	enum class ytoken_t {
+		EndOfFile,
 		Epsilon,
 		Ident,
 		Integer,

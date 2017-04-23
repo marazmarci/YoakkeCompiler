@@ -6,7 +6,6 @@
 #include "src\parsing\yparser.h"
 #include "src\utility\fmt_out.h"
 #include "src\utility\fmt_in.h"
-#include "src\parsing\parse_error.h"
 #include "src\semantics\semantic_checker.h"
 
 int main(void) {
@@ -33,9 +32,6 @@ int main(void) {
 		std::chrono::duration<double> semantic_t = semantic_e - parse_e;
 		std::cout << "Parsing took: " << parse_t.count() << " s." << std::endl;
 		std::cout << "Semantic analysis took: " << semantic_t.count() << " s." << std::endl;
-	}
-	catch (yk::yerror& err) {
-		std::cout << err << std::endl;
 	}
 	catch (std::exception& ex) {
 		std::cout << "Internal exception: " << ex.what() << std::endl;
