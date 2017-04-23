@@ -14,8 +14,8 @@ namespace yk {
 		~file_handle();
 
 	public:
-		const char* ptr() const;
+		const char* ptr()			const;
 		const char* line(ysize num) const;
-		ystr const& name() const;
+		ystr const& name()			const;
 	};
 }

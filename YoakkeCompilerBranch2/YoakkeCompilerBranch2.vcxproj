@@ -127,6 +127,7 @@
     <ClCompile Include="src\ast\type_desc.cpp" />
     <ClCompile Include="src\lexing\file_handle.cpp" />
     <ClCompile Include="src\lexing\position.cpp" />
+    <ClCompile Include="src\lexing\token.cpp" />
     <ClCompile Include="src\lexing\ylexer.cpp" />
     <ClCompile Include="src\parsing\parser.cpp" />
     <ClCompile Include="src\parsing\yparser.cpp" />
@@ -153,7 +154,7 @@
     <ClInclude Include="src\lexing\token.h" />
     <ClInclude Include="src\lexing\ylexer.h" />
     <ClInclude Include="src\lexing\ytoken_t.h" />
-    <ClInclude Include="src\parsing\common_rules.h" />
+    <ClInclude Include="src\parsing\gen_rules.h" />
     <ClInclude Include="src\parsing\expr_rules.h" />
     <ClInclude Include="src\parsing\parselet.h" />
     <ClInclude Include="src\parsing\parser.h" />

@@ -9,12 +9,12 @@ namespace yk {
 	template <typename T, typename P>
 	class prec_parser : public parser {
 	private:
-		typedef prefix_parselet<T, P> pre_rule;
-		typedef infix_parselet<T, P> in_rule;
+		using pre_rule	= prefix_parselet<T, P>;
+		using in_rule	= infix_parselet<T, P>;
 
 	private:
-		yopt_map<token::type_t, ysptr<pre_rule>>	m_Prefix;
-		yopt_map<token::type_t, ysptr<in_rule>>	m_Infix;
+		yopt_map<ytoken_t, ysptr<pre_rule>>	m_Prefix;
+		yopt_map<ytoken_t, ysptr<in_rule>>	m_Infix;
 
 	public:
 		prec_parser(lexer& lex, yvec<token>& buff)
@@ -22,20 +22,18 @@ namespace yk {
 		}
 
 	public:
-		template <typename TT>
-		void register_rule(TT const& val, ysptr<pre_rule> r) {
-			if (auto p = m_Prefix.at((token::type_t)val)) {
+		void register_rule(ytoken_t val, ysptr<pre_rule> r) {
+			if (auto p = m_Prefix.at(val)) {
 				throw std::exception("Prefix parselet already defined!");
 			}
-			m_Prefix.insert(std::make_pair((token::type_t)val, r));
+			m_Prefix.insert({ val, r });
 		}
 
-		template <typename TT>
-		void register_rule(TT const& val, ysptr<in_rule> r) {
-			if (auto p = m_Infix.at((token::type_t)val)) {
+		void register_rule(ytoken_t val, ysptr<in_rule> r) {
+			if (auto p = m_Infix.at(val)) {
 				throw std::exception("Infix parselet already defined!");
 			}
-			m_Infix.insert(std::make_pair((token::type_t)val, r));
+			m_Infix.insert({ val, r });
 		}
 
 		ysptr<T> parse(P& par, ysize prec = 0) {

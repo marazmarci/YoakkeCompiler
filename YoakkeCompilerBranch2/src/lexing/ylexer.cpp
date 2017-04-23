@@ -8,10 +8,9 @@
 
 namespace yk {
 	ylexer::ylexer(file_handle& file)
-		: m_FileHandle(file), 
-		  m_Position(0, 0), m_LastVisible(0, 0) {
+		: m_File(file), m_Position(0, 0), m_LastVisible(0, 0) {
 		// Set the pointer to the beginning of the file
-		m_Ptr = m_FileHandle.ptr();
+		m_Ptr = m_File.ptr();
 
 		// Symbols
 		add_symbol("(", ytoken_t::Lpar);
@@ -49,13 +48,13 @@ namespace yk {
 		add_keyword("_", ytoken_t::Ignore);
 	}
 
-	lexer_state ylexer::get_state() {
-		return std::make_pair(m_Ptr, m_Position);
+	lexer_state ylexer::get_state() const {
+		return { m_Ptr, m_Position };
 	}
 
 	void ylexer::set_state(lexer_state pos) {
-		m_Ptr = pos.first;
-		m_Position = pos.second;
+		m_Ptr		= pos.first;
+		m_Position	= pos.second;
 	}
 
 	token ylexer::next() {
@@ -95,7 +94,7 @@ namespace yk {
 				}
 				else {
 					rep::r()
-						<< rep::unexpected_eof(m_FileHandle, m_LastVisible,
+						<< rep::unexpected_eof(m_File, m_LastVisible,
 							"Multi-line comment must end before end-of-file! Use: '*/' to end the comment.\nNote: Yoakke supports nested comments!")
 						<< rep::endr;
 					return token(ytoken_t::Epsilon, "", m_Position);
@@ -153,23 +152,23 @@ namespace yk {
 		}
 		// Unknown
 		rep::r()
-			<< rep::unrecognized_char(m_FileHandle, m_Position, *m_Ptr)
+			<< rep::unrecognized_char(m_File, m_Position, *m_Ptr)
 			<< rep::endr;
 		// Skip
 		advance();
 		return token(ytoken_t::Epsilon, "", m_Position);
 	}
 
-	bool ylexer::has_next() {
+	bool ylexer::has_next() const {
 		return *m_Ptr;
 	}
 
 	void ylexer::add_symbol(ystr const& val, ytoken_t tt) {
-		m_Symbols.insert(std::make_pair(val, tt));
+		m_Symbols.insert({ val, tt });
 	}
 
 	void ylexer::add_keyword(ystr const& val, ytoken_t tt) {
-		m_Keywords.insert(std::make_pair(val, tt));
+		m_Keywords.insert({ val, tt });
 	}
 
 	void ylexer::advance(ysize cnt) {

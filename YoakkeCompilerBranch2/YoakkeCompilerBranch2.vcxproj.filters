@@ -75,6 +75,9 @@
     <ClCompile Include="src\reporting\report_msg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\lexing\token.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h">
@@ -167,7 +170,7 @@
     <ClInclude Include="src\lexing\file_handle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\parsing\common_rules.h">
+    <ClInclude Include="src\parsing\gen_rules.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

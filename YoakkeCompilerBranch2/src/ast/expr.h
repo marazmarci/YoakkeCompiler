@@ -146,8 +146,7 @@ namespace yk {
 		virtual ~block_expr();
 	};
 	
-	// TODO: Why did I do this?
-	class fnproto_expr : public expr /*, public braced_expr */ {
+	class fnproto_expr : public expr {
 	public:
 		using param_t = ypair<yopt<token>, ysptr<type_desc>>;
 
@@ -156,18 +155,21 @@ namespace yk {
 		ysptr<type_desc> ReturnType;
 
 	public:
-		fnproto_expr(yvec<param_t> params, ysptr<type_desc> ret, token const& begpar, token const& endpar);
+		fnproto_expr(token const& begpar, token const& endpar, yvec<param_t> params, ysptr<type_desc> ret);
 		virtual ~fnproto_expr();
 	};
 
-	// TODO: separate from prototype
 	class fn_expr : public expr, public braced_expr {
 	public:
-		ysptr<fnproto_expr> Prototype;
+		using param_t = ypair<yopt<token>, ysptr<type_desc>>;
+
+	public:
+		yvec<param_t> Parameters;
+		ysptr<type_desc> ReturnType;
 		ysptr<block_expr> Body;
 
 	public:
-		fn_expr(ysptr<fnproto_expr> proto, ysptr<block_expr> bd);
+		fn_expr(token const& begpar, yvec<param_t> params, ysptr<type_desc> ret, ysptr<block_expr> bd);
 		virtual ~fn_expr();
 	};
 

@@ -14,13 +14,19 @@
 return nullptr;
 
 namespace yk {
-	namespace common_rules {
-		template <typename Parselet_T, typename Return_T>
-		class pass : public Parselet_T {
+	namespace gen_rules {
+		template <typename T>
+		using pre_parselet = prefix_parselet<T, yparser>;
+
+		template <typename T>
+		using in_parselet = prefix_parselet<T, yparser>;
+
+		template <typename T, typename R>
+		class pass : public pre_parselet<T> {
 		public:
-			ysptr<typename Parselet_T::return_type>
+			pre_parselet<T>::return_ptr
 				parse(token const& begin, yparser& par) override {
-				return std::make_shared<Return_T>(begin);
+				return std::make_shared<R>(begin);
 			}
 		};
 	}

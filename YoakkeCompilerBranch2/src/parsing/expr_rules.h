@@ -1,18 +1,18 @@
 #pragma once
 
 #include "yparser.h"
+#include "gen_rules.h"
 #include "../ast/expr.h"
 #include "../reporting/report_stream.h"
-#include "common_rules.h"
 
 namespace yk {
 	namespace expr_rules {
 		using expr_pre_parselet = prefix_parselet<expr, yparser>;
 		using expr_in_parselet	= infix_parselet<expr,	yparser>;
 
-		using ident		= common_rules::pass<expr_pre_parselet, ident_expr>;
-		using int_lit	= common_rules::pass<expr_pre_parselet,	int_lit_expr>;
-		using real_lit	= common_rules::pass<expr_pre_parselet, real_lit_expr>;
+		using ident		= gen_rules::pass<expr, ident_expr>;
+		using int_lit	= gen_rules::pass<expr, int_lit_expr>;
+		using real_lit	= gen_rules::pass<expr, real_lit_expr>;
 
 		class enclose : public expr_pre_parselet {
 		public:
@@ -45,9 +45,9 @@ namespace yk {
 						return std::make_shared<unit_expr>(begin, rpar.value());
 					}
 				}
-				else if ((par.peek().Type == (ysize)ytoken_t::Colon)
-						|| (par.peek().Type == (ysize)ytoken_t::Ident
-						&& par.peek(1).Type == (ysize)ytoken_t::Colon)) {
+				else if ((par.peek().Type	== ytoken_t::Colon)
+						|| (par.peek().Type == ytoken_t::Ident
+						&& par.peek(1).Type == ytoken_t::Colon)) {
 					// (<ident>:
 					std::vector<fnproto_expr::param_t> params;
 					do {
@@ -220,7 +220,7 @@ namespace yk {
 			}
 
 			bool matches(ysptr<expr> left, yparser& parser) override {
-				return parser.last().Type != (std::size_t)ytoken_t::Rbrace;
+				return parser.last().Type != ytoken_t::Rbrace;
 			}
 		};
 

@@ -9,27 +9,32 @@
 namespace yk {
 	class ylexer : public lexer {
 	private:
-		file_handle& m_FileHandle;
-		const char* m_Ptr;
-		position m_Position;
-		position m_LastVisible;
-		ymap<ystr, ytoken_t>		m_Symbols;
-		yopt_map<ystr, ytoken_t>	m_Keywords;
+		file_handle&				m_File;			// Source file
+		const char*					m_Ptr;			// Pointer in the source
+		position					m_Position;		// Counts lines and columns
+		position					m_LastVisible;	// Holds the last non-space position
+
+		ymap<ystr, ytoken_t>		m_Symbols;		// Symbolic tokens
+		yopt_map<ystr, ytoken_t>	m_Keywords;		// Reserved keywords
 
 	public:
 		ylexer(file_handle& file);
 
 	public:
-		lexer_state get_state() override;
-		void set_state(lexer_state pos) override;
+		// State manipulation
+		lexer_state get_state()	const	override;
+		void set_state(lexer_state pos)	override;
 
-		token next() override;
-		bool has_next() override;
+		// Retrieving tokens
+		token next()			override;
+		bool has_next() const	override;
 
+	private:
+		// Declaration of rules
 		void add_symbol(ystr const& val, ytoken_t tt);
 		void add_keyword(ystr const& val, ytoken_t tt);
 
-	private:
+		// Step in the file
 		void advance(ysize cnt = 1);
 	};
 }

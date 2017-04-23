@@ -13,6 +13,7 @@ namespace yk {
 	expr::~expr() { }
 
 	// Braced expression (does not inherit from expression)
+
 	braced_expr::braced_expr()
 		: ReturnDestination(true) {
 	}
@@ -83,7 +84,7 @@ namespace yk {
 
 	// Function prototype
 
-	fnproto_expr::fnproto_expr(yvec<param_t> params, ysptr<type_desc> ret, token const& begpar, token const& endpar)
+	fnproto_expr::fnproto_expr(token const& begpar, token const& endpar, yvec<param_t> params, ysptr<type_desc> ret)
 		: expr(interval(begpar.Position, ret ? ret->Position : endpar.Position)),
 		Parameters(params), ReturnType(ret) {
 	}
@@ -92,9 +93,9 @@ namespace yk {
 
 	// Function expression
 
-	fn_expr::fn_expr(ysptr<fnproto_expr> proto, ysptr<block_expr> bd)
-		: expr(interval(proto->Position, bd->Position)),
-		Prototype(proto), Body(bd) {
+	fn_expr::fn_expr(token const& begpar, yvec<param_t> params, ysptr<type_desc> ret, ysptr<block_expr> bd)
+		: expr(interval(begpar.Position, bd->Position)),
+		Parameters(params), ReturnType(ret), Body(bd) {
 	}
 
 	fn_expr::~fn_expr() { }

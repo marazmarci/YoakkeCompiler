@@ -12,6 +12,10 @@ namespace yk {
 		}
 		return m_Buffer[delta];
 	}
+
+	token const& parser::last() const {
+		return m_Last;
+	}
 	
 	token parser::consume() {
 		auto tok = peek();
@@ -20,16 +24,21 @@ namespace yk {
 		return tok;
 	}
 
-	parser_state parser::get_state() {
+	yopt<token> parser::match(ytoken_t tt) {
+		auto lookahead = peek();
+		if (lookahead.Type == tt) {
+			lookahead = consume();
+			return lookahead;
+		}
+		return {};
+	}
+
+	parser_state parser::get_state() const {
 		return std::make_pair(m_Lexer.get_state(), m_Buffer);
 	}
 
 	void parser::load_state(parser_state const& st) {
 		m_Lexer.set_state(st.first);
 		m_Buffer = st.second;
-	}
-
-	token const& parser::last() const {
-		return m_Last;
 	}
 }

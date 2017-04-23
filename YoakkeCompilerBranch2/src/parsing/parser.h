@@ -9,29 +9,20 @@ namespace yk {
 
 	class parser {
 	private:
-		lexer& m_Lexer;
-		yvec<token>& m_Buffer;
-		token m_Last;
+		lexer&			m_Lexer;
+		yvec<token>&	m_Buffer;
+		token			m_Last;
 
 	public:
 		parser(lexer& lex, yvec<token>& buff);
 
 	public:
 		token const& peek(ysize delta = 0);
-		token consume();
-
-		template <typename T>
-		yopt<token> match(T tt) {
-			auto lookahead = peek();
-			if (lookahead.Type == static_cast<token::type_t>(tt)) {
-				lookahead = consume();
-				return lookahead;
-			}
-			return {};
-		}
-
-		parser_state get_state();
-		void load_state(parser_state const& st);
 		token const& last() const;
+		token consume();
+		yopt<token> match(ytoken_t tt);
+
+		parser_state get_state() const;
+		void load_state(parser_state const& st);
 	};
 }
