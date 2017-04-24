@@ -19,8 +19,8 @@ namespace yk {
 			os << "unexpected end-of-file in file '"
 				<< m_File.name() << "' at line " << m_Pos.Row
 				<< ", character " << m_Pos.Col << '.' << std::endl
-				<< part_until(m_File.line(m_Pos.Row), '\n') << std::endl
-				<< skip(m_Pos.Col) << '^' << std::endl
+				<< fmt::part_until(m_File.line(m_Pos.Row), '\n') << std::endl
+				<< fmt::skip(m_Pos.Col) << '^' << std::endl
 				<< m_Note;
 		}
 
@@ -38,8 +38,8 @@ namespace yk {
 				<< "in file: '"
 				<< m_File.name() << "' at line " << m_Pos.Row
 				<< ", character " << m_Pos.Col << '.' << std::endl
-				<< part_until(m_File.line(m_Pos.Row), '\n') << std::endl
-				<< skip(m_Pos.Col) << '^';
+				<< fmt::part_until(m_File.line(m_Pos.Row), '\n') << std::endl
+				<< fmt::skip(m_Pos.Col) << '^';
 		}
 
 		// Expect a token (or grammar)
@@ -57,8 +57,8 @@ namespace yk {
 			os << m_What << " expected, got " << m_Got << " in file '"
 				<< m_File.name() << "', at line " << beg.Row
 				<< ", character " << beg.Col << std::endl
-				<< part_until(m_File.line(beg.Row), '\n') << std::endl
-				<< skip(beg.Col) << repeat(len == 0 ? 1 : len, '^');
+				<< fmt::part_until(m_File.line(beg.Row), '\n') << std::endl
+				<< fmt::skip(beg.Col) << fmt::repeat(len == 0 ? 1 : len, '^');
 			if (m_Note.length()) {
 				os << std::endl << m_Note;
 			}

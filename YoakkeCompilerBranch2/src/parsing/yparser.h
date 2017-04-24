@@ -3,7 +3,7 @@
 #include "parser.h"
 #include "prec_parser.h"
 #include "../lexing/ylexer.h"
-#include "../lexing/file_handle.h"
+#include "../utility/file_handle.h"
 
 namespace yk {
 	class expr;

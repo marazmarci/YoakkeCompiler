@@ -66,9 +66,6 @@
     <ClCompile Include="src\semantics\typed_symbol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lexing\file_handle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\reporting\report_stream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -76,6 +73,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\lexing\token.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reporting\code_printer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utility\file_handle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utility\console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -167,10 +173,19 @@
     <ClInclude Include="src\reporting\report_msg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\lexing\file_handle.h">
+    <ClInclude Include="src\parsing\gen_rules.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\parsing\gen_rules.h">
+    <ClInclude Include="src\reporting\code_printer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\file_handle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

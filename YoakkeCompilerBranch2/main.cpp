@@ -5,8 +5,12 @@
 #include "src\lexing\ylexer.h"
 #include "src\parsing\yparser.h"
 #include "src\semantics\semantic_checker.h"
+#include "src\utility\console.h"
+#include "src\reporting\code_printer.h"
 
 int main(void) {
+	yk::console::initialize();
+
 	try {
 		yk::yparser parser("C:/TMP/YoakkeTest/tokenizer.txt");
 		yk::semantic_checker checker;
@@ -30,6 +34,8 @@ int main(void) {
 		std::chrono::duration<double> semantic_t = semantic_e - parse_e;
 		std::cout << "Parsing took: " << parse_t.count() << " s." << std::endl;
 		std::cout << "Semantic analysis took: " << semantic_t.count() << " s." << std::endl;
+
+		yk::rep::code_printer::print(std::cout, parser.file(), yk::interval(yk::position(5, 1), 3));
 	}
 	catch (std::exception& ex) {
 		std::cout << "Internal exception: " << ex.what() << std::endl;

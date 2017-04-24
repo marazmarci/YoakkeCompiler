@@ -8,6 +8,7 @@ namespace yk {
 		ystr m_Name;
 		char* m_Src;
 		yvec<const char*> m_Lines;
+		yvec<ysize> m_LineLengths;
 
 	public:
 		file_handle(ystr const& file);
@@ -16,6 +17,7 @@ namespace yk {
 	public:
 		const char* ptr()			const;
 		const char* line(ysize num) const;
+		ysize line_len(ysize num)	const;
 		ystr const& name()			const;
 	};
 }
