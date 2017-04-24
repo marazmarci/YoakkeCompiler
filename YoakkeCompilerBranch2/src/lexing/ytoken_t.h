@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../lexing/token.h"
-
 namespace yk {
 	enum class ytoken_t {
 		EndOfFile,

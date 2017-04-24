@@ -10,9 +10,9 @@
 
 namespace yk {
 	void semantic_checker::check_stmt(ysptr<stmt> st) {
-		Match(st.get())
-			Case(expr_stmt, Expression, Semicol, Return)
-				if (auto braced = 
+		Match(st.get()) {
+			Case(expr_stmt, Expression, Semicol, Return) {
+				if (auto braced =
 					std::dynamic_pointer_cast<braced_expr>(Expression)) {
 					braced->ReturnDestination = false;
 					check_expr(Expression);
@@ -38,19 +38,19 @@ namespace yk {
 					check_expr(Expression);
 				}
 				return;
-			EndCase
-			CaseOther()
+			}
+			Otherwise() {
 				throw std::exception("Unhandled visit for semantic check (statement)!");
-			EndCase
-		EndMatch
+			}
+		}
 	}
 
 	ysptr<type_symbol> semantic_checker::check_expr(ysptr<expr> ex) {
-		Match(ex.get()) 
-			Case(unit_expr)
+		Match(ex.get()) {
+			Case(unit_expr) {
 				return symbol_table::UNIT_T;
-			EndCase
-			Case(ident_expr, Identifier)
+			}
+			Case(ident_expr, Identifier) {
 				auto set = m_Table.ref_filter<typed_symbol>(Identifier);
 				bool hint_changed = false;
 				if (auto hint = ex->HintType) {
@@ -70,17 +70,17 @@ namespace yk {
 				// Choose the last one, this enables shadowing
 				auto sym = set[set.size() - 1];
 				return sym->Type;
-			EndCase
-			Case(int_lit_expr, Value)
+			}
+			Case(int_lit_expr, Value) {
 				return symbol_table::I32_T;
-			EndCase
-			Case(real_lit_expr, Value)
+			}
+			Case(real_lit_expr, Value) {
 				return symbol_table::F32_T;
-			EndCase
-			Case(preury_expr, Operator, Sub)
+			}
+			Case(preury_expr, Operator, Sub) {
 				auto subt = check_expr(Sub);
 				auto sym_name = const_typed_symbol::
-					create_preury_op_name(ytoken_t(Operator.Type));
+				create_preury_op_name(ytoken_t(Operator.Type));
 				auto sym_set = m_Table.ref_filter<const_typed_symbol>(sym_name);
 				// Create dummy type
 				auto dummy_ty = m_Table.create_preury_op_type(subt, symbol_table::UNIT_T);
@@ -101,11 +101,11 @@ namespace yk {
 						throw std::exception("Sanity exception: Not function symbol passed (preury)");
 					}
 				}
-			EndCase
-			Case(postury_expr, Operator, Sub)
+			}
+			Case(postury_expr, Operator, Sub) {
 				auto subt = check_expr(Sub);
 				auto sym_name = const_typed_symbol::
-					create_postury_op_name(ytoken_t(Operator.Type));
+				create_postury_op_name(ytoken_t(Operator.Type));
 				auto sym_set = m_Table.ref_filter<const_typed_symbol>(sym_name);
 				// Create dummy type
 				auto dummy_ty = m_Table.create_postury_op_type(subt, symbol_table::UNIT_T);
@@ -126,12 +126,12 @@ namespace yk {
 						throw std::exception("Sanity exception: Not function symbol passed (postury)");
 					}
 				}
-			EndCase
-			Case(binop_expr, Operator, LHS, RHS)
+			}
+			Case(binop_expr, Operator, LHS, RHS) {
 				auto left = check_expr(LHS);
 				auto right = check_expr(RHS);
 				auto sym_name = const_typed_symbol::
-					create_bin_op_name(ytoken_t(Operator.Type));
+				create_bin_op_name(ytoken_t(Operator.Type));
 				auto sym_set = m_Table.ref_filter<const_typed_symbol>(sym_name);
 				// Create dummy type
 				auto dummy_ty = m_Table.create_bin_op_type(left, right, symbol_table::UNIT_T);
@@ -152,8 +152,8 @@ namespace yk {
 						throw std::exception("Sanity exception: Not function symbol passed (binop)");
 					}
 				}
-			EndCase
-			Case(asgn_expr, LHS, RHS)
+			}
+			Case(asgn_expr, LHS, RHS) {
 				auto left = check_expr(LHS);
 				auto right = check_expr(RHS);
 				if (auto l_unk =
@@ -170,8 +170,8 @@ namespace yk {
 					throw std::exception("TODO: Assignment type mismatch!");
 				}
 				return symbol_table::UNIT_T;
-			EndCase
-			Case(const_asgn_expr, LHS, RHS)
+			}
+			Case(const_asgn_expr, LHS, RHS) {
 				auto left = std::dynamic_pointer_cast<ident_expr>(LHS);
 				auto right = check_expr(RHS);
 				auto sym_set = m_Table.ref_filter<const_typed_symbol>(left->Identifier);
@@ -184,16 +184,16 @@ namespace yk {
 					<const_typed_symbol>(left->Identifier, right);
 				m_Table.decl(sym);
 				return symbol_table::UNIT_T;
-			EndCase
-			Case(list_expr, Elements)
+			}
+			Case(list_expr, Elements) {
 				yvec<ysptr<type_symbol>> types;
 				for (auto e : Elements) {
 					types.push_back(check_expr(e));
 				}
 				auto sym = std::make_shared<tuple_type_symbol>(types);
 				return m_Table.decl_type_once(sym);
-			EndCase
-			Case(call_expr, Function, Args)
+			}
+			Case(call_expr, Function, Args) {
 				ysptr<type_symbol> args_ty = nullptr;
 				if (Args) {
 					args_ty = check_expr(Args);
@@ -213,8 +213,8 @@ namespace yk {
 				else {
 					throw std::exception("TODO: cannot call non-function expression!");
 				}
-			EndCase
-			Case(block_expr, Statements, ReturnDestination)
+			}
+			Case(block_expr, Statements, ReturnDestination) {
 				auto sc = std::make_shared<scope>();
 				if (ReturnDestination) {
 					sc->mark_return_dest();
@@ -230,11 +230,11 @@ namespace yk {
 				else {
 					return symbol_table::UNIT_T;
 				}
-			EndCase
-			Case(fnproto_expr, Parameters, ReturnType)
+			}
+			Case(fnproto_expr, Parameters, ReturnType) {
 				// TODO
-			EndCase
-			Case(fn_expr, Prototype, Body)
+			}
+			Case(fn_expr, Parameters, ReturnType, Body) {
 				// TODO: warn if no parameter name
 				// Functions stop returning anyways
 				auto sc = std::make_shared<scope>();
@@ -243,7 +243,7 @@ namespace yk {
 
 				// Parameters ////////////////////////////////////////
 				yvec<ysptr<type_symbol>> params;
-				for (auto par : Prototype->Parameters) {
+				for (auto par : Parameters) {
 					auto par_ty = check_type(par.second);
 					params.push_back(par_ty);
 					if (auto name = par.first) {
@@ -257,8 +257,8 @@ namespace yk {
 				// Return type
 				ysptr<type_symbol> ret = nullptr;
 
-				if (Prototype->ReturnType) {
-					ret = check_type(Prototype->ReturnType);
+				if (ReturnType) {
+					ret = check_type(ReturnType);
 				}
 				else {
 					ret = symbol_table::UNIT_T;
@@ -271,7 +271,7 @@ namespace yk {
 						(symbol_table::UNIT_T, ret);
 				}
 				else if (params.size() > 1) {
-					ysptr<type_symbol> par_tpl = 
+					ysptr<type_symbol> par_tpl =
 						std::make_shared<tuple_type_symbol>(params);
 					par_tpl = m_Table.decl_type_once(par_tpl);
 					fn_ty = std::make_shared<fn_type_symbol>
@@ -292,8 +292,8 @@ namespace yk {
 
 				fn_ty = m_Table.decl_type_once(fn_ty);
 				return fn_ty;
-			EndCase
-			Case(let_expr, Pattern, Type, Value)
+			}
+			Case(let_expr, Pattern, Type, Value) {
 				ysptr<type_symbol> fin_sym = nullptr;
 				ysptr<type_symbol> ty_sym = nullptr;
 				ysptr<type_symbol> val_sym = nullptr;
@@ -329,19 +329,19 @@ namespace yk {
 					}
 				}
 				return symbol_table::UNIT_T;
-			EndCase
-			CaseOther()
+			}
+			Otherwise() {
 				throw std::exception("Unhandled visit for semantic check (expression)!");
-			EndCase
-		EndMatch
+			}
+		}
 	}
 
 	ysptr<type_symbol> semantic_checker::check_type(ysptr<type_desc> ty) {
-		Match(ty.get()) 
-			Case(unit_type_desc)
+		Match(ty.get()) {
+			Case(unit_type_desc) {
 				return symbol_table::UNIT_T;
-			EndCase
-			Case(ident_type_desc, Identifier)
+			}
+			Case(ident_type_desc, Identifier) {
 				auto t_set = m_Table.ref_filter<type_symbol>(Identifier);
 				if (t_set.empty()) {
 					throw std::exception("TODO: semantic error (undefined type)");
@@ -350,9 +350,9 @@ namespace yk {
 					throw std::exception("Sanity error: multiple types with same name");
 				}
 				return t_set[0];
-			EndCase
-			Case(bin_type_desc, Operator, LHS, RHS)
-				if (Operator.Type == (ysize)ytoken_t::Arrow) {
+			}
+			Case(bin_type_desc, Operator, LHS, RHS) {
+				if (Operator.Type == ytoken_t::Arrow) {
 					auto left = check_type(LHS);
 					auto right = check_type(RHS);
 					auto sym = std::make_shared<fn_type_symbol>(left, right);
@@ -361,19 +361,19 @@ namespace yk {
 				else {
 					throw std::exception("TODO: no such type operator");
 				}
-			EndCase
-			Case(list_type_desc, Elements)
+			}
+			Case(list_type_desc, Elements) {
 				yvec<ysptr<type_symbol>> syms;
 				for (auto& el : Elements) {
 					syms.push_back(check_type(el));
 				}
 				auto sym = std::make_shared<tuple_type_symbol>(syms);
 				return m_Table.decl_type_once(sym);
-			EndCase
-			CaseOther()
+			}
+			Otherwise() {
 				throw std::exception("Unhandled visit for semantic check (type)!");
-			EndCase
-		EndMatch
+			}
+		}
 	}
 
 	yvec<ypair<ystr, ysptr<type_symbol>>> semantic_checker::match_pattern_expr(
@@ -388,11 +388,11 @@ namespace yk {
 		yvec<ypair<ystr, ysptr<type_symbol>>>& res,
 		ysptr<pattern> pat, ysptr<type_symbol> ty,
 		bool c_type) {
-		Match(pat.get())
-			Case(ignore_pattern)
+		Match(pat.get()) {
+			Case(ignore_pattern) {
 				return;
-			EndCase
-			Case(unit_pattern)
+			}
+			Case(unit_pattern) {
 				if (c_type) {
 					if (!symbol_table::UNIT_T->same(ty)) {
 						throw std::exception
@@ -404,18 +404,18 @@ namespace yk {
 					("TODO: Unmeaningful bind without type!");
 				}
 				return;
-			EndCase
-			Case(ident_pattern, Identifier)
+			}
+			Case(ident_pattern, Identifier) {
 				// Just bind
 				if (c_type) {
-					res.push_back({ Identifier, ty		});
+					res.push_back({ Identifier, ty });
 				}
 				else {
 					res.push_back({ Identifier, nullptr });
 				}
 				return;
-			EndCase
-			Case(list_pattern, Elements)
+			}
+			Case(list_pattern, Elements) {
 				if (c_type) {
 					if (auto tt = std::dynamic_pointer_cast<tuple_type_symbol>(ty)) {
 						if (tt->Elements.size() != Elements.size()) {
@@ -435,10 +435,10 @@ namespace yk {
 					}
 				}
 				return;
-			EndCase
-			CaseOther()
+			}
+			Otherwise() {
 				throw std::exception("Unhandled visit for pattern matching (expression)!");
-			EndCase
-		EndMatch
+			}
+		}
 	}
 }

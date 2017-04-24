@@ -22,13 +22,15 @@ namespace yk {
 					if (par.match(ytoken_t::Arrow)) {
 						// () ->
 						if (auto rett = par.parse_type_desc()) {
-							auto proto = std::make_shared<fnproto_expr>(
-								yvec<fnproto_expr::param_t>{}, rett, begin, rpar.value());
 							if (auto lbrace = par.match(ytoken_t::Lbrace)) {
-								return std::make_shared<fn_expr>(proto, par.parse_block(lbrace.value()));
+								return std::make_shared<fn_expr>
+									(begin, yvec<fn_expr::param_t>{},
+										rett,
+										par.parse_block(lbrace.value()));
 							}
 							else {
-								return proto;
+								auto proto = std::make_shared<fnproto_expr>(
+									begin, *rpar, yvec<fnproto_expr::param_t>{}, rett);
 							}
 						}
 						else {
@@ -37,9 +39,10 @@ namespace yk {
 					}
 					else if (auto lbrace = par.match(ytoken_t::Lbrace)) {
 						// () {}
-						auto proto = std::make_shared<fnproto_expr>(
-							yvec<fnproto_expr::param_t>{}, nullptr, begin, rpar.value());
-						return std::make_shared<fn_expr>(proto, par.parse_block(lbrace.value()));
+						return std::make_shared<fn_expr>(begin,
+							yvec<fn_expr::param_t>{},
+							nullptr,
+							par.parse_block(lbrace.value()));
 					}
 					else {
 						return std::make_shared<unit_expr>(begin, rpar.value());
@@ -75,17 +78,18 @@ namespace yk {
 								expect_error("'->'", "", par);
 							}
 						}
-						auto proto = std::make_shared<fnproto_expr>(params, rett, begin, rpar.value());
 						if (auto lbrace = par.match(ytoken_t::Lbrace)) {
 							if (auto body = par.parse_block(lbrace.value())) {
-								return std::make_shared<fn_expr>(proto, body);
+								return std::make_shared<fn_expr>(begin,
+									params, rett, body);
 							}
 							else {
 								return nullptr;
 							}
 						}
 						else if (rett) {
-							return proto;
+							return std::make_shared<fnproto_expr>
+								(begin, *rpar, params, rett);
 						}
 						else {
 							expect_error("explicit return type for function declaration", "", par);

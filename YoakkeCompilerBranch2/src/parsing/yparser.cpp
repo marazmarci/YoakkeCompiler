@@ -4,7 +4,6 @@
 #include "expr_rules.h"
 #include "pattern_rules.h"
 #include "type_rules.h"
-#include "common_rules.h"
 
 namespace yk {
 	yparser::yparser(ystr const& file)

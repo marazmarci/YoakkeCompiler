@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common_rules.h"
+#include "gen_rules.h"
 #include "yparser.h"
 #include "../ast/type_desc.h"
 
@@ -9,7 +9,7 @@ namespace yk {
 		using type_pre_parselet = prefix_parselet<type_desc, yparser>;
 		using type_in_parselet = infix_parselet<type_desc, yparser>;
 
-		using ident = common_rules::pass<type_pre_parselet, ident_type_desc>;
+		using ident = gen_rules::pass<type_desc, ident_type_desc>;
 
 		class enclose : public type_pre_parselet {
 		public:

@@ -95,7 +95,7 @@ namespace yk {
 		virtual ~postury_expr() { }
 	};
 
-	template <std::size_t>
+	template <ysize>
 	class bin_expr : public expr {
 	public:
 		token Operator;

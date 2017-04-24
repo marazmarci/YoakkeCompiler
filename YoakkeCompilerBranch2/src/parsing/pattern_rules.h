@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common_rules.h"
+#include "gen_rules.h"
 #include "yparser.h"
 #include "../ast/pattern.h"
 
@@ -9,8 +9,8 @@ namespace yk {
 		using pat_pre_parselet	= prefix_parselet<pattern, yparser>;
 		using pat_in_parselet	= infix_parselet<pattern, yparser>;
 
-		using ident		= common_rules::pass<pat_pre_parselet, ident_pattern>;
-		using ignore	= common_rules::pass<pat_pre_parselet, ignore_pattern>;
+		using ident		= gen_rules::pass<pattern, ident_pattern>;
+		using ignore	= gen_rules::pass<pattern, ignore_pattern>;
 
 		class enclose : public pat_pre_parselet {
 		public:
