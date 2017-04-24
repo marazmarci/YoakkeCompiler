@@ -12,10 +12,12 @@ namespace yk {
 		ystr	code_printer::s_LineSeparator	= " | ";
 		char	code_printer::s_ArrowLine		= '~';
 		char	code_printer::s_Arrow			= '^';
-		bool	code_printer::s_ArrowAbove		= true;
+		bool	code_printer::s_ArrowAbove		= false;
 		bool	code_printer::s_IntervalMode	= true;
 
 		void code_printer::print(std::ostream& os, file_handle const& file, interval const& pos) {
+			bool multiline = s_IntervalMode && (pos.Start.Row != pos.End.Row);
+			
 			// Calculate the last line to be printed
 			ysize lastline = pos.End.Row + s_LinesAfter;
 			if (lastline >= file.line_cnt()) {
@@ -41,6 +43,34 @@ namespace yk {
 
 			// Print the ACTUAL line
 			print_line(os, file, pos.Start.Row, line_numbering, line_padding);
+			if (multiline) {
+
+			}
+			else {
+				ysize skp_chrs = 0;
+				const char* src = file.line(pos.Start.Row);
+				for (ysize i = 0; i < pos.Start.Col; i++) {
+					if (src[i] == '\t') {
+						skp_chrs += console::TabSize;
+					}
+					else {
+						skp_chrs++;
+					}
+				}
+				if (s_ArrowAbove) {
+					os	<< fmt::skip(skp_chrs + line_padding)
+						<< s_Arrow
+						<< std::endl
+						<< fmt::skip(line_padding)
+						<< fmt::repeat(skp_chrs + 1, s_ArrowLine)
+						<< std::endl;
+				}
+				else {
+					os << fmt::repeat(skp_chrs + line_padding, s_ArrowLine)
+						<< s_Arrow
+						<< std::endl;
+				}
+			}
 
 			// Print following lines
 			for (ysize i = pos.End.Row + 1; i <= lastline; i++) {

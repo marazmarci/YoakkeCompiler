@@ -35,7 +35,7 @@ int main(void) {
 		std::cout << "Parsing took: " << parse_t.count() << " s." << std::endl;
 		std::cout << "Semantic analysis took: " << semantic_t.count() << " s." << std::endl;
 
-		yk::rep::code_printer::print(std::cout, parser.file(), yk::interval(yk::position(5, 1), 3));
+		yk::rep::code_printer::print(std::cout, parser.file(), yk::interval(yk::position(5, 10), 3));
 	}
 	catch (std::exception& ex) {
 		std::cout << "Internal exception: " << ex.what() << std::endl;
