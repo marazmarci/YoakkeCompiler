@@ -24,7 +24,7 @@ namespace yk {
 					line_len = 0;
 				}
 			}
-			m_LineLengths.push_back(line_len - 1);
+			m_LineLengths.push_back(line_len);
 			*ptr++ = '\n';
 			*ptr = '\0';
 		}
@@ -52,5 +52,9 @@ namespace yk {
 
 	ystr const& file_handle::name() const {
 		return m_Name;
+	}
+
+	ysize file_handle::line_cnt() const {
+		return m_Lines.size();
 	}
 }

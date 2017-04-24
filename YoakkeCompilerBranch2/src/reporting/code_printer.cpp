@@ -16,17 +16,36 @@ namespace yk {
 		bool	code_printer::s_IntervalMode	= true;
 
 		void code_printer::print(std::ostream& os, file_handle const& file, interval const& pos) {
+			// Calculate the last line to be printed
+			ysize lastline = pos.End.Row + s_LinesAfter;
+			if (lastline >= file.line_cnt()) {
+				lastline = file.line_cnt() - 1;
+			}
+			
 			// Determine line beginning
 			ysize line_numbering = 0;
 			ysize line_padding = 0;
 			if (s_LineNumbering) {
-				ysize last_line = pos.Start.Row + s_LinesAfter;
-				line_numbering = math::digit_count(last_line);
+				line_numbering = math::digit_count(lastline - 1);
 				line_padding = line_numbering + s_LineSeparator.length();
 			}
-			// Print the line
+
+			// Print previous lines
+			ysize firstline = 0;
+			if (s_LinesBefore <= pos.Start.Row) {
+				firstline = pos.Start.Row - s_LinesBefore;
+			}
+			for (ysize i = firstline; i < pos.Start.Row; i++) {
+				print_line(os, file, i, line_numbering, line_padding);
+			}
+
+			// Print the ACTUAL line
 			print_line(os, file, pos.Start.Row, line_numbering, line_padding);
 
+			// Print following lines
+			for (ysize i = pos.End.Row + 1; i <= lastline; i++) {
+				print_line(os, file, i, line_numbering, line_padding);
+			}
 		}
 
 		void code_printer::print_line(std::ostream& os, file_handle const& file, ysize ln, ysize max_num_len, ysize pad) {

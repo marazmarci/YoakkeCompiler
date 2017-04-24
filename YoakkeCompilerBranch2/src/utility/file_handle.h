@@ -19,5 +19,6 @@ namespace yk {
 		const char* line(ysize num) const;
 		ysize line_len(ysize num)	const;
 		ystr const& name()			const;
+		ysize line_cnt()			const;
 	};
 }
