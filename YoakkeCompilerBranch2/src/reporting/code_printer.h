@@ -16,22 +16,31 @@ namespace yk {
 			static bool		s_LineNumbering;
 			static bool		s_LeadingZeroes;
 			static ystr		s_LineSeparator;
+			static ystr		s_IntSeparator;
 			static char		s_ArrowLine;
 			static char		s_Arrow;
 			static bool		s_IntervalMode;
+			static ysize	s_TabSize;
+			static ysize	s_MaxInterval;
 
 		private:
 			std::ostream&		m_Ostream;
+			ysize				m_Width;
 			file_handle const*	m_File;
-			interval			m_Position;
+			ysize				m_DigitCount;
+			ysize				m_Padding;
 
 		public:
-			code_printer(std::ostream& os);
+			code_printer(std::ostream& os, ysize w);
 
 		public:
 			void print(file_handle const& file, interval const& pos);
 
 		private:
+			void print_line(ysize ln_idx);
+			void print_line_padding(ysize num, bool numbering);
+			ysize print_part(const char* src, ysize len);
+
 			ysize first_printed(ysize ln);
 			ysize last_printed(ysize ln);
 		};
