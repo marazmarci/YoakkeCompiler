@@ -7,6 +7,8 @@
 
 namespace yk {
 	namespace rep {
+		// TODO: separate internals from console
+
 		struct code_printer {
 		private:
 			static ysize	s_LinesBefore;
@@ -16,18 +18,22 @@ namespace yk {
 			static ystr		s_LineSeparator;
 			static char		s_ArrowLine;
 			static char		s_Arrow;
-			static bool		s_ArrowAbove;
 			static bool		s_IntervalMode;
 
+		private:
+			std::ostream&		m_Ostream;
+			file_handle const*	m_File;
+			interval			m_Position;
+
 		public:
-			static void print(std::ostream& os, file_handle const& file, interval const& pos);
+			code_printer(std::ostream& os);
+
+		public:
+			void print(file_handle const& file, interval const& pos);
 
 		private:
-			static void print_line(std::ostream& os, file_handle const& file, ysize ln, ysize max_num_len, ysize pad);
-			static void print_line_begin(std::ostream& os, ysize ln, ysize max_num_len, bool first);
-
-		public:
-			code_printer() = delete;
+			ysize first_printed(ysize ln);
+			ysize last_printed(ysize ln);
 		};
 	}
 }
