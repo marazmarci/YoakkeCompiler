@@ -66,7 +66,8 @@ namespace yk {
 						<< std::endl;
 				}
 				else {
-					os << fmt::repeat(skp_chrs + line_padding, s_ArrowLine)
+					os	<< fmt::skip(line_padding)
+						<< fmt::repeat(skp_chrs, s_ArrowLine)
 						<< s_Arrow
 						<< std::endl;
 				}
