@@ -1,210 +1,130 @@
 #include "code_printer.h"
 #include "../utility/fmt_out.h"
 #include "../utility/math.h"
-#include "../utility/console.h"
 
 namespace yk {
 	namespace rep {
-		ysize	code_printer::s_LinesBefore		= 1;
-		ysize	code_printer::s_LinesAfter		= 1;
-		bool	code_printer::s_LineNumbering	= true;
-		bool	code_printer::s_LeadingZeroes	= true;
-		ystr	code_printer::s_LineSeparator	= " | ";
-		ystr	code_printer::s_IntSeparator	= "| ";
-		char	code_printer::s_ArrowLine		= '~';
-		char	code_printer::s_Arrow			= '^';
-		bool	code_printer::s_IntervalMode	= true;
-		ysize	code_printer::s_TabSize			= 4;
-		ysize	code_printer::s_MaxInterval		= 5;
-
-		code_printer::code_printer(std::ostream& os, ysize w)
-			: m_Ostream(os), m_Width(w), m_Interval(false) {
+		ypair<ysize, ysize> mark_buffer::set(const char* str, ysize str_len, ysize x, ysize y) {
+			m_Top.reserve(str_len);
+			ysize i = 0;
+			for (; i < x; i++) {
+				char c = str[i];
+				if (c == '\t') {
+					for (ysize j = 0; j < code_printer::s_TabSize; j++) {
+						m_Top += ' ';
+					}
+					x += code_printer::s_TabSize - 1;
+					y += code_printer::s_TabSize - 1;
+				}
+				else {
+					m_Top += c;
+				}
+			}
+			for (; i < y; i++) {
+				char c = str[i];
+				if (c == '\t') {
+					for (ysize j = 0; j < code_printer::s_TabSize; j++) {
+						m_Top += ' ';
+					}
+					y += code_printer::s_TabSize - 1;
+				}
+				else {
+					m_Top += c;
+				}
+			}
+			for (; i < str_len; i++) {
+				char c = str[i];
+				if (c == '\t') {
+					for (ysize j = 0; j < code_printer::s_TabSize; j++) {
+						m_Top += ' ';
+					}
+				}
+				else {
+					m_Top += c;
+				}
+			}
+			return  { x, y };
 		}
+
+		void mark_buffer::point_at(ysize x, ysize y) {
+			m_Bottom.reserve(m_Top.length());
+			ysize i = 0;
+			for (; i < x; i++) {
+				m_Bottom += '~';
+			}
+			for (; i < y; i++) {
+				m_Bottom += '^';
+			}
+		}
+
+		void mark_buffer::print(ysize line, ysize maxdigit, ysize buff_width) {
+			static const ystr number_sep = " | ";
+			static const ysize sep_len = number_sep.length();
+
+			ysize padding = maxdigit + sep_len;
+			buff_width -= padding;
+
+			{
+				// First needs number
+				ysize digit_cnt = math::digit_count(line);
+				*code_printer::s_Ostream 
+					<< fmt::repeat(maxdigit - digit_cnt, '0')
+					<< line << number_sep;
+				for (ysize i = 0; i < buff_width && i < m_Top.length(); i++) {
+					*code_printer::s_Ostream 
+						<< m_Top[i];
+				}
+				*code_printer::s_Ostream
+					<< std::endl;
+				for (ysize offs = buff_width; offs < m_Top.length(); offs += buff_width) {
+					// Rest just blank
+					*code_printer::s_Ostream
+						<< fmt::skip(maxdigit) << number_sep;
+					for (ysize i = offs; i < offs + buff_width &&
+						i < m_Top.length(); i++) {
+						*code_printer::s_Ostream
+							<< m_Top[i];
+					}
+					*code_printer::s_Ostream
+						<< std::endl;
+				}
+			}
+		}
+
+		//////////////////////////////////////////////////////////
+
+		ysize				code_printer::s_BufferWidth	= 30;
+		ysize				code_printer::s_TabSize		= 4;
+		std::ostream*		code_printer::s_Ostream		= &std::cout;
+		ysize				code_printer::s_LinesBefore = 0;
+		ysize				code_printer::s_LinesAfter	= 0;
+		interval			code_printer::s_ErrorPos;
+		file_handle const*	code_printer::s_File;
 
 		void code_printer::print(file_handle const& file, interval const& pos) {
-			m_File = &file;
+			s_File = &file;
+			s_ErrorPos = pos;
 
-			// Get bounds
-			ysize first_marked	= pos.Start.Row;
-			ysize last_marked	= pos.End.Row;
-			ysize first_before	= first_printed(first_marked);
-			ysize last_after	= last_printed(last_marked);
-
-			// Get padding and max line numbering size
-			m_Padding = 0;
-			if (s_LineNumbering) {
-				m_DigitCount = math::digit_count(last_after);
-				m_Padding = m_DigitCount + s_LineSeparator.length();
-			}
-
-			// Print lines before
-			for (ysize i = first_before; i < first_marked; i++) {
-				print_line(i);
-			}
-
-			print_marked(first_marked, last_marked, pos.Start.Col, pos.End.Col);
-
-			// Print lines after
-			for (ysize i = last_marked + 1; i <= last_after; i++) {
-				print_line(i);
-			}
+			print_marked(pos.Start.Row, pos.End.Row, pos.Start.Col, pos.End.Col);
 		}
-		
-		void code_printer::print_marked(ysize first, ysize last, ysize left, ysize right) {
-			if (s_IntervalMode) {
-				if (first == last) {
-					print_line_marked(first, left, right - left);
-				}
-				else {
-					m_IntFlag = false;
-					m_IntFlag2 = true;
-					m_Interval = true;
-					
-					print_line_marked(first, left, 1);
-					
-					for (ysize i = first + 1; i < last; i++) {
-						print_line(i);
-					}
-					
-					m_IntFlag2 = false;
-					print_line_marked(last, right, 1);
 
-					m_Padding -= s_IntSeparator.length();
-					m_Interval = false;
-				}
+		void code_printer::print_marked(ysize from, ysize to, ysize left, ysize right) {
+			ysize first = first_printed(from);
+			ysize last = first_printed(to);
+			
+			if (from == to) {
+				const char* src = s_File->line(from);
+				ysize line_len = s_File->line_len(from);
+
+				mark_buffer lined_row;
+				std::tie(left, right) = lined_row.set(src, line_len, left, right);
+				lined_row.point_at(left, right);
+				lined_row.print(from, math::digit_count(last), s_BufferWidth);
+
 			}
 			else {
-				// A single pointer to the beginning
-				print_line_marked(first, left, 1);
 
-				for (ysize i = first + 1; i <= last; i++) {
-					print_line(i);
-				}
 			}
-		}
-
-		void code_printer::print_line_marked(ysize ln_idx, ysize left, ysize arr) {
-			ysize line_len = m_File->line_len(ln_idx);
-			const char* src = m_File->line(ln_idx);
-			bool arr_started = false;
-			bool line_end = false;
-			ysize arr_drawn = 0;
-
-			const char* src2 = src;
-			ysize i = 0, p = 0;
-
-			for (ysize printed = 0; printed < line_len;) {
-				print_line_padding(ln_idx, printed == 0);
-				ysize part = print_part(src + printed, line_len - printed);
-
-				if (printed + part > left && !arr_started) {
-					arr_started = true;
-
-					ysize arr_start = left - printed;
-					src2 = src + printed;
-
-					ysize arrow_ext = 0;
-					if (m_Interval && !m_IntFlag2) {
-						arrow_ext = s_IntSeparator.length();
-						m_IntFlag2 = true;
-						m_Padding -= s_IntSeparator.length();
-					}
-					arr_start += arrow_ext;
-
-					m_Ostream << fmt::skip(m_Padding);
-
-					for (p = 0, i = 0; p < arr_start; p++) {
-						if (src2[p] == '\t') {
-							ysize skp = s_TabSize - (i % s_TabSize);
-							m_Ostream << fmt::repeat(s_TabSize, s_ArrowLine);
-							i += skp;
-						}
-						else {
-							m_Ostream << s_ArrowLine;
-							i++;
-						}
-					}
-					if (m_Interval && !m_IntFlag) {
-						m_IntFlag = true;
-						m_Padding += s_IntSeparator.length();
-					}
-				}
-				if (arr_started && arr_drawn < arr) {
-					if (line_end) {
-						m_Ostream << fmt::skip(m_Padding);
-					}
-					for (; i < m_Width - m_Padding && arr_drawn < arr; arr_drawn++) {
-						if (src2[p] == '\t') {
-							ysize skp = s_TabSize - (i % s_TabSize);
-							m_Ostream << fmt::repeat(s_TabSize, s_Arrow);
-							i += skp;
-						}
-						else {
-							m_Ostream << s_Arrow;
-							i++;
-						}
-					}
-					i = 0;
-					line_end = true;
-					m_Ostream << std::endl;
-				}
-
-				printed += part;
-			}
-		}
-
-		void code_printer::print_line(ysize ln_idx) {
-			ysize line_len = m_File->line_len(ln_idx);
-			const char* src = m_File->line(ln_idx);
-
-			for (ysize printed = 0; printed < line_len;) {
-				print_line_padding(ln_idx, printed == 0);
-				printed += print_part(src + printed, line_len - printed);
-			}
-		}
-
-		void code_printer::print_line_padding(ysize num, bool numbering) {
-			if (s_LineNumbering) {
-				if (numbering) {
-					ysize zeroes = m_DigitCount - math::digit_count(num);
-					if (s_LeadingZeroes) {
-						m_Ostream 
-							<< fmt::repeat(zeroes, '0') 
-							<< num << s_LineSeparator;
-					}
-					else {
-						m_Ostream
-							<< fmt::skip(zeroes)
-							<< num << s_LineSeparator;
-					}
-				}
-				else {
-					m_Ostream << fmt::skip(m_DigitCount) << s_LineSeparator;
-				}
-			}
-			if (m_IntFlag && m_Interval) {
-				m_Ostream << s_IntSeparator;
-			}
-		}
-
-		ysize code_printer::print_part(const char* src, ysize len) {
-			ysize i, p;	// i - cursor, p - printed
-			for (i = 0, p = 0; p < len && i < (m_Width - m_Padding); p++) {
-				char ch = src[p];
-				if (ch == '\t') {
-					ysize skp = s_TabSize - (i % s_TabSize);
-					m_Ostream << fmt::skip(skp);
-					i += skp;
-				}
-				else {
-					i++;
-					m_Ostream << ch;
-				}
-			}
-			//if (i < (m_Width - m_Padding)) {
-				m_Ostream << std::endl;
-			//}
-			return p;
 		}
 
 		ysize code_printer::first_printed(ysize ln) {
@@ -219,8 +139,8 @@ namespace yk {
 		ysize code_printer::last_printed(ysize ln) {
 			// Calculate the last line to be printed
 			ysize lastline = ln + s_LinesAfter;
-			if (lastline >= m_File->line_cnt()) {
-				lastline = m_File->line_cnt() - 1;
+			if (lastline >= s_File->line_cnt()) {
+				lastline = s_File->line_cnt() - 1;
 			}
 			return lastline;
 		}
