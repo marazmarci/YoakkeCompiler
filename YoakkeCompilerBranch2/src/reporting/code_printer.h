@@ -29,6 +29,9 @@ namespace yk {
 			file_handle const*	m_File;
 			ysize				m_DigitCount;
 			ysize				m_Padding;
+			bool				m_Interval;
+			bool				m_IntFlag;
+			bool				m_IntFlag2;
 
 		public:
 			code_printer(std::ostream& os, ysize w);

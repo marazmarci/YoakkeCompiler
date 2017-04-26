@@ -18,7 +18,7 @@ namespace yk {
 		ysize	code_printer::s_MaxInterval		= 5;
 
 		code_printer::code_printer(std::ostream& os, ysize w)
-			: m_Ostream(os), m_Width(w) {
+			: m_Ostream(os), m_Width(w), m_Interval(false) {
 		}
 
 		void code_printer::print(file_handle const& file, interval const& pos) {
@@ -42,7 +42,6 @@ namespace yk {
 				print_line(i);
 			}
 
-			// TODO: print actual line
 			print_marked(first_marked, last_marked, pos.Start.Col, pos.End.Col);
 
 			// Print lines after
@@ -55,6 +54,23 @@ namespace yk {
 			if (s_IntervalMode) {
 				if (first == last) {
 					print_line_marked(first, left, right - left);
+				}
+				else {
+					m_IntFlag = false;
+					m_IntFlag2 = true;
+					m_Interval = true;
+					
+					print_line_marked(first, left, 1);
+					
+					for (ysize i = first + 1; i < last; i++) {
+						print_line(i);
+					}
+					
+					m_IntFlag2 = false;
+					print_line_marked(last, right, 1);
+
+					m_Padding -= s_IntSeparator.length();
+					m_Interval = false;
 				}
 			}
 			else {
@@ -87,6 +103,14 @@ namespace yk {
 					ysize arr_start = left - printed;
 					src2 = src + printed;
 
+					ysize arrow_ext = 0;
+					if (m_Interval && !m_IntFlag2) {
+						arrow_ext = s_IntSeparator.length();
+						m_IntFlag2 = true;
+						m_Padding -= s_IntSeparator.length();
+					}
+					arr_start += arrow_ext;
+
 					m_Ostream << fmt::skip(m_Padding);
 
 					for (p = 0, i = 0; p < arr_start; p++) {
@@ -99,6 +123,10 @@ namespace yk {
 							m_Ostream << s_ArrowLine;
 							i++;
 						}
+					}
+					if (m_Interval && !m_IntFlag) {
+						m_IntFlag = true;
+						m_Padding += s_IntSeparator.length();
 					}
 				}
 				if (arr_started && arr_drawn < arr) {
@@ -153,6 +181,9 @@ namespace yk {
 				else {
 					m_Ostream << fmt::skip(m_DigitCount) << s_LineSeparator;
 				}
+			}
+			if (m_IntFlag && m_Interval) {
+				m_Ostream << s_IntSeparator;
 			}
 		}
 

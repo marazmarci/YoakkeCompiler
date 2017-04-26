@@ -10,7 +10,7 @@
 
 int main(void) {
 	yk::console::initialize();
-	yk::rep::code_printer printer(std::cout, 15);
+	yk::rep::code_printer printer(std::cout, yk::console::Width);
 
 	try {
 		yk::yparser parser("C:/TMP/YoakkeTest/tokenizer.txt");
@@ -36,7 +36,8 @@ int main(void) {
 		std::cout << "Parsing took: " << parse_t.count() << " s." << std::endl;
 		std::cout << "Semantic analysis took: " << semantic_t.count() << " s." << std::endl;
 
-		printer.print(parser.file(), yk::interval(yk::position(4, 22), 15));
+		printer.print(parser.file(), yk::interval(yk::interval(yk::position(3, 8), 1), 
+			yk::interval(yk::position(5, 1), 1)));
 	}
 	catch (std::exception& ex) {
 		std::cout << "Internal exception: " << ex.what() << std::endl;
