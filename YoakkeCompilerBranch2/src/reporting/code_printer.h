@@ -37,6 +37,8 @@ namespace yk {
 			void print(file_handle const& file, interval const& pos);
 
 		private:
+			void print_marked(ysize first, ysize last, ysize left, ysize right);
+			void print_line_marked(ysize ln_idx, ysize left, ysize arr);
 			void print_line(ysize ln_idx);
 			void print_line_padding(ysize num, bool numbering);
 			ysize print_part(const char* src, ysize len);

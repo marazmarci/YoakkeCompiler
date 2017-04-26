@@ -9,11 +9,11 @@ namespace yk {
 		ysize	code_printer::s_LinesAfter		= 1;
 		bool	code_printer::s_LineNumbering	= true;
 		bool	code_printer::s_LeadingZeroes	= true;
-		ystr	code_printer::s_LineSeparator	= " |  ";
-		ystr	code_printer::s_IntSeparator	= " | |";
+		ystr	code_printer::s_LineSeparator	= " | ";
+		ystr	code_printer::s_IntSeparator	= "| ";
 		char	code_printer::s_ArrowLine		= '~';
 		char	code_printer::s_Arrow			= '^';
-		bool	code_printer::s_IntervalMode	= false;
+		bool	code_printer::s_IntervalMode	= true;
 		ysize	code_printer::s_TabSize			= 4;
 		ysize	code_printer::s_MaxInterval		= 5;
 
@@ -43,7 +43,7 @@ namespace yk {
 			}
 
 			// TODO: print actual line
-			//print_marked(first_marked, last_marked, pos.Start.Col, pos.End.Col);
+			print_marked(first_marked, last_marked, pos.Start.Col, pos.End.Col);
 
 			// Print lines after
 			for (ysize i = last_marked + 1; i <= last_after; i++) {
@@ -51,15 +51,86 @@ namespace yk {
 			}
 		}
 		
+		void code_printer::print_marked(ysize first, ysize last, ysize left, ysize right) {
+			if (s_IntervalMode) {
+				if (first == last) {
+					print_line_marked(first, left, right - left);
+				}
+			}
+			else {
+				// A single pointer to the beginning
+				print_line_marked(first, left, 1);
+
+				for (ysize i = first + 1; i <= last; i++) {
+					print_line(i);
+				}
+			}
+		}
+
+		void code_printer::print_line_marked(ysize ln_idx, ysize left, ysize arr) {
+			ysize line_len = m_File->line_len(ln_idx);
+			const char* src = m_File->line(ln_idx);
+			bool arr_started = false;
+			bool line_end = false;
+			ysize arr_drawn = 0;
+
+			const char* src2 = src;
+			ysize i = 0, p = 0;
+
+			for (ysize printed = 0; printed < line_len;) {
+				print_line_padding(ln_idx, printed == 0);
+				ysize part = print_part(src + printed, line_len - printed);
+
+				if (printed + part > left && !arr_started) {
+					arr_started = true;
+
+					ysize arr_start = left - printed;
+					src2 = src + printed;
+
+					m_Ostream << fmt::skip(m_Padding);
+
+					for (p = 0, i = 0; p < arr_start; p++) {
+						if (src2[p] == '\t') {
+							ysize skp = s_TabSize - (i % s_TabSize);
+							m_Ostream << fmt::repeat(s_TabSize, s_ArrowLine);
+							i += skp;
+						}
+						else {
+							m_Ostream << s_ArrowLine;
+							i++;
+						}
+					}
+				}
+				if (arr_started && arr_drawn < arr) {
+					if (line_end) {
+						m_Ostream << fmt::skip(m_Padding);
+					}
+					for (; i < m_Width - m_Padding && arr_drawn < arr; arr_drawn++) {
+						if (src2[p] == '\t') {
+							ysize skp = s_TabSize - (i % s_TabSize);
+							m_Ostream << fmt::repeat(s_TabSize, s_Arrow);
+							i += skp;
+						}
+						else {
+							m_Ostream << s_Arrow;
+							i++;
+						}
+					}
+					i = 0;
+					line_end = true;
+					m_Ostream << std::endl;
+				}
+
+				printed += part;
+			}
+		}
+
 		void code_printer::print_line(ysize ln_idx) {
 			ysize line_len = m_File->line_len(ln_idx);
 			const char* src = m_File->line(ln_idx);
 
-			print_line_padding(ln_idx, true);
-			ysize printed = print_part(src, line_len);
-
-			while (printed < line_len) {
-				print_line_padding(ln_idx, false);
+			for (ysize printed = 0; printed < line_len;) {
+				print_line_padding(ln_idx, printed == 0);
 				printed += print_part(src + printed, line_len - printed);
 			}
 		}
@@ -99,9 +170,9 @@ namespace yk {
 					m_Ostream << ch;
 				}
 			}
-			if (i < (m_Width - m_Padding)) {
+			//if (i < (m_Width - m_Padding)) {
 				m_Ostream << std::endl;
-			}
+			//}
 			return p;
 		}
 
