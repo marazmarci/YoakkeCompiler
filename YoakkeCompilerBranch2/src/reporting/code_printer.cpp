@@ -7,43 +7,23 @@ namespace yk {
 		ypair<ysize, ysize> mark_buffer::set(const char* str, ysize str_len, ysize x, ysize y) {
 			ysize newx = x;
 			ysize newy = y;
+
 			m_Top.reserve(str_len);
+
 			ysize i = 0;
 			for (; i < x; i++) {
-				char c = str[i];
-				if (c == '\t') {
-					for (ysize j = 0; j < code_printer::s_TabSize; j++) {
-						m_Top += ' ';
-					}
+				if (consume(str[i])) {
 					newx += code_printer::s_TabSize - 1;
 					newy += code_printer::s_TabSize - 1;
 				}
-				else {
-					m_Top += c;
-				}
 			}
-			for (; i < y && i < str_len; i++) {
-				char c = str[i];
-				if (c == '\t') {
-					for (ysize j = 0; j < code_printer::s_TabSize; j++) {
-						m_Top += ' ';
-					}
+			for (; i < y; i++) {
+				if (consume(str[i])) {
 					newy += code_printer::s_TabSize - 1;
-				}
-				else {
-					m_Top += c;
 				}
 			}
 			for (; i < str_len; i++) {
-				char c = str[i];
-				if (c == '\t') {
-					for (ysize j = 0; j < code_printer::s_TabSize; j++) {
-						m_Top += ' ';
-					}
-				}
-				else {
-					m_Top += c;
-				}
+				consume(str[i]);
 			}
 			return  { newx, newy };
 		}
@@ -96,44 +76,39 @@ namespace yk {
 				}
 				os << std::endl;
 
-				if (!printed_bottom) {
-					if (m_Bottom.length() >= offs + buff_width
-						&& m_Bottom[offs + buff_width - 1] == '^') {
-						ysize extra = 0;
-						if (pullin) {
-							padding -= isep_len;
-							extra = isep_len;
-						}
-						os << fmt::skip(padding) << fmt::repeat(extra, '~');
-						for (ysize i = offs; i < offs + buff_width; i++) {
-							os << m_Bottom[i];
-						}
-						if (pullin) {
-							pullin = false;
-							padding -= isep_len;
-							buff_width += isep_len;
-						}
-						os << std::endl;
+				if (!printed_bottom 
+					&& (m_Bottom.length() < offs + buff_width
+					|| m_Bottom[offs + buff_width - 1] == '^')) {
+					ysize extra = 0;
+					if (pullin) {
+						padding -= isep_len;
+						extra = isep_len;
 					}
-					else if (m_Bottom.length() < offs + buff_width) {
-						ysize extra = 0;
-						if (pullin) {
-							padding -= isep_len;
-							extra = isep_len;
-						}
-						printed_bottom = true;
-						os << fmt::skip(padding) << fmt::repeat(extra, '~');
-						for (ysize i = offs; i < m_Bottom.length(); i++) {
-							os << m_Bottom[i];
-						}
-						if (pullin) {
-							pullin = false;
-							padding -= isep_len;
-							buff_width += isep_len;
-						}
-						os << std::endl;
+					printed_bottom = m_Bottom.length() < offs + buff_width;
+					os << fmt::skip(padding) << fmt::repeat(extra, '~');
+					for (ysize i = offs; 
+						i < m_Bottom.length() && i < offs + buff_width; i++) {
+						os << m_Bottom[i];
 					}
+					if (pullin) {
+						pullin = false;
+						buff_width += isep_len;
+					}
+					os << std::endl;
 				}
+			}
+		}
+
+		bool mark_buffer::consume(char c) {
+			if (c == '\t') {
+				for (ysize j = 0; j < code_printer::s_TabSize; j++) {
+					m_Top += ' ';
+				}
+				return true;
+			}
+			else {
+				m_Top += c;
+				return false;
 			}
 		}
 

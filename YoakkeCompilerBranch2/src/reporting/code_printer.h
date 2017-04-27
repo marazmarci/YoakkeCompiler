@@ -16,6 +16,9 @@ namespace yk {
 			ypair<ysize, ysize> set(const char* str, ysize str_len, ysize x, ysize y);
 			void point_at(ysize x, ysize y);
 			void print(ysize line, ysize maxdigit, ysize buff_width, bool pullin);
+
+		private:
+			bool consume(char c);
 		};
 
 		struct code_printer {
