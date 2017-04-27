@@ -73,8 +73,9 @@ namespace yk {
 			buff_width -= padding;
 			ysize digit_cnt = math::digit_count(line);
 			bool printed_bottom = false;
+			ysize add = 0;
 
-			for (ysize offs = 0; offs < m_Top.length(); offs += buff_width) {
+			for (ysize offs = 0; offs < m_Top.length(); offs += add) {
 				// First needs number, the rest blank
 				if (offs) {
 					os << fmt::skip(maxdigit) << number_sep;
@@ -87,9 +88,11 @@ namespace yk {
 					os << int_sep;
 				}
 
+				add = 0;
 				for (ysize i = offs; i < offs + buff_width &&
 					i < m_Top.length(); i++) {
 					os << m_Top[i];
+					add++;
 				}
 				os << std::endl;
 
