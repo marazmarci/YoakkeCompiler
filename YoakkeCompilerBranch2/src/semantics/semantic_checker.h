@@ -2,6 +2,7 @@
 
 #include "symbol_table.h"
 #include "../ast/expr.h"
+#include "../utility/file_handle.h"
 
 namespace yk {
 	class stmt;
@@ -13,6 +14,10 @@ namespace yk {
 	class semantic_checker {
 	private:
 		symbol_table m_Table;
+		file_handle const& m_File;
+
+	public:
+		semantic_checker(file_handle const& f);
 
 	public:
 		void				check_stmt(ysptr<stmt> st);

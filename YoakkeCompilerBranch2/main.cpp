@@ -14,7 +14,7 @@ int main(void) {
 
 	try {
 		yk::yparser parser("C:/TMP/YoakkeTest/tokenizer.txt");
-		yk::semantic_checker checker;
+		yk::semantic_checker checker(parser.file());
 
 		std::chrono::time_point<std::chrono::system_clock> 
 			start, parse_e, semantic_e;
@@ -35,14 +35,6 @@ int main(void) {
 		std::chrono::duration<double> semantic_t = semantic_e - parse_e;
 		std::cout << "Parsing took: " << parse_t.count() << " s." << std::endl;
 		std::cout << "Semantic analysis took: " << semantic_t.count() << " s." << std::endl;
-
-		yk::rep::code_printer::print
-		(parser.file(), 
-			yk::interval(
-				yk::interval(yk::position(5, 8), 1), 
-				yk::interval(yk::position(5, 1), 1)
-			)
-		);
 	}
 	catch (std::exception& ex) {
 		std::cout << "Internal exception: " << ex.what() << std::endl;

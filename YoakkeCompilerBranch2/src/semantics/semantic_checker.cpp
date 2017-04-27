@@ -7,8 +7,13 @@
 #include "../ast/type_desc.h"
 #include "../ast/pattern.h"
 #include "../utility/match.h"
+#include "../reporting/code_printer.h"
 
 namespace yk {
+	semantic_checker::semantic_checker(file_handle const& f)
+		: m_File(f) {
+	}
+
 	void semantic_checker::check_stmt(ysptr<stmt> st) {
 		Match(st.get()) {
 			Case(expr_stmt, Expression, Semicol, Return) {
@@ -138,6 +143,8 @@ namespace yk {
 				// Filter with dummy
 				sym_set = symbol_table::filter_typed_match(sym_set, dummy_ty);
 				if (sym_set.empty()) {
+					// TODO: this is a test
+					rep::code_printer::print(m_File, ex->Position);
 					throw std::exception("TODO: no such binary operator!");
 				}
 				else if (sym_set.size() > 1) {

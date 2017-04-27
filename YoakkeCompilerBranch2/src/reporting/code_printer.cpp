@@ -5,6 +5,8 @@
 namespace yk {
 	namespace rep {
 		ypair<ysize, ysize> mark_buffer::set(const char* str, ysize str_len, ysize x, ysize y) {
+			ysize newx = x;
+			ysize newy = y;
 			m_Top.reserve(str_len);
 			ysize i = 0;
 			for (; i < x; i++) {
@@ -13,20 +15,20 @@ namespace yk {
 					for (ysize j = 0; j < code_printer::s_TabSize; j++) {
 						m_Top += ' ';
 					}
-					x += code_printer::s_TabSize - 1;
-					y += code_printer::s_TabSize - 1;
+					newx += code_printer::s_TabSize - 1;
+					newy += code_printer::s_TabSize - 1;
 				}
 				else {
 					m_Top += c;
 				}
 			}
-			for (; i < y; i++) {
+			for (; i < y && i < str_len; i++) {
 				char c = str[i];
 				if (c == '\t') {
 					for (ysize j = 0; j < code_printer::s_TabSize; j++) {
 						m_Top += ' ';
 					}
-					y += code_printer::s_TabSize - 1;
+					newy += code_printer::s_TabSize - 1;
 				}
 				else {
 					m_Top += c;
@@ -43,11 +45,11 @@ namespace yk {
 					m_Top += c;
 				}
 			}
-			return  { x, y };
+			return  { newx, newy };
 		}
 
 		void mark_buffer::point_at(ysize x, ysize y) {
-			m_Bottom.reserve(m_Top.length());
+			m_Bottom.reserve(y);
 			ysize i = 0;
 			for (; i < x; i++) {
 				m_Bottom += '~';
@@ -57,43 +59,84 @@ namespace yk {
 			}
 		}
 
-		void mark_buffer::print(ysize line, ysize maxdigit, ysize buff_width) {
+		void mark_buffer::print(ysize line, ysize maxdigit, ysize buff_width, bool pullin) {
 			static const ystr number_sep = " | ";
+			static const ystr int_sep = "| ";
 			static const ysize sep_len = number_sep.length();
+			static const ysize isep_len = int_sep.length();
+			std::ostream& os = *code_printer::s_Ostream;
 
 			ysize padding = maxdigit + sep_len;
+			if (pullin) {
+				padding += isep_len;
+			}
 			buff_width -= padding;
+			ysize digit_cnt = math::digit_count(line);
+			bool printed_bottom = false;
 
-			{
-				// First needs number
-				ysize digit_cnt = math::digit_count(line);
-				*code_printer::s_Ostream 
-					<< fmt::repeat(maxdigit - digit_cnt, '0')
-					<< line << number_sep;
-				for (ysize i = 0; i < buff_width && i < m_Top.length(); i++) {
-					*code_printer::s_Ostream 
-						<< m_Top[i];
+			for (ysize offs = 0; offs < m_Top.length(); offs += buff_width) {
+				// First needs number, the rest blank
+				if (offs) {
+					os << fmt::skip(maxdigit) << number_sep;
 				}
-				*code_printer::s_Ostream
-					<< std::endl;
-				for (ysize offs = buff_width; offs < m_Top.length(); offs += buff_width) {
-					// Rest just blank
-					*code_printer::s_Ostream
-						<< fmt::skip(maxdigit) << number_sep;
-					for (ysize i = offs; i < offs + buff_width &&
-						i < m_Top.length(); i++) {
-						*code_printer::s_Ostream
-							<< m_Top[i];
+				else {
+					os << fmt::repeat(maxdigit - digit_cnt, '0')
+						<< line << number_sep;
+				}
+				if (pullin) {
+					os << int_sep;
+				}
+
+				for (ysize i = offs; i < offs + buff_width &&
+					i < m_Top.length(); i++) {
+					os << m_Top[i];
+				}
+				os << std::endl;
+
+				if (!printed_bottom) {
+					if (m_Bottom.length() >= offs + buff_width
+						&& m_Bottom[offs + buff_width - 1] == '^') {
+						ysize extra = 0;
+						if (pullin) {
+							padding -= isep_len;
+							extra = isep_len;
+						}
+						os << fmt::skip(padding) << fmt::repeat(extra, '~');
+						for (ysize i = offs; i < offs + buff_width; i++) {
+							os << m_Bottom[i];
+						}
+						if (pullin) {
+							pullin = false;
+							padding -= isep_len;
+							buff_width += isep_len;
+						}
+						os << std::endl;
 					}
-					*code_printer::s_Ostream
-						<< std::endl;
+					else if (m_Bottom.length() < offs + buff_width) {
+						ysize extra = 0;
+						if (pullin) {
+							padding -= isep_len;
+							extra = isep_len;
+						}
+						printed_bottom = true;
+						os << fmt::skip(padding) << fmt::repeat(extra, '~');
+						for (ysize i = offs; i < m_Bottom.length(); i++) {
+							os << m_Bottom[i];
+						}
+						if (pullin) {
+							pullin = false;
+							padding -= isep_len;
+							buff_width += isep_len;
+						}
+						os << std::endl;
+					}
 				}
 			}
 		}
 
 		//////////////////////////////////////////////////////////
 
-		ysize				code_printer::s_BufferWidth	= 30;
+		ysize				code_printer::s_BufferWidth	= 20;
 		ysize				code_printer::s_TabSize		= 4;
 		std::ostream*		code_printer::s_Ostream		= &std::cout;
 		ysize				code_printer::s_LinesBefore = 0;
@@ -113,18 +156,22 @@ namespace yk {
 			ysize last = first_printed(to);
 			
 			if (from == to) {
-				const char* src = s_File->line(from);
-				ysize line_len = s_File->line_len(from);
-
-				mark_buffer lined_row;
-				std::tie(left, right) = lined_row.set(src, line_len, left, right);
-				lined_row.point_at(left, right);
-				lined_row.print(from, math::digit_count(last), s_BufferWidth);
-
+				print_marked_single(from, math::digit_count(last), left, right, false);
 			}
 			else {
-
+				print_marked_single(from, math::digit_count(last), left, left + 1, false);
+				print_marked_single(to, math::digit_count(last), right - 1, right, true);
 			}
+		}
+
+		void code_printer::print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right, bool bot) {
+			const char* src = s_File->line(ln_idx);
+			ysize line_len = s_File->line_len(ln_idx);
+
+			mark_buffer lined_row;
+			std::tie(left, right) = lined_row.set(src, line_len, left, right);
+			lined_row.point_at(left, right);
+			lined_row.print(ln_idx, maxdig, s_BufferWidth, bot);
 		}
 
 		ysize code_printer::first_printed(ysize ln) {
