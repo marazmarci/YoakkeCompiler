@@ -7,15 +7,20 @@
 
 namespace yk {
 	namespace rep {
+		enum class interval_enclose {
+			None, Top, Bottom
+		};
+
 		struct mark_buffer {
 		private:
 			ystr m_Top;
-			ystr m_Bottom;
+			ysize m_Begin;
+			ysize m_End;
 
 		public:
 			ypair<ysize, ysize> set(const char* str, ysize str_len, ysize x, ysize y);
 			void point_at(ysize x, ysize y);
-			void print(ysize line, ysize maxdigit, ysize buff_width, bool pullin);
+			void print(ysize line, ysize maxdigit, ysize buff_width, interval_enclose enclose);
 
 		private:
 			bool consume(char c);
@@ -39,7 +44,7 @@ namespace yk {
 
 		private:
 			static void print_marked(ysize from, ysize to, ysize left, ysize right);
-			static void print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right, bool bot);
+			static void print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right, interval_enclose enclose);
 
 			static ysize first_printed(ysize ln);
 			static ysize last_printed(ysize ln);

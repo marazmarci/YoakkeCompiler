@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "code_printer.h"
 #include "../utility/fmt_out.h"
 #include "../utility/math.h"
@@ -29,17 +30,13 @@ namespace yk {
 		}
 
 		void mark_buffer::point_at(ysize x, ysize y) {
-			m_Bottom.reserve(y);
-			ysize i = 0;
-			for (; i < x; i++) {
-				m_Bottom += '~';
-			}
-			for (; i < y; i++) {
-				m_Bottom += '^';
-			}
+			m_Begin = x;
+			m_End = y;
 		}
 
-		void mark_buffer::print(ysize line, ysize maxdigit, ysize buff_width, bool pullin) {
+		// TODO:
+		// Recalculate padding, add extra ~~, single line case fix
+		void mark_buffer::print(ysize line, ysize maxdigit, ysize buff_width, interval_enclose enclose) {
 			static const ystr number_sep = " | ";
 			static const ystr int_sep = "| ";
 			static const ysize sep_len = number_sep.length();
@@ -47,15 +44,16 @@ namespace yk {
 			std::ostream& os = *code_printer::s_Ostream;
 
 			ysize padding = maxdigit + sep_len;
-			if (pullin) {
-				padding += isep_len;
-			}
 			buff_width -= padding;
 			ysize digit_cnt = math::digit_count(line);
-			bool printed_bottom = false;
-			ysize add = 0;
+			bool in_interval = enclose == interval_enclose::Bottom;
+			if (in_interval) {
+				padding += isep_len;
+				buff_width -= isep_len;
+			}
 
-			for (ysize offs = 0; offs < m_Top.length(); offs += add) {
+			ysize written = 0;
+			for (ysize offs = 0; offs < m_Top.length(); offs = written) {
 				// First needs number, the rest blank
 				if (offs) {
 					os << fmt::skip(maxdigit) << number_sep;
@@ -64,37 +62,35 @@ namespace yk {
 					os << fmt::repeat(maxdigit - digit_cnt, '0')
 						<< line << number_sep;
 				}
-				if (pullin) {
+				if (in_interval) {
 					os << int_sep;
 				}
 
-				add = 0;
-				for (ysize i = offs; i < offs + buff_width &&
-					i < m_Top.length(); i++) {
+				written = std::min(offs + buff_width, m_Top.length());
+				for (ysize i = offs; i < written; i++) {
 					os << m_Top[i];
-					add++;
 				}
 				os << std::endl;
 
-				if (!printed_bottom 
-					&& (m_Bottom.length() < offs + buff_width
-					|| m_Bottom[offs + buff_width - 1] == '^')) {
-					ysize extra = 0;
-					if (pullin) {
-						padding -= isep_len;
-						extra = isep_len;
-					}
-					printed_bottom = m_Bottom.length() < offs + buff_width;
-					os << fmt::skip(padding) << fmt::repeat(extra, '~');
-					for (ysize i = offs; 
-						i < m_Bottom.length() && i < offs + buff_width; i++) {
-						os << m_Bottom[i];
-					}
-					if (pullin) {
-						pullin = false;
-						buff_width += isep_len;
-					}
-					os << std::endl;
+				if (!in_interval 
+					&& enclose == interval_enclose::Top
+					&& written >= m_Begin) {
+					in_interval = true;
+					os 
+						<< fmt::skip(padding)
+						<< fmt::repeat(m_Begin - offs, '~')
+						<< fmt::repeat(m_End - m_Begin, '^')
+						<< std::endl;
+				}
+				if (in_interval
+					&& enclose == interval_enclose::Bottom
+					&& written >= m_Begin) {
+					in_interval = false;
+					os
+						<< fmt::skip(padding)
+						<< fmt::repeat(m_Begin - offs, '~')
+						<< fmt::repeat(m_End - m_Begin, '^')
+						<< std::endl;
 				}
 			}
 		}
@@ -134,22 +130,22 @@ namespace yk {
 			ysize last = first_printed(to);
 			
 			if (from == to) {
-				print_marked_single(from, math::digit_count(last), left, right, false);
+				print_marked_single(from, math::digit_count(last), left, right, interval_enclose::None);
 			}
 			else {
-				print_marked_single(from, math::digit_count(last), left, left + 1, false);
-				print_marked_single(to, math::digit_count(last), right - 1, right, true);
+				print_marked_single(from, math::digit_count(last), left, left + 1, interval_enclose::Top);
+				print_marked_single(to, math::digit_count(last), right - 1, right, interval_enclose::Bottom);
 			}
 		}
 
-		void code_printer::print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right, bool bot) {
+		void code_printer::print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right, interval_enclose enclose) {
 			const char* src = s_File->line(ln_idx);
 			ysize line_len = s_File->line_len(ln_idx);
 
 			mark_buffer lined_row;
 			std::tie(left, right) = lined_row.set(src, line_len, left, right);
 			lined_row.point_at(left, right);
-			lined_row.print(ln_idx, maxdig, s_BufferWidth, bot);
+			lined_row.print(ln_idx, maxdig, s_BufferWidth, enclose);
 		}
 
 		ysize code_printer::first_printed(ysize ln) {
