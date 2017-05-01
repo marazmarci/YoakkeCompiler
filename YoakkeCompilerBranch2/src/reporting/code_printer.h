@@ -33,7 +33,20 @@ namespace yk {
 
 		private:
 			static void print_marked(ysize from, ysize to, ysize left, ysize right);
-			static void print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right, enclose_t enclose);
+			
+			template <enclose_t ENCLOSE>
+			static void print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right) {
+				mark_buffer<true, false> buff;
+				buff.set(*s_File, ln_idx, left, right);
+				buff.print<ENCLOSE>(maxdig);
+			}
+
+			template <bool IN_INTERVAL>
+			static void print_unmarked_single(ysize ln_idx, ysize maxdig) {
+				mark_buffer<false, IN_INTERVAL> buff;
+				buff.set(*s_File, ln_idx);
+				buff.print(maxdig);
+			}
 
 			static ysize first_printed(ysize ln);
 			static ysize last_printed(ysize ln);
@@ -185,7 +198,12 @@ namespace yk {
 				bool started = false;
 
 				ysize written = 0;
-				for (ysize offs = 0; offs < m_Buffer.length(); offs = written) {
+				ysize len = m_Buffer.length();
+				if (len == 0) {
+					print_padding(true, maxdigit, false);
+					os << std::endl;
+				}
+				for (ysize offs = 0; offs < len; offs = written) {
 					// First needs number, the rest blank
 					print_padding(offs == 0, maxdigit, false);
 
@@ -217,7 +235,12 @@ namespace yk {
 				bool started = false;
 
 				ysize written = 0;
-				for (ysize offs = 0; offs < m_Buffer.length(); offs = written) {
+				ysize len = m_Buffer.length();
+				if (len == 0) {
+					print_padding(true, maxdigit, in_interval);
+					os << std::endl;
+				}
+				for (ysize offs = 0; offs < len; offs = written) {
 					// First needs number, the rest blank
 					print_padding(offs == 0, maxdigit, in_interval);
 
@@ -256,7 +279,12 @@ namespace yk {
 				buff_width -= code_printer::s_IntervalSep.length();
 
 				ysize written = 0;
-				for (ysize offs = 0; offs < m_Buffer.length(); offs = written) {
+				ysize len = m_Buffer.length();
+				if (len == 0) {
+					print_padding(true, maxdigit, in_interval);
+					os << std::endl;
+				}
+				for (ysize offs = 0; offs < len; offs = written) {
 					// First needs number, the rest blank
 					print_padding(offs == 0, maxdigit, in_interval);
 
@@ -297,11 +325,16 @@ namespace yk {
 			void print(ysize maxdigit) {
 				std::ostream& os = *code_printer::s_Ostream;
 
-				ysize padding = maxdigit + sep_len;
+				ysize padding = calc_padding(maxdigit);
 				ysize buff_width = code_printer::s_BufferWidth - padding;
 
 				ysize written = 0;
-				for (ysize offs = 0; offs < m_Buffer.length(); offs = written) {
+				ysize len = m_Buffer.length();
+				if (len == 0) {
+					print_padding(true, maxdigit, IN_INTERVAL);
+					os << std::endl;
+				}
+				for (ysize offs = 0; offs < len; offs = written) {
 					print_padding(offs == 0, maxdigit, IN_INTERVAL);
 
 					written = print_part(offs, buff_width);

@@ -4,8 +4,8 @@ namespace yk {
 	namespace rep {
 		ysize				code_printer::s_BufferWidth		= 20;
 		ysize				code_printer::s_TabSize			= 4;
-		ysize				code_printer::s_LinesBefore		= 0;
-		ysize				code_printer::s_LinesAfter		= 0;
+		ysize				code_printer::s_LinesBefore		= 1;
+		ysize				code_printer::s_LinesAfter		= 1;
 		bool				code_printer::s_LineNumbering	= true;
 		ystr				code_printer::s_NumberSep		= " | ";
 		ystr				code_printer::s_IntervalSep		= "| ";
@@ -21,26 +21,27 @@ namespace yk {
 		
 		void code_printer::print_marked(ysize from, ysize to, ysize left, ysize right) {
 			ysize first = first_printed(from);
-			ysize last = first_printed(to);
-			
+			ysize last = last_printed(to);
+			ysize last_dig_cnt = math::digit_count(last);
+
+			for (ysize i = first; i < from; i++) {
+				print_unmarked_single<false>(i, last_dig_cnt);
+			}
+
 			if (from == to) {
-				print_marked_single(from, math::digit_count(last), left, right, enclose_t::None);
+				print_marked_single<enclose_t::None>(from, last_dig_cnt, left, right);
 			}
 			else {
-				print_marked_single(from, math::digit_count(last), left, left + 1, enclose_t::Top);
-				print_marked_single(to, math::digit_count(last), right - 1, right, enclose_t::Bottom);
+				print_marked_single<enclose_t::Top>(from, last_dig_cnt, left, left + 1);
+				for (ysize i = from + 1; i < to; i++) {
+					print_unmarked_single<true>(i, last_dig_cnt);
+				}
+				print_marked_single<enclose_t::Bottom>(to, last_dig_cnt, right - 1, right);
 			}
-		}
 
-		void code_printer::print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right, enclose_t enclose) {
-			mark_buffer<true, false> buff;
-			buff.set(*s_File, ln_idx, left, right);
-			if (enclose == enclose_t::None)
-				buff.print<enclose_t::None>(maxdig);
-			else if (enclose == enclose_t::Top)
-				buff.print<enclose_t::Top>(maxdig);
-			else if (enclose == enclose_t::Bottom)
-				buff.print<enclose_t::Bottom>(maxdig);
+			for (ysize i = to + 1; i <= last; i++) {
+				print_unmarked_single<false>(i, last_dig_cnt);
+			}
 		}
 
 		ysize code_printer::first_printed(ysize ln) {
