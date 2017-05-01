@@ -3,7 +3,7 @@
 #include "yparser.h"
 #include "gen_rules.h"
 #include "../ast/expr.h"
-#include "../reporting/report_stream.h"
+#include "../reporting/err_stream.h"
 
 namespace yk {
 	namespace expr_rules {

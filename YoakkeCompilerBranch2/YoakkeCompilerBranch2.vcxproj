@@ -125,6 +125,8 @@
     <ClCompile Include="src\ast\pattern.cpp" />
     <ClCompile Include="src\ast\stmt.cpp" />
     <ClCompile Include="src\ast\type_desc.cpp" />
+    <ClCompile Include="src\reporting\err_msg.cpp" />
+    <ClCompile Include="src\reporting\err_stream.cpp" />
     <ClCompile Include="src\utility\console.cpp" />
     <ClCompile Include="src\utility\file_handle.cpp" />
     <ClCompile Include="src\lexing\position.cpp" />
@@ -133,8 +135,6 @@
     <ClCompile Include="src\parsing\parser.cpp" />
     <ClCompile Include="src\parsing\yparser.cpp" />
     <ClCompile Include="src\reporting\code_printer.cpp" />
-    <ClCompile Include="src\reporting\report_msg.cpp" />
-    <ClCompile Include="src\reporting\report_stream.cpp" />
     <ClCompile Include="src\semantics\scope.cpp" />
     <ClCompile Include="src\semantics\semantic_checker.cpp" />
     <ClCompile Include="src\semantics\symbol.cpp" />
@@ -150,6 +150,8 @@
     <ClInclude Include="src\ast\stmt.h" />
     <ClInclude Include="src\ast\type_desc.h" />
     <ClInclude Include="src\common.h" />
+    <ClInclude Include="src\reporting\err_msg.h" />
+    <ClInclude Include="src\reporting\err_stream.h" />
     <ClInclude Include="src\utility\console.h" />
     <ClInclude Include="src\utility\file_handle.h" />
     <ClInclude Include="src\lexing\lexer.h" />
@@ -166,8 +168,6 @@
     <ClInclude Include="src\parsing\type_rules.h" />
     <ClInclude Include="src\parsing\yparser.h" />
     <ClInclude Include="src\reporting\code_printer.h" />
-    <ClInclude Include="src\reporting\report_msg.h" />
-    <ClInclude Include="src\reporting\report_stream.h" />
     <ClInclude Include="src\semantics\scope.h" />
     <ClInclude Include="src\semantics\semantic_checker.h" />
     <ClInclude Include="src\semantics\symbol.h" />

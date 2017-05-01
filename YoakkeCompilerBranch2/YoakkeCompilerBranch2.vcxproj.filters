@@ -66,12 +66,6 @@
     <ClCompile Include="src\semantics\typed_symbol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\reporting\report_stream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\reporting\report_msg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\lexing\token.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -82,6 +76,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\utility\console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reporting\err_msg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reporting\err_stream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -167,12 +167,6 @@
     <ClInclude Include="src\utility\match.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\reporting\report_stream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\reporting\report_msg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\parsing\gen_rules.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -186,6 +180,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\utility\math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\reporting\err_msg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\reporting\err_stream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
