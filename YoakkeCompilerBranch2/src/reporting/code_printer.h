@@ -20,6 +20,7 @@ namespace yk {
 			static ysize				s_TabSize;
 			static ysize				s_LinesBefore;
 			static ysize				s_LinesAfter;
+			static ysize				s_MaxInterval;
 			static bool					s_LineNumbering;
 			static ystr					s_NumberSep;
 			static ystr					s_IntervalSep;

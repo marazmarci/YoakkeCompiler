@@ -7,6 +7,7 @@ namespace yk {
 		ysize				code_printer::s_TabSize			= 4;
 		ysize				code_printer::s_LinesBefore		= 1;
 		ysize				code_printer::s_LinesAfter		= 1;
+		ysize				code_printer::s_MaxInterval		= 3;
 		bool				code_printer::s_LineNumbering	= true;
 		ystr				code_printer::s_NumberSep		= " | ";
 		ystr				code_printer::s_IntervalSep		= "| ";
@@ -37,9 +38,17 @@ namespace yk {
 				print_marked_single<enclose_t::None>(from, last_dig_cnt, left, right);
 			}
 			else {
+				ysize dist = to - from;
 				print_marked_single<enclose_t::Top>(from, last_dig_cnt, left, left + 1);
-				for (ysize i = from + 1; i < to; i++) {
-					print_unmarked_single<true>(i, last_dig_cnt);
+				if (dist > s_MaxInterval) {
+					print_unmarked_single<true>(from + 1, last_dig_cnt);
+					*s_Ostream << fmt::skip(last_dig_cnt + s_NumberSep.length())
+						<< "..." << std::endl;
+				}
+				else {
+					for (ysize i = from + 1; i < to; i++) {
+						print_unmarked_single<true>(i, last_dig_cnt);
+					}
 				}
 				print_marked_single<enclose_t::Bottom>(to, last_dig_cnt, right - 1, right);
 			}
