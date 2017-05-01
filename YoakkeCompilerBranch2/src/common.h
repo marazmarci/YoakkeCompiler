@@ -46,9 +46,5 @@ namespace yk {
 	using yset = std::set<T>;
 
 	template <typename T1, typename T2, typename T3>
-	struct ytriplet {
-		T1 first;
-		T2 second;
-		T3 third;
-	};
+	using ytriplet = std::tuple<T1, T2, T3>;
 }
