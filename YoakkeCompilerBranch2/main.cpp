@@ -10,7 +10,7 @@
 
 int main(void) {
 	yk::console::initialize();
-	//yk::rep::code_printer printer(std::cout, 15);
+	yk::rep::code_printer::initialize();
 
 	try {
 		yk::yparser parser("C:/TMP/YoakkeTest/tokenizer.txt");

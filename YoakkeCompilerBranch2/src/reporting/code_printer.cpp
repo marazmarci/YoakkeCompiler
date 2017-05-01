@@ -1,4 +1,5 @@
 #include "code_printer.h"
+#include "../utility/console.h"
 
 namespace yk {
 	namespace rep {
@@ -13,6 +14,10 @@ namespace yk {
 		char				code_printer::s_LineHead		= '^';
 		std::ostream*		code_printer::s_Ostream			= &std::cout;
 		file_handle const*	code_printer::s_File;
+
+		void code_printer::initialize() {
+			s_BufferWidth = console::Width;
+		}
 
 		void code_printer::print(file_handle const& file, interval const& pos) {
 			s_File = &file;

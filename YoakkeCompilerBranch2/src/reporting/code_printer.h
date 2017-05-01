@@ -29,6 +29,7 @@ namespace yk {
 			static std::ostream*		s_Ostream;
 
 		public:
+			static void initialize();
 			static void print(file_handle const& file, interval const& pos);
 
 		private:
