@@ -9,6 +9,8 @@ namespace yk {
 		bool				code_printer::s_LineNumbering	= true;
 		ystr				code_printer::s_NumberSep		= " | ";
 		ystr				code_printer::s_IntervalSep		= "| ";
+		char				code_printer::s_LineBase		= '~';
+		char				code_printer::s_LineHead		= '^';
 		std::ostream*		code_printer::s_Ostream			= &std::cout;
 		file_handle const*	code_printer::s_File;
 

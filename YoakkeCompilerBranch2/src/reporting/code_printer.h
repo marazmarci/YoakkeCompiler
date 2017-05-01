@@ -23,6 +23,8 @@ namespace yk {
 			static bool					s_LineNumbering;
 			static ystr					s_NumberSep;
 			static ystr					s_IntervalSep;
+			static char					s_LineBase;
+			static char					s_LineHead;
 			static file_handle const*	s_File;
 			static std::ostream*		s_Ostream;
 
@@ -144,15 +146,15 @@ namespace yk {
 				if (extra) {
 					os
 						<< fmt::skip(padding)
-						<< fmt::repeat(m_Begin - offs + code_printer::s_IntervalSep.length(), '~')
-						<< fmt::repeat(to_write, '^')
+						<< fmt::repeat(m_Begin - offs + code_printer::s_IntervalSep.length(), code_printer::s_LineBase)
+						<< fmt::repeat(to_write, code_printer::s_LineHead)
 						<< std::endl;
 				}
 				else {
 					os
 						<< fmt::skip(padding)
-						<< fmt::repeat(m_Begin - offs, '~')
-						<< fmt::repeat(to_write, '^')
+						<< fmt::repeat(m_Begin - offs, code_printer::s_LineBase)
+						<< fmt::repeat(to_write, code_printer::s_LineHead)
 						<< std::endl;
 				}
 				return to_write;
@@ -164,7 +166,7 @@ namespace yk {
 				ysize to_write = std::min(m_End - written, buff_width);
 				os
 					<< fmt::skip(padding)
-					<< fmt::repeat(to_write, '^')
+					<< fmt::repeat(to_write, code_printer::s_LineHead)
 					<< std::endl;
 				return to_write;
 			}
