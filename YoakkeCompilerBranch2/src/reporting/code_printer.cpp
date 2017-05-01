@@ -34,8 +34,6 @@ namespace yk {
 			m_End = y;
 		}
 
-		// TODO:
-		// Recalculate padding, add extra ~~, single line case fix
 		void mark_buffer::print(ysize line, ysize maxdigit, ysize buff_width, interval_enclose enclose) {
 			static const ystr number_sep = " | ";
 			static const ystr int_sep = "| ";
@@ -47,6 +45,8 @@ namespace yk {
 			buff_width -= padding;
 			ysize digit_cnt = math::digit_count(line);
 			bool in_interval = enclose == interval_enclose::Bottom;
+			ysize arr_written = m_Begin;
+			bool started = false;
 			if (in_interval) {
 				padding += isep_len;
 				buff_width -= isep_len;
@@ -72,10 +72,58 @@ namespace yk {
 				}
 				os << std::endl;
 
+				if (!started) {
+					if (enclose == interval_enclose::None
+						&& written >= m_Begin) {
+						ysize to_write = std::min(m_End - m_Begin, buff_width - (m_Begin - offs));
+						started = true;
+						os
+							<< fmt::skip(padding)
+							<< fmt::repeat(m_Begin - offs, '~')
+							<< fmt::repeat(to_write, '^')
+							<< std::endl;
+						arr_written += to_write;
+					}
+					else if (
+						!in_interval
+						&& enclose == interval_enclose::Top
+						&& written >= m_Begin) {
+						in_interval = true;
+						started = true;
+						ysize to_write = std::min(m_End - m_Begin, buff_width - (m_Begin - offs));
+						os
+							<< fmt::skip(padding)
+							<< fmt::repeat(m_Begin - offs, '~')
+							<< fmt::repeat(to_write, '^')
+							<< std::endl;
+						arr_written += to_write;
+						padding += isep_len;
+						buff_width -= isep_len;
+					}
+					else if (
+						in_interval
+						&& enclose == interval_enclose::Bottom
+						&& written >= m_Begin) {
+						in_interval = false;
+						started = true;
+						padding -= isep_len;
+						buff_width += isep_len;
+						ysize to_write = std::min(m_End - m_Begin, buff_width);
+						os
+							<< fmt::skip(padding)
+							<< fmt::repeat(m_Begin - offs + isep_len, '~')
+							<< fmt::repeat(to_write, '^')
+							<< std::endl;
+						arr_written += to_write;
+					}
 				}
+				else if (arr_written < m_End) {
+					ysize to_write = std::min(m_End - arr_written, buff_width);
 					os
 						<< fmt::skip(padding)
+						<< fmt::repeat(to_write, '^')
 						<< std::endl;
+					arr_written += to_write;
 				}
 			}
 		}
