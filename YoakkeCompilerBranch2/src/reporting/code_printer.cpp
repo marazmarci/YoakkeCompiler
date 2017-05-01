@@ -72,24 +72,9 @@ namespace yk {
 				}
 				os << std::endl;
 
-				if (!in_interval 
-					&& enclose == interval_enclose::Top
-					&& written >= m_Begin) {
-					in_interval = true;
-					os 
-						<< fmt::skip(padding)
-						<< fmt::repeat(m_Begin - offs, '~')
-						<< fmt::repeat(m_End - m_Begin, '^')
-						<< std::endl;
 				}
-				if (in_interval
-					&& enclose == interval_enclose::Bottom
-					&& written >= m_Begin) {
-					in_interval = false;
 					os
 						<< fmt::skip(padding)
-						<< fmt::repeat(m_Begin - offs, '~')
-						<< fmt::repeat(m_End - m_Begin, '^')
 						<< std::endl;
 				}
 			}
