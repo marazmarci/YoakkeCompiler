@@ -1,13 +1,14 @@
 #include "semantic_checker.h"
 #include "type_symbol.h"
-#include "../lexing/ytoken_t.h"
 #include "typed_symbol.h"
+#include "../lexing/ytoken_t.h"
 #include "../ast/stmt.h"
 #include "../ast/expr.h"
 #include "../ast/type_desc.h"
 #include "../ast/pattern.h"
 #include "../utility/match.h"
-#include "../reporting/code_printer.h"
+#include "../reporting/err_stream.h"
+#include "../reporting/err_msg.h"
 
 namespace yk {
 	semantic_checker::semantic_checker(file_handle const& f)
@@ -32,11 +33,17 @@ namespace yk {
 					}
 					if (auto exp_ty = ret_dest->get_return_type()) {
 						if (!exp_ty->same(rett)) {
-							throw std::exception("TODO: return type mismatch!");
+							// TODO: Add message?
+							rep::err_stream::report(
+							rep::type_mismatch(
+								m_File,
+								ret_dest->get_return_type_pos(),
+								st->Position)
+							);
 						}
 					}
 					else {
-						ret_dest->set_return_type(rett);
+						ret_dest->set_return_type(rett, st->Position);
 					}
 				}
 				else {
@@ -144,7 +151,7 @@ namespace yk {
 				sym_set = symbol_table::filter_typed_match(sym_set, dummy_ty);
 				if (sym_set.empty()) {
 					// TODO: this is a test
-					rep::code_printer::print(m_File, ex->Position);
+					//rep::code_printer::print(m_File, ex->Position);
 					throw std::exception("TODO: no such binary operator!");
 				}
 				else if (sym_set.size() > 1) {
@@ -221,8 +228,9 @@ namespace yk {
 					throw std::exception("TODO: cannot call non-function expression!");
 				}
 			}
-			Case(block_expr, Statements, ReturnDestination) {
+			Case(block_expr, Statements, ReturnDestination, Scope) {
 				auto sc = std::make_shared<scope>();
+				Scope = sc;
 				if (ReturnDestination) {
 					sc->mark_return_dest();
 				}
@@ -263,7 +271,7 @@ namespace yk {
 
 				// Return type
 				ysptr<type_symbol> ret = nullptr;
-
+				
 				if (ReturnType) {
 					ret = check_type(ReturnType);
 				}
@@ -294,7 +302,24 @@ namespace yk {
 
 				// Check if body returned what return type needs
 				if (!ret->same(body_t)) {
-					throw std::exception("TODO: function return type mismatch!");
+					if (ReturnType) {
+						if (Body->Scope->get_return_type()) {
+							// TODO: Add message
+							rep::err_stream::report(
+								rep::type_mismatch(
+									m_File,
+									ReturnType->Position,
+									Body->Scope->get_return_type_pos()
+								)
+							);
+						}
+						else {
+							throw std::exception("TODO: function return type mismatch! (body no return)");
+						}
+					}
+					else {
+						throw std::exception("TODO: function return type mismatch! (nopos)");
+					}
 				}
 
 				fn_ty = m_Table.decl_type_once(fn_ty);

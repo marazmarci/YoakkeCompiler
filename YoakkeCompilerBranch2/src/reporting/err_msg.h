@@ -70,5 +70,21 @@ namespace yk {
 		public:
 			virtual void print(std::ostream& os) const override;
 		};
+
+		// Semantic
+
+		class type_mismatch : public err {
+		private:
+			file_handle const& m_File;
+			interval m_Position1;
+			interval m_Position2;
+			ystr m_Message;
+		
+		public:
+			type_mismatch(file_handle const& f, interval const& p1, interval const& p2, ystr const& n = "");
+
+		public:
+			virtual void print(std::ostream& os) const override;
+		};
 	}
 }

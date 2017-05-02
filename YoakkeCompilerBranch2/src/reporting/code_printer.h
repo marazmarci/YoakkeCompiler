@@ -32,9 +32,11 @@ namespace yk {
 		public:
 			static void initialize();
 			static void print(file_handle const& file, interval const& pos);
+			static void print(file_handle const& file, interval const& pos1, interval const& pos2);
 
 		private:
 			static void print_marked(ysize from, ysize to, ysize left, ysize right);
+			static void print_marked(ysize from, ysize to, ysize s1, ysize e1, ysize s2, ysize e2);
 			
 			template <enclose_t ENCLOSE>
 			static void print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right) {

@@ -9,6 +9,7 @@ namespace yk {
 	class pattern;
 	class type_desc;
 	class type_symbol;
+	class scope;
 
 	class expr : public node {
 	public:
@@ -140,6 +141,7 @@ namespace yk {
 	class block_expr : public expr, public braced_expr {
 	public:
 		yvec<ysptr<stmt>> Statements;
+		ysptr<scope> Scope;
 
 	public:
 		block_expr(yvec<ysptr<stmt>> sts, token const& beg, token const& end);

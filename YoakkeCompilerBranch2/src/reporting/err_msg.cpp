@@ -73,5 +73,24 @@ namespace yk {
 				os << m_Note << std::endl;
 			}
 		}
+
+		// Return type mismatch
+
+		type_mismatch::type_mismatch(file_handle const& f, interval const& p1, interval const& p2, ystr const& n)
+			: err(false), m_File(f), m_Position1(p1), m_Position2(p2), m_Message(n) {
+		}
+
+		void type_mismatch::print(std::ostream& os) const {
+			os
+				<< "Type mismatch in file: '"
+				<< m_File.name()
+				<< "', at line: " << m_Position2.Start.Row
+				<< ", character: " << m_Position2.Start.Col
+				<< ':' << std::endl;
+			code_printer::print(m_File, m_Position1, m_Position2);
+			if (m_Message.length()) {
+				os << m_Message << std::endl;
+			}
+		}
 	}
 }

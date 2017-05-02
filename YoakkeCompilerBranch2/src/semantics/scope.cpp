@@ -44,8 +44,13 @@ namespace yk {
 		return m_ReturnType;
 	}
 
-	void scope::set_return_type(ysptr<type_symbol> rt) {
+	interval const& scope::get_return_type_pos() {
+		return m_ReturnTypePos;
+	}
+
+	void scope::set_return_type(ysptr<type_symbol> rt, interval const& pos) {
 		m_ReturnType = rt;
+		m_ReturnTypePos = pos;
 	}
 
 	scope* scope::get_enclosing_return_dest() {
