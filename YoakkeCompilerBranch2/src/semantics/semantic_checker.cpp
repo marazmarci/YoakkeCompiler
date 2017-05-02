@@ -72,11 +72,20 @@ namespace yk {
 				}
 				if (set.empty()) {
 					if (hint_changed) {
-						throw std::exception("TODO: no such symbol (hint mismatch?)");
+						rep::err_stream::report(
+							rep::no_such_symbol(m_File,
+								Identifier, ex->Position,
+								"The hint type supported is wrong!",
+								ex->HintPosition
+							)
+						);
 					}
 					else {
-						std::string err = "TODO: no such symbol: " + Identifier;
-						throw std::exception(err.c_str());
+						rep::err_stream::report(
+							rep::no_such_symbol(m_File,
+								Identifier, ex->Position
+							)
+						);
 					}
 				}
 				// Choose the last one, this enables shadowing
@@ -333,6 +342,7 @@ namespace yk {
 					ty_sym = check_type(Type);
 					if (Value) {
 						Value->HintType = ty_sym;
+						Value->HintPosition = Type->Position;
 					}
 					fin_sym = ty_sym;
 				}

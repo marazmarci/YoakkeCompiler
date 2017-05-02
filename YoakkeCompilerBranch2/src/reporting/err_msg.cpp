@@ -92,5 +92,29 @@ namespace yk {
 				os << m_Message << std::endl;
 			}
 		}
+
+		// No such symbol
+
+		no_such_symbol::no_such_symbol(file_handle const& f, ystr const& id, interval const& p, ystr const& hn, interval const& hp)
+			: err(false), m_File(f), m_Identifier(id), m_Position(p), m_HintNote(hn), m_HintPosition(hp) {
+		}
+
+		void no_such_symbol::print(std::ostream& os) const {
+			os
+				<< "Unknown identifier: '"
+				<< m_Identifier
+				<< "' in file: '"
+				<< m_File.name()
+				<< "', at line: " << m_Position.Start.Row
+				<< ", character: " << m_Position.Start.Col
+				<< ':' << std::endl;
+			if (m_HintNote.length()) {
+				code_printer::print(m_File, m_HintPosition, m_Position);
+				os << m_HintNote << std::endl;
+			}
+			else {
+				code_printer::print(m_File, m_Position);
+			}
+		}
 	}
 }

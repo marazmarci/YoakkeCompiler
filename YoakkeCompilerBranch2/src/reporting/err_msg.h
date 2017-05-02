@@ -86,5 +86,20 @@ namespace yk {
 		public:
 			virtual void print(std::ostream& os) const override;
 		};
+
+		class no_such_symbol : public err {
+		private:
+			file_handle const& m_File;
+			ystr m_Identifier;
+			interval m_Position;
+			ystr m_HintNote;
+			interval m_HintPosition;
+
+		public:
+			no_such_symbol(file_handle const& f, ystr const& id, interval const& p, ystr const& hn = "", interval const& hp = interval());
+
+		public:
+			virtual void print(std::ostream& os) const override;
+		};
 	}
 }

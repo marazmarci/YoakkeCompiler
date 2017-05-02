@@ -14,6 +14,7 @@ namespace yk {
 	class expr : public node {
 	public:
 		ysptr<type_symbol> HintType;
+		interval HintPosition;
 
 	protected:
 		expr(interval const& pos);
