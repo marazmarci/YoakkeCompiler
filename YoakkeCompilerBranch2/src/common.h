@@ -6,6 +6,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "utility\opt_map.h"
 
@@ -47,4 +48,13 @@ namespace yk {
 
 	template <typename T1, typename T2, typename T3>
 	using ytriplet = std::tuple<T1, T2, T3>;
+
+	template<
+		class Key,
+		class T,
+		class Hash = std::hash<Key>,
+		class KeyEqual = std::equal_to<Key>,
+		class Allocator = std::allocator< std::pair<const Key, T> >
+	>
+	using yhash_map = std::unordered_map<Key, T, Hash, KeyEqual, Allocator>;
 }

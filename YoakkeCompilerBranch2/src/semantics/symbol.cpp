@@ -1,9 +1,7 @@
 #include "symbol.h"
 
 namespace yk {
-	symbol::symbol(ystr const& id)
-		: Identifier(id) {
+	symbol::symbol(ystr const& n)
+		: Name(n) {
 	}
-
-	symbol::~symbol() { }
 }

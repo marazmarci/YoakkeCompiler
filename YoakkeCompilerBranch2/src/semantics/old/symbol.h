@@ -5,9 +5,12 @@
 namespace yk {
 	class symbol {
 	public:
-		ystr Name;
+		const ystr Identifier;
+
+	protected:
+		symbol(ystr const& id);
 
 	public:
-		symbol(ystr const& n);
+		virtual ~symbol();
 	};
 }

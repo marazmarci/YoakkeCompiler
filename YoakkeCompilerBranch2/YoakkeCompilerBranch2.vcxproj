@@ -127,6 +127,8 @@
     <ClCompile Include="src\ast\ty_expr.cpp" />
     <ClCompile Include="src\reporting\err_msg.cpp" />
     <ClCompile Include="src\reporting\err_stream.cpp" />
+    <ClCompile Include="src\semantics\symbol.cpp" />
+    <ClCompile Include="src\semantics\type.cpp" />
     <ClCompile Include="src\utility\console.cpp" />
     <ClCompile Include="src\utility\file_handle.cpp" />
     <ClCompile Include="src\lexing\position.cpp" />
@@ -135,12 +137,12 @@
     <ClCompile Include="src\parsing\parser.cpp" />
     <ClCompile Include="src\parsing\yparser.cpp" />
     <ClCompile Include="src\reporting\code_printer.cpp" />
-    <ClCompile Include="src\semantics\scope.cpp" />
-    <ClCompile Include="src\semantics\semantic_checker.cpp" />
-    <ClCompile Include="src\semantics\symbol.cpp" />
-    <ClCompile Include="src\semantics\symbol_table.cpp" />
-    <ClCompile Include="src\semantics\typed_symbol.cpp" />
-    <ClCompile Include="src\semantics\type_symbol.cpp" />
+    <ClCompile Include="src\semantics\old\scope.cpp" />
+    <ClCompile Include="src\semantics\old\semantic_checker.cpp" />
+    <ClCompile Include="src\semantics\old\symbol.cpp" />
+    <ClCompile Include="src\semantics\old\symbol_table.cpp" />
+    <ClCompile Include="src\semantics\old\typed_symbol.cpp" />
+    <ClCompile Include="src\semantics\old\type_symbol.cpp" />
     <ClCompile Include="src\utility\fmt_out.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +155,11 @@
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\reporting\err_msg.h" />
     <ClInclude Include="src\reporting\err_stream.h" />
+    <ClInclude Include="src\semantics\scope.h" />
+    <ClInclude Include="src\semantics\symbol.h" />
+    <ClInclude Include="src\semantics\sym_table.h" />
+    <ClInclude Include="src\semantics\type.h" />
+    <ClInclude Include="src\semantics\variable.h" />
     <ClInclude Include="src\utility\console.h" />
     <ClInclude Include="src\utility\file_handle.h" />
     <ClInclude Include="src\lexing\lexer.h" />
@@ -169,12 +176,12 @@
     <ClInclude Include="src\parsing\type_rules.h" />
     <ClInclude Include="src\parsing\yparser.h" />
     <ClInclude Include="src\reporting\code_printer.h" />
-    <ClInclude Include="src\semantics\scope.h" />
-    <ClInclude Include="src\semantics\semantic_checker.h" />
-    <ClInclude Include="src\semantics\symbol.h" />
-    <ClInclude Include="src\semantics\symbol_table.h" />
-    <ClInclude Include="src\semantics\typed_symbol.h" />
-    <ClInclude Include="src\semantics\type_symbol.h" />
+    <ClInclude Include="src\semantics\old\scope.h" />
+    <ClInclude Include="src\semantics\old\semantic_checker.h" />
+    <ClInclude Include="src\semantics\old\symbol.h" />
+    <ClInclude Include="src\semantics\old\symbol_table.h" />
+    <ClInclude Include="src\semantics\old\typed_symbol.h" />
+    <ClInclude Include="src\semantics\old\type_symbol.h" />
     <ClInclude Include="src\utility\fmt_out.h" />
     <ClInclude Include="src\utility\match.h" />
     <ClInclude Include="src\utility\math.h" />
