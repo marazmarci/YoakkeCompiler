@@ -5,18 +5,18 @@
 
 namespace yk {
 	namespace let_pat {
-		static void define_internal(yvec<ypair<ystr, expr*>>& vec, pattern* left, expr* right) {
+		static void define_internal(yvec<ypair<ystr, expr*>>& vec, pat_expr* left, expr* right) {
 			if (auto sk = dynamic_cast<skip_pattern*>(left)) {
 				return;
 			}
-			else if (auto ip = dynamic_cast<ident_pattern*>(left)) {
+			else if (auto ip = dynamic_cast<ident_pat_expr*>(left)) {
 				vec.push_back(std::make_pair(ip->identifier, right));
 				return;
 			}
-			else if (auto bp = dynamic_cast<bin_pattern*>(left)) {
+			else if (auto bp = dynamic_cast<bin_pat_expr*>(left)) {
 				throw std::exception("UNHANDLED PATTERN (bin)");
 			}
-			else if (auto lp = dynamic_cast<list_pattern*>(left)) {
+			else if (auto lp = dynamic_cast<list_pat_expr*>(left)) {
 				if (right) {
 					if (auto rtup = dynamic_cast<tuple_type_symbol*>(right->EvalType)) {
 						if (rtup->Types.size() == lp->List.size()) {
@@ -54,7 +54,7 @@ namespace yk {
 			}
 		}
 
-		yvec<ypair<ystr, expr*>> define(pattern* left, expr* exp) {
+		yvec<ypair<ystr, expr*>> define(pat_expr* left, expr* exp) {
 			yvec<ypair<ystr, expr*>> result;
 			define_internal(result, left, exp);
 			return result;

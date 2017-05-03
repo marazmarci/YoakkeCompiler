@@ -1,35 +1,35 @@
 #include "type_desc.h"
 
 namespace yk {
-	type_desc::type_desc(position const& pos)
+	ty_expr::ty_expr(position const& pos)
 		: ast_node(pos), SymbolForm(nullptr) {
 	}
 
-	type_desc::~type_desc() { }
+	ty_expr::~ty_expr() { }
 
 	// Type identifier
-	ident_type_desc::ident_type_desc(token const& tok)
-		: type_desc(position::get(tok)), identifier(tok.value()) {
+	ident_ty_expr::ident_ty_expr(token const& tok)
+		: ty_expr(position::get(tok)), identifier(tok.value()) {
 	}
 
-	ident_type_desc::~ident_type_desc() { }
+	ident_ty_expr::~ident_ty_expr() { }
 
 	// Binary type desc
-	bin_type_desc::bin_type_desc(type_desc* l, type_desc* r, token const& o)
-		: type_desc(position::interval(l->Position, r->Position)), LHS(l), RHS(r), OP(o) {
+	bin_ty_expr::bin_ty_expr(ty_expr* l, ty_expr* r, token const& o)
+		: ty_expr(position::interval(l->Position, r->Position)), LHS(l), RHS(r), OP(o) {
 	}
 
-	bin_type_desc::~bin_type_desc() {
+	bin_ty_expr::~bin_ty_expr() {
 		delete LHS;
 		delete RHS;
 	}
 
 	// List type desc
-	list_type_desc::list_type_desc(yvec<type_desc*> const& ls)
-		: type_desc(position::interval(ls[0]->Position, ls[ls.size() - 1]->Position)), List(ls) {
+	list_ty_expr::list_ty_expr(yvec<ty_expr*> const& ls)
+		: ty_expr(position::interval(ls[0]->Position, ls[ls.size() - 1]->Position)), List(ls) {
 	}
 
-	list_type_desc::~list_type_desc() {
+	list_ty_expr::~list_ty_expr() {
 		for (auto i : List) delete i;
 	}
 }

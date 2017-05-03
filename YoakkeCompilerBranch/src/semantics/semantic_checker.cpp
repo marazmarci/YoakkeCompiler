@@ -20,7 +20,7 @@ namespace yk {
 		return m_ExprChecker(*exp);
 	}
 
-	type_symbol* semantic_checker::check_type(type_desc* ty) {
+	type_symbol* semantic_checker::check_type(ty_expr* ty) {
 		return m_TypeChecker(*ty);
 	}
 }

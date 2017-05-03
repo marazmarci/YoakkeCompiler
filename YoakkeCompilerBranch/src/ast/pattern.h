@@ -3,46 +3,46 @@
 #include "ast_node.h"
 
 namespace yk {
-	class pattern : public ast_node {
+	class pat_expr : public ast_node {
 	protected:
-		pattern(position const& pos);
+		pat_expr(position const& pos);
 
 	public:
-		virtual ~pattern();
+		virtual ~pat_expr();
 	};
 
-	class skip_pattern : public pattern {
+	class skip_pattern : public pat_expr {
 	public:
 		skip_pattern(token const& tok);
 		virtual ~skip_pattern();
 	};
 
-	class ident_pattern : public pattern {
+	class ident_pat_expr : public pat_expr {
 	public:
 		ystr identifier;
 
 	public:
-		ident_pattern(token const& tok);
-		virtual ~ident_pattern();
+		ident_pat_expr(token const& tok);
+		virtual ~ident_pat_expr();
 	};
 
-	class bin_pattern : public pattern {
+	class bin_pat_expr : public pat_expr {
 	public:
-		pattern* LHS;
-		pattern* RHS;
+		pat_expr* LHS;
+		pat_expr* RHS;
 		token OP;
 
 	public:
-		bin_pattern(pattern* l, pattern* r, token const& o);
-		virtual ~bin_pattern();
+		bin_pat_expr(pat_expr* l, pat_expr* r, token const& o);
+		virtual ~bin_pat_expr();
 	};
 
-	class list_pattern : public pattern {
+	class list_pat_expr : public pat_expr {
 	public:
-		yvec<pattern*> List;
+		yvec<pat_expr*> List;
 
 	public:
-		list_pattern(yvec<pattern*> const& ls);
-		virtual ~list_pattern();
+		list_pat_expr(yvec<pat_expr*> const& ls);
+		virtual ~list_pat_expr();
 	};
 }

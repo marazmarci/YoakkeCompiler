@@ -5,11 +5,11 @@
 #include "../lexing/token.h"
 
 namespace yk {
-	class stmt;
-	class pattern;
-	class type_desc;
-	class type_symbol;
 	class scope;
+	class stmt;
+	class pat_expr;
+	class ty_expr;
+	class type_symbol;
 
 	class expr : public node {
 	public:
@@ -151,39 +151,39 @@ namespace yk {
 	
 	class fnproto_expr : public expr {
 	public:
-		using param_t = ypair<yopt<token>, ysptr<type_desc>>;
+		using param_t = ypair<yopt<token>, ysptr<ty_expr>>;
 
 	public:
 		yvec<param_t> Parameters;
-		ysptr<type_desc> ReturnType;
+		ysptr<ty_expr> ReturnType;
 
 	public:
-		fnproto_expr(token const& begpar, token const& endpar, yvec<param_t> params, ysptr<type_desc> ret);
+		fnproto_expr(token const& begpar, token const& endpar, yvec<param_t> params, ysptr<ty_expr> ret);
 		virtual ~fnproto_expr();
 	};
 
 	class fn_expr : public expr, public braced_expr {
 	public:
-		using param_t = ypair<yopt<token>, ysptr<type_desc>>;
+		using param_t = ypair<yopt<token>, ysptr<ty_expr>>;
 
 	public:
 		yvec<param_t> Parameters;
-		ysptr<type_desc> ReturnType;
+		ysptr<ty_expr> ReturnType;
 		ysptr<block_expr> Body;
 
 	public:
-		fn_expr(token const& begpar, yvec<param_t> params, ysptr<type_desc> ret, ysptr<block_expr> bd);
+		fn_expr(token const& begpar, yvec<param_t> params, ysptr<ty_expr> ret, ysptr<block_expr> bd);
 		virtual ~fn_expr();
 	};
 
 	class let_expr : public expr {
 	public:
-		ysptr<pattern> Pattern;
-		ysptr<type_desc> Type;
+		ysptr<pat_expr> Pattern;
+		ysptr<ty_expr> Type;
 		ysptr<expr> Value;
 
 	public:
-		let_expr(ysptr<pattern> pat, ysptr<type_desc> ty, ysptr<expr> val, token const& beg);
+		let_expr(ysptr<pat_expr> pat, ysptr<ty_expr> ty, ysptr<expr> val, token const& beg);
 		virtual ~let_expr();
 	};
 }

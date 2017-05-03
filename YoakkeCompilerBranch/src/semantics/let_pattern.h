@@ -4,10 +4,10 @@
 
 namespace yk {
 	class type_symbol;
-	class pattern;
+	class pat_expr;
 	class expr;
 
 	namespace let_pat {
-		yvec<ypair<ystr, expr*>> define(pattern* left, expr* exp);
+		yvec<ypair<ystr, expr*>> define(pat_expr* left, expr* exp);
 	}
 }

@@ -7,55 +7,55 @@
 namespace yk {
 	class type_symbol;
 
-	class type_desc : public ast_node, public visitable<type_desc> {
+	class ty_expr : public ast_node, public visitable<ty_expr> {
 	public:
-		META_BaseVisitable(type_desc)
+		META_BaseVisitable(ty_expr)
 
 	public:
 		type_symbol* SymbolForm;
 
 	protected:
-		type_desc(position const& pos);
+		ty_expr(position const& pos);
 
 	public:
-		virtual ~type_desc();
+		virtual ~ty_expr();
 	};
 
-	class ident_type_desc : public type_desc {
+	class ident_ty_expr : public ty_expr {
 	public:
-		META_Visitable(ident_type_desc, type_desc)
+		META_Visitable(ident_ty_expr, ty_expr)
 
 	public:
 		ystr identifier;
 
 	public:
-		ident_type_desc(token const& tok);
-		virtual ~ident_type_desc();
+		ident_ty_expr(token const& tok);
+		virtual ~ident_ty_expr();
 	};
 
-	class bin_type_desc : public type_desc {
+	class bin_ty_expr : public ty_expr {
 	public:
-		META_Visitable(bin_type_desc, type_desc)
+		META_Visitable(bin_ty_expr, ty_expr)
 
 	public:
-		type_desc* LHS;
-		type_desc* RHS;
+		ty_expr* LHS;
+		ty_expr* RHS;
 		token OP;
 
 	public:
-		bin_type_desc(type_desc* l, type_desc* r, token const& o);
-		virtual ~bin_type_desc();
+		bin_ty_expr(ty_expr* l, ty_expr* r, token const& o);
+		virtual ~bin_ty_expr();
 	};
 
-	class list_type_desc : public type_desc {
+	class list_ty_expr : public ty_expr {
 	public:
-		META_Visitable(list_type_desc, type_desc)
+		META_Visitable(list_ty_expr, ty_expr)
 
 	public:
-		yvec<type_desc*> List;
+		yvec<ty_expr*> List;
 
 	public:
-		list_type_desc(yvec<type_desc*> const& ls);
-		virtual ~list_type_desc();
+		list_ty_expr(yvec<ty_expr*> const& ls);
+		virtual ~list_ty_expr();
 	};
 }

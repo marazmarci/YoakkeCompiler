@@ -1,9 +1,8 @@
 #include "yparser.h"
-#include "../ast/type_desc.h"
-#include "../ast/stmt.h"
 #include "expr_rules.h"
 #include "pattern_rules.h"
 #include "type_rules.h"
+#include "../ast/ast.h"
 
 namespace yk {
 	yparser::yparser(ystr const& file)
@@ -106,11 +105,11 @@ namespace yk {
 		return m_ExprParser.parse(*this, prec);
 	}
 
-	ysptr<pattern> yparser::parse_pattern(ysize prec) {
+	ysptr<pat_expr> yparser::parse_pattern(ysize prec) {
 		return m_PatternParser.parse(*this, prec);
 	}
 
-	ysptr<type_desc> yparser::parse_type_desc(ysize prec) {
+	ysptr<ty_expr> yparser::parse_type_desc(ysize prec) {
 		return m_TypeDescParser.parse(*this, prec);
 	}
 

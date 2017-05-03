@@ -4,8 +4,8 @@
 #include "../lexing/ytoken_t.h"
 #include "../ast/stmt.h"
 #include "../ast/expr.h"
-#include "../ast/type_desc.h"
-#include "../ast/pattern.h"
+#include "../ast/ty_expr.h"
+#include "../ast/pat_expr.h"
 #include "../utility/match.h"
 #include "../reporting/err_stream.h"
 #include "../reporting/err_msg.h"
@@ -378,12 +378,12 @@ namespace yk {
 		}
 	}
 
-	ysptr<type_symbol> semantic_checker::check_type(ysptr<type_desc> ty) {
+	ysptr<type_symbol> semantic_checker::check_type(ysptr<ty_expr> ty) {
 		Match(ty.get()) {
-			Case(unit_type_desc) {
+			Case(unit_ty_expr) {
 				return symbol_table::UNIT_T;
 			}
-			Case(ident_type_desc, Identifier) {
+			Case(ident_ty_expr, Identifier) {
 				auto t_set = m_Table.ref_filter<type_symbol>(Identifier);
 				if (t_set.empty()) {
 					throw std::exception("TODO: semantic error (undefined type)");
@@ -393,7 +393,7 @@ namespace yk {
 				}
 				return t_set[0];
 			}
-			Case(bin_type_desc, Operator, LHS, RHS) {
+			Case(bin_ty_expr, Operator, LHS, RHS) {
 				if (Operator.Type == ytoken_t::Arrow) {
 					auto left = check_type(LHS);
 					auto right = check_type(RHS);
@@ -404,7 +404,7 @@ namespace yk {
 					throw std::exception("TODO: no such type operator");
 				}
 			}
-			Case(list_type_desc, Elements) {
+			Case(list_ty_expr, Elements) {
 				yvec<ysptr<type_symbol>> syms;
 				for (auto& el : Elements) {
 					syms.push_back(check_type(el));
@@ -419,7 +419,7 @@ namespace yk {
 	}
 
 	yvec<ypair<ystr, ysptr<type_symbol>>> semantic_checker::match_pattern_expr(
-		ysptr<pattern> pat, ysptr<type_symbol> ty) {
+		ysptr<pat_expr> pat, ysptr<type_symbol> ty) {
 		yvec<ypair<ystr, ysptr<type_symbol>>> res;
 		match_pattern_expr_impl(res, pat, ty, 
 			ty.get() != nullptr);
@@ -428,13 +428,13 @@ namespace yk {
 
 	void semantic_checker::match_pattern_expr_impl(
 		yvec<ypair<ystr, ysptr<type_symbol>>>& res,
-		ysptr<pattern> pat, ysptr<type_symbol> ty,
+		ysptr<pat_expr> pat, ysptr<type_symbol> ty,
 		bool c_type) {
 		Match(pat.get()) {
-			Case(ignore_pattern) {
+			Case(ignore_pat_expr) {
 				return;
 			}
-			Case(unit_pattern) {
+			Case(unit_pat_expr) {
 				if (c_type) {
 					if (!symbol_table::UNIT_T->same(ty)) {
 						throw std::exception
@@ -447,7 +447,7 @@ namespace yk {
 				}
 				return;
 			}
-			Case(ident_pattern, Identifier) {
+			Case(ident_pat_expr, Identifier) {
 				// Just bind
 				if (c_type) {
 					res.push_back({ Identifier, ty });
@@ -457,7 +457,7 @@ namespace yk {
 				}
 				return;
 			}
-			Case(list_pattern, Elements) {
+			Case(list_pat_expr, Elements) {
 				if (c_type) {
 					if (auto tt = std::dynamic_pointer_cast<tuple_type_symbol>(ty)) {
 						if (tt->Elements.size() != Elements.size()) {

@@ -20,6 +20,6 @@ namespace yk {
 		void check(yvec<stmt*> const& prog);
 		void check_stmt(stmt* st);
 		type_symbol* check_expr(expr* exp);
-		type_symbol* check_type(type_desc* ty);
+		type_symbol* check_type(ty_expr* ty);
 	};
 }

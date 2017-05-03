@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../reporting/err_stream.h"
 #include "../reporting/err_msg.h"
 
 #define expect_error(what, note, parser)			\

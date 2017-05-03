@@ -1,5 +1,4 @@
-#include "stmt.h"
-#include "expr.h"
+#include "ast.h"
 
 namespace yk {
 	// Abstract statement class

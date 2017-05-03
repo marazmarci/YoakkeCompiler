@@ -2,8 +2,7 @@
 
 #include "yparser.h"
 #include "gen_rules.h"
-#include "../ast/expr.h"
-#include "../reporting/err_stream.h"
+#include "../ast/ast.h"
 
 namespace yk {
 	namespace expr_rules {
@@ -52,7 +51,7 @@ namespace yk {
 						|| (par.peek().Type == ytoken_t::Ident
 						&& par.peek(1).Type == ytoken_t::Colon)) {
 					// (<ident>:
-					std::vector<fnproto_expr::param_t> params;
+					yvec<fnproto_expr::param_t> params;
 					do {
 						yopt<token> id = par.match(ytoken_t::Ident);
 						if (par.match(ytoken_t::Colon)) {
@@ -69,7 +68,7 @@ namespace yk {
 					} while (par.match(ytoken_t::Comma));
 					// (<ident>: ...)
 					if (auto rpar = par.match(ytoken_t::Rpar)) {
-						ysptr<type_desc> rett = nullptr;
+						ysptr<ty_expr> rett = nullptr;
 						if (par.match(ytoken_t::Arrow)) {
 							// (<ident>: ...) ->
 							if (rett = par.parse_type_desc()) {
@@ -146,7 +145,7 @@ namespace yk {
 		public:
 			ysptr<expr> parse(token const& begin, yparser& par) override {
 				if (auto pat = par.parse_pattern()) {
-					ysptr<type_desc> type = nullptr;
+					ysptr<ty_expr> type = nullptr;
 					if (par.match(ytoken_t::Colon)) {
 						if (type = par.parse_type_desc()) {
 						}

@@ -10,9 +10,9 @@ Every expression used in the AST.
 
 namespace yk {
 	// Type declarations
-	class type_desc;
+	class ty_expr;
 	class param_expr;
-	class pattern;
+	class pat_expr;
 	class stmt;
 	class type_symbol;
 	class let_meta;
@@ -163,12 +163,12 @@ namespace yk {
 
 	public:
 		yvec<param_expr*> Parameters;
-		type_desc* ReturnType;
+		ty_expr* ReturnType;
 		ymap<ystr, node_tag*> Tags;
 
 	public:
 		func_proto(token const& beg, position const& end, 
-			yvec<param_expr*> const& pars, type_desc* rett,
+			yvec<param_expr*> const& pars, ty_expr* rett,
 			ymap<ystr, node_tag*> const& tags);
 		virtual ~func_proto();
 	};
@@ -201,12 +201,12 @@ namespace yk {
 	class param_expr : public expr {
 	public:
 		yopt<token> Name;
-		type_desc* Type;
+		ty_expr* Type;
 		typed_symbol* ValueSymbol;
 
 	public:
-		param_expr(token const& name, token const& col, type_desc* type);
-		param_expr(token const& col, type_desc* type);
+		param_expr(token const& name, token const& col, ty_expr* type);
+		param_expr(token const& col, ty_expr* type);
 		virtual ~param_expr();
 	};
 
@@ -215,13 +215,13 @@ namespace yk {
 		META_Visitable(let_expr, expr)
 
 	public:
-		pattern* Left;
-		type_desc* Type;
+		pat_expr* Left;
+		ty_expr* Type;
 		expr* Value;
 		yvec<ypair<var_symbol*, expr*>> Matched;
 
 	public:
-		let_expr(token const& beg, pattern* l, type_desc* t, expr* v);
+		let_expr(token const& beg, pat_expr* l, ty_expr* t, expr* v);
 		virtual ~let_expr();
 	};
 

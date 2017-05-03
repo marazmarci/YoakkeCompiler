@@ -1,7 +1,5 @@
 #include <cstdlib>
-#include "expr.h"
-#include "type_desc.h"
-#include "pattern.h"
+#include "ast.h"
 
 namespace yk {
 	// Abstract expression
@@ -84,7 +82,7 @@ namespace yk {
 
 	// Function prototype
 
-	fnproto_expr::fnproto_expr(token const& begpar, token const& endpar, yvec<param_t> params, ysptr<type_desc> ret)
+	fnproto_expr::fnproto_expr(token const& begpar, token const& endpar, yvec<param_t> params, ysptr<ty_expr> ret)
 		: expr(interval(begpar.Position, ret ? ret->Position : endpar.Position)),
 		Parameters(params), ReturnType(ret) {
 	}
@@ -93,7 +91,7 @@ namespace yk {
 
 	// Function expression
 
-	fn_expr::fn_expr(token const& begpar, yvec<param_t> params, ysptr<type_desc> ret, ysptr<block_expr> bd)
+	fn_expr::fn_expr(token const& begpar, yvec<param_t> params, ysptr<ty_expr> ret, ysptr<block_expr> bd)
 		: expr(interval(begpar.Position, bd->Position)),
 		Parameters(params), ReturnType(ret), Body(bd) {
 	}
@@ -102,7 +100,7 @@ namespace yk {
 
 	// Let expression
 
-	let_expr::let_expr(ysptr<pattern> pat, ysptr<type_desc> ty, ysptr<expr> val, token const& beg)
+	let_expr::let_expr(ysptr<pat_expr> pat, ysptr<ty_expr> ty, ysptr<expr> val, token const& beg)
 		: expr(interval(beg.Position, val ? val->Position : (ty ? ty->Position : pat->Position))),
 		Pattern(pat), Type(ty), Value(val) {
 	}

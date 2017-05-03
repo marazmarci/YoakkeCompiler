@@ -135,7 +135,7 @@ namespace yk {
 			expr* parse(token const& begin, expr_parser* parser) override {
 				yparser* ypar = reinterpret_cast<yparser*>(parser->parent());
 				yvec<param_expr*> params;
-				type_desc* rett = nullptr;
+				ty_expr* rett = nullptr;
 				expr* body = nullptr;
 				yopt<token> end = None;
 				if (parser->peek().identifier() != ")") {
@@ -195,7 +195,7 @@ namespace yk {
 					}
 					else {
 						proto = new func_proto(begin, position::get(end.get()), params, 
-							new ident_type_desc(token("unit", "unit")), tags);
+							new ident_ty_expr(token("unit", "unit")), tags);
 					}
 					if (body) {
 						return new func_expr(proto, body);
@@ -270,7 +270,7 @@ namespace yk {
 				yparser* ypar = reinterpret_cast<yparser*>(parser->parent());
 				auto patt = ypar->parse_pattern();
 				if (patt) {
-					type_desc* type = nullptr;
+					ty_expr* type = nullptr;
 					expr* val = nullptr;
 					if (parser->peek().identifier() == ":") {
 						parser->consume();
@@ -294,17 +294,17 @@ namespace yk {
 	}
 
 	namespace type_rules {
-		typedef prec_parser<type_desc> type_parser;
-		typedef prefix_parselet<type_desc, type_parser> type_pre_parselet;
-		typedef infix_parselet<type_desc, type_parser> type_in_parselet;
+		typedef prec_parser<ty_expr> type_parser;
+		typedef prefix_parselet<ty_expr, type_parser> type_pre_parselet;
+		typedef infix_parselet<ty_expr, type_parser> type_in_parselet;
 
-		using ident = common_rules::ident<type_desc, ident_type_desc>;
-		using binop = common_rules::binop<type_desc, bin_type_desc>;
-		using list = common_rules::list<type_desc, list_type_desc>;
+		using ident = common_rules::ident<ty_expr, ident_ty_expr>;
+		using binop = common_rules::binop<ty_expr, bin_ty_expr>;
+		using list = common_rules::list<ty_expr, list_ty_expr>;
 
 		class enclose : public type_pre_parselet {
 		public:
-			type_desc* parse(token const& begin, type_parser* parser) override {
+			ty_expr* parse(token const& begin, type_parser* parser) override {
 				auto sub = parser->parse();
 				if (parser->peek().identifier() == ")") {
 					auto end = parser->consume();
@@ -312,7 +312,7 @@ namespace yk {
 						return sub;
 					}
 					else {
-						return new ident_type_desc(token("unit", "unit"));
+						return new ident_ty_expr(token("unit", "unit"));
 					}
 				}
 				else {
@@ -323,24 +323,24 @@ namespace yk {
 	}
 
 	namespace pattern_rules {
-		typedef prec_parser<pattern> pattern_parser;
-		typedef prefix_parselet<pattern, pattern_parser> pattern_pre_parselet;
-		typedef infix_parselet<pattern, pattern_parser> pattern_in_parselet;
+		typedef prec_parser<pat_expr> pattern_parser;
+		typedef prefix_parselet<pat_expr, pattern_parser> pattern_pre_parselet;
+		typedef infix_parselet<pat_expr, pattern_parser> pattern_in_parselet;
 
-		using ident = common_rules::ident<pattern, ident_pattern>;
-		using binop = common_rules::binop<pattern, bin_pattern>;
-		using list = common_rules::list<pattern, list_pattern>;
+		using ident = common_rules::ident<pat_expr, ident_pat_expr>;
+		using binop = common_rules::binop<pat_expr, bin_pat_expr>;
+		using list = common_rules::list<pat_expr, list_pat_expr>;
 
 		class skip : public pattern_pre_parselet {
 		public:
-			pattern* parse(token const& begin, pattern_parser* parser) override {
+			pat_expr* parse(token const& begin, pattern_parser* parser) override {
 				return new skip_pattern(begin);
 			}
 		};
 
 		class enclose : public pattern_pre_parselet {
 		public:
-			pattern* parse(token const& begin, pattern_parser* parser) override {
+			pat_expr* parse(token const& begin, pattern_parser* parser) override {
 				auto sub = parser->parse();
 				if (sub) {
 					if (parser->peek().identifier() == ")") {
@@ -435,11 +435,11 @@ namespace yk {
 		return m_ExprParser.parse();
 	}
 
-	type_desc* yparser::parse_type() {
+	ty_expr* yparser::parse_type() {
 		return m_TypeParser.parse();
 	}
 
-	pattern* yparser::parse_pattern() {
+	pat_expr* yparser::parse_pattern() {
 		return m_PatternParser.parse();
 	}
 

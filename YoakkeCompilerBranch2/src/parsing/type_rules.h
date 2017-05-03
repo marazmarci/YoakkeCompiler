@@ -2,18 +2,18 @@
 
 #include "gen_rules.h"
 #include "yparser.h"
-#include "../ast/type_desc.h"
+#include "../ast/ast.h"
 
 namespace yk {
 	namespace type_rules {
-		using type_pre_parselet = prefix_parselet<type_desc, yparser>;
-		using type_in_parselet = infix_parselet<type_desc, yparser>;
+		using type_pre_parselet = prefix_parselet<ty_expr, yparser>;
+		using type_in_parselet = infix_parselet<ty_expr, yparser>;
 
-		using ident = gen_rules::pass<type_desc, ident_type_desc>;
+		using ident = gen_rules::pass<ty_expr, ident_ty_expr>;
 
 		class enclose : public type_pre_parselet {
 		public:
-			ysptr<type_desc> parse(token const& begin, yparser& par) override {
+			ysptr<ty_expr> parse(token const& begin, yparser& par) override {
 				if (auto sub = par.parse_type_desc()) {
 					if (par.match(ytoken_t::Rpar)) {
 						return sub;
@@ -25,7 +25,7 @@ namespace yk {
 				}
 				else {
 					if (auto end = par.match(ytoken_t::Rpar)) {
-						return std::make_shared<unit_type_desc>(begin, end.value());
+						return std::make_shared<unit_ty_expr>(begin, end.value());
 					}
 					else {
 						token const& tok = par.peek();
@@ -42,9 +42,9 @@ namespace yk {
 			}
 
 		public:
-			ysptr<type_desc> parse(
-				ysptr<type_desc> left, token const& begin, yparser& par) override {
-				auto ls = std::make_shared<list_type_desc>(left);
+			ysptr<ty_expr> parse(
+				ysptr<ty_expr> left, token const& begin, yparser& par) override {
+				auto ls = std::make_shared<list_ty_expr>(left);
 				do {
 					if (auto rhs = par.parse_type_desc(precedence() + 1)) {
 						ls->add(rhs);
@@ -65,10 +65,10 @@ namespace yk {
 			}
 
 		public:
-			ysptr<type_desc> parse(
-				ysptr<type_desc> left, token const& begin, yparser& par) override {
+			ysptr<ty_expr> parse(
+				ysptr<ty_expr> left, token const& begin, yparser& par) override {
 				if (auto rhs = par.parse_type_desc(precedence() - (Right ? 1 : 0))) {
-					return std::make_shared<bin_type_desc>(begin, left, rhs);
+					return std::make_shared<bin_ty_expr>(begin, left, rhs);
 				}
 				else {
 					expect_error("type", "", par);

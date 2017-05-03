@@ -122,9 +122,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\ast\expr.cpp" />
     <ClCompile Include="src\ast\node.cpp" />
-    <ClCompile Include="src\ast\pattern.cpp" />
+    <ClCompile Include="src\ast\pat_expr.cpp" />
     <ClCompile Include="src\ast\stmt.cpp" />
-    <ClCompile Include="src\ast\type_desc.cpp" />
+    <ClCompile Include="src\ast\ty_expr.cpp" />
     <ClCompile Include="src\reporting\err_msg.cpp" />
     <ClCompile Include="src\reporting\err_stream.cpp" />
     <ClCompile Include="src\utility\console.cpp" />
@@ -144,11 +144,12 @@
     <ClCompile Include="src\utility\fmt_out.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ast\ast.h" />
     <ClInclude Include="src\ast\expr.h" />
     <ClInclude Include="src\ast\node.h" />
-    <ClInclude Include="src\ast\pattern.h" />
+    <ClInclude Include="src\ast\pat_expr.h" />
     <ClInclude Include="src\ast\stmt.h" />
-    <ClInclude Include="src\ast\type_desc.h" />
+    <ClInclude Include="src\ast\ty_expr.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\reporting\err_msg.h" />
     <ClInclude Include="src\reporting\err_stream.h" />

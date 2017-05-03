@@ -8,13 +8,13 @@
 #include "../ast/node_tag.h"
 
 namespace yk {
-	typedef ypair<token, type_desc*> param_pair;
+	typedef ypair<token, ty_expr*> param_pair;
 
 	class yparser : public parser {
 	private:
 		prec_parser<expr> m_ExprParser;
-		prec_parser<type_desc> m_TypeParser;
-		prec_parser<pattern> m_PatternParser;
+		prec_parser<ty_expr> m_TypeParser;
+		prec_parser<pat_expr> m_PatternParser;
 
 	public:
 		yparser(token_buffer* buff);
@@ -26,8 +26,8 @@ namespace yk {
 		void infixr_expr(ystr const& op, ysize prec);
 
 		expr* parse_expr();
-		type_desc* parse_type();
-		pattern* parse_pattern();
+		ty_expr* parse_type();
+		pat_expr* parse_pattern();
 		param_expr* parse_param();
 		expr* parse_body();
 		stmt* parse_stmt();

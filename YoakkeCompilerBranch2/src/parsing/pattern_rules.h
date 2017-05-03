@@ -2,19 +2,19 @@
 
 #include "gen_rules.h"
 #include "yparser.h"
-#include "../ast/pattern.h"
+#include "../ast/ast.h"
 
 namespace yk {
 	namespace pat_rules {
-		using pat_pre_parselet	= prefix_parselet<pattern, yparser>;
-		using pat_in_parselet	= infix_parselet<pattern, yparser>;
+		using pat_pre_parselet	= prefix_parselet<pat_expr, yparser>;
+		using pat_in_parselet	= infix_parselet<pat_expr, yparser>;
 
-		using ident		= gen_rules::pass<pattern, ident_pattern>;
-		using ignore	= gen_rules::pass<pattern, ignore_pattern>;
+		using ident		= gen_rules::pass<pat_expr, ident_pat_expr>;
+		using ignore	= gen_rules::pass<pat_expr, ignore_pat_expr>;
 
 		class enclose : public pat_pre_parselet {
 		public:
-			ysptr<pattern> parse(token const& begin, yparser& par) override {
+			ysptr<pat_expr> parse(token const& begin, yparser& par) override {
 				if (auto sub = par.parse_pattern()) {
 					if (par.match(ytoken_t::Rpar)) {
 						return sub;
@@ -26,7 +26,7 @@ namespace yk {
 				}
 				else {
 					if (auto end = par.match(ytoken_t::Rpar)) {
-						return std::make_shared<unit_pattern>(begin, end.value());
+						return std::make_shared<unit_pat_expr>(begin, end.value());
 					}
 					else {
 						token const& tok = par.peek();
@@ -43,9 +43,9 @@ namespace yk {
 			}
 
 		public:
-			ysptr<pattern> parse(
-				ysptr<pattern> left, token const& begin, yparser& par) override {
-				auto ls = std::make_shared<list_pattern>(left);
+			ysptr<pat_expr> parse(
+				ysptr<pat_expr> left, token const& begin, yparser& par) override {
+				auto ls = std::make_shared<list_pat_expr>(left);
 				do {
 					if (auto rhs = par.parse_pattern(precedence() + 1)) {
 						ls->add(rhs);
@@ -66,10 +66,10 @@ namespace yk {
 			}
 
 		public:
-			ysptr<pattern> parse(
-				ysptr<pattern> left, token const& begin, yparser& par) override {
+			ysptr<pat_expr> parse(
+				ysptr<pat_expr> left, token const& begin, yparser& par) override {
 				if (auto rhs = parser.parse_expr(precedence() - (Right ? 1 : 0))) {
-					return std::make_shared<bin_pattern>(begin, left, rhs);
+					return std::make_shared<bin_pat_expr>(begin, left, rhs);
 				}
 				else {
 					expect_error("pattern", "", par);

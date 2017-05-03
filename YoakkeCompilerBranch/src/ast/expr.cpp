@@ -94,7 +94,7 @@ namespace yk {
 
 	// Function prototype
 	func_proto::func_proto(token const& beg, position const& end, 
-		yvec<param_expr*> const& pars, type_desc* rett,
+		yvec<param_expr*> const& pars, ty_expr* rett,
 		ymap<ystr, node_tag*> const& tags)
 		: expr(position::interval(position::get(beg), end)),
 		Parameters(pars), ReturnType(rett), Tags(tags) {
@@ -124,12 +124,12 @@ namespace yk {
 	body_expr::~body_expr() { }
 
 	// Parameter expr
-	param_expr::param_expr(token const& name, token const& col, type_desc* type)
+	param_expr::param_expr(token const& name, token const& col, ty_expr* type)
 		: expr(position::interval(position::get(name), type->Position)),
 		Name(name), Type(type) {
 	}
 
-	param_expr::param_expr(token const& col, type_desc* type)
+	param_expr::param_expr(token const& col, ty_expr* type)
 		: expr(position::interval(position::get(col), type->Position)),
 		Name(None), Type(type), ValueSymbol(nullptr) {
 	}
@@ -139,7 +139,7 @@ namespace yk {
 	}
 
 	// Let expression
-	let_expr::let_expr(token const& beg, pattern* l, type_desc* t, expr* v)
+	let_expr::let_expr(token const& beg, pat_expr* l, ty_expr* t, expr* v)
 		: expr(position::interval(position::get(beg),
 			v ? v->Position : (t ? t->Position : l->Position))),
 			Left(l), Type(t), Value(v) {

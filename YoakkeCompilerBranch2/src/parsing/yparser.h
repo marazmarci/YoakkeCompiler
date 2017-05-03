@@ -7,8 +7,8 @@
 
 namespace yk {
 	class expr;
-	class pattern;
-	class type_desc;
+	class pat_expr;
+	class ty_expr;
 	class stmt;
 	class block_expr;
 
@@ -19,8 +19,8 @@ namespace yk {
 		ylexer m_Lexer;
 
 		prec_parser<expr, yparser>		m_ExprParser;
-		prec_parser<pattern, yparser>	m_PatternParser;
-		prec_parser<type_desc, yparser> m_TypeDescParser;
+		prec_parser<pat_expr, yparser>	m_PatternParser;
+		prec_parser<ty_expr, yparser> m_TypeDescParser;
 
 	public:
 		yparser(ystr const& file);
@@ -29,8 +29,8 @@ namespace yk {
 		yvec<ysptr<stmt>> parse_program();
 		
 		ysptr<expr> parse_expr(ysize prec = 0);
-		ysptr<pattern> parse_pattern(ysize prec = 0);
-		ysptr<type_desc> parse_type_desc(ysize prec = 0);
+		ysptr<pat_expr> parse_pattern(ysize prec = 0);
+		ysptr<ty_expr> parse_type_desc(ysize prec = 0);
 		ysptr<stmt> parse_stmt();
 		ysptr<block_expr> parse_block(token const& begin);
 
