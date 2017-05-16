@@ -9,11 +9,11 @@ namespace yk {
 	class stmt;
 	class pat_expr;
 	class ty_expr;
-	class type_symbol;
+	class type;
 
 	class expr : public node {
 	public:
-		ysptr<type_symbol> HintType;
+		ysptr<type> HintType;
 		interval HintPosition;
 
 	protected:
