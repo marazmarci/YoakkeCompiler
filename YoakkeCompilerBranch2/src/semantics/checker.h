@@ -25,6 +25,9 @@ namespace yk {
 		ysptr<type>			check_type(ysptr<ty_expr> ty);
 
 	private:
+		ysptr<type> prune(ysptr<type> t);
+		void unify(ysptr<type> t1, ysptr<type> t2);
+
 		yvec<ypair<ystr, ysptr<type>>> match_pat(ysptr<pat_expr> pat, ysptr<type> ty);
 		void match_pat_impl(yvec<ypair<ystr, ysptr<type>>>& res, ysptr<pat_expr> pat, ysptr<type> ty);
 	};

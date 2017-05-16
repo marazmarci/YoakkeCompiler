@@ -1,6 +1,7 @@
 #include "symbol_table.h"
 #include "scope.h"
 #include "type.h"
+#include "var_sym.h"
 
 namespace yk {
 	ysptr<type> symbol_table::UNIT_T	= type_cons::create("unit");

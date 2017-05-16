@@ -64,9 +64,7 @@ namespace yk {
 			Case(asgn_expr, LHS, RHS) {
 				auto left = check_expr(LHS);
 				auto right = check_expr(RHS);
-				if (!left->matches(right)) {
-					throw std::exception("TODO: Assignment type mismatch!");
-				}
+				unify(left, right);
 				return symbol_table::UNIT_T;
 			}
 			Case(const_asgn_expr, LHS, RHS) {
@@ -215,9 +213,7 @@ namespace yk {
 					fin_sym = val_sym;
 				}
 				if (ty_sym && val_sym) {
-					if (!ty_sym->matches(val_sym)) {
-						throw std::exception("TODO: let type-value mismatch!");
-					}
+					unify(ty_sym, val_sym);
 				}
 				auto entries = match_pat(Pattern, fin_sym);
 				for (auto e : entries) {
@@ -271,6 +267,77 @@ namespace yk {
 			Otherwise() {
 				throw std::exception("Unhandled visit for semantic check (type)!");
 			}
+		}
+	}
+
+	ysptr<type> checker::prune(ysptr<type> t) {
+		Match(t.get()) {
+			Case(type_var, Instance) {
+				if (Instance) {
+					Instance = prune(Instance);
+					return Instance;
+				}
+				return t;
+			}
+			Otherwise() {
+				return t;
+			}
+		}
+	}
+	
+	void checker::unify(ysptr<type> t1, ysptr<type> t2) {
+		t1 = prune(t1);
+		t2 = prune(t2);
+		if (t1 == t2) {
+			return;
+		}
+
+		if (auto tt1 = std::dynamic_pointer_cast<type_cons>(t1)) {
+			if (auto tt2 = std::dynamic_pointer_cast<type_cons>(t2)) {
+				if (tt1->Name != tt2->Name) {
+					// TODO
+					throw std::exception(("TODO: " + t1->to_str() + " is not " + t2->to_str()).c_str());
+				}
+				if (tt1->Types.size() != tt2->Types.size()) {
+					// TODO
+					throw std::exception(("TODO: " + t1->to_str() + " has not as many types as " + t2->to_str()).c_str());
+				}
+				for (ysize i = 0; i < tt1->Types.size(); i++) {
+					unify(tt1->Types[i], tt1->Types[i]);
+				}
+			}
+			else if (auto tt2 = std::dynamic_pointer_cast<type_var>(t2)) {
+				if (t1->contains(std::dynamic_pointer_cast<type_var>(t2))) {
+					// TODO
+					throw std::exception(("TODO: " + t1->to_str() + " contains " + t2->to_str() + " so it's recursive").c_str());
+				}
+				else {
+					tt2->Instance = t1;
+				}
+			}
+			else {
+				throw std::exception("Unify uncovered case!");
+			}
+		}
+		else if (auto tt1 = std::dynamic_pointer_cast<type_var>(t1)) {
+			if (auto tt2 = std::dynamic_pointer_cast<type_cons>(t2)) {
+				if (tt2->contains(tt1)) {
+					// TODO
+					throw std::exception(("TODO: " + t2->to_str() + " contains " + t1->to_str() + " so it's recursive").c_str());
+				}
+				else {
+					tt1->Instance = tt2;
+				}
+			}
+			else if (auto tt2 = std::dynamic_pointer_cast<type_var>(t2)) {
+				tt2->Instance = tt1;
+			}
+			else {
+				throw std::exception("Unify uncovered case!");
+			}
+		}
+		else {
+			throw std::exception("Unify uncovered case!");
 		}
 	}
 
