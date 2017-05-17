@@ -4,7 +4,7 @@
 
 namespace yk {
 	scope::scope()
-		: Parent(nullptr) {
+		: Parent(nullptr), ReturnDest(false), ReturnType(nullptr) {
 	}
 
 	ysptr<var_sym> scope::ref(ystr const& id) {
@@ -59,5 +59,15 @@ namespace yk {
 		else {
 			it->second.push_back(var);
 		}
+	}
+
+	scope* scope::enclosing_return() {
+		if (ReturnDest) {
+			return this;
+		}
+		if (Parent) {
+			return Parent->enclosing_return();
+		}
+		return nullptr;
 	}
 }

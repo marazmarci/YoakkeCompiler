@@ -24,8 +24,9 @@ namespace yk {
 		void decl(ysptr<var_sym> v);
 		ysptr<var_sym> ref(ystr const& id);
 		ysptr<var_sym> ref(ystr const& id, ysptr<type> hint);
+		scope* enclosing_return();
 
-		void push();
+		ysptr<scope> push(bool ret_dest = false);
 		void pop();
 	};
 }

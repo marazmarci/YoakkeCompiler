@@ -25,10 +25,16 @@ namespace yk {
 		return m_CurrentScope->ref(id, hint);
 	}
 
-	void symbol_table::push() {
+	scope* symbol_table::enclosing_return() {
+		return m_CurrentScope->enclosing_return();
+	}
+
+	ysptr<scope> symbol_table::push(bool ret_dest) {
 		auto sc = std::make_shared<scope>();
+		sc->ReturnDest = ret_dest;
 		sc->Parent = m_CurrentScope;
 		m_CurrentScope = sc;
+		return sc;
 	}
 
 	void symbol_table::pop() {

@@ -5,6 +5,7 @@
 #include "var_sym.h"
 #include "../reporting/err_stream.h"
 #include "../reporting/err_msg.h"
+#include "scope.h"
 
 namespace yk {
 	checker::checker(file_handle const& f)
@@ -14,7 +15,33 @@ namespace yk {
 	void checker::check_stmt(ysptr<stmt> st) {
 		Match(st.get()) {
 			Case(expr_stmt, Expression, Semicol, Return) {
-				check_expr(Expression);
+				if (auto braced = std::dynamic_pointer_cast<braced_expr>(Expression)) {
+					// Braced statements are not return destinations
+					braced->ReturnDestination = false;
+					check_expr(Expression);
+				}
+				else if (
+					!Semicol
+					&& !std::dynamic_pointer_cast<const_asgn_expr>(Expression)
+					) {
+					// Not a constant assignment and does not end with semicolon
+					Return = true;
+					auto ret_ty = check_expr(Expression);
+					auto ret_dest = m_Table.enclosing_return();
+					if (!ret_dest) {
+						throw std::exception("Sanity error: no enclosing return destination!");
+					}
+					if (auto o_ret_ty = ret_dest->ReturnType) {
+						unify(ret_ty, o_ret_ty);
+					}
+					else {
+						ret_dest->ReturnType = ret_ty;
+						ret_dest->ReturnPos = st->Position;
+					}
+				}
+				else {
+					check_expr(Expression);
+				}
 			}
 			Otherwise() {
 				throw std::exception("Unhandled visit for semantic check (statement)!");
@@ -112,21 +139,25 @@ namespace yk {
 				}
 			}
 			Case(block_expr, Statements, ReturnDestination, Scope) {
-				// TODO: return type, dest
-				m_Table.push();
+				auto sc = m_Table.push(ReturnDestination);
 				for (auto st : Statements) {
 					check_stmt(st);
 				}
 				m_Table.pop();
-				return symbol_table::UNIT_T;
+				if (auto ret_ty = sc->ReturnType) {
+					return ret_ty;
+				}
+				else {
+					return symbol_table::UNIT_T;
+				}
 			}
 			Case(fnproto_expr, Parameters, ReturnType) {
 				// TODO
 			}
 			Case(fn_expr, Parameters, ReturnType, Body) {
 				// TODO: warn if no parameter name
-				// TODO: Functions stop returning anyways, mark it!
-				m_Table.push();
+				// TODO: error if same parameter name
+				auto sc = m_Table.push(true);
 
 				// Parameters ////////////////////////////////////////
 				yvec<ysptr<type>> params;
@@ -142,57 +173,44 @@ namespace yk {
 				//////////////////////////////////////////////////////
 
 				// Return type
-				ysptr<type> ret = nullptr;
+				ysptr<type> ret_t = nullptr;
 				if (ReturnType) {
-					ret = check_type(ReturnType);
+					ret_t = check_type(ReturnType);
 				}
 				else {
-					ret = symbol_table::UNIT_T;
+					ret_t = symbol_table::UNIT_T;
 				}
 
 				// Create the type
 				ysptr<type> fn_ty;
 				if (params.empty()) {
 					fn_ty = type_cons::create
-						("Function", symbol_table::UNIT_T, ret);
+						("Function", symbol_table::UNIT_T, ret_t);
 				}
 				else if (params.size() > 1) {
 					ysptr<type> par_tpl =
 						std::make_shared<type_cons>("Tuple", params);
 					fn_ty = type_cons::create
-						("Function", par_tpl, ret);
+						("Function", par_tpl, ret_t);
 				}
 				else {
 					fn_ty = type_cons::create
-						("Function", params[0], ret);
+						("Function", params[0], ret_t);
 				}
 
 				auto body_t = check_expr(Body);
 				m_Table.pop();
 
 				// Check if body returned what return type needs
-				/*
-				if (!ret->same(body_t)) {
-					if (ReturnType) {
-						if (Body->Scope->get_return_type()) {
-							// TODO: Add message
-							rep::err_stream::report(
-								rep::type_mismatch(
-									m_File,
-									ReturnType->Position,
-									Body->Scope->get_return_type_pos()
-								)
-							);
-						}
-						else {
-							throw std::exception("TODO: function return type mismatch! (body no return)");
-						}
-					}
-					else {
-						throw std::exception("TODO: function return type mismatch! (nopos)");
-					}
+				if (ret_t && body_t) {
+					unify(ret_t, body_t);
 				}
-				*/
+				else if (ret_t) {
+					throw std::exception("TODO: function return type mismatch! (body no return)");
+				}
+				else if (body_t) {
+					throw std::exception("TODO: function return type mismatch! (no annotation)");
+				}
 
 				return fn_ty;
 			}
