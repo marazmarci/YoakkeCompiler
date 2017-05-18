@@ -89,8 +89,8 @@ namespace yk {
 	yvec<ysptr<stmt>> yparser::parse_program() {
 		yvec<ysptr<stmt>> ls;
 		while (auto st = parse_stmt()) {
-			if (auto exp = std::dynamic_pointer_cast<expr_stmt>(st)) {
-				if (std::dynamic_pointer_cast<const_asgn_expr>(exp->Expression)) {
+			if (auto exp = dyn_cast<expr_stmt>(st)) {
+				if (dyn_cast<const_asgn_expr>(exp->Expression)) {
 				}
 				else {
 					throw std::exception("TODO error: only const asgn can be global");

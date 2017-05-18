@@ -2,7 +2,6 @@
 #include "../utility/match.h"
 
 namespace yk {
-
 	// Type variable
 
 	ysize type_var::s_IDcount = 0;
@@ -55,6 +54,8 @@ namespace yk {
 				throw std::exception("matches() sanity!");
 			}
 		}
+		// TODO: assert
+		return false;
 	}
 
 	bool type_cons::contains(ysptr<type_var> t) const {
@@ -76,5 +77,45 @@ namespace yk {
 			res += '>';
 		}
 		return res;
+	}
+
+	// Tuple type constructor
+
+	tuple_type_cons::tuple_type_cons(yvec<ysptr<type>> const& ts)
+		: type_cons("Tuple", ts) {
+	}
+
+	// Function type constructor
+
+	fn_type_cons::fn_type_cons(yvec<ysptr<type>> const& ts)
+		: type_cons("Function", ts) {
+	}
+
+	bool fn_type_cons::matches(ysptr<type> t) const {
+		Match(t.get()) {
+			Case(type_var) {
+				return true;
+			}
+			Case(type_cons, Name, Types) {
+				if (this->Name != Name) {
+					return false;
+				}
+				if (this->Types.size() != Types.size()) {
+					return false;
+				}
+				// TODO: assert Types.size() == 2
+				for (ysize i = 0; i < Types.size() - 1; i++) {
+					if (!this->Types[i]->matches(Types[i])) {
+						return false;
+					}
+				}
+				return true;
+			}
+			Otherwise() {
+				throw std::exception("matches() sanity!");
+			}
+		}
+		// TODO: assert
+		return false;
 	}
 }

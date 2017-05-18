@@ -4,6 +4,9 @@
 #include "../lexing/token.h"
 
 namespace yk {
+	/*
+	Base-class of type expressions.
+	*/
 	class ty_expr : public node {
 	protected:
 		ty_expr(interval const& pos);
@@ -12,12 +15,18 @@ namespace yk {
 		virtual ~ty_expr();
 	};
 
+	/*
+	Unit or empty tuple type.
+	*/
 	class unit_ty_expr : public ty_expr {
 	public:
 		unit_ty_expr(token const& beg, token const& end);
 		virtual ~unit_ty_expr();
 	};
 
+	/*
+	Identifier type.
+	*/
 	class ident_ty_expr : public ty_expr {
 	public:
 		ystr Identifier;
@@ -27,6 +36,9 @@ namespace yk {
 		virtual ~ident_ty_expr();
 	};
 
+	/*
+	Binary type construct.
+	*/
 	class bin_ty_expr : public ty_expr {
 	public:
 		token Operator;
@@ -38,6 +50,9 @@ namespace yk {
 		virtual ~bin_ty_expr();
 	};
 
+	/*
+	List or tuple type.
+	*/
 	class list_ty_expr : public ty_expr {
 	public:
 		yvec<ysptr<ty_expr>> Elements;

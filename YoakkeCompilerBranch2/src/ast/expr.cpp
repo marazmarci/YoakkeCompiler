@@ -13,7 +13,7 @@ namespace yk {
 	// Braced expression (does not inherit from expression)
 
 	braced_expr::braced_expr()
-		: ReturnDestination(true) {
+		: ReturnDest(true) {
 	}
 
 	braced_expr::~braced_expr() { }
@@ -49,6 +49,63 @@ namespace yk {
 	}
 
 	real_lit_expr::~real_lit_expr() { }
+
+	// Unary expression
+
+	ury_expr::ury_expr(token const& op, ysptr<expr> sub, interval const& pos)
+		: expr(pos), Operator(op), Sub(sub) {
+	}
+
+	ury_expr::~ury_expr() { }
+
+	// Prefix unary expression
+
+	preury_expr::preury_expr(token const& op, ysptr<expr> sub)
+		: ury_expr(op, sub, interval(op.Position, sub->Position)) {
+	}
+
+	preury_expr::~preury_expr() { }
+
+	// Postfix unary expression
+
+	postury_expr::postury_expr(token const& op, ysptr<expr> sub)
+		: ury_expr(op, sub, interval(sub->Position, op.Position)) {
+	}
+
+	postury_expr::~postury_expr() { }
+
+	// Binary expression
+
+	bin_expr::bin_expr(token const& op, ysptr<expr> lhs, ysptr<expr> rhs)
+		: expr(interval(lhs->Position, rhs->Position)),
+		Operator(op), LHS(lhs), RHS(rhs) {
+	}
+
+	bin_expr::~bin_expr() { }
+
+	// Binary operation expression
+
+	binop_expr::binop_expr(token const& op, ysptr<expr> lhs, ysptr<expr> rhs)
+		: bin_expr(op, lhs, rhs) {
+	}
+
+	binop_expr::~binop_expr() { }
+
+	// Assignment expression
+
+	asgn_expr::asgn_expr(token const& op, ysptr<expr> lhs, ysptr<expr> rhs)
+		: bin_expr(op, lhs, rhs) {
+	}
+
+	asgn_expr::~asgn_expr() { }
+
+	// Constant assignment expression
+
+	const_asgn_expr::const_asgn_expr(token const& op, ysptr<expr> lhs, ysptr<expr> rhs)
+		: bin_expr(op, lhs, rhs) {
+	}
+
+	const_asgn_expr::~const_asgn_expr() { }
 
 	// List expression
 

@@ -4,6 +4,9 @@
 #include "../lexing/token.h"
 
 namespace yk {
+	/*
+	Base-class for pattern expressions.
+	*/
 	class pat_expr : public node {
 	protected:
 		pat_expr(interval const& pos);
@@ -12,18 +15,27 @@ namespace yk {
 		virtual ~pat_expr();
 	};
 
+	/*
+	Ignore pattern for don't-care values.
+	*/
 	class ignore_pat_expr : public pat_expr {
 	public:
 		ignore_pat_expr(token const& tok);
 		virtual ~ignore_pat_expr();
 	};
 
+	/*
+	Empty list or tuple matcher.
+	*/
 	class unit_pat_expr : public pat_expr {
 	public:
 		unit_pat_expr(token const& beg, token const& end);
 		virtual ~unit_pat_expr();
 	};
 
+	/*
+	Identifier pattern.
+	*/
 	class ident_pat_expr : public pat_expr {
 	public:
 		ystr Identifier;
@@ -33,6 +45,9 @@ namespace yk {
 		virtual ~ident_pat_expr();
 	};
 
+	/*
+	Binary pattern (currently unused).
+	*/
 	class bin_pat_expr : public pat_expr {
 	public:
 		token Operator;
@@ -44,6 +59,9 @@ namespace yk {
 		virtual ~bin_pat_expr();
 	};
 
+	/*
+	List or tuple pattern.
+	*/
 	class list_pat_expr : public pat_expr {
 	public:
 		yvec<ysptr<pat_expr>> Elements;

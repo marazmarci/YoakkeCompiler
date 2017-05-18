@@ -15,15 +15,14 @@ namespace yk {
 	void checker::check_stmt(ysptr<stmt> st) {
 		Match(st.get()) {
 			Case(expr_stmt, Expression, Semicol, Return) {
-				if (auto braced = std::dynamic_pointer_cast<braced_expr>(Expression)) {
+				if (auto braced = dyn_cast<braced_expr>(Expression)) {
 					// Braced statements are not return destinations
-					braced->ReturnDestination = false;
+					braced->ReturnDest = false;
 					check_expr(Expression);
 				}
 				else if (
 					!Semicol
-					&& !std::dynamic_pointer_cast<const_asgn_expr>(Expression)
-					) {
+					&& !dyn_cast<const_asgn_expr>(Expression)) {
 					// Not a constant assignment and does not end with semicolon
 					Return = true;
 					auto ret_ty = check_expr(Expression);
@@ -56,20 +55,33 @@ namespace yk {
 			}
 			Case(ident_expr, Identifier) {
 				ysptr<var_sym> sym = nullptr;
-				// TODO: Hint change?
+				bool hint_change = false;
 				if (ex->HintType) {
-					sym = m_Table.ref(Identifier, ex->HintType);
+					auto res = m_Table.ref(Identifier, ex->HintType);
+					sym = res.first;
+					hint_change = res.second;
 				}
 				else {
 					sym = m_Table.ref(Identifier);
 				}
 
 				if (!sym) {
-					rep::err_stream::report(
-						rep::no_such_symbol(m_File,
-							Identifier, ex->Position
-						)
-					);
+					if (hint_change) {
+						rep::err_stream::report(
+							rep::no_such_symbol(m_File,
+								Identifier, ex->Position,
+								"The hint type supported is wrong!",
+								ex->HintPosition
+							)
+						);
+					}
+					else {
+						rep::err_stream::report(
+							rep::no_such_symbol(m_File,
+								Identifier, ex->Position
+							)
+						);
+					}
 				}
 				return sym->Type;
 			}
@@ -95,9 +107,10 @@ namespace yk {
 				return symbol_table::UNIT_T;
 			}
 			Case(const_asgn_expr, LHS, RHS) {
-				auto left = std::dynamic_pointer_cast<ident_expr>(LHS);
+				auto left = dyn_cast<ident_expr>(LHS);
 				auto right = check_expr(RHS);
-				auto sym_d = m_Table.ref(left->Identifier, right);
+				// TODO: Generalize function return type!
+				auto sym_d = m_Table.ref(left->Identifier, right).first;
 				if (sym_d) {
 					std::string err = "TODO: cannot shadow constant assignment: " + left->Identifier;
 					throw std::exception(err.c_str());
@@ -123,12 +136,11 @@ namespace yk {
 					args_ty = symbol_table::UNIT_T;
 				}
 				// Create hint type
-				auto dummy_ty = type_cons::create
-					("Function", args_ty, type_var::create());
+				auto dummy_ty = fn_type_cons::create(args_ty, type_var::create());
 				// Help call with filtering
 				Function->HintType = dummy_ty;
 				auto fn_ty = check_expr(Function);
-				if (auto tt = std::dynamic_pointer_cast<type_cons>(fn_ty)) {
+				if (auto tt = dyn_cast<type_cons>(fn_ty)) {
 					if (tt->Name != "Function") {
 						throw std::exception("TODO: cannot call non-function expression!");
 					}
@@ -138,8 +150,8 @@ namespace yk {
 					throw std::exception("TODO: cannot call non-function expression!");
 				}
 			}
-			Case(block_expr, Statements, ReturnDestination, Scope) {
-				auto sc = m_Table.push(ReturnDestination);
+			Case(block_expr, Statements, ReturnDest) {
+				auto sc = m_Table.push(ReturnDest);
 				for (auto st : Statements) {
 					check_stmt(st);
 				}
@@ -184,18 +196,15 @@ namespace yk {
 				// Create the type
 				ysptr<type> fn_ty;
 				if (params.empty()) {
-					fn_ty = type_cons::create
-						("Function", symbol_table::UNIT_T, ret_t);
+					fn_ty = fn_type_cons::create(symbol_table::UNIT_T, ret_t);
 				}
 				else if (params.size() > 1) {
 					ysptr<type> par_tpl =
 						std::make_shared<type_cons>("Tuple", params);
-					fn_ty = type_cons::create
-						("Function", par_tpl, ret_t);
+					fn_ty = fn_type_cons::create(par_tpl, ret_t);
 				}
 				else {
-					fn_ty = type_cons::create
-						("Function", params[0], ret_t);
+					fn_ty = fn_type_cons::create(params[0], ret_t);
 				}
 
 				auto body_t = check_expr(Body);
@@ -252,6 +261,8 @@ namespace yk {
 				throw std::exception("Unhandled visit for semantic check (expression)!");
 			}
 		}
+		// TODO: assert
+		return nullptr;
 	}
 
 	ysptr<type> checker::check_type(ysptr<ty_expr> ty) {
@@ -269,7 +280,7 @@ namespace yk {
 				if (Operator.Type == ytoken_t::Arrow) {
 					auto left = check_type(LHS);
 					auto right = check_type(RHS);
-					return type_cons::create("Function", left, right);
+					return fn_type_cons::create(left, right);
 				}
 				else {
 					throw std::exception("TODO: no such type operator");
@@ -286,6 +297,8 @@ namespace yk {
 				throw std::exception("Unhandled visit for semantic check (type)!");
 			}
 		}
+		// TODO: assert
+		return nullptr;
 	}
 
 	ysptr<type> checker::prune(ysptr<type> t) {
@@ -301,6 +314,8 @@ namespace yk {
 				return t;
 			}
 		}
+		// TODO: assert
+		return nullptr;
 	}
 	
 	void checker::unify(ysptr<type> t1, ysptr<type> t2) {
@@ -310,8 +325,8 @@ namespace yk {
 			return;
 		}
 
-		if (auto tt1 = std::dynamic_pointer_cast<type_cons>(t1)) {
-			if (auto tt2 = std::dynamic_pointer_cast<type_cons>(t2)) {
+		if (auto tt1 = dyn_cast<type_cons>(t1)) {
+			if (auto tt2 = dyn_cast<type_cons>(t2)) {
 				if (tt1->Name != tt2->Name) {
 					// TODO
 					throw std::exception(("TODO: " + t1->to_str() + " is not " + t2->to_str()).c_str());
@@ -324,8 +339,8 @@ namespace yk {
 					unify(tt1->Types[i], tt1->Types[i]);
 				}
 			}
-			else if (auto tt2 = std::dynamic_pointer_cast<type_var>(t2)) {
-				if (t1->contains(std::dynamic_pointer_cast<type_var>(t2))) {
+			else if (auto tt2 = dyn_cast<type_var>(t2)) {
+				if (t1->contains(dyn_cast<type_var>(t2))) {
 					// TODO
 					throw std::exception(("TODO: " + t1->to_str() + " contains " + t2->to_str() + " so it's recursive").c_str());
 				}
@@ -337,8 +352,8 @@ namespace yk {
 				throw std::exception("Unify uncovered case!");
 			}
 		}
-		else if (auto tt1 = std::dynamic_pointer_cast<type_var>(t1)) {
-			if (auto tt2 = std::dynamic_pointer_cast<type_cons>(t2)) {
+		else if (auto tt1 = dyn_cast<type_var>(t1)) {
+			if (auto tt2 = dyn_cast<type_cons>(t2)) {
 				if (tt2->contains(tt1)) {
 					// TODO
 					throw std::exception(("TODO: " + t2->to_str() + " contains " + t1->to_str() + " so it's recursive").c_str());
@@ -347,7 +362,7 @@ namespace yk {
 					tt1->Instance = tt2;
 				}
 			}
-			else if (auto tt2 = std::dynamic_pointer_cast<type_var>(t2)) {
+			else if (auto tt2 = dyn_cast<type_var>(t2)) {
 				tt2->Instance = tt1;
 			}
 			else {
@@ -391,7 +406,7 @@ namespace yk {
 			}
 			Case(list_pat_expr, Elements) {
 				if (ty) {
-					if (auto tt = std::dynamic_pointer_cast<type_cons>(ty)) {
+					if (auto tt = dyn_cast<type_cons>(ty)) {
 						if (tt->Name != "Tuple") {
 							throw std::exception("TODO: Cannot match non-tuple with tuple");
 						}

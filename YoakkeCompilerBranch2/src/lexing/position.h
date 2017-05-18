@@ -3,6 +3,9 @@
 #include "../common.h"
 
 namespace yk {
+	/*
+	A single x, y position in files.
+	*/
 	class position {
 	public:
 		ysize Row;
@@ -12,6 +15,9 @@ namespace yk {
 		position(ysize r, ysize c);
 	};
 
+	/*
+	Represents an interval (x1, y1) to (x2, y2) in a file.
+	*/
 	class interval {
 	public:
 		position Start;

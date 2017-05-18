@@ -3,9 +3,9 @@
 #include "../common.h"
 
 namespace yk {
-	struct type;
+	class type;
 
-	struct var_sym {
+	class var_sym {
 	public:
 		ystr		Name;
 		ysptr<type> Type;
@@ -14,12 +14,12 @@ namespace yk {
 		var_sym(ystr const& n, ysptr<type> t);
 	};
 
-	struct variable : public var_sym {
+	class variable : public var_sym {
 	public:
 		variable(ystr const& n, ysptr<type> t);
 	};
 
-	struct constant : public var_sym {
+	class constant : public var_sym {
 	public:
 		constant(ystr const& n, ysptr<type> t);
 	};

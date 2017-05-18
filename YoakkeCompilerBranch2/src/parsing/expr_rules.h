@@ -111,6 +111,8 @@ namespace yk {
 						expect_error("expression", "", par);
 					}
 				}
+				// TODO: assert
+				return nullptr;
 			}
 		};
 
@@ -254,7 +256,7 @@ namespace yk {
 
 		public:
 			bool matches(ysptr<expr> left, yparser& par) override {
-				return std::dynamic_pointer_cast<ident_expr>(left) != nullptr;
+				return dyn_cast<ident_expr>(left) != nullptr;
 			}
 		};
 

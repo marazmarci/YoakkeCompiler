@@ -3,8 +3,8 @@
 #include "../common.h"
 
 namespace yk {
-	struct type;
-	struct var_sym;
+	class type;
+	class var_sym;
 	class scope;
 
 	class symbol_table {
@@ -23,7 +23,7 @@ namespace yk {
 	public:
 		void decl(ysptr<var_sym> v);
 		ysptr<var_sym> ref(ystr const& id);
-		ysptr<var_sym> ref(ystr const& id, ysptr<type> hint);
+		ypair<ysptr<var_sym>, bool> ref(ystr const& id, ysptr<type> hint);
 		scope* enclosing_return();
 
 		ysptr<scope> push(bool ret_dest = false);

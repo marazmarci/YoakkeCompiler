@@ -57,4 +57,14 @@ namespace yk {
 		class Allocator = std::allocator< std::pair<const Key, T> >
 	>
 	using yhash_map = std::unordered_map<Key, T, Hash, KeyEqual, Allocator>;
+
+	template< class T, class U >
+	ysptr<T> dyn_cast(ysptr<U> const& r) {
+		if (auto p = dynamic_cast<typename ysptr<T>::element_type*>(r.get())) {
+			return ysptr<T>(r, p);
+		}
+		else {
+			return ysptr<T>();
+		}
+	}
 }

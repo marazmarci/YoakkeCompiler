@@ -23,28 +23,28 @@ namespace yk {
 		}
 	}
 
-	ysptr<var_sym> scope::ref(ystr const& id, ysptr<type> hint) {
+	ypair<ysptr<var_sym>, bool> scope::ref(ystr const& id, ysptr<type> hint) {
 		auto it = Entries.find(id);
 		if (it == Entries.end()) {
 			if (Parent) {
 				return Parent->ref(id, hint);
 			}
 			else {
-				return nullptr;
+				return { nullptr, false };
 			}
 		}
 		else {
 			auto& list = it->second;
 			for (auto it2 = list.rbegin(); it2 != list.rend(); ++it2) {
 				if ((*it2)->Type->matches(hint)) {
-					return *it2;
+					return { *it2, it2 != list.rbegin() };
 				}
 			}
 			if (Parent) {
 				return Parent->ref(id, hint);
 			}
 			else {
-				return nullptr;
+				return { nullptr, true };
 			}
 		}
 	}
