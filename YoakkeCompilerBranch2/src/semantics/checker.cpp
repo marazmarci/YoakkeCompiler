@@ -14,10 +14,11 @@ namespace yk {
 
 	void checker::check_stmt(stmt const& st) {
 		match(st.Data) (
-			[this, &st](ysptr<expr_stmt> exp) {
-				auto& sub = exp->get<0>();
-				auto& semicol = exp->get<1>();
-				auto& do_ret = exp->get<2>();
+			[&](ysptr<expr_stmt> exp) {
+				auto& sub		= exp->get<0>();
+				auto& semicol	= exp->get<1>();
+				auto& do_ret	= exp->get<2>();
+
 				if (bool* ret_dst = get_braced(*sub)) {
 					// Braced statements are not return destinations
 					*ret_dst = false;
@@ -50,11 +51,12 @@ namespace yk {
 
 	ysptr<type> checker::check_expr(expr const& ex) {
 		return match(ex.Data) (
-			[](ysptr<unit_expr>) -> ysptr<type> {
+			[&](ysptr<unit_expr>) -> ysptr<type> {
 				return symbol_table::UNIT_T;
 			},
-			[this, &ex](ysptr<ident_expr> ie) -> ysptr<type> {
+			[&](ysptr<ident_expr> ie) -> ysptr<type> {
 				auto& ident = ie->get<0>();
+
 				ysptr<var_sym> sym = nullptr;
 				bool hint_change = false;
 				if (ex.HintType) {
@@ -84,31 +86,33 @@ namespace yk {
 				}
 				return sym->Type;
 			},
-			[](ysptr<int_lit_expr>) -> ysptr<type> {
+			[&](ysptr<int_lit_expr>) -> ysptr<type> {
 				return symbol_table::I32_T;
 			},
-			[](ysptr<real_lit_expr>) -> ysptr<type> {
+			[&](ysptr<real_lit_expr>) -> ysptr<type> {
 				return symbol_table::F32_T;
 			},
-			[](ysptr<preury_expr>) -> ysptr<type> {
+			[&](ysptr<preury_expr>) -> ysptr<type> {
 				// TODO
 				return nullptr;
 			},
-			[](ysptr<postury_expr>) -> ysptr<type> {
+			[&](ysptr<postury_expr>) -> ysptr<type> {
 				// TODO
 				return nullptr;
 			},
-			[](ysptr<binop_expr>) -> ysptr<type> {
+			[&](ysptr<binop_expr>) -> ysptr<type> {
 				// TODO
 				return nullptr;
 			},
-			[this](ysptr<asgn_expr> ae) -> ysptr<type> {
-				auto left = check_expr(ae->get<1>());
-				auto right = check_expr(ae->get<2>());
+			[&](ysptr<asgn_expr> ae) -> ysptr<type> {
+				// Don't need get<0> because it's the operator
+				auto left	= check_expr(ae->get<1>());
+				auto right	= check_expr(ae->get<2>());
 				unify(left, right);
 				return symbol_table::UNIT_T;
 			},
-			[this](ysptr<const_asgn_expr> ce) -> ysptr<type> {
+			[&](ysptr<const_asgn_expr> ce) -> ysptr<type> {
+				// Don't need get<0> because it's the operator
 				auto& left = std::get<ysptr<ident_expr>>(ce->get<1>().Data);
 				auto const& right = check_expr(ce->get<2>());
 				auto& ident = left->get<0>();
@@ -123,18 +127,20 @@ namespace yk {
 				m_Table.decl(sym);
 				return symbol_table::UNIT_T;
 			},
-			[this](ysptr<list_expr> le) -> ysptr<type> {
+			[&](ysptr<list_expr> le) -> ysptr<type> {
 				auto& elements = le->get<0>();
+
 				yvec<ysptr<type>> types;
 				for (auto e : elements) {
 					types.push_back(check_expr(e));
 				}
 				return std::make_shared<type_cons>("Tuple", types);
 			},
-			[this](ysptr<call_expr> ce) -> ysptr<type> {
+			[&](ysptr<call_expr> ce) -> ysptr<type> {
+				auto& function	= ce->get<0>();
+				auto& args		= ce->get<1>();
+
 				ysptr<type> args_ty = nullptr;
-				auto& function = ce->get<0>();
-				auto& args = ce->get<1>();
 				if (args) {
 					args_ty = check_expr(*args);
 				}
@@ -156,9 +162,10 @@ namespace yk {
 					throw std::exception("TODO: cannot call non-function expression!");
 				}
 			},
-			[this](ysptr<block_expr> be) -> ysptr<type> {
-				auto& statements = be->get<0>();
-				auto& ret_dest = be->get<1>();
+			[&](ysptr<block_expr> be) -> ysptr<type> {
+				auto& statements	= be->get<0>();
+				auto& ret_dest		= be->get<1>();
+
 				auto sc = m_Table.push(ret_dest);
 				for (auto st : statements) {
 					check_stmt(st);
@@ -171,14 +178,15 @@ namespace yk {
 					return symbol_table::UNIT_T;
 				}
 			},
-			[](ysptr<fnproto_expr>) -> ysptr<type> {
+			[&](ysptr<fnproto_expr>) -> ysptr<type> {
 				// TODO
 				return nullptr;
 			},
-			[this](ysptr<fn_expr> fe) -> ysptr<type> {
-				auto& parameters = fe->get<0>();
-				auto& returntype = fe->get<1>();
-				auto& body = fe->get<2>();
+			[&](ysptr<fn_expr> fe) -> ysptr<type> {
+				auto& parameters	= fe->get<0>();
+				auto& returntype	= fe->get<1>();
+				auto& body			= fe->get<2>();
+
 				// TODO: warn if no parameter name
 				// TODO: error if same parameter name
 				auto sc = m_Table.push(true);
@@ -235,10 +243,11 @@ namespace yk {
 
 				return fn_ty;
 			},
-			[this](ysptr<let_expr> le) -> ysptr<type> {
-				auto& pattern = le->get<0>();
-				auto& ttype = le->get<1>();
-				auto& value = le->get<2>();
+			[&](ysptr<let_expr> le) -> ysptr<type> {
+				auto& pattern	= le->get<0>();
+				auto& ttype		= le->get<1>();
+				auto& value		= le->get<2>();
+
 				ysptr<type> fin_sym = nullptr;
 				ysptr<type> ty_sym = nullptr;
 				ysptr<type> val_sym = nullptr;
@@ -277,18 +286,20 @@ namespace yk {
 
 	ysptr<type> checker::check_type(ty_expr const& ty) {
 		return match(ty.Data) (
-			[](ysptr<unit_ty_expr>) -> ysptr<type> {
+			[&](ysptr<unit_ty_expr>) -> ysptr<type> {
 				return symbol_table::UNIT_T;
 			},
-			[](ysptr<ident_ty_expr> ie) -> ysptr<type> {
+			[&](ysptr<ident_ty_expr> ie) -> ysptr<type> {
 				auto& ident = ie->get<0>();
+
 				// TODO: real type lookup
 				if (ident == "i32") return symbol_table::I32_T;
 				if (ident == "f32") return symbol_table::F32_T;
 				return nullptr;
 			},
-			[this](ysptr<bin_ty_expr> be) -> ysptr<type> {
+			[&](ysptr<bin_ty_expr> be) -> ysptr<type> {
 				auto& oper = be->get<0>();
+
 				if (oper.Type == ytoken_t::Arrow) {
 					auto left = check_type(be->get<1>());
 					auto right = check_type(be->get<2>());
@@ -298,8 +309,9 @@ namespace yk {
 					throw std::exception("TODO: no such type operator");
 				}
 			},
-			[this](ysptr<list_ty_expr> le) -> ysptr<type> {
+			[&](ysptr<list_ty_expr> le) -> ysptr<type> {
 				auto& elements = le->get<0>();
+
 				yvec<ysptr<type>> syms;
 				for (auto& el : elements) {
 					syms.push_back(check_type(el));
@@ -379,10 +391,10 @@ namespace yk {
 	}
 
 	bool* checker::get_braced(expr const& e) {
-		if (auto bl = std::get_if<ysptr<block_expr>>(&e.Data)) {
-			return &(*bl)->get<1>();
-		}
-		return nullptr;
+		return match(e.Data) (
+			[&](ysptr<block_expr> be) -> bool* { return &be->get<1>(); },
+			[&](auto&) -> bool* { return nullptr; }
+		);
 	}
 
 	yvec<ypair<ystr, ysptr<type>>> checker::match_pat(pat_expr const& pat, ysptr<type> ty) {
@@ -393,10 +405,10 @@ namespace yk {
 
 	void checker::match_pat_impl(yvec<ypair<ystr, ysptr<type>>>& res, pat_expr const& pat, ysptr<type> ty) {
 		match(pat.Data) (
-			[](ysptr<ignore_pat_expr>) {
+			[&](ysptr<ignore_pat_expr>) {
 				return;
 			},
-			[&ty](ysptr<unit_pat_expr> ) {
+			[&](ysptr<unit_pat_expr> ) {
 				if (!ty) {
 					throw std::exception("TODO: Unmeaningful bind without type!");
 				}
@@ -405,7 +417,7 @@ namespace yk {
 				}
 				return;
 			},
-			[&ty, &res](ysptr<ident_pat_expr> ip) {
+			[&](ysptr<ident_pat_expr> ip) {
 				auto& ident = ip->get<0>();
 				// Just bind
 				if (ty) {
@@ -416,7 +428,7 @@ namespace yk {
 				}
 				return;
 			},
-			[&ty, &res, this](ysptr<list_pat_expr> le) {
+			[&](ysptr<list_pat_expr> le) {
 				auto& elements = le->get<0>();
 				if (ty) {
 					if (auto tt = dyn_cast<type_cons>(ty)) {
