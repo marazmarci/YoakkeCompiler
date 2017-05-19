@@ -3,65 +3,33 @@
 #include "node.h"
 #include "../lexing/token.h"
 
+#define make_ty(x, ...) make_node(x, ty_expr, __VA_ARGS__)
+
 namespace yk {
-	/*
-	Base-class of type expressions.
-	*/
-	class ty_expr : public node {
-	protected:
-		ty_expr(interval const& pos);
+	struct ty_expr;
+
+	make_ty(unit	);
+	make_ty(ident,	ystr);
+	make_ty(bin,	token, ty_expr, ty_expr);
+	make_ty(list,	yvec<ty_expr>);
+
+	using ty_ty = yvar<
+		  unit_ty_expr
+		, ident_ty_expr
+		, bin_ty_expr
+		, list_ty_expr
+	>;
+
+	struct ty_expr {
+	public:
+		interval	Position;
+		ty_ty		Data;
 
 	public:
-		virtual ~ty_expr();
-	};
-
-	/*
-	Unit or empty tuple type.
-	*/
-	class unit_ty_expr : public ty_expr {
-	public:
-		unit_ty_expr(token const& beg, token const& end);
-		virtual ~unit_ty_expr();
-	};
-
-	/*
-	Identifier type.
-	*/
-	class ident_ty_expr : public ty_expr {
-	public:
-		ystr Identifier;
-
-	public:
-		ident_ty_expr(token const& tok);
-		virtual ~ident_ty_expr();
-	};
-
-	/*
-	Binary type construct.
-	*/
-	class bin_ty_expr : public ty_expr {
-	public:
-		token Operator;
-		ysptr<ty_expr> LHS;
-		ysptr<ty_expr> RHS;
-
-	public:
-		bin_ty_expr(token const& op, ysptr<ty_expr> lhs, ysptr<ty_expr> rhs);
-		virtual ~bin_ty_expr();
-	};
-
-	/*
-	List or tuple type.
-	*/
-	class list_ty_expr : public ty_expr {
-	public:
-		yvec<ysptr<ty_expr>> Elements;
-
-	public:
-		list_ty_expr(ysptr<ty_expr>& left);
-		virtual ~list_ty_expr();
-
-	public:
-		void add(ysptr<ty_expr>& exp);
+		template <typename... Ts>
+		ty_expr(interval const& pos, Ts&&... xs)
+			: Position(pos),
+			Data(std::forward<Ts>(xs)...) {
+		}
 	};
 }

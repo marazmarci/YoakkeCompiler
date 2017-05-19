@@ -1,22 +1,23 @@
 #pragma once
 
-/*
-The node class is the base-class for all of the AST nodes.
-Contains positional data.
-*/
-
 #include "../common.h"
-#include "../lexing/position.h"
+
+#define make_node_(n, ...) using n = node_tag<ytup<__VA_ARGS__>, struct CAT(n, _tag)>
+#define make_node(x, y, ...) make_node_(CAT(x, CAT(_, y)), __VA_ARGS__)
 
 namespace yk {
-	class node {
-	public:
-		interval Position;
+	template <typename T, typename Tag>
+	struct node_tag : public T {
+		using T::T;
 
-	protected:
-		node(interval const& pos);
+		template <ysize I>
+		constexpr auto& get() {
+			std::get<I>(*this);
+		}
 
-	public:
-		virtual ~node();
+		template <ysize I>
+		constexpr auto const& get() const {
+			std::get<I>(*this);
+		}
 	};
 }

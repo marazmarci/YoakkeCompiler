@@ -3,74 +3,33 @@
 #include "node.h"
 #include "../lexing/token.h"
 
+#define make_pat(x, ...) make_node(x, pat_expr, __VA_ARGS__)
+
 namespace yk {
-	/*
-	Base-class for pattern expressions.
-	*/
-	class pat_expr : public node {
-	protected:
-		pat_expr(interval const& pos);
+	struct pat_expr;
+
+	make_pat(ignore	);
+	make_pat(unit	);
+	make_pat(ident,	ystr);
+	make_pat(list,	yvec<pat_expr>);
+
+	using pat_ty = yvar<
+		  ignore_pat_expr
+		, unit_pat_expr
+		, ident_pat_expr
+		, list_pat_expr
+	>;
+
+	struct pat_expr {
+	public:
+		interval	Position;
+		pat_ty		Data;
 
 	public:
-		virtual ~pat_expr();
-	};
-
-	/*
-	Ignore pattern for don't-care values.
-	*/
-	class ignore_pat_expr : public pat_expr {
-	public:
-		ignore_pat_expr(token const& tok);
-		virtual ~ignore_pat_expr();
-	};
-
-	/*
-	Empty list or tuple matcher.
-	*/
-	class unit_pat_expr : public pat_expr {
-	public:
-		unit_pat_expr(token const& beg, token const& end);
-		virtual ~unit_pat_expr();
-	};
-
-	/*
-	Identifier pattern.
-	*/
-	class ident_pat_expr : public pat_expr {
-	public:
-		ystr Identifier;
-
-	public:
-		ident_pat_expr(token const& tok);
-		virtual ~ident_pat_expr();
-	};
-
-	/*
-	Binary pattern (currently unused).
-	*/
-	class bin_pat_expr : public pat_expr {
-	public:
-		token Operator;
-		ysptr<pat_expr> LHS;
-		ysptr<pat_expr> RHS;
-
-	public:
-		bin_pat_expr(token const& op, ysptr<pat_expr> lhs, ysptr<pat_expr> rhs);
-		virtual ~bin_pat_expr();
-	};
-
-	/*
-	List or tuple pattern.
-	*/
-	class list_pat_expr : public pat_expr {
-	public:
-		yvec<ysptr<pat_expr>> Elements;
-
-	public:
-		list_pat_expr(ysptr<pat_expr>& left);
-		virtual ~list_pat_expr();
-
-	public:
-		void add(ysptr<pat_expr>& exp);
+		template <typename... Ts>
+		pat_expr(interval const& pos, Ts&&... xs)
+			: Position(pos),
+			Data(std::forward<Ts>(xs)...) {
+		}
 	};
 }

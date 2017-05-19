@@ -1,29 +1,40 @@
 #pragma once
 
-#include <boost/vmd/is_empty.hpp>
-#include <boost/preprocessor/variadic/size.hpp>
+#include <variant>
 
-#define EXPAND(x) x
+template <typename TF, typename... TFs>
+struct overload_set : TF, overload_set<TFs...> {
+	using TF::operator();
+	using overload_set<TFs...>::operator();
 
-#define CAT_(x, y) x##y
-#define CAT(x, y) CAT_(x, y)
+	template <typename TFFwd, typename... TRest>
+	overload_set(TFFwd&& f, TRest&&... rest)
+		: TF{ std::forward<TFFwd>(f) },
+		overload_set<TFs...>{std::forward<TRest>(rest)...} {
+	}
+};
 
-#define VARIADIC_SIZE_1() 0
-#define VARIADIC_SIZE_0(...) BOOST_PP_VARIADIC_SIZE(__VA_ARGS__)
-#define VARIADIC_SIZE(...)											\
-CAT(VARIADIC_SIZE_, BOOST_VMD_IS_EMPTY(__VA_ARGS__))(__VA_ARGS__)
+template <typename TF>
+struct overload_set<TF> : TF {
+	using TF::operator();
 
-#define Match(exp)						\
-if (auto m__ = exp) if (auto f__ = true)
+	template <typename TFFwd>
+	overload_set(TFFwd&& f)
+		: TF{ std::forward<TFFwd>(f) } {
+	}
+};
 
-#define Case_0()
-#define Case_1(x) for (auto& x = m2__->x; f__; f__ = false)
-#define Case_2(x, y)	Case_1(x) Case_1(y)
-#define Case_3(x, y, z) Case_2(x, y) Case_1(z)
-#define Case_4(x, y, z, w) Case_3(x, y, z) Case_1(w)
+template <typename... TFs>
+auto overload(TFs&&... fs) {
+	return overload_set<std::remove_reference_t<TFs>...>(
+		std::forward<TFs>(fs)...
+		);
+}
 
-#define Case(type, ...)						\
-if (auto m2__ = dynamic_cast<type*>(m__))	\
-EXPAND(CAT(Case_, VARIADIC_SIZE(__VA_ARGS__))(__VA_ARGS__))
-
-#define Otherwise() if (f__)
+template <typename... TVariants>
+constexpr auto match(TVariants&&... vs) {
+	return[&vs...](auto&&... fs) -> decltype(auto) {
+		auto visitor = overload(std::forward<decltype(fs)>(fs)...);
+		return std::visit(visitor, std::forward<TVariants>(vs)...);
+	};
+}

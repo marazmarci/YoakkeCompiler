@@ -1,38 +1,30 @@
 #pragma once
 
-/*
-These are all the statement nodes of the AST.
-*/
-
 #include "node.h"
 #include "../lexing/token.h"
 
+#define make_stmt(x, ...) make_node(x, stmt, __VA_ARGS__)
+
 namespace yk {
-	class expr;
+	struct stmt;
+	struct expr;
 
-	/*
-	Statement base-class.
-	*/
-	class stmt : public node {
-	protected:
-		stmt(interval const& pos);
+	make_stmt(expr, expr, bool, bool);
+
+	using stmt_ty = yvar<
+		  expr_stmt
+	>;
+
+	struct stmt {
+	public:
+		interval	Position;
+		stmt_ty		Data;
 
 	public:
-		virtual ~stmt();
-	};
-
-	/*
-	A statement containing an expression that may or may not contain 
-	a semicolon at the end (or return the value).
-	*/
-	class expr_stmt : public stmt {
-	public:
-		ysptr<expr> Expression;
-		bool Semicol;
-		bool Return;
-
-	public:
-		expr_stmt(ysptr<expr>& exp, yopt<token> semicol);
-		virtual ~expr_stmt();
+		template <typename... Ts>
+		stmt(interval const& pos, Ts&&... xs)
+			: Position(pos),
+			Data(std::forward<Ts>(xs)...) {
+		}
 	};
 }
