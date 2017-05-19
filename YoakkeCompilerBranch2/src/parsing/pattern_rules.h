@@ -14,25 +14,23 @@ namespace yk {
 
 		class enclose : public pat_pre_parselet {
 		public:
-			ysptr<pat_expr> parse(token const& begin, yparser& par) override {
-				if (auto sub = par.parse_pattern()) {
-					if (par.match(ytoken_t::Rpar)) {
+			yopt<pat_expr> parse(token const& lpar, yparser& par) override {
+				if (auto sub = par.parse_pat_expr()) {
+					if (auto rpar = par.match(ytoken_t::Rpar)) {
+						// Extend position
+						sub->Position = lpar.Position * rpar->Position;
 						return sub;
 					}
 					else {
-						token const& tok = par.peek();
 						expect_error("')'", "", par);
 					}
 				}
-				else {
-					if (auto end = par.match(ytoken_t::Rpar)) {
-						return std::make_shared<unit_pat_expr>(begin, end.value());
-					}
-					else {
-						token const& tok = par.peek();
-						expect_error("pattern", "", par);
-					}
+				if (auto rpar = par.match(ytoken_t::Rpar)) {
+					return ty_expr(
+						lpar.Position * rpar->Position,
+						std::make_shared<unit_pat_expr>());
 				}
+				expect_error("pattern", "", par);
 			}
 		};
 
@@ -43,41 +41,20 @@ namespace yk {
 			}
 
 		public:
-			ysptr<pat_expr> parse(
-				ysptr<pat_expr> left, token const& begin, yparser& par) override {
-				auto ls = std::make_shared<list_pat_expr>(left);
+			yopt<pat_expr> parse(pat_expr const& left, token const& comt, yparser& par) override {
+				yvec<pat_expr> elems{ left };
 				do {
-					if (auto rhs = par.parse_pattern(precedence() + 1)) {
-						ls->add(rhs);
+					if (auto rhs = par.parse_pat_expr(precedence() + 1)) {
+						elems.push_back(*rhs);
 					}
 					else {
 						expect_error("pattern", "", par);
 					}
 				} while (par.match(ytoken_t::Comma));
-				return ls;
+				return pat_expr(
+					elems.begin()->Position * elems.rbegin()->Position,
+					std::make_shared<list_pat_expr>(elems));
 			}
 		};
-
-		template <bool Right>
-		class bin : public pat_in_parselet {
-		public:
-			bin(ysize prec)
-				: pat_in_parselet(prec) {
-			}
-
-		public:
-			ysptr<pat_expr> parse(
-				ysptr<pat_expr> left, token const& begin, yparser& par) override {
-				if (auto rhs = parser.parse_expr(precedence() - (Right ? 1 : 0))) {
-					return std::make_shared<bin_pat_expr>(begin, left, rhs);
-				}
-				else {
-					expect_error("pattern", "", par);
-				}
-			}
-		};
-
-		using lbinop = bin<false>;
-		using rbinop = bin<true>;
 	}
 }

@@ -14,10 +14,5 @@ namespace yk {
 		constexpr auto& get() {
 			std::get<I>(*this);
 		}
-
-		template <ysize I>
-		constexpr auto const& get() const {
-			std::get<I>(*this);
-		}
 	};
 }

@@ -6,14 +6,13 @@ namespace yk {
 	template <typename T, typename P>
 	struct parselet {
 		using return_t = T;
-		using return_ptr = ysptr<return_t>;
 		using parser_t = P;
 	};
 
 	template <typename T, typename P>
 	class prefix_parselet : public parselet<T, P> {
 	public:
-		virtual return_ptr parse(token const& begin, parser_t& parser) = 0;
+		virtual yopt<return_t> parse(token const& begin, parser_t& parser) = 0;
 	};
 
 	template <typename T, typename P>
@@ -27,9 +26,9 @@ namespace yk {
 		}
 
 	public:
-		virtual return_ptr parse(return_ptr left, token const& begin, parser_t& parser) = 0;
+		virtual yopt<return_t> parse(return_t const& left, token const& begin, parser_t& parser) = 0;
 		
-		virtual bool matches(return_ptr left, parser_t& parser) {
+		virtual bool matches(return_t const& left, parser_t& parser) {
 			return true; 
 		}
 		

@@ -20,19 +20,19 @@ namespace yk {
 
 		prec_parser<expr, yparser>		m_ExprParser;
 		prec_parser<pat_expr, yparser>	m_PatternParser;
-		prec_parser<ty_expr, yparser> m_TypeDescParser;
+		prec_parser<ty_expr, yparser>	m_TypeDescParser;
 
 	public:
 		yparser(ystr const& file);
 
 	public:
-		yvec<ysptr<stmt>> parse_program();
+		yvec<stmt> parse_program();
 		
-		ysptr<expr> parse_expr(ysize prec = 0);
-		ysptr<pat_expr> parse_pattern(ysize prec = 0);
-		ysptr<ty_expr> parse_type_desc(ysize prec = 0);
-		ysptr<stmt> parse_stmt();
-		ysptr<block_expr> parse_block(token const& begin);
+		yopt<expr> parse_expr(ysize prec = 0);
+		yopt<pat_expr> parse_pat_expr(ysize prec = 0);
+		yopt<ty_expr> parse_ty_expr(ysize prec = 0);
+		yopt<stmt> parse_stmt();
+		yopt<expr> parse_block(token const& begin);
 
 		file_handle const& file() const;
 
@@ -53,8 +53,8 @@ namespace yk {
 		}
 
 		void init_expr();
-		void init_pattern();
-		void init_type_desc();
+		void init_pat_expr();
+		void init_ty_expr();
 
 	public:
 		static ystr format_token(token const& t);

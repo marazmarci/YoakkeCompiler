@@ -13,25 +13,21 @@ namespace yk {
 
 		class enclose : public type_pre_parselet {
 		public:
-			ysptr<ty_expr> parse(token const& begin, yparser& par) override {
-				if (auto sub = par.parse_type_desc()) {
-					if (par.match(ytoken_t::Rpar)) {
+			yopt<ty_expr> parse(token const& lpar, yparser& par) override {
+				if (auto sub = par.parse_ty_expr()) {
+					if (auto rpar = par.match(ytoken_t::Rpar)) {
+						// Extend position
+						sub->Position = lpar.Position * rpar->Position;
 						return sub;
 					}
-					else {
-						token const& tok = par.peek();
-						expect_error("')'", "", par);
-					}
+					expect_error("')'", "", par);
 				}
-				else {
-					if (auto end = par.match(ytoken_t::Rpar)) {
-						return std::make_shared<unit_ty_expr>(begin, end.value());
-					}
-					else {
-						token const& tok = par.peek();
-						expect_error("type", "", par);
-					}
+				if (auto rpar = par.match(ytoken_t::Rpar)) {
+					return ty_expr(
+						lpar.Position * rpar->Position,
+						std::make_shared<unit_ty_expr>());
 				}
+				expect_error("type", "", par);
 			}
 		};
 
@@ -42,18 +38,19 @@ namespace yk {
 			}
 
 		public:
-			ysptr<ty_expr> parse(
-				ysptr<ty_expr> left, token const& begin, yparser& par) override {
-				auto ls = std::make_shared<list_ty_expr>(left);
+			yopt<ty_expr> parse(ty_expr const& left, token const& comt, yparser& par) override {
+				yvec<ty_expr> elems{ left };
 				do {
-					if (auto rhs = par.parse_type_desc(precedence() + 1)) {
-						ls->add(rhs);
+					if (auto rhs = par.parse_ty_expr(precedence() + 1)) {
+						elems.push_back(*rhs);
 					}
 					else {
 						expect_error("type", "", par);
 					}
 				} while (par.match(ytoken_t::Comma));
-				return ls;
+				return ty_expr(
+					elems.begin()->Position * elems.rbegin()->Position,
+					std::make_shared<list_ty_expr>(elems));
 			}
 		};
 
@@ -65,14 +62,13 @@ namespace yk {
 			}
 
 		public:
-			ysptr<ty_expr> parse(
-				ysptr<ty_expr> left, token const& begin, yparser& par) override {
-				if (auto rhs = par.parse_type_desc(precedence() - (Right ? 1 : 0))) {
-					return std::make_shared<bin_ty_expr>(begin, left, rhs);
-				}
-				else {
-					expect_error("type", "", par);
-				}
+			yopt<ty_expr> parse(ty_expr const& left, token const& op, yparser& par) override {
+				if (auto rhs = par.parse_ty_expr(precedence() - (Right ? 1 : 0))) {
+					return ty_expr(
+						left.Position * rhs->Position,
+						std::make_shared<bin_ty_expr>(op, left, *rhs));
+				}		
+				expect_error("type", "", par);
 			}
 		};
 

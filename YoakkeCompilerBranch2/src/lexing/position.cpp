@@ -16,4 +16,8 @@ namespace yk {
 	interval::interval(interval const& a, interval const& b)
 		: Start(a.Start), End(b.End) {
 	}
+
+	interval operator*(interval const& a, interval const& b) {
+		return interval(a, b);
+	}
 }

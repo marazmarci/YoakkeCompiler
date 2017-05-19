@@ -12,8 +12,8 @@ namespace yk {
 		m_TypeDescParser(m_Lexer, m_Buffer) {
 		// Initialize parselets
 		init_expr();
-		init_pattern();
-		init_type_desc();
+		init_pat_expr();
+		init_ty_expr();
 	}
 
 	void yparser::init_expr() {
@@ -59,7 +59,7 @@ namespace yk {
 		register_expr<expr_rules::call>(ytoken_t::Lpar, 11);
 	}
 
-	void yparser::init_pattern() {
+	void yparser::init_pat_expr() {
 		// Literals
 		register_pattern<pat_rules::ident>(ytoken_t::Ident);
 		register_pattern<pat_rules::ignore>(ytoken_t::Ignore);
@@ -71,7 +71,7 @@ namespace yk {
 		register_pattern<pat_rules::list>(ytoken_t::Comma, 1);
 	}
 
-	void yparser::init_type_desc() {
+	void yparser::init_ty_expr() {
 		// Literals
 		register_type_desc<type_rules::ident>(ytoken_t::Ident);
 
@@ -86,51 +86,51 @@ namespace yk {
 		register_type_desc<type_rules::lbinop>(ytoken_t::Arrow, 2);
 	}
 
-	yvec<ysptr<stmt>> yparser::parse_program() {
-		yvec<ysptr<stmt>> ls;
+	yvec<stmt> yparser::parse_program() {
+		yvec<stmt> ls;
 		while (auto st = parse_stmt()) {
-			if (auto exp = dyn_cast<expr_stmt>(st)) {
-				if (dyn_cast<const_asgn_expr>(exp->Expression)) {
-				}
-				else {
+			if (auto exp = std::get_if<ysptr<expr_stmt>>(&st->Data)) {
+				if (!std::get_if<ysptr<const_asgn_expr>>((*exp)->get<0>())) {
 					throw std::exception("TODO error: only const asgn can be global");
 				}
 			}
-			ls.push_back(st);
+			ls.push_back(*st);
 		}
 		return ls;
 	}
 
-	ysptr<expr> yparser::parse_expr(ysize prec) {
+	yopt<expr> yparser::parse_expr(ysize prec) {
 		return m_ExprParser.parse(*this, prec);
 	}
 
-	ysptr<pat_expr> yparser::parse_pattern(ysize prec) {
+	yopt<pat_expr> yparser::parse_pat_expr(ysize prec) {
 		return m_PatternParser.parse(*this, prec);
 	}
 
-	ysptr<ty_expr> yparser::parse_type_desc(ysize prec) {
+	yopt<ty_expr> yparser::parse_ty_expr(ysize prec) {
 		return m_TypeDescParser.parse(*this, prec);
 	}
 
-	ysptr<stmt> yparser::parse_stmt() {
+	yopt<stmt> yparser::parse_stmt() {
 		if (auto exp = parse_expr()) {
-			return std::make_shared<expr_stmt>(exp, match(ytoken_t::Semicol));
+			return stmt(
+				exp->Position,
+				std::make_shared<expr_stmt>(*exp, match(ytoken_t::Semicol), false));
 		}
-		return nullptr;
+		return {};
 	}
 
-	ysptr<block_expr> yparser::parse_block(token const& begin) {
-		yvec<ysptr<stmt>> body;
+	yopt<expr> yparser::parse_block(token const& begin) {
+		yvec<stmt> body;
 		while (auto st = parse_stmt()) {
-			body.push_back(st);
+			body.push_back(*st);
 		}
 		if (auto endbr = match(ytoken_t::Rbrace)) {
-			return std::make_shared<block_expr>(body, begin, endbr.value());
+			return stmt(
+				begin.Position * endbr->Position,
+				std::make_shared<block_expr>(body));
 		}
-		else {
-			expect_error("'}'", "", *this);
-		}
+		expect_error("'}'", "", *this);
 	}
 
 	file_handle const& yparser::file() const {

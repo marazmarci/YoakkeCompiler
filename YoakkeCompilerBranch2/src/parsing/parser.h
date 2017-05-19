@@ -21,6 +21,9 @@ namespace yk {
 		token const& last() const;
 		token consume();
 		yopt<token> match(ytoken_t tt);
+		yopt<ypair<token, token>> match(ytoken_t tt1, ytoken_t tt2);
+		bool same(ytoken_t tt);
+		bool same(ytoken_t tt1, ytoken_t tt2);
 
 		parser_state get_state() const;
 		void load_state(parser_state const& st);

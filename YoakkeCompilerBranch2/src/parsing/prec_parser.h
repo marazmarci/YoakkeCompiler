@@ -36,7 +36,7 @@ namespace yk {
 			m_Infix.insert({ val, r });
 		}
 
-		ysptr<T> parse(P& par, ysize prec = 0) {
+		yopt<T> parse(P& par, ysize prec = 0) {
 			auto lookahead = peek();
 			if (auto pre_parselet = m_Prefix.at(lookahead.Type)) {
 				lookahead = consume();
@@ -49,7 +49,7 @@ namespace yk {
 								lookahead = consume();
 								if (!(left = in_parselet->get()->parse(left, lookahead, par))) {
 									//throw std::exception("Parse RHS returned with null");
-									return nullptr;
+									return {};
 								}
 							}
 							else {
@@ -58,13 +58,13 @@ namespace yk {
 						}
 						else {
 							//throw std::exception("No matching infix parselet!");
-							return nullptr;
+							return {};
 						}
 					}
 				}
 				return left;
 			}
-			return nullptr;
+			return {};
 		}
 
 	private:

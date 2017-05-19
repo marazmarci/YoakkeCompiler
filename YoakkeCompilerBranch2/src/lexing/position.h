@@ -28,4 +28,6 @@ namespace yk {
 		interval(position const& st, ysize len);
 		interval(interval const& a, interval const& b);
 	};
+
+	interval operator*(interval const& a, interval const& b);
 }

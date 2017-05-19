@@ -33,6 +33,25 @@ namespace yk {
 		return {};
 	}
 
+	yopt<ypair<token, token>> parser::match(ytoken_t tt1, ytoken_t tt2) {
+		auto lookahead1 = peek();
+		auto lookahead2 = peek(1);
+		if (lookahead1.Type == tt1 && lookahead2.Type == tt2) {
+			lookahead1 = consume();
+			lookahead2 = consume();
+			return { lookahead1, lookahead2 };
+		}
+		return {};
+	}
+
+	bool parser::same(ytoken_t tt) {
+		return peek().Type == tt;
+	}
+
+	bool parser::same(ytoken_t tt1, ytoken_t tt2) {
+		return peek().Type == tt1 && peek(1).Type == tt2;
+	}
+
 	parser_state parser::get_state() const {
 		return std::make_pair(m_Lexer.get_state(), m_Buffer);
 	}

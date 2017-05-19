@@ -14,7 +14,7 @@
 			yparser::format_token(tok),				\
 			note));									\
 }													\
-return nullptr;
+return {};
 
 namespace yk {
 	namespace gen_rules {
@@ -27,9 +27,11 @@ namespace yk {
 		template <typename T, typename R>
 		class pass : public pre_parselet<T> {
 		public:
-			pre_parselet<T>::return_ptr
-				parse(token const& begin, yparser& par) override {
-				return std::make_shared<R>(begin);
+			yopt<return_t> parse(token const& tok, yparser& par) override {
+				return R(
+					tok.Position,
+					std::make_shared<R>(tok.Value)
+				);
 			}
 		};
 	}

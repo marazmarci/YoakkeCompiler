@@ -24,11 +24,11 @@ namespace yk {
 	make_expr(asgn,			token, expr, expr);
 	make_expr(const_asgn,	token, expr, expr);
 	make_expr(list,			yvec<expr>);
-	make_expr(call,			expr, expr);
+	make_expr(call,			expr, yopt<expr>);
 	make_expr(block, 		yvec<stmt>, bool);
 	make_expr(fnproto,		yvec<param_t>, ty_expr);
-	make_expr(fn,			yvec<param_t>, ty_expr, block_expr, bool);
-	make_expr(let,			pat_expr, ty_expr, expr);
+	make_expr(fn,			yvec<param_t>, yopt<ty_expr>, block_expr);
+	make_expr(let,			pat_expr, yopt<ty_expr>, yopt<expr>);
 
 	using expr_ty = yvar<
 		  ysptr<ident_expr>
