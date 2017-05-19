@@ -1,87 +1,49 @@
 #pragma once
 
 #include "../common.h"
+#include "../utility/type_tag.h"
+
+#define make_type(x, ...) make_tag(x, type, __VA_ARGS__)
 
 namespace yk {
-	class type_var;
+	struct type;
 
-	class type {
-	public:
-		virtual bool matches(ysptr<type> t) const		= 0;
-		virtual bool contains(ysptr<type_var> t) const	= 0;
-		virtual ystr to_str() const						= 0;
-	};
+	make_type(var, ysize, yopt<type>);
+	make_type(cons, ystr, yvec<type>);
 
-	class type_var : public type {
+	using tty_ty = yvar <
+		  ysptr<var_type>
+		, ysptr<cons_type>
+	>;
+
+	struct type {
 	private:
 		static ysize s_IDcount;
 
 	public:
-		ysize		ID;
-		ysptr<type> Instance;
+		tty_ty Data;
 
-	public:
-		static ysptr<type_var> create() {
-			return std::make_shared<type_var>();
-		}
-
-	public:
-		type_var();
-
-	public:
-		virtual bool matches(ysptr<type> t) const override;
-		virtual bool contains(ysptr<type_var> t) const override;
-		virtual ystr to_str() const override;
-	};
-
-	class type_cons : public type {
-	public:
-		ystr				Name;
-		yvec<ysptr<type>>	Types;
-
-	protected:
-		template <typename... Ts>
-		static ysptr<type_cons> create(ystr const& n, Ts... params) {
-			return std::make_shared<type_cons>(n, yvec<ysptr<type>>{ params... });
-		}
-
-	public:
-		type_cons(ystr const& n, yvec<ysptr<type>> const& ts);
-
-	public:
-		virtual bool matches(ysptr<type> t) const override;
-		virtual bool contains(ysptr<type_var> t) const override;
-		virtual ystr to_str() const override;
-	};
-
-	class tuple_type_cons : public type_cons {
 	public:
 		template <typename... Ts>
-		static ysptr<type_cons> create(Ts... params) {
-			return std::make_shared<tuple_type_cons>(yvec<ysptr<type>>{ params... });
+		type(Ts&&... xs)
+			: Data(std::forward<Ts>(xs)...) {
+		}
+
+		type(tty_ty const& tt)
+			: Data(tt) {
 		}
 
 	public:
-		tuple_type_cons(yvec<ysptr<type>> const& ts);
-	};
-
-	class fn_type_cons : public type_cons {
-	public:
-		static ysptr<type_cons> create(ysptr<type> left, ysptr<type> right) {
-			return std::make_shared<fn_type_cons>(yvec<ysptr<type>>{ left, right });
-		}
+		bool matches(type const& t) const;
+		bool contains(ysptr<var_type> t);
+		ystr to_str() const;
+		type& prune();
+		bool same(type& t);
 
 	public:
-		fn_type_cons(yvec<ysptr<type>> const& ts);
-
-	public:
-		virtual bool matches(ysptr<type> t) const override;
-	};
-
-	class primitive_type_cons : public type_cons {
-	public:
-		static ysptr<type_cons> create(ystr const& name) {
-			return std::make_shared<type_cons>(name, yvec<ysptr<type>>{ });
-		}
+		static type create_var();
+		static type create_cons(ystr const& n, yvec<type> const& ts = yvec<type>{});
+		static type create_fn(type const& args, type const& res);
+		static type create_tup(yvec<type> const& ts);
 	};
 }

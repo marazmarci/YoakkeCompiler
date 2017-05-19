@@ -140,7 +140,6 @@
   <ItemGroup>
     <ClInclude Include="src\ast\ast.h" />
     <ClInclude Include="src\ast\expr.h" />
-    <ClInclude Include="src\ast\node.h" />
     <ClInclude Include="src\ast\pat_expr.h" />
     <ClInclude Include="src\ast\stmt.h" />
     <ClInclude Include="src\ast\ty_expr.h" />
@@ -172,6 +171,7 @@
     <ClInclude Include="src\utility\match.h" />
     <ClInclude Include="src\utility\math.h" />
     <ClInclude Include="src\utility\opt_map.h" />
+    <ClInclude Include="src\utility\type_tag.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

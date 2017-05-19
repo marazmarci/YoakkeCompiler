@@ -1,16 +1,17 @@
 #pragma once
 
-#include "node.h"
+#include "../utility/type_tag.h"
 #include "../lexing/token.h"
+#include "../semantics/type.h"
 
-#define make_expr(x, ...) make_node(x, expr, __VA_ARGS__)
+#define make_expr(x, ...) make_tag(x, expr, __VA_ARGS__)
 
 namespace yk {
 	struct stmt;
 	struct ty_expr;
 	struct pat_expr;
 	struct expr;
-	class type;
+	struct type;
 
 	using param_t = ypair<yopt<token>, ty_expr>;
 
@@ -52,7 +53,7 @@ namespace yk {
 	public:
 		interval	Position;
 		expr_ty		Data;
-		ysptr<type> HintType;
+		yopt<type>	HintType;
 		interval	HintPosition;
 
 	public:
@@ -60,7 +61,7 @@ namespace yk {
 		expr(interval const& pos, Ts&&... xs)
 			: Position(pos),
 			Data(std::forward<Ts>(xs)...),
-			HintType(nullptr),
+			HintType(yopt<type>{}),
 			HintPosition(interval()) {
 		}
 	};

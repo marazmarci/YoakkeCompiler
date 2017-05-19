@@ -4,9 +4,9 @@
 #include "var_sym.h"
 
 namespace yk {
-	ysptr<type> symbol_table::UNIT_T	= primitive_type_cons::create("unit");
-	ysptr<type> symbol_table::I32_T		= primitive_type_cons::create("i32");
-	ysptr<type> symbol_table::F32_T		= primitive_type_cons::create("f32");
+	type symbol_table::UNIT_T	= type::create_cons("unit");
+	type symbol_table::I32_T	= type::create_cons("i32");
+	type symbol_table::F32_T	= type::create_cons("f32");
 
 	symbol_table::symbol_table() {
 		m_GlobalScope = std::make_shared<scope>();
@@ -21,7 +21,7 @@ namespace yk {
 		return m_CurrentScope->ref(id);
 	}
 
-	ypair<ysptr<var_sym>, bool> symbol_table::ref(ystr const& id, ysptr<type> hint) {
+	ypair<ysptr<var_sym>, bool> symbol_table::ref(ystr const& id, type& hint) {
 		return m_CurrentScope->ref(id, hint);
 	}
 

@@ -4,7 +4,7 @@
 #include "../lexing/position.h"
 
 namespace yk {
-	class type;
+	struct type;
 	class var_sym;
 
 	class scope {
@@ -12,7 +12,7 @@ namespace yk {
 		ysptr<scope>							Parent;
 		yhash_map<ystr, yvec<ysptr<var_sym>>>	Entries;
 		bool									ReturnDest;
-		ysptr<type>								ReturnType;
+		yopt<type>								ReturnType;
 		interval								ReturnPos;
 
 	public:
@@ -20,7 +20,7 @@ namespace yk {
 
 	public:
 		ysptr<var_sym> ref(ystr const& id);
-		ypair<ysptr<var_sym>, bool> ref(ystr const& id, ysptr<type> hint);
+		ypair<ysptr<var_sym>, bool> ref(ystr const& id, type& hint);
 		void decl(ysptr<var_sym> var);
 		scope* enclosing_return();
 	};

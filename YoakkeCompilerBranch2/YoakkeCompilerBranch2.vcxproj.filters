@@ -98,9 +98,6 @@
     <ClInclude Include="src\parsing\prec_parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ast\node.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ast\expr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -168,6 +165,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\semantics\var_sym.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\type_tag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

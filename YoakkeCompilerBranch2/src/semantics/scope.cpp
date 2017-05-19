@@ -4,7 +4,7 @@
 
 namespace yk {
 	scope::scope()
-		: Parent(nullptr), ReturnDest(false), ReturnType(nullptr) {
+		: Parent(nullptr), ReturnDest(false), ReturnType(yopt<type>{}) {
 	}
 
 	ysptr<var_sym> scope::ref(ystr const& id) {
@@ -23,7 +23,7 @@ namespace yk {
 		}
 	}
 
-	ypair<ysptr<var_sym>, bool> scope::ref(ystr const& id, ysptr<type> hint) {
+	ypair<ysptr<var_sym>, bool> scope::ref(ystr const& id, type& hint) {
 		auto it = Entries.find(id);
 		if (it == Entries.end()) {
 			if (Parent) {
@@ -36,7 +36,7 @@ namespace yk {
 		else {
 			auto& list = it->second;
 			for (auto it2 = list.rbegin(); it2 != list.rend(); ++it2) {
-				if ((*it2)->Type->matches(hint)) {
+				if ((*it2)->Type.matches(hint)) {
 					return { *it2, it2 != list.rbegin() };
 				}
 			}

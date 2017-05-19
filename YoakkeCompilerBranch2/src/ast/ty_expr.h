@@ -1,9 +1,9 @@
 #pragma once
 
-#include "node.h"
+#include "../utility/type_tag.h"
 #include "../lexing/token.h"
 
-#define make_ty(x, ...) make_node(x, ty_expr, __VA_ARGS__)
+#define make_ty(x, ...) make_tag(x, ty_expr, __VA_ARGS__)
 
 namespace yk {
 	struct ty_expr;
