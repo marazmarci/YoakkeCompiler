@@ -10,6 +10,9 @@
 
 namespace yk {
 	namespace rep {
+		template <bool DRAW_ARROW, bool IN_INTERVAL>
+		struct mark_buffer;
+
 		enum class enclose_t {
 			None, Top, Bottom
 		};
@@ -39,11 +42,7 @@ namespace yk {
 			static void print_marked(ysize from, ysize to, ysize s1, ysize e1, ysize s2, ysize e2);
 			
 			template <enclose_t ENCLOSE>
-			static void print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right) {
-				mark_buffer<true, false> buff;
-				buff.set(*s_File, ln_idx, left, right);
-				buff.print<ENCLOSE>(maxdig);
-			}
+			static void print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right);
 
 			template <bool IN_INTERVAL>
 			static void print_unmarked_single(ysize ln_idx, ysize maxdig) {
@@ -345,5 +344,14 @@ namespace yk {
 				}
 			}
 		};
+
+		// IMPLEMENTATION /////////////////////////////////////////////////
+
+		template <enclose_t ENCLOSE>
+		void code_printer::print_marked_single(ysize ln_idx, ysize maxdig, ysize left, ysize right) {
+			mark_buffer<true, false> buff;
+			buff.set(*s_File, ln_idx, left, right);
+			buff.print<ENCLOSE>(maxdig);
+		}
 	}
 }

@@ -6,11 +6,10 @@
 #include "../utility/file_handle.h"
 
 namespace yk {
-	class expr;
-	class pat_expr;
-	class ty_expr;
-	class stmt;
-	class block_expr;
+	struct expr;
+	struct pat_expr;
+	struct ty_expr;
+	struct stmt;
 
 	class yparser : public parser {
 	private:

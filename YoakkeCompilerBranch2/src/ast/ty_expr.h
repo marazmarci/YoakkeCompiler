@@ -14,10 +14,10 @@ namespace yk {
 	make_ty(list,	yvec<ty_expr>);
 
 	using ty_ty = yvar<
-		  unit_ty_expr
-		, ident_ty_expr
-		, bin_ty_expr
-		, list_ty_expr
+		  ysptr<unit_ty_expr>
+		, ysptr<ident_ty_expr>
+		, ysptr<bin_ty_expr>
+		, ysptr<list_ty_expr>
 	>;
 
 	struct ty_expr {

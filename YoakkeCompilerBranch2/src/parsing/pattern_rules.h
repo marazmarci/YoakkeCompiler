@@ -10,7 +10,7 @@ namespace yk {
 		using pat_in_parselet	= infix_parselet<pat_expr, yparser>;
 
 		using ident		= gen_rules::pass<pat_expr, ident_pat_expr>;
-		using ignore	= gen_rules::pass<pat_expr, ignore_pat_expr>;
+		using ignore	= gen_rules::pass_ign<pat_expr, ignore_pat_expr>;
 
 		class enclose : public pat_pre_parselet {
 		public:
@@ -26,7 +26,7 @@ namespace yk {
 					}
 				}
 				if (auto rpar = par.match(ytoken_t::Rpar)) {
-					return ty_expr(
+					return pat_expr(
 						lpar.Position * rpar->Position,
 						std::make_shared<unit_pat_expr>());
 				}

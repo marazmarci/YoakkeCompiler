@@ -22,8 +22,8 @@ namespace yk {
 					do {
 						yopt<token> id = par.match(ytoken_t::Ident);
 						if (par.match(ytoken_t::Colon)) {
-							if (auto type = par.parse_ty_expr(1)) {
-								params.push_back({ id, type });
+							if (auto ty = par.parse_ty_expr(1)) {
+								params.push_back({ id, *ty });
 							}
 							else {
 								expect_error("type", "", par);

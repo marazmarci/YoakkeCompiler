@@ -7,7 +7,7 @@ namespace yk {
 		template <class T>
 		ysize digit_count(T number) {
 			ysize digits = 0;
-			if (number < 0) digits = 1;
+			if (number <= 0) digits = 1;
 			while (number) {
 				number /= 10;
 				digits++;

@@ -12,7 +12,8 @@ namespace yk {
 	template <typename T, typename P>
 	class prefix_parselet : public parselet<T, P> {
 	public:
-		virtual yopt<return_t> parse(token const& begin, parser_t& parser) = 0;
+		virtual yopt<typename parselet<T, P>::return_t>
+		parse(token const& begin, typename parselet<T, P>::parser_t& parser) = 0;
 	};
 
 	template <typename T, typename P>
@@ -26,9 +27,10 @@ namespace yk {
 		}
 
 	public:
-		virtual yopt<return_t> parse(return_t const& left, token const& begin, parser_t& parser) = 0;
+		virtual yopt<typename parselet<T, P>::return_t> 
+		parse(typename parselet<T, P>::return_t const& left, token const& begin, typename parselet<T, P>::parser_t& parser) = 0;
 		
-		virtual bool matches(return_t const& left, parser_t& parser) {
+		virtual bool matches(typename parselet<T, P>::return_t const& left, typename parselet<T, P>::parser_t& parser) {
 			return true; 
 		}
 		

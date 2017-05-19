@@ -8,6 +8,7 @@
 #include "src/utility/console.h"
 #include "src/reporting/code_printer.h"
 #include "src/reporting/err_stream.h"
+#include "src/ast/stmt.h"
 
 int main(void) {
 	yk::console::initialize();

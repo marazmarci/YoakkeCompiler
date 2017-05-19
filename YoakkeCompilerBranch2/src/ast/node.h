@@ -8,11 +8,18 @@
 namespace yk {
 	template <typename T, typename Tag>
 	struct node_tag : public T {
-		using T::T;
+		node_tag()
+			: T() {
+		}
+
+		template <typename... Ts>
+		node_tag(Ts&&... args)
+			: T(std::forward<Ts>(args)...) {
+		}
 
 		template <ysize I>
 		constexpr auto& get() {
-			std::get<I>(*this);
+			return std::get<I>(*this);
 		}
 	};
 }

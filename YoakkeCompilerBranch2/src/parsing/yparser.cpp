@@ -90,7 +90,7 @@ namespace yk {
 		yvec<stmt> ls;
 		while (auto st = parse_stmt()) {
 			if (auto exp = std::get_if<ysptr<expr_stmt>>(&st->Data)) {
-				if (!std::get_if<ysptr<const_asgn_expr>>((*exp)->get<0>())) {
+				if (!std::get_if<ysptr<const_asgn_expr>>(&(*exp)->get<0>()->Data)) {
 					throw std::exception("TODO error: only const asgn can be global");
 				}
 			}
@@ -115,7 +115,9 @@ namespace yk {
 		if (auto exp = parse_expr()) {
 			return stmt(
 				exp->Position,
-				std::make_shared<expr_stmt>(*exp, match(ytoken_t::Semicol), false));
+				std::make_shared<expr_stmt>(
+					std::make_shared<expr>(*exp), 
+					match(ytoken_t::Semicol), false));
 		}
 		return {};
 	}
@@ -126,9 +128,9 @@ namespace yk {
 			body.push_back(*st);
 		}
 		if (auto endbr = match(ytoken_t::Rbrace)) {
-			return stmt(
+			return expr(
 				begin.Position * endbr->Position,
-				std::make_shared<block_expr>(body));
+				std::make_shared<block_expr>(body, true));
 		}
 		expect_error("'}'", "", *this);
 	}

@@ -32,30 +32,24 @@ namespace yk {
 	}
 
 	bool type_cons::matches(ysptr<type> t) const {
-		Match(t.get()) {
-			Case(type_var) {
-				return true;
-			}
-			Case(type_cons, Name, Types) {
-				if (this->Name != Name) {
-					return false;
-				}
-				if (this->Types.size() != Types.size()) {
-					return false;
-				}
-				for (ysize i = 0; i < Types.size(); i++) {
-					if (!this->Types[i]->matches(Types[i])) {
-						return false;
-					}
-				}
-				return true;
-			}
-			Otherwise() {
-				throw std::exception("matches() sanity!");
-			}
+		if (dyn_cast<type_var>(t)) {
+			return true;
 		}
-		// TODO: assert
-		return false;
+		if (auto tc = dyn_cast<type_cons>(t)) {
+			if (Name != tc->Name) {
+				return false;
+			}
+			if (Types.size() != tc->Types.size()) {
+				return false;
+			}
+			for (ysize i = 0; i < Types.size(); i++) {
+				if (!Types[i]->matches(tc->Types[i])) {
+					return false;
+				}
+			}
+			return true;
+		}
+		throw std::exception("matches() sanity!");
 	}
 
 	bool type_cons::contains(ysptr<type_var> t) const {
@@ -92,30 +86,24 @@ namespace yk {
 	}
 
 	bool fn_type_cons::matches(ysptr<type> t) const {
-		Match(t.get()) {
-			Case(type_var) {
-				return true;
-			}
-			Case(type_cons, Name, Types) {
-				if (this->Name != Name) {
-					return false;
-				}
-				if (this->Types.size() != Types.size()) {
-					return false;
-				}
-				// TODO: assert Types.size() == 2
-				for (ysize i = 0; i < Types.size() - 1; i++) {
-					if (!this->Types[i]->matches(Types[i])) {
-						return false;
-					}
-				}
-				return true;
-			}
-			Otherwise() {
-				throw std::exception("matches() sanity!");
-			}
+		if (dyn_cast<type_var>(t)) {
+			return true;
 		}
-		// TODO: assert
-		return false;
+		if (auto tc = dyn_cast<type_cons>(t)) {
+			if (Name != tc->Name) {
+				return false;
+			}
+			if (Types.size() != tc->Types.size()) {
+				return false;
+			}
+			// TODO: assert Types.size() == 2
+			for (ysize i = 0; i < Types.size() - 1; i++) {
+				if (!Types[i]->matches(tc->Types[i])) {
+					return false;
+				}
+			}
+			return true;
+		}
+		throw std::exception("matches() sanity!");
 	}
 }

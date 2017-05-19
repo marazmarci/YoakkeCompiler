@@ -9,11 +9,11 @@ namespace yk {
 	struct stmt;
 	struct expr;
 
-	//              sub semicol return
-	make_stmt(expr, expr, bool, bool);
+	//              sub        semicol return
+	make_stmt(expr, ysptr<expr>, bool, bool);
 
 	using stmt_ty = yvar<
-		  expr_stmt
+		  ysptr<expr_stmt>
 	>;
 
 	struct stmt {

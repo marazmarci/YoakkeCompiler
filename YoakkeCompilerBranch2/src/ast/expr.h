@@ -10,14 +10,14 @@ namespace yk {
 	struct ty_expr;
 	struct pat_expr;
 	struct expr;
-	struct type;
+	class type;
 
 	using param_t = ypair<yopt<token>, ty_expr>;
 
 	make_expr(ident,		ystr);
 	make_expr(unit			);
-	make_expr(int_lit,		int);
-	make_expr(real_lit,		double);
+	make_expr(int_lit,		ystr);
+	make_expr(real_lit,		ystr);
 	make_expr(preury,		token, expr);
 	make_expr(postury,		token, expr);
 	make_expr(binop,		token, expr, expr);
@@ -27,7 +27,7 @@ namespace yk {
 	make_expr(call,			expr, yopt<expr>);
 	make_expr(block, 		yvec<stmt>, bool);
 	make_expr(fnproto,		yvec<param_t>, ty_expr);
-	make_expr(fn,			yvec<param_t>, yopt<ty_expr>, block_expr);
+	make_expr(fn,			yvec<param_t>, yopt<ty_expr>, expr);
 	make_expr(let,			pat_expr, yopt<ty_expr>, yopt<expr>);
 
 	using expr_ty = yvar<
@@ -45,6 +45,7 @@ namespace yk {
 		, ysptr<block_expr>
 		, ysptr<fnproto_expr>
 		, ysptr<fn_expr>
+		, ysptr<let_expr>
 	>;
 
 	struct expr {

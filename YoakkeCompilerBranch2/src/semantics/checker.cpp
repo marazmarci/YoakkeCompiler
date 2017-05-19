@@ -12,20 +12,23 @@ namespace yk {
 		: m_File(f) {
 	}
 
-	void checker::check_stmt(ysptr<stmt> st) {
-		Match(st.get()) {
-			Case(expr_stmt, Expression, Semicol, Return) {
-				if (auto braced = dyn_cast<braced_expr>(Expression)) {
+	void checker::check_stmt(stmt const& st) {
+		match(st.Data) (
+			[this, &st](ysptr<expr_stmt> exp) {
+				auto& sub = exp->get<0>();
+				auto& semicol = exp->get<1>();
+				auto& do_ret = exp->get<2>();
+				if (bool* ret_dst = get_braced(*sub)) {
 					// Braced statements are not return destinations
-					braced->ReturnDest = false;
-					check_expr(Expression);
+					*ret_dst = false;
+					check_expr(*sub);
 				}
 				else if (
-					!Semicol
-					&& !dyn_cast<const_asgn_expr>(Expression)) {
+					!semicol
+					&& !std::get_if<ysptr<const_asgn_expr>>(&sub->Data)) {
 					// Not a constant assignment and does not end with semicolon
-					Return = true;
-					auto ret_ty = check_expr(Expression);
+					do_ret = true;
+					auto ret_ty = check_expr(*sub);
 					auto ret_dest = m_Table.enclosing_return();
 					if (!ret_dest) {
 						throw std::exception("Sanity error: no enclosing return destination!");
@@ -35,102 +38,105 @@ namespace yk {
 					}
 					else {
 						ret_dest->ReturnType = ret_ty;
-						ret_dest->ReturnPos = st->Position;
+						ret_dest->ReturnPos = st.Position;
 					}
 				}
 				else {
-					check_expr(Expression);
+					check_expr(*sub);
 				}
 			}
-			Otherwise() {
-				throw std::exception("Unhandled visit for semantic check (statement)!");
-			}
-		}
+		);
 	}
 
-	ysptr<type> checker::check_expr(ysptr<expr> ex) {
-		Match(ex.get()) {
-			Case(unit_expr) {
+	ysptr<type> checker::check_expr(expr const& ex) {
+		return match(ex.Data) (
+			[](ysptr<unit_expr>) -> ysptr<type> {
 				return symbol_table::UNIT_T;
-			}
-			Case(ident_expr, Identifier) {
+			},
+			[this, &ex](ysptr<ident_expr> ie) -> ysptr<type> {
+				auto& ident = ie->get<0>();
 				ysptr<var_sym> sym = nullptr;
 				bool hint_change = false;
-				if (ex->HintType) {
-					auto res = m_Table.ref(Identifier, ex->HintType);
-					sym = res.first;
-					hint_change = res.second;
+				if (ex.HintType) {
+					std::tie(sym, hint_change) = m_Table.ref(ident, ex.HintType);
 				}
 				else {
-					sym = m_Table.ref(Identifier);
+					sym = m_Table.ref(ident);
 				}
 
 				if (!sym) {
 					if (hint_change) {
 						rep::err_stream::report(
 							rep::no_such_symbol(m_File,
-								Identifier, ex->Position,
+								ident, ex.Position,
 								"The hint type supported is wrong!",
-								ex->HintPosition
+								ex.HintPosition
 							)
 						);
 					}
 					else {
 						rep::err_stream::report(
 							rep::no_such_symbol(m_File,
-								Identifier, ex->Position
+								ident, ex.Position
 							)
 						);
 					}
 				}
 				return sym->Type;
-			}
-			Case(int_lit_expr, Value) {
+			},
+			[](ysptr<int_lit_expr>) -> ysptr<type> {
 				return symbol_table::I32_T;
-			}
-			Case(real_lit_expr, Value) {
+			},
+			[](ysptr<real_lit_expr>) -> ysptr<type> {
 				return symbol_table::F32_T;
-			}
-			Case(preury_expr, Operator, Sub) {
+			},
+			[](ysptr<preury_expr>) -> ysptr<type> {
 				// TODO
-			}
-			Case(postury_expr, Operator, Sub) {
+				return nullptr;
+			},
+			[](ysptr<postury_expr>) -> ysptr<type> {
 				// TODO
-			}
-			Case(binop_expr, Operator, LHS, RHS) {
+				return nullptr;
+			},
+			[](ysptr<binop_expr>) -> ysptr<type> {
 				// TODO
-			}
-			Case(asgn_expr, LHS, RHS) {
-				auto left = check_expr(LHS);
-				auto right = check_expr(RHS);
+				return nullptr;
+			},
+			[this](ysptr<asgn_expr> ae) -> ysptr<type> {
+				auto left = check_expr(ae->get<1>());
+				auto right = check_expr(ae->get<2>());
 				unify(left, right);
 				return symbol_table::UNIT_T;
-			}
-			Case(const_asgn_expr, LHS, RHS) {
-				auto left = dyn_cast<ident_expr>(LHS);
-				auto right = check_expr(RHS);
-				// TODO: Generalize function return type!
-				auto sym_d = m_Table.ref(left->Identifier, right).first;
+			},
+			[this](ysptr<const_asgn_expr> ce) -> ysptr<type> {
+				auto& left = std::get<ysptr<ident_expr>>(ce->get<1>().Data);
+				auto const& right = check_expr(ce->get<2>());
+				auto& ident = left->get<0>();
+
+				auto sym_d = m_Table.ref(ident, right).first;
 				if (sym_d) {
-					std::string err = "TODO: cannot shadow constant assignment: " + left->Identifier;
+					std::string err = "TODO: cannot shadow constant assignment: " + ident;
 					throw std::exception(err.c_str());
 				}
 				auto sym = std::make_shared
-					<constant>(left->Identifier, right);
+					<constant>(ident, right);
 				m_Table.decl(sym);
 				return symbol_table::UNIT_T;
-			}
-			Case(list_expr, Elements) {
+			},
+			[this](ysptr<list_expr> le) -> ysptr<type> {
+				auto& elements = le->get<0>();
 				yvec<ysptr<type>> types;
-				for (auto e : Elements) {
+				for (auto e : elements) {
 					types.push_back(check_expr(e));
 				}
 				return std::make_shared<type_cons>("Tuple", types);
-			}
-			Case(call_expr, Function, Args) {
+			},
+			[this](ysptr<call_expr> ce) -> ysptr<type> {
 				ysptr<type> args_ty = nullptr;
-				if (Args) {
-					args_ty = check_expr(Args);
+				auto& function = ce->get<0>();
+				auto& args = ce->get<1>();
+				if (args) {
+					args_ty = check_expr(*args);
 				}
 				else {
 					args_ty = symbol_table::UNIT_T;
@@ -138,8 +144,8 @@ namespace yk {
 				// Create hint type
 				auto dummy_ty = fn_type_cons::create(args_ty, type_var::create());
 				// Help call with filtering
-				Function->HintType = dummy_ty;
-				auto fn_ty = check_expr(Function);
+				function.HintType = dummy_ty;
+				auto fn_ty = check_expr(function);
 				if (auto tt = dyn_cast<type_cons>(fn_ty)) {
 					if (tt->Name != "Function") {
 						throw std::exception("TODO: cannot call non-function expression!");
@@ -149,10 +155,12 @@ namespace yk {
 				else {
 					throw std::exception("TODO: cannot call non-function expression!");
 				}
-			}
-			Case(block_expr, Statements, ReturnDest) {
-				auto sc = m_Table.push(ReturnDest);
-				for (auto st : Statements) {
+			},
+			[this](ysptr<block_expr> be) -> ysptr<type> {
+				auto& statements = be->get<0>();
+				auto& ret_dest = be->get<1>();
+				auto sc = m_Table.push(ret_dest);
+				for (auto st : statements) {
 					check_stmt(st);
 				}
 				m_Table.pop();
@@ -162,18 +170,22 @@ namespace yk {
 				else {
 					return symbol_table::UNIT_T;
 				}
-			}
-			Case(fnproto_expr, Parameters, ReturnType) {
+			},
+			[](ysptr<fnproto_expr>) -> ysptr<type> {
 				// TODO
-			}
-			Case(fn_expr, Parameters, ReturnType, Body) {
+				return nullptr;
+			},
+			[this](ysptr<fn_expr> fe) -> ysptr<type> {
+				auto& parameters = fe->get<0>();
+				auto& returntype = fe->get<1>();
+				auto& body = fe->get<2>();
 				// TODO: warn if no parameter name
 				// TODO: error if same parameter name
 				auto sc = m_Table.push(true);
 
 				// Parameters ////////////////////////////////////////
 				yvec<ysptr<type>> params;
-				for (auto par : Parameters) {
+				for (auto par : parameters) {
 					auto par_ty = check_type(par.second);
 					params.push_back(par_ty);
 					if (auto name = par.first) {
@@ -186,8 +198,8 @@ namespace yk {
 
 				// Return type
 				ysptr<type> ret_t = nullptr;
-				if (ReturnType) {
-					ret_t = check_type(ReturnType);
+				if (returntype) {
+					ret_t = check_type(*returntype);
 				}
 				else {
 					ret_t = symbol_table::UNIT_T;
@@ -207,7 +219,7 @@ namespace yk {
 					fn_ty = fn_type_cons::create(params[0], ret_t);
 				}
 
-				auto body_t = check_expr(Body);
+				auto body_t = check_expr(body);
 				m_Table.pop();
 
 				// Check if body returned what return type needs
@@ -222,27 +234,30 @@ namespace yk {
 				}
 
 				return fn_ty;
-			}
-			Case(let_expr, Pattern, Type, Value) {
+			},
+			[this](ysptr<let_expr> le) -> ysptr<type> {
+				auto& pattern = le->get<0>();
+				auto& ttype = le->get<1>();
+				auto& value = le->get<2>();
 				ysptr<type> fin_sym = nullptr;
 				ysptr<type> ty_sym = nullptr;
 				ysptr<type> val_sym = nullptr;
-				if (Type) {
-					ty_sym = check_type(Type);
-					if (Value) {
-						Value->HintType = ty_sym;
-						Value->HintPosition = Type->Position;
+				if (ttype) {
+					ty_sym = check_type(*ttype);
+					if (value) {
+						value->HintType = ty_sym;
+						value->HintPosition = ttype->Position;
 					}
 					fin_sym = ty_sym;
 				}
-				if (Value) {
-					val_sym = check_expr(Value);
+				if (value) {
+					val_sym = check_expr(*value);
 					fin_sym = val_sym;
 				}
 				if (ty_sym && val_sym) {
 					unify(ty_sym, val_sym);
 				}
-				auto entries = match_pat(Pattern, fin_sym);
+				auto entries = match_pat(pattern, fin_sym);
 				for (auto e : entries) {
 					if (e.second) {
 						auto var_sym = std::make_shared
@@ -257,65 +272,54 @@ namespace yk {
 				}
 				return symbol_table::UNIT_T;
 			}
-			Otherwise() {
-				throw std::exception("Unhandled visit for semantic check (expression)!");
-			}
-		}
-		// TODO: assert
-		return nullptr;
+		);
 	}
 
-	ysptr<type> checker::check_type(ysptr<ty_expr> ty) {
-		Match(ty.get()) {
-			Case(unit_ty_expr) {
+	ysptr<type> checker::check_type(ty_expr const& ty) {
+		return match(ty.Data) (
+			[](ysptr<unit_ty_expr>) -> ysptr<type> {
 				return symbol_table::UNIT_T;
-			}
-			Case(ident_ty_expr, Identifier) {
+			},
+			[](ysptr<ident_ty_expr> ie) -> ysptr<type> {
+				auto& ident = ie->get<0>();
 				// TODO: real type lookup
-				if (Identifier == "i32") return symbol_table::I32_T;
-				if (Identifier == "f32") return symbol_table::F32_T;
+				if (ident == "i32") return symbol_table::I32_T;
+				if (ident == "f32") return symbol_table::F32_T;
 				return nullptr;
-			}
-			Case(bin_ty_expr, Operator, LHS, RHS) {
-				if (Operator.Type == ytoken_t::Arrow) {
-					auto left = check_type(LHS);
-					auto right = check_type(RHS);
+			},
+			[this](ysptr<bin_ty_expr> be) -> ysptr<type> {
+				auto& oper = be->get<0>();
+				if (oper.Type == ytoken_t::Arrow) {
+					auto left = check_type(be->get<1>());
+					auto right = check_type(be->get<2>());
 					return fn_type_cons::create(left, right);
 				}
 				else {
 					throw std::exception("TODO: no such type operator");
 				}
-			}
-			Case(list_ty_expr, Elements) {
+			},
+			[this](ysptr<list_ty_expr> le) -> ysptr<type> {
+				auto& elements = le->get<0>();
 				yvec<ysptr<type>> syms;
-				for (auto& el : Elements) {
+				for (auto& el : elements) {
 					syms.push_back(check_type(el));
 				}
 				return std::make_shared<type_cons>("Tuple", syms);
 			}
-			Otherwise() {
-				throw std::exception("Unhandled visit for semantic check (type)!");
-			}
-		}
-		// TODO: assert
-		return nullptr;
+		);
 	}
 
 	ysptr<type> checker::prune(ysptr<type> t) {
-		Match(t.get()) {
-			Case(type_var, Instance) {
-				if (Instance) {
-					Instance = prune(Instance);
-					return Instance;
-				}
-				return t;
+		if (auto tv = dyn_cast<type_var>(t)) {
+			if (tv->Instance) {
+				tv->Instance = prune(tv->Instance);
+				return tv->Instance;
 			}
-			Otherwise() {
-				return t;
-			}
+			return t;
 		}
-		// TODO: assert
-		return nullptr;
+		else {
+			return t;
+		}
 	}
 	
 	void checker::unify(ysptr<type> t1, ysptr<type> t2) {
@@ -336,7 +340,7 @@ namespace yk {
 					throw std::exception(("TODO: " + t1->to_str() + " has not as many types as " + t2->to_str()).c_str());
 				}
 				for (ysize i = 0; i < tt1->Types.size(); i++) {
-					unify(tt1->Types[i], tt1->Types[i]);
+					unify(tt1->Types[i], tt2->Types[i]);
 				}
 			}
 			else if (auto tt2 = dyn_cast<type_var>(t2)) {
@@ -374,18 +378,25 @@ namespace yk {
 		}
 	}
 
-	yvec<ypair<ystr, ysptr<type>>> checker::match_pat(ysptr<pat_expr> pat, ysptr<type> ty) {
+	bool* checker::get_braced(expr const& e) {
+		if (auto bl = std::get_if<ysptr<block_expr>>(&e.Data)) {
+			return &(*bl)->get<1>();
+		}
+		return nullptr;
+	}
+
+	yvec<ypair<ystr, ysptr<type>>> checker::match_pat(pat_expr const& pat, ysptr<type> ty) {
 		yvec<ypair<ystr, ysptr<type>>> res;
 		match_pat_impl(res, pat, ty);
 		return res;
 	}
 
-	void checker::match_pat_impl(yvec<ypair<ystr, ysptr<type>>>& res, ysptr<pat_expr> pat, ysptr<type> ty) {
-		Match(pat.get()) {
-			Case(ignore_pat_expr) {
+	void checker::match_pat_impl(yvec<ypair<ystr, ysptr<type>>>& res, pat_expr const& pat, ysptr<type> ty) {
+		match(pat.Data) (
+			[](ysptr<ignore_pat_expr>) {
 				return;
-			}
-			Case(unit_pat_expr) {
+			},
+			[&ty](ysptr<unit_pat_expr> ) {
 				if (!ty) {
 					throw std::exception("TODO: Unmeaningful bind without type!");
 				}
@@ -393,29 +404,31 @@ namespace yk {
 					throw std::exception("TODO: Pattern match failed for unit! (type)");
 				}
 				return;
-			}
-			Case(ident_pat_expr, Identifier) {
+			},
+			[&ty, &res](ysptr<ident_pat_expr> ip) {
+				auto& ident = ip->get<0>();
 				// Just bind
 				if (ty) {
-					res.push_back({ Identifier, ty });
+					res.push_back({ ident, ty });
 				}
 				else {
-					res.push_back({ Identifier, nullptr });
+					res.push_back({ ident, nullptr });
 				}
 				return;
-			}
-			Case(list_pat_expr, Elements) {
+			},
+			[&ty, &res, this](ysptr<list_pat_expr> le) {
+				auto& elements = le->get<0>();
 				if (ty) {
 					if (auto tt = dyn_cast<type_cons>(ty)) {
 						if (tt->Name != "Tuple") {
 							throw std::exception("TODO: Cannot match non-tuple with tuple");
 						}
-						if (tt->Types.size() != Elements.size()) {
+						if (tt->Types.size() != elements.size()) {
 							throw std::exception("TODO: Pattern list size mismatch!");
 						}
 
-						for (ysize i = 0; i < Elements.size(); i++) {
-							match_pat_impl(res, Elements[i], tt->Types[i]);
+						for (ysize i = 0; i < elements.size(); i++) {
+							match_pat_impl(res, elements[i], tt->Types[i]);
 						}
 					}
 					else {
@@ -423,15 +436,11 @@ namespace yk {
 					}
 				}
 				else {
-					for (ysize i = 0; i < Elements.size(); i++) {
-						match_pat_impl(res, Elements[i], nullptr);
+					for (ysize i = 0; i < elements.size(); i++) {
+						match_pat_impl(res, elements[i], nullptr);
 					}
 				}
-				return;
 			}
-			Otherwise() {
-				throw std::exception("Unhandled visit for pattern matching (expression)!");
-			}
-		}
+		);
 	}
 }

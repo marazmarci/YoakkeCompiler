@@ -39,7 +39,7 @@ namespace yk {
 		if (lookahead1.Type == tt1 && lookahead2.Type == tt2) {
 			lookahead1 = consume();
 			lookahead2 = consume();
-			return { lookahead1, lookahead2 };
+			return ypair<token, token>(lookahead1, lookahead2);
 		}
 		return {};
 	}

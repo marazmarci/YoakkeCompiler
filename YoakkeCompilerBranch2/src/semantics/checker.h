@@ -5,10 +5,10 @@
 #include "../common.h"
 
 namespace yk {
-	class stmt;
-	class expr;
-	class pat_expr;
-	class ty_expr;
+	struct stmt;
+	struct expr;
+	struct pat_expr;
+	struct ty_expr;
 	class type;
 
 	class checker {
@@ -20,15 +20,17 @@ namespace yk {
 		checker(file_handle const& f);
 
 	public:
-		void				check_stmt(ysptr<stmt> st);
-		ysptr<type>			check_expr(ysptr<expr> ex);
-		ysptr<type>			check_type(ysptr<ty_expr> ty);
+		void				check_stmt(stmt const& st);
+		ysptr<type>			check_expr(expr const& ex);
+		ysptr<type>			check_type(ty_expr const& ty);
 
 	private:
+		bool* get_braced(expr const& e);
+
 		ysptr<type> prune(ysptr<type> t);
 		void unify(ysptr<type> t1, ysptr<type> t2);
 
-		yvec<ypair<ystr, ysptr<type>>> match_pat(ysptr<pat_expr> pat, ysptr<type> ty);
-		void match_pat_impl(yvec<ypair<ystr, ysptr<type>>>& res, ysptr<pat_expr> pat, ysptr<type> ty);
+		yvec<ypair<ystr, ysptr<type>>> match_pat(pat_expr const& pat, ysptr<type> ty);
+		void match_pat_impl(yvec<ypair<ystr, ysptr<type>>>& res, pat_expr const& pat, ysptr<type> ty);
 	};
 }

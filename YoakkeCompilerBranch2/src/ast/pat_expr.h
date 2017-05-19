@@ -14,10 +14,10 @@ namespace yk {
 	make_pat(list,	yvec<pat_expr>);
 
 	using pat_ty = yvar<
-		  ignore_pat_expr
-		, unit_pat_expr
-		, ident_pat_expr
-		, list_pat_expr
+		  ysptr<ignore_pat_expr>
+		, ysptr<unit_pat_expr>
+		, ysptr<ident_pat_expr>
+		, ysptr<list_pat_expr>
 	>;
 
 	struct pat_expr {

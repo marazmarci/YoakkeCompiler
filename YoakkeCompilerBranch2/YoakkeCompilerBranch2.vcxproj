@@ -120,11 +120,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\ast\expr.cpp" />
-    <ClCompile Include="src\ast\node.cpp" />
-    <ClCompile Include="src\ast\pat_expr.cpp" />
-    <ClCompile Include="src\ast\stmt.cpp" />
-    <ClCompile Include="src\ast\ty_expr.cpp" />
     <ClCompile Include="src\reporting\err_msg.cpp" />
     <ClCompile Include="src\reporting\err_stream.cpp" />
     <ClCompile Include="src\semantics\checker.cpp" />
