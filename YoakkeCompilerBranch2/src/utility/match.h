@@ -1,6 +1,7 @@
 #pragma once
 
 #include <variant>
+#include <boost\preprocessor\variadic\size.hpp>
 
 namespace yk {
 	template <typename TF, typename... TFs>
@@ -40,5 +41,4 @@ namespace yk {
 		};
 	}
 }
-
 

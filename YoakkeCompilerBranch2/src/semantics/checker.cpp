@@ -14,22 +14,19 @@ namespace yk {
 
 	void checker::check_stmt(stmt& st) {
 		match(st.Data) (
-			[&](ysptr<expr_stmt> exp) {
-				auto& sub		= exp->get<0>();
-				auto& semicol	= exp->get<1>();
-				auto& do_ret	= exp->get<2>();
-
-				if (bool* ret_dst = get_braced(*sub)) {
+			[&](ysptr<expr_stmt> exp) { 
+			std::apply([&](ysptr<expr> Sub, bool& Semicol, bool& DoesReturn) {
+				if (bool* ret_dst = get_braced(*Sub)) {
 					// Braced statements are not return destinations
 					*ret_dst = false;
-					check_expr(*sub);
+					check_expr(*Sub);
 				}
 				else if (
-					!semicol
-					&& !std::get_if<ysptr<const_asgn_expr>>(&sub->Data)) {
+					!Semicol
+				 && !std::get_if<ysptr<const_asgn_expr>>(&Sub->Data)) {
 					// Not a constant assignment and does not end with semicolon
-					do_ret = true;
-					auto ret_ty = check_expr(*sub);
+					DoesReturn = true;
+					auto ret_ty = check_expr(*Sub);
 					auto ret_dest = m_Table.enclosing_return();
 					if (!ret_dest) {
 						throw std::exception("Sanity error: no enclosing return destination!");
@@ -43,9 +40,9 @@ namespace yk {
 					}
 				}
 				else {
-					check_expr(*sub);
+					check_expr(*Sub);
 				}
-			}
+			}, exp->as());}
 		);
 	}
 
@@ -55,24 +52,21 @@ namespace yk {
 				return symbol_table::UNIT_T;
 			},
 			[&](ysptr<ident_expr> ie) -> type {
-				ystr& ident = ie->get<0>();
-
+			return std::apply([&](ystr& Identifier) {
 				ysptr<var_sym> sym = nullptr;
 				bool hint_change = false;
 				if (ex.HintType) {
-					std::tie(sym, hint_change) = m_Table.ref(ident, *ex.HintType);
-					//sym = res.first;
-					//hint_change = res.second;
+					std::tie(sym, hint_change) = m_Table.ref(Identifier, *ex.HintType);
 				}
 				else {
-					sym = m_Table.ref(ident);
+					sym = m_Table.ref(Identifier);
 				}
 
 				if (!sym) {
 					if (hint_change) {
 						rep::err_stream::report(
 							rep::no_such_symbol(m_File,
-								ident, ex.Position,
+								Identifier, ex.Position,
 								"The hint type supported is wrong!",
 								ex.HintPosition
 							)
@@ -81,13 +75,13 @@ namespace yk {
 					else {
 						rep::err_stream::report(
 							rep::no_such_symbol(m_File,
-								ident, ex.Position
+								Identifier, ex.Position
 							)
 						);
 					}
 				}
 				return sym->Type;
-			},
+			}, ie->as());},
 			[&](ysptr<int_lit_expr>) -> type {
 				return symbol_table::I32_T;
 			},

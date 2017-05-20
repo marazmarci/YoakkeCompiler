@@ -21,5 +21,9 @@ namespace yk {
 		constexpr auto& get() {
 			return std::get<I>(*this);
 		}
+
+		T& as() {
+			return *this;
+		}
 	};
 }
