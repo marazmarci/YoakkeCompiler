@@ -12,14 +12,12 @@ namespace yk {
 	//              sub        semicol return
 	make_stmt(expr, ysptr<expr>, bool, bool);
 
-	using stmt_ty = yvar<
-		  ysptr<expr_stmt>
-	>;
-
 	struct stmt {
 	public:
 		interval	Position;
-		stmt_ty		Data;
+		yvar<
+			ysptr<expr_stmt>
+		> Data;
 
 	public:
 		template <typename... Ts>

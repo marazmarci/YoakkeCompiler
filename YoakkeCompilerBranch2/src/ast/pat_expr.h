@@ -13,17 +13,15 @@ namespace yk {
 	make_pat(ident,	ystr);
 	make_pat(list,	yvec<pat_expr>);
 
-	using pat_ty = yvar<
-		  ysptr<ignore_pat_expr>
-		, ysptr<unit_pat_expr>
-		, ysptr<ident_pat_expr>
-		, ysptr<list_pat_expr>
-	>;
-
 	struct pat_expr {
 	public:
 		interval	Position;
-		pat_ty		Data;
+		yvar<
+			  ysptr<ignore_pat_expr>
+			, ysptr<unit_pat_expr>
+			, ysptr<ident_pat_expr>
+			, ysptr<list_pat_expr>
+		> Data;
 
 	public:
 		template <typename... Ts>

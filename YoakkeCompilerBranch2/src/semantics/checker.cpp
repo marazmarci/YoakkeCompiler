@@ -102,14 +102,13 @@ namespace yk {
 			},
 			[&](ysptr<asgn_expr> ae) -> type {
 			return bind(ae->as(), [&](token& Op, expr& LHS, expr& RHS) {
-				auto left = check_expr(LHS);
-				auto right = check_expr(RHS);
+				auto left	= check_expr(LHS);
+				auto right	= check_expr(RHS);
 				unify(left, right);
 				return symbol_table::UNIT_T;
 			}); },
 			[&](ysptr<const_asgn_expr> ce) -> type {
 			return bind(ce->as(), [&](token& Op, expr& LHS, expr& RHS) {
-				// Don't need get<0> because it's the operator
 				auto& left = std::get<0>(*std::get<ysptr<ident_expr>>(LHS.Data));
 				auto right = check_expr(RHS);
 

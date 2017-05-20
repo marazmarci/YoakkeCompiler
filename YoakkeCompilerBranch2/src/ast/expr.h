@@ -31,28 +31,26 @@ namespace yk {
 	make_expr(fn,			yvec<param_t>, yopt<ty_expr>, expr);
 	make_expr(let,			pat_expr, yopt<ty_expr>, yopt<expr>);
 
-	using expr_ty = yvar<
-		  ysptr<ident_expr>
-		, ysptr<unit_expr>
-		, ysptr<int_lit_expr>
-		, ysptr<real_lit_expr>
-		, ysptr<preury_expr>
-		, ysptr<postury_expr>
-		, ysptr<binop_expr>
-		, ysptr<asgn_expr>
-		, ysptr<const_asgn_expr>
-		, ysptr<list_expr>
-		, ysptr<call_expr>
-		, ysptr<block_expr>
-		, ysptr<fnproto_expr>
-		, ysptr<fn_expr>
-		, ysptr<let_expr>
-	>;
-
 	struct expr {
 	public:
 		interval	Position;
-		expr_ty		Data;
+		yvar<
+			  ysptr<ident_expr>
+			, ysptr<unit_expr>
+			, ysptr<int_lit_expr>
+			, ysptr<real_lit_expr>
+			, ysptr<preury_expr>
+			, ysptr<postury_expr>
+			, ysptr<binop_expr>
+			, ysptr<asgn_expr>
+			, ysptr<const_asgn_expr>
+			, ysptr<list_expr>
+			, ysptr<call_expr>
+			, ysptr<block_expr>
+			, ysptr<fnproto_expr>
+			, ysptr<fn_expr>
+			, ysptr<let_expr>
+		> Data;
 		yopt<type>	HintType;
 		interval	HintPosition;
 

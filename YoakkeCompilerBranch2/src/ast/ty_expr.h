@@ -13,17 +13,15 @@ namespace yk {
 	make_ty(bin,	token, ty_expr, ty_expr);
 	make_ty(list,	yvec<ty_expr>);
 
-	using ty_ty = yvar<
-		  ysptr<unit_ty_expr>
-		, ysptr<ident_ty_expr>
-		, ysptr<bin_ty_expr>
-		, ysptr<list_ty_expr>
-	>;
-
 	struct ty_expr {
 	public:
 		interval	Position;
-		ty_ty		Data;
+		yvar<
+			  ysptr<unit_ty_expr>
+			, ysptr<ident_ty_expr>
+			, ysptr<bin_ty_expr>
+			, ysptr<list_ty_expr>
+		> Data;
 
 	public:
 		template <typename... Ts>
