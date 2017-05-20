@@ -2,6 +2,7 @@
 
 #include "../common.h"
 #include "../lexing/position.h"
+#include "type.h"
 
 namespace yk {
 	struct type;

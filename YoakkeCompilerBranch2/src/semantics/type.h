@@ -24,17 +24,17 @@ namespace yk {
 		tty_ty Data;
 
 	public:
-		template <typename... Ts>
-		type(Ts&&... xs)
-			: Data(std::forward<Ts>(xs)...) {
+		template <typename T>
+		type(ysptr<T> s)
+			: Data(s) {
 		}
 
-		type(tty_ty const& tt)
-			: Data(tt) {
+		type(type const& tt)
+			: Data(tt.Data) {
 		}
 
 	public:
-		bool matches(type const& t) const;
+		bool matches(type& t);
 		bool contains(ysptr<var_type> t);
 		ystr to_str() const;
 		type& prune();

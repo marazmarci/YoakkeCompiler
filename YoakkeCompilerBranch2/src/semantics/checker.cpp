@@ -52,9 +52,7 @@ namespace yk {
 	type checker::check_expr(expr& ex) {
 		return match(ex.Data) (
 			[&](ysptr<unit_expr>) -> type {
-				// TODO
-				//return symbol_table::UNIT_T;
-				return type::create_cons("unit");
+				return symbol_table::UNIT_T;
 			},
 			[&](ysptr<ident_expr> ie) -> type {
 				ystr& ident = ie->get<0>();
@@ -213,17 +211,13 @@ namespace yk {
 					: symbol_table::UNIT_T;
 
 				// Create the type
-				type fn_ty;
-				if (params.empty()) {
-					fn_ty = type::create_fn(symbol_table::UNIT_T, ret_t);
-				}
-				else if (params.size() > 1) {
-					type par_tpl = type::create_tup(params);
-					fn_ty = type::create_fn(par_tpl, ret_t);
-				}
-				else {
-					fn_ty = type::create_fn(params[0], ret_t);
-				}
+				type fn_ty = params.empty() ?
+					type::create_fn(symbol_table::UNIT_T, ret_t)
+					: (params.size() > 1 ?
+						type::create_fn(type::create_tup(params), ret_t)
+					: 
+						type::create_fn(params[0], ret_t)
+					);
 
 				auto body_t = check_expr(body);
 				m_Table.pop();
@@ -338,7 +332,7 @@ namespace yk {
 			},
 			[&](ysptr<var_type> tt1, ysptr<var_type> tt2) {
 				// Substitute
-				tt2->get<1>() = tt1;
+				tt2->get<1>() = t1;
 			},
 			[&](ysptr<cons_type> tt1, ysptr<var_type> tt2) {
 				if (t1.contains(tt2)) {
@@ -395,7 +389,7 @@ namespace yk {
 					res.push_back({ ident, ty });
 				}
 				else {
-					res.push_back({ ident, nullptr });
+					res.push_back({ ident, yopt<type>{} });
 				}
 				return;
 			},
@@ -424,7 +418,7 @@ namespace yk {
 				}
 				else {
 					for (ysize i = 0; i < elements.size(); i++) {
-						match_pat_impl(res, elements[i], nullptr);
+						match_pat_impl(res, elements[i], yopt<type>{});
 					}
 				}
 			}

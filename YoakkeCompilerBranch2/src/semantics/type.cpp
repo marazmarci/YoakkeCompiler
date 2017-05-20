@@ -22,10 +22,9 @@ namespace yk {
 		return type(std::make_shared<cons_type>("@tup", ts));
 	}
 
-	bool type::matches(type const& t) const {
+	bool type::matches(type& t) {
 		return match(Data, t.Data) (
-			[&](ysptr<var_type>, auto&) -> bool { return true },
-			[&](auto&, ysptr<var_type>) -> bool { return true },
+			[&](auto&, auto&) -> bool { return true; },
 			[&](ysptr<cons_type> t1, ysptr<cons_type> t2) -> bool {
 				auto& name1		= t1->get<0>();
 				auto& types1	= t1->get<1>();
