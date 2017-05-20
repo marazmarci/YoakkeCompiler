@@ -8,22 +8,13 @@
 namespace yk {
 	template <typename T, typename Tag>
 	struct type_tag : public T {
-		type_tag()
-			: T() {
-		}
-
 		template <typename... Ts>
 		type_tag(Ts&&... args)
 			: T(std::forward<Ts>(args)...) {
 		}
 
-		template <ysize I>
-		constexpr auto& get() {
-			return std::get<I>(*this);
-		}
-
 		T& as() {
-			return *this;
+			return static_cast<T&>(*this);
 		}
 	};
 }

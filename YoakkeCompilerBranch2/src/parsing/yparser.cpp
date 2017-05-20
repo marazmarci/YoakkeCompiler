@@ -90,7 +90,7 @@ namespace yk {
 		yvec<stmt> ls;
 		while (auto st = parse_stmt()) {
 			if (auto exp = std::get_if<ysptr<expr_stmt>>(&st->Data)) {
-				if (!std::get_if<ysptr<const_asgn_expr>>(&(*exp)->get<0>()->Data)) {
+				if (!std::get_if<ysptr<const_asgn_expr>>(&std::get<0>((*exp)->as())->Data)) {
 					throw std::exception("TODO error: only const asgn can be global");
 				}
 			}

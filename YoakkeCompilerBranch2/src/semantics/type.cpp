@@ -26,11 +26,7 @@ namespace yk {
 		return match(Data, t.Data) (
 			[&](auto&, auto&) -> bool { return true; },
 			[&](ysptr<cons_type> t1, ysptr<cons_type> t2) -> bool {
-				auto& name1		= t1->get<0>();
-				auto& types1	= t1->get<1>();
-				auto& name2		= t2->get<0>();
-				auto& types2	= t2->get<1>();
-
+			return bind(t1->as(), t2->as(), [&](ystr& name1, yvec<type>& types1, ystr& name2, yvec<type>& types2) {
 				if (name1 != name2) {
 					return false;
 				}
@@ -48,41 +44,42 @@ namespace yk {
 					}
 				}
 				return true;
-			}
+			}); }
 		);
 	}
 
 	bool type::contains(ysptr<var_type> t) {
 		auto& pr = prune();
+		return bind(t->as(), [&](ysize& id1, yopt<type>& instance1) {
 		return match(pr.Data) (
 			[&](ysptr<var_type> v) -> bool {
-				return t->get<0>() == v->get<0>();
-			},
+			return bind(v->as(), [&](ysize& id2, yopt<type>& instance2) {
+				return id1 == id2;
+			}); },
 			[&](ysptr<cons_type> v) -> bool {
-				auto& types = v->get<1>();
+			return bind(v->as(), [&](ystr& name, yvec<type>& types) {
 				for (auto& tt : types) {
 					if (tt.contains(t)) {
 						return true;
 					}
 				}
 				return false;
-			}
-		);
+			}); }
+		); });
 	}
 
 	ystr type::to_str() const {
 		return match(Data) (
 			[&](ysptr<var_type> v) -> ystr {
-				auto& id = v->get<0>();
-				auto& inst = v->get<1>();
-				if (inst) {
-					return inst->to_str();
+			return bind(v->as(), [&](ysize& id, yopt<type>& instance) {
+				if (instance) {
+					return instance->to_str();
 				}
 				return ystr{ '\'', char('A' + id % 26) };
-			},
+			}); },
 			[&](ysptr<cons_type> v) -> ystr {
-				ystr res = v->get<0>();
-				auto& types = v->get<1>();
+			return bind(v->as(), [&](ystr& name, yvec<type>& types) {
+				ystr res = name;
 				if (types.size()) {
 					res += '<' + types[0].to_str();
 					for (ysize i = 1; i < types.size(); i++) {
@@ -91,20 +88,20 @@ namespace yk {
 					res += '>';
 				}
 				return res;
-			}
+			}); }
 		);
 	}
 
 	type& type::prune() {
 		return match(Data) (
 			[&](ysptr<var_type> v) -> type& {
-				yopt<type>& inst = v->get<1>();
-				if (inst) {
-					inst = inst->prune();
-					return *inst;
+			return bind(v->as(), [&](ysize& id, yopt<type>& instance) -> type& {
+				if (instance) {
+					instance = instance->prune();
+					return *instance;
 				}
 				return *this;
-			},
+			}); },
 			[&](ysptr<cons_type> v) -> type& {
 				return *this;
 			}
@@ -117,27 +114,24 @@ namespace yk {
 
 		return match(t1.Data, t2.Data) (
 			[&](ysptr<var_type> a, ysptr<var_type> b) -> bool { 
-				return a->get<0>() == b->get<0>(); 
-			},
+			return bind(a->as(), b->as(), [&](ysize& id1, yopt<type>& instance1, ysize& id2, yopt<type>& instance2) {
+				return id1 == id2;
+			}); },
 			[&](ysptr<cons_type> a, ysptr<cons_type> b) -> bool {
-				auto& name1			= a->get<0>();
-				yvec<type>& types1	= a->get<1>();
-				auto& name2			= b->get<0>();
-				yvec<type>& types2	= b->get<1>();
-
-				if (name1 != name2) {
-					return false;
-				}
-				if (types1.size() != types2.size()) {
-					return false;
-				}
-				for (ysize i = 0; i < types1.size(); i++) {
-					if (!types1[i].same(types2[i])) {
+				return bind(a->as(), b->as(), [&](ystr& name1, yvec<type>& types1, ystr& name2, yvec<type>& types2) {
+					if (name1 != name2) {
 						return false;
 					}
-				}
-				return true;
-			},
+					if (types1.size() != types2.size()) {
+						return false;
+					}
+					for (ysize i = 0; i < types1.size(); i++) {
+						if (!types1[i].same(types2[i])) {
+							return false;
+						}
+					}
+					return true;
+				}); },
 			[&](auto&, auto&) -> bool { return false; }
 		);
 	}
