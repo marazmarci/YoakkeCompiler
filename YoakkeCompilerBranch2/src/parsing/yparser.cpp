@@ -130,7 +130,7 @@ namespace yk {
 		if (auto endbr = match(ytoken_t::Rbrace)) {
 			return expr(
 				begin.Position * endbr->Position,
-				std::make_shared<block_expr>(body, true));
+				std::make_shared<block_expr>(body, true, nullptr));
 		}
 		expect_error("'}'", "", *this);
 	}

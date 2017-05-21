@@ -27,8 +27,6 @@ namespace yk {
 	private:
 		bool* get_braced(expr const& e);
 
-		void unify(type& t1, type& t2);
-
 		yvec<ypair<ystr, yopt<type>>> match_pat(pat_expr const& pat, yopt<type> ty);
 		void match_pat_impl(yvec<ypair<ystr, yopt<type>>>& res, pat_expr const& pat, yopt<type> ty);
 	};

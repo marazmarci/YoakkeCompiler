@@ -6,6 +6,7 @@
 #include "../reporting/err_stream.h"
 #include "../reporting/err_msg.h"
 #include "scope.h"
+#include "unifier.h"
 
 namespace yk {
 	checker::checker(file_handle const& f)
@@ -32,7 +33,18 @@ namespace yk {
 						throw std::exception("Sanity error: no enclosing return destination!");
 					}
 					if (auto o_ret_ty = ret_dest->ReturnType) {
-						unify(ret_ty, *o_ret_ty);
+						try {
+							unifier::unify(ret_ty, *o_ret_ty);
+						}
+						catch (unifier::err& err) {
+							rep::err_stream::report(
+								rep::type_mismatch(
+									m_File,
+									ret_dest->ReturnPos,
+									Sub->Position
+								)
+							);
+						}
 					}
 					else {
 						ret_dest->ReturnType = ret_ty;
@@ -104,7 +116,18 @@ namespace yk {
 			return bind(ae->as(), [&](token& Op, expr& LHS, expr& RHS) {
 				auto left	= check_expr(LHS);
 				auto right	= check_expr(RHS);
-				unify(left, right);
+				try {
+					unifier::unify(left, right);
+				}
+				catch (unifier::err& err) {
+					rep::err_stream::report(
+						rep::type_mismatch(
+							m_File,
+							LHS.Position,
+							RHS.Position
+						)
+					);
+				}
 				return symbol_table::UNIT_T;
 			}); },
 			[&](ysptr<const_asgn_expr> ce) -> type {
@@ -152,13 +175,13 @@ namespace yk {
 				);
 			}); },
 			[&](ysptr<block_expr> be) -> type {
-			return bind(be->as(), [&](yvec<stmt>& Statements, bool& ReturnDest) {
-				auto sc = m_Table.push(ReturnDest);
+			return bind(be->as(), [&](yvec<stmt>& Statements, bool& ReturnDest, ysptr<scope>& Scope) {
+				Scope = m_Table.push(ReturnDest);
 				for (auto st : Statements) {
 					check_stmt(st);
 				}
 				m_Table.pop();
-				return sc->ReturnType.value_or(symbol_table::UNIT_T);
+				return Scope->ReturnType.value_or(symbol_table::UNIT_T);
 			}); },
 			[&](ysptr<fnproto_expr>) -> type {
 				// TODO
@@ -166,6 +189,8 @@ namespace yk {
 			},
 			[&](ysptr<fn_expr> fe) -> type {
 			return bind(fe->as(), [&](yvec<param_t>& Parameters, yopt<ty_expr>& ReturnType, expr& Body) {
+				auto& Bbody = *std::get<ysptr<block_expr>>(Body.Data);
+				
 				// TODO: warn if no parameter name
 				// TODO: error if same parameter name
 				auto sc = m_Table.push(true);
@@ -197,7 +222,36 @@ namespace yk {
 				m_Table.pop();
 
 				// Check if body returned what return type needs
-				unify(ret_t, body_t);
+				try {
+					unifier::unify(ret_t, body_t);
+				}
+				catch (unifier::err& err) {
+					auto& body_scope = std::get<2>(Bbody);
+					// Report error based on provided annotations
+					if (body_scope->ReturnType && ReturnType) {
+						// We have annotations
+						rep::err_stream::report(
+							rep::type_mismatch(
+								m_File,
+								ReturnType->Position,
+								body_scope->ReturnPos
+							)
+						);
+					}
+					else if (body_scope->ReturnType) {
+						// No annotation but body returns
+						// TODO
+						throw std::exception("TODO: return statement but no explicit annotation!");
+					}
+					else if (ReturnType) {
+						// Annotation but no return
+						// TODO
+						throw std::exception("TODO: no return statement but explicit annotation!");
+					}
+					else {
+						throw std::exception("SANITY");
+					}
+				}
 				return fn_ty;
 			});},
 			[&](ysptr<let_expr> le) -> type {
@@ -207,18 +261,29 @@ namespace yk {
 				yopt<type> val_sym = {};
 				if (Type) {
 					ty_sym = check_type(*Type);
+					fin_sym = ty_sym;
 					if (Value) {
 						Value->HintType = ty_sym;
 						Value->HintPosition = Type->Position;
 					}
-					fin_sym = ty_sym;
 				}
 				if (Value) {
 					val_sym = check_expr(*Value);
 					fin_sym = val_sym;
 				}
 				if (ty_sym && val_sym) {
-					unify(*ty_sym, *val_sym);
+					try {
+						unifier::unify(*ty_sym, *val_sym);
+					}
+					catch (unifier::err& err) {
+						rep::err_stream::report(
+							rep::type_mismatch(
+								m_File,
+								Type->Position,
+								Value->Position
+							)
+						);
+					}
 				}
 				auto entries = match_pat(Pattern, fin_sym);
 				for (auto e : entries) {
@@ -262,60 +327,11 @@ namespace yk {
 			}); }
 		);
 	}
-	
-	void checker::unify(type& t1, type& t2) {
-		t1 = t1.prune();
-		t2 = t2.prune();
-		if (t1.same(t2)) {
-			return;
-		}
-
-		match(t1.Data, t2.Data) (
-			[&](ysptr<cons_type> tt1, ysptr<cons_type> tt2) {
-			bind(tt1->as(), tt2->as(), [&](ystr& name1, yvec<type>& types1, ystr& name2, yvec<type>& types2) {
-				if (name1 != name2) {
-					// TODO
-					throw std::exception(("TODO: " + t1.to_str() + " is not " + t2.to_str()).c_str());
-				}
-				if (types1.size() != types2.size()) {
-					// TODO
-					throw std::exception(("TODO: " + t1.to_str() + " has not as many types as " + t2.to_str()).c_str());
-				}
-				for (ysize i = 0; i < types1.size(); i++) {
-					unify(types1[i], types2[i]);
-				}
-			}); },
-			[&](ysptr<var_type> tt1, ysptr<var_type> tt2) {
-			bind(tt2->as(), [&](ysize& id, yopt<type>& instance) {
-				instance = t1;
-			}); },
-			[&](ysptr<cons_type> tt1, ysptr<var_type> tt2) {
-			bind(tt2->as(), [&](ysize& id, yopt<type>& instance) {
-				if (t1.contains(tt2)) {
-					// TODO
-					throw std::exception(("TODO: " + t1.to_str() + " contains " + t2.to_str() + " so it's recursive").c_str());
-				}
-				else {
-					instance = t1;
-				}
-			}); },
-			[&](ysptr<var_type> tt1, ysptr<cons_type> tt2) {
-			bind(tt1->as(), [&](ysize& id, yopt<type>& instance) {
-				if (t2.contains(tt1)) {
-					// TODO
-					throw std::exception(("TODO: " + t2.to_str() + " contains " + t1.to_str() + " so it's recursive").c_str());
-				}
-				else {
-					instance = t2;
-				}
-			}); }
-		);
-	}
 
 	bool* checker::get_braced(expr const& e) {
 		return match(e.Data) (
 			[&](ysptr<block_expr> be) -> bool* { 
-			return bind(be->as(), [&](yvec<stmt>& Statements, bool& ReturnDest) {
+			return bind(be->as(), [&](yvec<stmt>& Statements, bool& ReturnDest, ysptr<scope>& Scope) {
 				return &ReturnDest;
 			}); },
 			[&](auto&) -> bool* { return nullptr; }

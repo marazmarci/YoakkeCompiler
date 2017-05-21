@@ -126,6 +126,7 @@
     <ClCompile Include="src\semantics\scope.cpp" />
     <ClCompile Include="src\semantics\symbol_table.cpp" />
     <ClCompile Include="src\semantics\type.cpp" />
+    <ClCompile Include="src\semantics\unifier.cpp" />
     <ClCompile Include="src\semantics\var_sym.cpp" />
     <ClCompile Include="src\utility\console.cpp" />
     <ClCompile Include="src\utility\file_handle.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="src\semantics\scope.h" />
     <ClInclude Include="src\semantics\symbol_table.h" />
     <ClInclude Include="src\semantics\type.h" />
+    <ClInclude Include="src\semantics\unifier.h" />
     <ClInclude Include="src\semantics\var_sym.h" />
     <ClInclude Include="src\utility\console.h" />
     <ClInclude Include="src\utility\file_handle.h" />

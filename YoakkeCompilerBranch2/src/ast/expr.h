@@ -12,6 +12,7 @@ namespace yk {
 	struct pat_expr;
 	struct expr;
 	struct type;
+	class scope;
 
 	using param_t = ypair<yopt<token>, ty_expr>;
 
@@ -26,7 +27,7 @@ namespace yk {
 	make_expr(const_asgn,	token, expr, expr);
 	make_expr(list,			yvec<expr>);
 	make_expr(call,			expr, yopt<expr>);
-	make_expr(block, 		yvec<stmt>, bool);
+	make_expr(block, 		yvec<stmt>, bool, ysptr<scope>);
 	make_expr(fnproto,		yvec<param_t>, ty_expr);
 	make_expr(fn,			yvec<param_t>, yopt<ty_expr>, expr);
 	make_expr(let,			pat_expr, yopt<ty_expr>, yopt<expr>);
