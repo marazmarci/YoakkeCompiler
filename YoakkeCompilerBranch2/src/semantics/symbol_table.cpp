@@ -31,6 +31,10 @@ namespace yk {
 		return m_CurrentScope->ref(id);
 	}
 
+	yopt<yhash_map<ystr, symbol>::iterator> symbol_table::ref_it(ystr const& id) {
+		return m_CurrentScope->ref_it(id);
+	}
+
 	yopt<type> symbol_table::ref_t(ystr const& id) {
 		return m_CurrentTScope->ref(id);
 	}

@@ -14,8 +14,8 @@ namespace yk {
 		return type(std::make_shared<cons_type>(n, ts));
 	}
 
-	type type::create_set() {
-		return type(std::make_shared<set_type>(yvec<type>{}));
+	type type::create_set(type const& a, type const& b) {
+		return type(std::make_shared<set_type>(yvec<type>{ a, b }));
 	}
 
 	type type::create_set(yvec<type> const& ts) {

@@ -57,6 +57,8 @@ namespace yk {
 
 		register_expr<expr_rules::lbinop>(ytoken_t::Dot, 11);
 		register_expr<expr_rules::call>(ytoken_t::Lpar, 11);
+
+		register_expr<expr_rules::preury>(ytoken_t::Typeof, 12);
 	}
 
 	void yparser::init_pat_expr() {

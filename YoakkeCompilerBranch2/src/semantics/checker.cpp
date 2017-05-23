@@ -81,10 +81,14 @@ namespace yk {
 			[&](ysptr<real_lit_expr>) -> type {
 				return symbol_table::F32_T;
 			},
-			[&](ysptr<preury_expr>) -> type {
-				// TODO
+			[&](ysptr<preury_expr> pe) -> type {
+			return bind(pe->as(), [&](token& Operator, expr& Sub) {
+				if (Operator.Type == ytoken_t::Typeof) {
+					auto st = check_expr(Sub);
+					std::cout << st.to_str() << std::endl;
+				}
 				return symbol_table::UNIT_T;
-			},
+			}); },
 			[&](ysptr<postury_expr>) -> type {
 				// TODO
 				return symbol_table::UNIT_T;
@@ -116,12 +120,30 @@ namespace yk {
 				auto& left = std::get<0>(*std::get<ysptr<ident_expr>>(LHS.Data));
 				auto right = check_expr(RHS);
 
-				if (auto sym_d = m_Table.ref(left)) {
-					ystr err = "TODO: cannot shadow constant assignment: " + left;
-					throw std::exception(err.c_str());
+				if (auto sym_it = m_Table.ref_it(left)) {
+					auto& sym = (*sym_it)->second;
+					match(sym.Data) (
+						[&](ysptr<constant_symbol>) {
+							auto& sym_t = sym.Type;
+							match(sym_t.Data) (
+								[&](ysptr<set_type> st) {
+								bind(st->as(), [&](yvec<type>& types) {
+									types.push_back(right);
+								}); },
+								[&](auto&) {
+									sym.Type = type::create_set(sym.Type, right);
+								}
+							);
+						},
+						[&](auto&) {
+							throw std::exception("Cannot classify type!");
+						}
+					);
 				}
-				auto sym = symbol::create_constant(left, right);
-				m_Table.decl(sym);
+				else {
+					auto sym = symbol::create_constant(left, right);
+					m_Table.decl(sym);
+				}
 				return symbol_table::UNIT_T;
 			}); },
 			[&](ysptr<list_expr> le) -> type {
@@ -237,6 +259,7 @@ namespace yk {
 			});},
 			[&](ysptr<let_expr> le) -> type {
 			return bind(le->as(), [&](pat_expr& Pattern, yopt<ty_expr>& Type, yopt<expr>& Value) {
+				// TODO: shadowing does not work!!!
 				yopt<type> fin_sym = {};
 				yopt<type> ty_sym = {};
 				yopt<type> val_sym = {};

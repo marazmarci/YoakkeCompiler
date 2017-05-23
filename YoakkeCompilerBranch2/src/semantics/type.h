@@ -44,7 +44,7 @@ namespace yk {
 	public:
 		static type create_var();
 		static type create_cons(ystr const& n, yvec<type> const& ts = yvec<type>{});
-		static type create_set();
+		static type create_set(type const& a, type const& b);
 		static type create_set(yvec<type> const& ts);
 		static type create_fn(type const& args, type const& res);
 		static type create_tup(yvec<type> const& ts);

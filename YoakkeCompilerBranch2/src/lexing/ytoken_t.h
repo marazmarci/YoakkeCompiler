@@ -30,6 +30,7 @@ namespace yk {
 		Dot,
 		Not,
 
-		Let
+		Let,
+		Typeof
 	};
 }

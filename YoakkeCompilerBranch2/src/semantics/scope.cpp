@@ -22,6 +22,16 @@ namespace yk {
 		}
 	}
 
+	yopt<yhash_map<ystr, symbol>::iterator> scope::ref_it(ystr const& id) {
+		auto it = Entries.find(id);
+		if (it == Entries.end()) {
+			return {};
+		}
+		else {
+			return it;
+		}
+	}
+
 	void scope::decl(symbol const& var) {
 		auto it = Entries.find(var.Name);
 		if (it == Entries.end()) {
