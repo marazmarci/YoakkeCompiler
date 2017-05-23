@@ -4,7 +4,7 @@
 
 namespace yk {
 	struct type;
-	class var_sym;
+	struct symbol;
 	class scope;
 	class ty_scope;
 
@@ -15,8 +15,8 @@ namespace yk {
 		static type F32_T;
 
 	private:
-		ysptr<scope> m_GlobalScope;
-		ysptr<scope> m_CurrentScope;
+		ysptr<scope>	m_GlobalScope;
+		ysptr<scope>	m_CurrentScope;
 		ysptr<ty_scope> m_GlobalTScope;
 		ysptr<ty_scope> m_CurrentTScope;
 
@@ -24,11 +24,10 @@ namespace yk {
 		symbol_table();
 
 	public:
-		void decl(ysptr<var_sym> v);
+		void decl(symbol const& v);
 		void decl(ystr const& id, type& t);
-		ysptr<var_sym> ref(ystr const& id);
-		ypair<ysptr<var_sym>, bool> ref(ystr const& id, type& hint);
-		type* ref_t(ystr const& id);
+		yopt<symbol> ref(ystr const& id);
+		yopt<type> ref_t(ystr const& id);
 		scope* enclosing_return();
 
 		ysptr<scope> push(bool ret_dest = false);

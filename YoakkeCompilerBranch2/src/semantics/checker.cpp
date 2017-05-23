@@ -2,7 +2,7 @@
 #include "../utility/match.h"
 #include "../ast/ast.h"
 #include "type.h"
-#include "var_sym.h"
+#include "symbol.h"
 #include "../reporting/err_stream.h"
 #include "../reporting/msg.h"
 #include "scope.h"
@@ -26,9 +26,9 @@ namespace yk {
 					!Semicol
 				 && !std::get_if<ysptr<const_asgn_expr>>(&Sub->Data)) {
 					// Not a constant assignment and does not end with semicolon
-					DoesReturn = true;
-					auto ret_ty = check_expr(*Sub);
-					auto ret_dest = m_Table.enclosing_return();
+					DoesReturn		= true;
+					auto ret_ty		= check_expr(*Sub);
+					auto ret_dest	= m_Table.enclosing_return();
 					if (!ret_dest) {
 						throw std::exception("Sanity error: no enclosing return destination!");
 					}
@@ -65,29 +65,15 @@ namespace yk {
 			},
 			[&](ysptr<ident_expr> ie) -> type {
 			return bind(ie->as(), [&](ystr& Identifier) {
-				ysptr<var_sym> sym	= nullptr;
-				bool hint_change	= false;
-				if (ex.HintType) {
-					std::tie(sym, hint_change) = m_Table.ref(Identifier, *ex.HintType);
+				if (auto sym = m_Table.ref(Identifier)) {
+					return sym->Type;
 				}
 				else {
-					sym = m_Table.ref(Identifier);
+					rep::err_stream::report(
+						rep::undefined_symbol(m_File, Identifier, ex.Position)
+					);
+					return symbol_table::UNIT_T;
 				}
-
-				if (!sym) {
-					if (hint_change) {
-						rep::err_stream::report(
-							rep::undefined_symbol(m_File, Identifier, ex.Position, ex.HintPosition)
-							.message("The hint type supported is wrong!")
-						);
-					}
-					else {
-						rep::err_stream::report(
-							rep::undefined_symbol(m_File, Identifier, ex.Position)
-						);
-					}
-				}
-				return sym->Type;
 			}); },
 			[&](ysptr<int_lit_expr>) -> type {
 				return symbol_table::I32_T;
@@ -130,12 +116,11 @@ namespace yk {
 				auto& left = std::get<0>(*std::get<ysptr<ident_expr>>(LHS.Data));
 				auto right = check_expr(RHS);
 
-				auto sym_d = m_Table.ref(left, right).first;
-				if (sym_d) {
-					std::string err = "TODO: cannot shadow constant assignment: " + left;
+				if (auto sym_d = m_Table.ref(left)) {
+					ystr err = "TODO: cannot shadow constant assignment: " + left;
 					throw std::exception(err.c_str());
 				}
-				auto sym = std::make_shared<constant>(left, right);
+				auto sym = symbol::create_constant(left, right);
 				m_Table.decl(sym);
 				return symbol_table::UNIT_T;
 			}); },
@@ -195,8 +180,7 @@ namespace yk {
 					auto par_ty = check_type(par.second);
 					params.push_back(par_ty);
 					if (auto name = par.first) {
-						auto par_sym = std::make_shared
-							<variable>(name.value().Value, par_ty);
+						auto par_sym = symbol::create_variable(name.value().Value, par_ty);
 						m_Table.decl(par_sym);
 					}
 				}
@@ -285,7 +269,7 @@ namespace yk {
 				auto entries = match_pat(Pattern, fin_sym);
 				for (auto e : entries) {
 					m_Table.decl(
-						std::make_shared<variable>(e.first,
+						symbol::create_variable(e.first,
 							e.second ? *e.second : type::create_var()));
 				}
 				return symbol_table::UNIT_T;

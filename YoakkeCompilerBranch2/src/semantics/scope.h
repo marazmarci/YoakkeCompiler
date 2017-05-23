@@ -6,23 +6,22 @@
 
 namespace yk {
 	struct type;
-	class var_sym;
+	struct symbol;
 
 	class scope {
 	public:
-		ysptr<scope>							Parent;
-		yhash_map<ystr, yvec<ysptr<var_sym>>>	Entries;
-		bool									ReturnDest;
-		yopt<type>								ReturnType;
-		interval								ReturnPos;
+		ysptr<scope>			Parent;
+		yhash_map<ystr, symbol>	Entries;
+		bool					ReturnDest;
+		yopt<type>				ReturnType;
+		interval				ReturnPos;
 
 	public:
 		scope();
 
 	public:
-		ysptr<var_sym> ref(ystr const& id);
-		ypair<ysptr<var_sym>, bool> ref(ystr const& id, type& hint);
-		void decl(ysptr<var_sym> var);
+		yopt<symbol> ref(ystr const& id);
+		void decl(symbol const& var);
 		scope* enclosing_return();
 	};
 
@@ -35,7 +34,7 @@ namespace yk {
 		ty_scope();
 
 	public:
-		type* ref(ystr const& id);
+		yopt<type> ref(ystr const& id);
 		void decl(ystr const& id, type& ty);
 	};
 }

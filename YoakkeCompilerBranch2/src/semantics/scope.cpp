@@ -1,63 +1,34 @@
 #include "scope.h"
 #include "type.h"
-#include "var_sym.h"
+#include "symbol.h"
 
 namespace yk {
 	scope::scope()
 		: Parent(nullptr), ReturnDest(false), ReturnType(yopt<type>{}) {
 	}
 
-	ysptr<var_sym> scope::ref(ystr const& id) {
+	yopt<symbol> scope::ref(ystr const& id) {
 		auto it = Entries.find(id);
 		if (it == Entries.end()) {
 			if (Parent) {
 				return Parent->ref(id);
 			}
 			else {
-				return nullptr;
+				return {};
 			}
 		}
 		else {
-			auto& list = it->second;
-			return *list.rbegin();
+			return it->second;
 		}
 	}
 
-	ypair<ysptr<var_sym>, bool> scope::ref(ystr const& id, type& hint) {
-		auto it = Entries.find(id);
+	void scope::decl(symbol const& var) {
+		auto it = Entries.find(var.Name);
 		if (it == Entries.end()) {
-			if (Parent) {
-				return Parent->ref(id, hint);
-			}
-			else {
-				return { nullptr, false };
-			}
+			Entries.insert({ var.Name, var });
 		}
 		else {
-			auto& list = it->second;
-			for (auto it2 = list.rbegin(); it2 != list.rend(); ++it2) {
-				if ((*it2)->Type.matches(hint)) {
-					return { *it2, it2 != list.rbegin() };
-				}
-			}
-			if (Parent) {
-				return Parent->ref(id, hint);
-			}
-			else {
-				return { nullptr, true };
-			}
-		}
-	}
-
-	void scope::decl(ysptr<var_sym> var) {
-		auto it = Entries.find(var->Name);
-		if (it == Entries.end()) {
-			yvec<ysptr<var_sym>> l;
-			l.push_back(var);
-			Entries.insert({ var->Name, l });
-		}
-		else {
-			it->second.push_back(var);
+			// TODO: create a typeclass if constant or add to typeclass if already a typeclass
 		}
 	}
 
@@ -77,17 +48,17 @@ namespace yk {
 		: Parent(nullptr) {
 	}
 
-	type* ty_scope::ref(ystr const& id) {
+	yopt<type> ty_scope::ref(ystr const& id) {
 		auto it = Entries.find(id);
 		if (it == Entries.end()) {
 			if (Parent) {
 				return Parent->ref(id);
 			}
 			else {
-				return nullptr;
+				return {};
 			}
 		}
-		return &it->second;
+		return it->second;
 	}
 
 	void ty_scope::decl(ystr const& id, type& ty) {

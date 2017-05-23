@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "unifier.h"
 #include "type.h"
 #include "../utility/match.h"
@@ -39,9 +40,44 @@ namespace yk {
 				instance = t1;
 			}); },
 			[&](ysptr<var_type> tt1, ysptr<cons_type> tt2) {
-			bind(tt1->as(), [&](ysize& id, yopt<type>& instance) {
 				// Back to the other handler
 				unify(t2, t1);
+			},
+			[&](ysptr<set_type> tt1, ysptr<var_type> tt2) {
+			bind(tt2->as(), [&](ysize& id, yopt<type>& instance) {
+				if (t1.contains(tt2)) {
+					throw err("Recursive type: " + t1.to_str() + " contains " + t2.to_str());
+				}
+				instance = t1;
+			}); },
+			[&](ysptr<var_type> tt1, ysptr<set_type> tt2) {
+				// Back to the other handler
+				unify(t2, t1);
+			},
+			[&](ysptr<set_type> tt1, ysptr<cons_type> tt2) {
+			bind(tt1->as(), [&](yvec<type>& stypes) {
+				std::remove_if(stypes.begin(), stypes.end(),
+				[&](type& st) {
+					return !st.matches(t2);
+				});
+				if (stypes.empty()) {
+					throw err("Type " + t2.to_str() + " does not meet the constraint " + t1.to_str());
+				}
+			}); },
+			[&](ysptr<cons_type> tt1, ysptr<set_type> tt2) {
+				// Back to the other handler
+				unify(t2, t1);
+			},
+			[&](ysptr<set_type> tt1, ysptr<set_type> tt2) {
+			bind(tt1->as(), tt2->as(), [&](yvec<type>& stypes1, yvec<type>& stypes2) {
+				yvec<type> ot1 = stypes1;
+				yvec<type> ot2 = stypes2;
+				for (auto& t : ot1) {
+					stypes2.push_back(t);
+				}
+				for (auto& t : ot2) {
+					stypes1.push_back(t);
+				}
 			}); }
 		);
 	}

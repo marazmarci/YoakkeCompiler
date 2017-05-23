@@ -60,13 +60,13 @@
     <ClCompile Include="src\semantics\checker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\semantics\var_sym.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\semantics\unifier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\reporting\msg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\semantics\symbol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -164,9 +164,6 @@
     <ClInclude Include="src\semantics\checker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\semantics\var_sym.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\utility\type_tag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -177,6 +174,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\reporting\msg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\semantics\symbol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

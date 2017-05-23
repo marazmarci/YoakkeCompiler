@@ -10,18 +10,18 @@ namespace yk {
 
 	make_type(var, ysize, yopt<type>);
 	make_type(cons, ystr, yvec<type>);
-
-	using tty_ty = yvar <
-		  ysptr<var_type>
-		, ysptr<cons_type>
-	>;
+	make_type(set, yvec<type>);
 
 	struct type {
 	private:
 		static ysize s_IDcount;
 
 	public:
-		tty_ty Data;
+		yvar <
+			  ysptr<var_type>
+			, ysptr<cons_type>
+			, ysptr<set_type>
+		> Data;
 
 	public:
 		template <typename T>
@@ -39,10 +39,13 @@ namespace yk {
 		ystr to_str() const;
 		type& prune();
 		bool same(type& t);
+		type clone();
 
 	public:
 		static type create_var();
 		static type create_cons(ystr const& n, yvec<type> const& ts = yvec<type>{});
+		static type create_set();
+		static type create_set(yvec<type> const& ts);
 		static type create_fn(type const& args, type const& res);
 		static type create_tup(yvec<type> const& ts);
 	};

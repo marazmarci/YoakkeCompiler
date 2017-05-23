@@ -1,7 +1,7 @@
 #include "symbol_table.h"
 #include "scope.h"
 #include "type.h"
-#include "var_sym.h"
+#include "symbol.h"
 
 namespace yk {
 	type symbol_table::UNIT_T	= type::create_cons("unit");
@@ -19,7 +19,7 @@ namespace yk {
 		decl("f32",		F32_T);
 	}
 
-	void symbol_table::decl(ysptr<var_sym> v) {
+	void symbol_table::decl(symbol const& v) {
 		m_CurrentScope->decl(v);
 	}
 
@@ -27,15 +27,11 @@ namespace yk {
 		m_CurrentTScope->decl(id, t);
 	}
 
-	ysptr<var_sym> symbol_table::ref(ystr const& id) {
+	yopt<symbol> symbol_table::ref(ystr const& id) {
 		return m_CurrentScope->ref(id);
 	}
 
-	ypair<ysptr<var_sym>, bool> symbol_table::ref(ystr const& id, type& hint) {
-		return m_CurrentScope->ref(id, hint);
-	}
-
-	type* symbol_table::ref_t(ystr const& id) {
+	yopt<type> symbol_table::ref_t(ystr const& id) {
 		return m_CurrentTScope->ref(id);
 	}
 
