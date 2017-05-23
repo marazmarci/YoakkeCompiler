@@ -120,7 +120,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\reporting\err_msg.cpp" />
+    <ClCompile Include="src\reporting\msg.cpp" />
     <ClCompile Include="src\reporting\err_stream.cpp" />
     <ClCompile Include="src\semantics\checker.cpp" />
     <ClCompile Include="src\semantics\scope.cpp" />
@@ -145,7 +145,7 @@
     <ClInclude Include="src\ast\stmt.h" />
     <ClInclude Include="src\ast\ty_expr.h" />
     <ClInclude Include="src\common.h" />
-    <ClInclude Include="src\reporting\err_msg.h" />
+    <ClInclude Include="src\reporting\msg.h" />
     <ClInclude Include="src\reporting\err_stream.h" />
     <ClInclude Include="src\semantics\checker.h" />
     <ClInclude Include="src\semantics\scope.h" />
@@ -153,6 +153,7 @@
     <ClInclude Include="src\semantics\type.h" />
     <ClInclude Include="src\semantics\unifier.h" />
     <ClInclude Include="src\semantics\var_sym.h" />
+    <ClInclude Include="src\settings.h" />
     <ClInclude Include="src\utility\console.h" />
     <ClInclude Include="src\utility\file_handle.h" />
     <ClInclude Include="src\lexing\lexer.h" />

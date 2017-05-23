@@ -230,7 +230,6 @@ namespace yk {
 
 				ysize padding = calc_padding(maxdigit);
 				ysize buff_width = code_printer::s_BufferWidth - padding;
-				ysize digit_cnt = math::digit_count(m_LineIndex);
 
 				ysize arr_written = m_Begin;
 
@@ -271,7 +270,6 @@ namespace yk {
 
 				ysize padding = calc_padding(maxdigit);
 				ysize buff_width = code_printer::s_BufferWidth - padding;
-				ysize digit_cnt = math::digit_count(m_LineIndex);
 
 				ysize arr_written = m_Begin;
 				

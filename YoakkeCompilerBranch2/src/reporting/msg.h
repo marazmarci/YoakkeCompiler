@@ -3,72 +3,85 @@
 #include <iostream>
 #include "../utility/file_handle.h"
 #include "../lexing/position.h"
+#include "../lexing/token.h"
 
 namespace yk {
 	namespace rep {
-		// Generic
+		// Message
 		class msg {
 		public:
-			virtual void print(std::ostream& os) const = 0;
+			file_handle const& File;
+			ystr Message;
+			yopt<ystr>	Note;
+
+		public:
+			msg(file_handle const& f);
+
+		public:
+			msg& message(ystr const& m);
+			msg& note(ystr const& n);
+			void stamp(std::ostream& os, ysize r, ysize c);
+			virtual void print_head(std::ostream& os) const = 0;
+			virtual void print_verb(std::ostream& os) const = 0;
 		};
+
+		// Warning
+
+		class warn : public msg {
+		public:
+			warn(file_handle const& f);
+		};
+
+		// Error
 
 		class err : public msg {
-		private:
-			bool m_CanContinue;
+		public:
+			bool		Fatal;
 
 		public:
-			err(bool cont);
-
-		public:
-			bool can_continue() const;
+			err(file_handle const& f, bool ft);
 		};
-
-		class warn : public msg { };
 
 		// Lexical
 
 		class unexpected_eof : public err {
-		private:
-			file_handle const& m_File;
-			position m_Position;
-			ystr m_Message;
-			ystr m_Note;
+		public:
+			position	Position;
 
 		public:
-			unexpected_eof(file_handle const& f, position const& p, ystr const& m = "", ystr const& n = "");
+			unexpected_eof(file_handle const& f, position const& p);
 
 		public:
-			virtual void print(std::ostream& os) const override;
+			virtual void print_head(std::ostream& os) const override;
+			virtual void print_verb(std::ostream& os) const override;
 		};
 
 		class unrecognized_char : public err {
 		private:
-			file_handle const& m_File;
-			position m_Position;
-			char m_Char;
+			position	Position;
+			char		Char;
 
 		public:
 			unrecognized_char(file_handle const& f, position const& p, char c);
 
 		public:
-			virtual void print(std::ostream& os) const override;
+			virtual void print_head(std::ostream& os) const override;
+			virtual void print_verb(std::ostream& os) const override;
 		};
 
 		// Syntax
 
 		class expect_token : public err {
 		private:
-			file_handle const& m_File;
-			interval m_Position;
-			ystr m_Expected;
-			ystr m_Got;
-			ystr m_Note;
+			interval Position;
 
 		public:
 			expect_token(file_handle const& f, interval const& p, ystr const& ex, ystr const& go, ystr const& no = "");
 
 		public:
-			virtual void print(std::ostream& os) const override;
+			void set(token const& got, token const& exp);
+			virtual void print_head(std::ostream& os) const override;
+			virtual void print_verb(std::ostream& os) const override;
 		};
 
 		// Semantic
