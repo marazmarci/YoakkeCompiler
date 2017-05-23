@@ -300,10 +300,10 @@ namespace yk {
 			},
 			[&](ysptr<ident_ty_expr> ie) -> type {
 			return bind(ie->as(), [&](ystr& Identifier) {
-				// TODO: real type lookup
-				if (Identifier == "i32") return symbol_table::I32_T;
-				if (Identifier == "f32") return symbol_table::F32_T;
-				return symbol_table::UNIT_T;
+				if (auto ty = m_Table.ref_t(Identifier)) {
+					return *ty;
+				}
+				throw std::exception("TODO: undefined type!");
 			}); },
 			[&](ysptr<bin_ty_expr> be) -> type {
 			return bind(be->as(), [&](token& Operator, ty_expr& LHS, ty_expr& RHS) {

@@ -70,4 +70,30 @@ namespace yk {
 		}
 		return nullptr;
 	}
+
+	// Type scope
+
+	ty_scope::ty_scope()
+		: Parent(nullptr) {
+	}
+
+	type* ty_scope::ref(ystr const& id) {
+		auto it = Entries.find(id);
+		if (it == Entries.end()) {
+			if (Parent) {
+				return Parent->ref(id);
+			}
+			else {
+				return nullptr;
+			}
+		}
+		return &it->second;
+	}
+
+	void ty_scope::decl(ystr const& id, type& ty) {
+		if (ref(id)) {
+			throw std::exception("TODO: type already defined");
+		}
+		Entries.insert({ id, ty });
+	}
 }

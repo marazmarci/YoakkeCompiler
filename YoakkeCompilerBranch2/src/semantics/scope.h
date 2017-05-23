@@ -25,4 +25,17 @@ namespace yk {
 		void decl(ysptr<var_sym> var);
 		scope* enclosing_return();
 	};
+
+	class ty_scope {
+	public:
+		ysptr<ty_scope>				Parent;
+		yhash_map<ystr, type>		Entries;
+
+	public:
+		ty_scope();
+
+	public:
+		type* ref(ystr const& id);
+		void decl(ystr const& id, type& ty);
+	};
 }
