@@ -1,18 +1,17 @@
 #pragma once
 
 #include "../reporting/err_stream.h"
-#include "../reporting/err_msg.h"
+#include "../reporting/msg.h"
 
-#define expect_error(what, note, parser)			\
+#define expect_error(what, parser)					\
 {													\
 	auto const& tok = (parser).peek();				\
 	rep::err_stream::report(						\
 			rep::expect_token(						\
 			(parser).file(),						\
-			tok.Position,							\
-			what,									\
-			yparser::format_token(tok),				\
-			note));									\
+			tok.Position)							\
+			.set(what, tok)							\
+			);										\
 }													\
 return {};
 

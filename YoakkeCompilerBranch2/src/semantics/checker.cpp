@@ -4,7 +4,7 @@
 #include "type.h"
 #include "var_sym.h"
 #include "../reporting/err_stream.h"
-#include "../reporting/err_msg.h"
+#include "../reporting/msg.h"
 #include "scope.h"
 #include "unifier.h"
 
@@ -77,18 +77,13 @@ namespace yk {
 				if (!sym) {
 					if (hint_change) {
 						rep::err_stream::report(
-							rep::no_such_symbol(m_File,
-								Identifier, ex.Position,
-								"The hint type supported is wrong!",
-								ex.HintPosition
-							)
+							rep::undefined_symbol(m_File, Identifier, ex.Position, ex.HintPosition)
+							.message("The hint type supported is wrong!")
 						);
 					}
 					else {
 						rep::err_stream::report(
-							rep::no_such_symbol(m_File,
-								Identifier, ex.Position
-							)
+							rep::undefined_symbol(m_File, Identifier, ex.Position)
 						);
 					}
 				}
@@ -240,13 +235,15 @@ namespace yk {
 					}
 					else if (body_scope->ReturnType) {
 						// No annotation but body returns
-						// TODO
-						throw std::exception("TODO: return statement but no explicit annotation!");
+						rep::err_stream::report(
+							rep::unannot_ret(m_File, body_scope->ReturnPos)
+						);
 					}
 					else if (ReturnType) {
 						// Annotation but no return
-						// TODO
-						throw std::exception("TODO: no return statement but explicit annotation!");
+						rep::err_stream::report(
+							rep::no_ret(m_File, interval(Body.Position.End, 1))
+						);
 					}
 					else {
 						throw std::exception("SANITY");

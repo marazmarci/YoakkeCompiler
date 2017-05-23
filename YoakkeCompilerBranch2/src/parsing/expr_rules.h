@@ -26,11 +26,11 @@ namespace yk {
 								params.push_back({ id, *ty });
 							}
 							else {
-								expect_error("type", "", par);
+								expect_error("type", par);
 							}
 						}
 						else if (id) {
-							expect_error("':'", "", par);
+							expect_error("':'", par);
 						}
 					} while (par.match(ytoken_t::Comma));
 				}
@@ -39,12 +39,12 @@ namespace yk {
 					yopt<expr>		body	= {};
 					if (auto arr = par.match(ytoken_t::Arrow)) {
 						if (!(ret_t = par.parse_ty_expr())) {
-							expect_error("return type", "", par);
+							expect_error("return type", par);
 						}
 					}
 					if (auto lbr = par.match(ytoken_t::Lbrace)) {
 						if (!(body = par.parse_block(*lbr))) {
-							expect_error("function body", "", par);
+							expect_error("function body", par);
 						}
 					}
 					if (body) {
@@ -60,7 +60,7 @@ namespace yk {
 								params, *ret_t));
 					}
 					if (params.size()) {
-						expect_error("explicit return type for function declaration", "", par);
+						expect_error("explicit return type for function declaration", par);
 					}
 					return expr(
 						lpar.Position * rpar->Position,
@@ -72,9 +72,9 @@ namespace yk {
 						sub->Position = lpar.Position * rpar->Position;
 						return sub;
 					}
-					expect_error("')'", "", par);
+					expect_error("')'", par);
 				}
-				expect_error("expression", "", par);
+				expect_error("expression", par);
 			}
 		};
 
@@ -101,7 +101,7 @@ namespace yk {
 						op.Position * right->Position,
 						std::make_shared<preury_expr>(op, *right));
 				}
-				expect_error("right-hand side operand", "", par);
+				expect_error("right-hand side operand", par);
 			}
 		};
 
@@ -113,12 +113,12 @@ namespace yk {
 					yopt<expr>		val	= {};
 					if (par.match(ytoken_t::Colon)) {
 						if (!(ty = par.parse_ty_expr())) {
-							expect_error("type", "", par);
+							expect_error("type", par);
 						}
 					}
 					if (par.match(ytoken_t::Asgn)) {
 						if (!(val = par.parse_expr())) {
-							expect_error("expression", "", par);
+							expect_error("expression", par);
 						}
 					}
 					return expr(
@@ -126,7 +126,7 @@ namespace yk {
 						(ty ? ty->Position : pat->Position)),
 						std::make_shared<let_expr>(*pat, ty, val));
 				}
-				expect_error("pattern", "", par);
+				expect_error("pattern", par);
 			}
 		};
 
@@ -158,7 +158,7 @@ namespace yk {
 						elems.push_back(*rhs);
 					}
 					else {
-						expect_error("expression", "", par);
+						expect_error("expression", par);
 					}
 				} while (par.match(ytoken_t::Comma));
 				return expr(
@@ -182,7 +182,7 @@ namespace yk {
 						left.Position * rpar->Position,
 						std::make_shared<call_expr>(left, args));
 				}
-				expect_error("')'", "", par);
+				expect_error("')'", par);
 			}
 
 			bool matches(expr const& left, yparser& parser) override {
@@ -204,7 +204,7 @@ namespace yk {
 						left.Position * rhs->Position,
 						std::make_shared<Return_T>(op, left, *rhs));
 				}
-				expect_error("expression", "", par);
+				expect_error("expression", par);
 			}
 		};
 

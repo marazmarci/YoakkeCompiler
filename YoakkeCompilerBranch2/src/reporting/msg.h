@@ -11,7 +11,7 @@ namespace yk {
 		class msg {
 		public:
 			file_handle const& File;
-			ystr Message;
+			yopt<ystr>	Message;
 			yopt<ystr>	Note;
 
 		public:
@@ -20,7 +20,7 @@ namespace yk {
 		public:
 			msg& message(ystr const& m);
 			msg& note(ystr const& n);
-			void stamp(std::ostream& os, ysize r, ysize c);
+			void stamp(std::ostream& os, ysize r, ysize c) const;
 			virtual void print_head(std::ostream& os) const = 0;
 			virtual void print_verb(std::ostream& os) const = 0;
 		};
@@ -72,14 +72,14 @@ namespace yk {
 		// Syntax
 
 		class expect_token : public err {
-		private:
+		public:
 			interval Position;
 
 		public:
-			expect_token(file_handle const& f, interval const& p, ystr const& ex, ystr const& go, ystr const& no = "");
+			expect_token(file_handle const& f, interval const& p);
 
 		public:
-			void set(token const& got, token const& exp);
+			expect_token& set(ystr const& exp, token const& got);
 			virtual void print_head(std::ostream& os) const override;
 			virtual void print_verb(std::ostream& os) const override;
 		};
@@ -87,32 +87,54 @@ namespace yk {
 		// Semantic
 
 		class type_mismatch : public err {
-		private:
-			file_handle const& m_File;
-			interval m_Position1;
-			interval m_Position2;
-			ystr m_Message;
+		public:
+			interval Position1;
+			interval Position2;
 		
 		public:
-			type_mismatch(file_handle const& f, interval const& p1, interval const& p2, ystr const& n = "");
+			type_mismatch(file_handle const& f, interval const& p1, interval const& p2);
 
 		public:
-			virtual void print(std::ostream& os) const override;
+			virtual void print_head(std::ostream& os) const override;
+			virtual void print_verb(std::ostream& os) const override;
 		};
 
-		class no_such_symbol : public err {
-		private:
-			file_handle const& m_File;
-			ystr m_Identifier;
-			interval m_Position;
-			ystr m_HintNote;
-			interval m_HintPosition;
+		class undefined_symbol : public err {
+		public:
+			ystr			Identifier;
+			interval		Position;
+			yopt<interval>	HintPosition;
 
 		public:
-			no_such_symbol(file_handle const& f, ystr const& id, interval const& p, ystr const& hn = "", interval const& hp = interval());
+			undefined_symbol(file_handle const& f, ystr const& id, interval const& p, yopt<interval> hp = {});
 
 		public:
-			virtual void print(std::ostream& os) const override;
+			virtual void print_head(std::ostream& os) const override;
+			virtual void print_verb(std::ostream& os) const override;
+		};
+
+		class unannot_ret : public err {
+		public:
+			interval Position;
+
+		public:
+			unannot_ret(file_handle const& f, interval const& p);
+
+		public:
+			virtual void print_head(std::ostream& os) const override;
+			virtual void print_verb(std::ostream& os) const override;
+		};
+
+		class no_ret : public err {
+		public:
+			interval Position;
+
+		public:
+			no_ret(file_handle const& f, interval const& p);
+
+		public:
+			virtual void print_head(std::ostream& os) const override;
+			virtual void print_verb(std::ostream& os) const override;
 		};
 	}
 }

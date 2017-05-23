@@ -5,7 +5,7 @@
 #include "ylexer.h"
 #include "token.h"
 #include "../reporting/err_stream.h"
-#include "../reporting/err_msg.h"
+#include "../reporting/msg.h"
 
 namespace yk {
 	ylexer::ylexer(file_handle& file)
@@ -95,11 +95,9 @@ namespace yk {
 				}
 				else {
 					rep::err_stream::report(
-						rep::unexpected_eof(
-m_File, m_LastVisible,				
-"Multi-line comment must end before end-of-file! Use: '*/' to end the comment.",
-"Note: Yoakke supports nested comments!"
-						)
+						rep::unexpected_eof(m_File, m_LastVisible)
+						.message("Multi-line comment must end before end-of-file! Use: '*/' to end the comment.")
+						.note("Yoakke supports nested comments!")
 					);
 					return token(ytoken_t::EndOfFile, "", m_Position);
 				}

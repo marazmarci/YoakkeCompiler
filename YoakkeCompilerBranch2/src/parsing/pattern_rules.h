@@ -22,7 +22,7 @@ namespace yk {
 						return sub;
 					}
 					else {
-						expect_error("')'", "", par);
+						expect_error("')'", par);
 					}
 				}
 				if (auto rpar = par.match(ytoken_t::Rpar)) {
@@ -30,7 +30,7 @@ namespace yk {
 						lpar.Position * rpar->Position,
 						std::make_shared<unit_pat_expr>());
 				}
-				expect_error("pattern", "", par);
+				expect_error("pattern", par);
 			}
 		};
 
@@ -48,7 +48,7 @@ namespace yk {
 						elems.push_back(*rhs);
 					}
 					else {
-						expect_error("pattern", "", par);
+						expect_error("pattern", par);
 					}
 				} while (par.match(ytoken_t::Comma));
 				return pat_expr(

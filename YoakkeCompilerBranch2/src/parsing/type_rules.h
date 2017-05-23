@@ -20,14 +20,14 @@ namespace yk {
 						sub->Position = lpar.Position * rpar->Position;
 						return sub;
 					}
-					expect_error("')'", "", par);
+					expect_error("')'", par);
 				}
 				if (auto rpar = par.match(ytoken_t::Rpar)) {
 					return ty_expr(
 						lpar.Position * rpar->Position,
 						std::make_shared<unit_ty_expr>());
 				}
-				expect_error("type", "", par);
+				expect_error("type", par);
 			}
 		};
 
@@ -45,7 +45,7 @@ namespace yk {
 						elems.push_back(*rhs);
 					}
 					else {
-						expect_error("type", "", par);
+						expect_error("type", par);
 					}
 				} while (par.match(ytoken_t::Comma));
 				return ty_expr(
@@ -68,7 +68,7 @@ namespace yk {
 						left.Position * rhs->Position,
 						std::make_shared<bin_ty_expr>(op, left, *rhs));
 				}		
-				expect_error("type", "", par);
+				expect_error("type", par);
 			}
 		};
 

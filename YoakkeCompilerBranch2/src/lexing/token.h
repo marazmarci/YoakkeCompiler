@@ -14,5 +14,8 @@ namespace yk {
 	public:
 		token();
 		token(ytoken_t tt, ystr const& val, position const& pos);
+
+	public:
+		ystr format() const;
 	};
 }

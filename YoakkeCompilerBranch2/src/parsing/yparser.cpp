@@ -132,32 +132,10 @@ namespace yk {
 				begin.Position * endbr->Position,
 				std::make_shared<block_expr>(body, true, nullptr));
 		}
-		expect_error("'}'", "", *this);
+		expect_error("'}'", *this);
 	}
 
 	file_handle const& yparser::file() const {
 		return m_File;
-	}
-
-	ystr yparser::format_token(token const& t) {
-		switch (ytoken_t(t.Type)) {
-		case ytoken_t::Ident:
-			return "identifier";
-
-		case ytoken_t::Integer:
-			return "integer literal";
-
-		case ytoken_t::Real:
-			return "real literal";
-
-		case ytoken_t::EndOfFile:
-			return "end of file";
-
-		case ytoken_t::Epsilon:
-			return "<unknown>";
-
-		default:
-			return "'" + t.Value + "'";
-		}
 	}
 }

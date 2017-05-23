@@ -54,8 +54,5 @@ namespace yk {
 		void init_expr();
 		void init_pat_expr();
 		void init_ty_expr();
-
-	public:
-		static ystr format_token(token const& t);
 	};
 }
