@@ -65,8 +65,17 @@ namespace yk {
 			},
 			[&](ysptr<ident_expr> ie) -> type {
 			return bind(ie->as(), [&](ystr& Identifier) {
-				if (auto sym = m_Table.ref(Identifier)) {
-					return sym->get().Type;
+				if (auto symr = m_Table.ref(Identifier)) {
+					auto& sym = symr->get();
+					return match(sym.Data) (
+						[&](ysptr<constant_symbol>) {
+							// We create a new instance if it's a constant
+							return sym.Type.clone();
+						},
+						[&](auto&) {
+							return sym.Type;
+						}
+					);
 				}
 				else {
 					rep::err_stream::report(

@@ -144,6 +144,13 @@ namespace yk {
 				}
 				return *this;
 			}); },
+			[&](ysptr<set_type> v) -> type& {
+			return bind(v->as(), [&](yvec<type>& types) -> type& {
+				if (types.size() == 1) {
+					return types[0];
+				}
+				return *this;
+			}); },
 			[&](auto&) -> type& {
 				return *this;
 			}
