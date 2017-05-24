@@ -64,6 +64,9 @@ namespace yk {
 				if (stypes.empty()) {
 					throw err("Type " + t2.to_str() + " does not meet the constraint " + t1.to_str());
 				}
+				if (stypes.size() == 1) {
+					unify(stypes[0], t2);
+				}
 			}); },
 			[&](ysptr<cons_type> tt1, ysptr<set_type> tt2) {
 				// Back to the other handler

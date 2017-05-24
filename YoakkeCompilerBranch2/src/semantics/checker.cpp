@@ -172,7 +172,19 @@ namespace yk {
 				auto fn_ty = check_expr(Function);
 				try {
 					unifier::unify(my_t, fn_ty);
-					return fn_ty;
+					auto ty = fn_ty.prune();
+					return match(ty.Data) (
+						[&](ysptr<cons_type> t) -> type {
+						return bind(t->as(), [&](ystr& name, yvec<type>& types) -> type {
+							if (name != "@fn") {
+								throw std::exception("TODO: cannot call non-function expression!");
+							}
+							return *types.rbegin();
+						}); },
+						[&](auto&) -> type {
+							throw std::exception("TODO: cannot call non-function expression!");
+						}
+					);
 				}
 				catch (unifier::err& err) {
 					throw std::exception("TODO: call no function :(");
