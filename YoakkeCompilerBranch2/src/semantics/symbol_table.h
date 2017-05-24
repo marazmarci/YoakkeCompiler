@@ -26,9 +26,8 @@ namespace yk {
 	public:
 		void decl(symbol const& v);
 		void decl(ystr const& id, type& t);
-		yopt<symbol> ref(ystr const& id);
-		yopt<yhash_map<ystr, symbol>::iterator> ref_it(ystr const& id);
-		yopt<type> ref_t(ystr const& id);
+		yopt<yref<symbol>> ref(ystr const& id);
+		yopt<yref<type>> ref_t(ystr const& id);
 		scope* enclosing_return();
 
 		ysptr<scope> push(bool ret_dest = false);

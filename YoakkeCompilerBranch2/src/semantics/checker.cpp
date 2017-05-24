@@ -66,7 +66,7 @@ namespace yk {
 			[&](ysptr<ident_expr> ie) -> type {
 			return bind(ie->as(), [&](ystr& Identifier) {
 				if (auto sym = m_Table.ref(Identifier)) {
-					return sym->Type;
+					return sym->get().Type;
 				}
 				else {
 					rep::err_stream::report(
@@ -120,18 +120,17 @@ namespace yk {
 				auto& left = std::get<0>(*std::get<ysptr<ident_expr>>(LHS.Data));
 				auto right = check_expr(RHS);
 
-				if (auto sym_it = m_Table.ref_it(left)) {
-					auto& sym = (*sym_it)->second;
-					match(sym.Data) (
+				if (auto sym = m_Table.ref(left)) {
+					match(sym->get().Data) (
 						[&](ysptr<constant_symbol>) {
-							auto& sym_t = sym.Type;
+							auto& sym_t = sym->get().Type;
 							match(sym_t.Data) (
 								[&](ysptr<set_type> st) {
 								bind(st->as(), [&](yvec<type>& types) {
 									types.push_back(right);
 								}); },
 								[&](auto&) {
-									sym.Type = type::create_set(sym.Type, right);
+									sym_t = type::create_set(sym_t, right);
 								}
 							);
 						},
@@ -141,8 +140,7 @@ namespace yk {
 					);
 				}
 				else {
-					auto sym = symbol::create_constant(left, right);
-					m_Table.decl(sym);
+					m_Table.decl(symbol::create_constant(left, right));
 				}
 				return symbol_table::UNIT_T;
 			}); },
@@ -161,20 +159,15 @@ namespace yk {
 					: symbol_table::UNIT_T;
 
 				// Help call with filtering
-				Function.HintType = type::create_fn(args_ty, type::create_var());;
+				auto my_t = type::create_fn(args_ty, type::create_var());;
 				auto fn_ty = check_expr(Function);
-				return match(fn_ty.Data) (
-					[&](ysptr<cons_type> t) -> type {
-					return bind(t->as(), [&](ystr& name, yvec<type>& types) -> type {
-						if (name != "@fn") {
-							throw std::exception("TODO: cannot call non-function expression!");
-						}
-						return *types.rbegin();
-					}); },
-					[&](auto&) -> type {
-						throw std::exception("TODO: cannot call non-function expression!");
-					}
-				);
+				try {
+					unifier::unify(my_t, fn_ty);
+					return fn_ty;
+				}
+				catch (unifier::err& err) {
+					throw std::exception("TODO: call no function :(");
+				}
 			}); },
 			[&](ysptr<block_expr> be) -> type {
 			return bind(be->as(), [&](yvec<stmt>& Statements, bool& ReturnDest, ysptr<scope>& Scope) {

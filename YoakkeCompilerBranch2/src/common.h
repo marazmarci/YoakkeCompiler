@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <functional>
 #include <map>
 #include <memory>
 #include <optional>
@@ -88,4 +89,7 @@ namespace yk {
 
 	template <typename... Ts>
 	using ytup = std::tuple<Ts...>;
+
+	template< class T >
+	using yref = std::reference_wrapper<T>;
 }

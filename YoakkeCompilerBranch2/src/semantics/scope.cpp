@@ -7,7 +7,7 @@ namespace yk {
 		: Parent(nullptr), ReturnDest(false), ReturnType(yopt<type>{}) {
 	}
 
-	yopt<symbol> scope::ref(ystr const& id) {
+	yopt<yref<symbol>> scope::ref(ystr const& id) {
 		auto it = Entries.find(id);
 		if (it == Entries.end()) {
 			if (Parent) {
@@ -19,16 +19,6 @@ namespace yk {
 		}
 		else {
 			return it->second;
-		}
-	}
-
-	yopt<yhash_map<ystr, symbol>::iterator> scope::ref_it(ystr const& id) {
-		auto it = Entries.find(id);
-		if (it == Entries.end()) {
-			return {};
-		}
-		else {
-			return it;
 		}
 	}
 
@@ -58,7 +48,7 @@ namespace yk {
 		: Parent(nullptr) {
 	}
 
-	yopt<type> ty_scope::ref(ystr const& id) {
+	yopt<yref<type>> ty_scope::ref(ystr const& id) {
 		auto it = Entries.find(id);
 		if (it == Entries.end()) {
 			if (Parent) {

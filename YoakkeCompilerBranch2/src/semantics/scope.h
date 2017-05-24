@@ -20,8 +20,7 @@ namespace yk {
 		scope();
 
 	public:
-		yopt<symbol> ref(ystr const& id);
-		yopt<yhash_map<ystr, symbol>::iterator> ref_it(ystr const& id);
+		yopt<yref<symbol>> ref(ystr const& id);
 		void decl(symbol const& var);
 		scope* enclosing_return();
 	};
@@ -35,7 +34,7 @@ namespace yk {
 		ty_scope();
 
 	public:
-		yopt<type> ref(ystr const& id);
+		yopt<yref<type>> ref(ystr const& id);
 		void decl(ystr const& id, type& ty);
 	};
 }

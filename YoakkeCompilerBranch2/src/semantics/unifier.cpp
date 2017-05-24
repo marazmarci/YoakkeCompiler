@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iostream>
 #include "unifier.h"
 #include "type.h"
 #include "../utility/match.h"
@@ -56,10 +57,10 @@ namespace yk {
 			},
 			[&](ysptr<set_type> tt1, ysptr<cons_type> tt2) {
 			bind(tt1->as(), [&](yvec<type>& stypes) {
-				std::remove_if(stypes.begin(), stypes.end(),
+				stypes.erase(std::remove_if(stypes.begin(), stypes.end(),
 				[&](type& st) {
 					return !st.matches(t2);
-				});
+				}), stypes.end());
 				if (stypes.empty()) {
 					throw err("Type " + t2.to_str() + " does not meet the constraint " + t1.to_str());
 				}
