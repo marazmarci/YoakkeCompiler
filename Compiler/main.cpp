@@ -14,8 +14,8 @@ namespace dbg {
 
 int main(void) {
 	try {
-		file_hnd file("C:/TMP/YoakkeTest/tokenizer.txt");
-		lexer lex(file);
+		file_hnd	file("C:/TMP/YoakkeTest/tokenizer.txt");
+		lexer		lex(file);
 		while (lex.has_next()) {
 			dbg::print_tok(lex.next());
 		}

@@ -12,6 +12,8 @@
 #include <cstddef>
 #include <functional>
 #include <map>
+#include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <tuple>
@@ -23,14 +25,11 @@ using ystr	= std::string;
 template <typename T>
 using yvec = std::vector<T>;
 
-template <typename T>
-using yref = std::reference_wrapper<T>;
-
 template <typename T, typename U = T>
 using ypair = std::pair<T, U>;
 
-template <typename T>
-using yset = std::set<T>;
-
 template <typename K, typename T>
 using ymap = std::map<K, T>;
+
+template <typename T>
+using ysptr = std::shared_ptr<T>;

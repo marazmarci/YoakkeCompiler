@@ -1,5 +1,5 @@
 /**
- * common.h
+ * str_utils.h
  * Created by: Peter Lenkefi
  * All rights reserved.
  *
@@ -105,7 +105,7 @@ namespace str_utils {
 		return std::to_string(val);
 	}
 
-	namespace {
+	namespace detail {
 		/**
 		 * Helper function for fmt().
 		 * @see fmt
@@ -172,7 +172,7 @@ namespace str_utils {
 	template <typename... Ts>
 	ystr fmt(const char* orig, ysize len, Ts const&... values) {
 		ystr result;
-		fmt_impl(result, orig, len, values...);
+		detail::fmt_impl(result, orig, len, values...);
 		return result;
 	}
 

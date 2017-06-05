@@ -5,7 +5,7 @@
  *
  * Description:
  *  A token is the result of the lexical analysis, every token represents
- *  an atomic part of the source like an identifier, number, brace and so on.
+ *  an atomic part of the source like an identifier, number, braces and so on.
  */
 
 #pragma once
