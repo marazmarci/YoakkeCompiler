@@ -46,7 +46,7 @@ file_hnd::file_hnd(const char* path)
 		// Get the length of the line
 		ysize llen = line_len(m_Buffer + offs);
 		// Add it and the pointer to the line descriptors
-		m_Lines.push_back({ m_Buffer + offs, llen - 1 });
+		m_Lines.push_back({ m_Buffer + offs, llen ? llen - 1 : 0 });
 		// Advance to the next line
 		offs += llen;
 	}

@@ -36,3 +36,6 @@ using ysptr = std::shared_ptr<T>;
 
 template <typename T>
 using yref = std::reference_wrapper<T>;
+
+template <typename T>
+using yopt = std::optional<T>;

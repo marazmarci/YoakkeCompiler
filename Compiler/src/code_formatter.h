@@ -31,16 +31,27 @@ public:
 	 * @param file The source file.
 	 * @param pos The position to annotate.
 	 */
-	static void print(file_hnd const& file, interval const& pos);
+	static void print(file_hnd const& file, interval pos, yopt<interval> pos2 = {});
 
 private:
 	static ystr s_LineSep; // Separates line numbering from content
 
 private:
-	static void print_line(file_hnd const& file, ysize idx, ysize digit_cnt);
-	static void print_line_annot(file_hnd const& file, ysize idx, ysize digit_cnt, ysize start, ysize end);
-	static ysize print_line_segment(const char* src, ysize idx, ysize offs, ysize len, ysize digit_cnt, yvec<yref<ysize>>& points = yvec<yref<ysize>>{});
-	static void print_line_number(bool first, ysize num, ysize digit_cnt);
+	/**
+	 * Calculates the first and the last line indicies that should be printed
+	 * based on the file and the annotated position.
+	 * @param file The souce file.
+	 * @param from The first annotated line.
+	 * @param to The last annotated line.
+	 * @return A pair of indicies in the form of (from, to).
+	 */
+	static ypair<ysize, ysize> get_bounds(file_hnd const& file, ysize from, ysize to);
+
+	static void print_line(file_hnd const& file, ysize idx, ysize max_digs);
+
+	static void print_line_begin(bool first, ysize idx, ysize max_digs);
+
+	static ysize print_line_sect(ysize idx, const char* src, ysize offs, ysize line_len, ysize max_digs);
 
 public:
 	code_formatter() = delete; // Cannot instantiate
