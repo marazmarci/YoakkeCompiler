@@ -87,30 +87,6 @@ ypair<ysize, ysize> code_formatter::get_bounds(file_hnd const& file, ysize from,
 	return { begin, end };
 }
 
-//void code_formatter::print_line(file_hnd const& file, ysize idx, ysize max_digs) {
-//	// Get a reference to the output stream for simpler syntax
-//	std::ostream& outs = *Out;
-//
-//	// The actual text buffer size
-//	assert(BufferW > max_digs + s_LineSep.length() && "The buffer must have a positive size!");
-//	ysize text_w = BufferW - (max_digs + s_LineSep.length());
-//
-//	// Get line info
-//	const char* src;
-//	ysize line_len;
-//	std::tie(src, line_len) = file.line(idx);
-//
-//	// Expand the line
-//	ystr ln_exp = expand_line(src, line_len);
-//
-//	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
-//		// Print the beginning of the line (number and separator)
-//		print_line_begin(offs == 0, idx, max_digs);
-//		// Print the part of the line
-//		outs << ln_exp.substr(offs, text_w) << std::endl;
-//	}
-//}
-
 void code_formatter::print_line_begin(bool first, ysize idx, ysize max_digs) {
 	// Get a reference to the output stream for simpler syntax
 	std::ostream& outs = *Out;
@@ -164,6 +140,27 @@ ystr code_formatter::expand_line(const char* line, ysize len, std::initializer_l
 		else if (std::isprint(c)) {
 			result += c;
 		}
+	}
+
+	return result;
+}
+
+ystr code_formatter::generate_arrows(ysize beg, std::initializer_list<ysize> points) {
+	ystr result;
+	assert(points.size() && "Cannot create arrows without points!");
+	assert(points.size() % 2 == 0 && "Cannot create arrows from odd number of points!");
+
+	ysize cnt = 0;
+	result.reserve(beg + *(points.end() - 1) - *points.begin());
+	result += ystr(beg, '~');
+
+	auto it = points.begin();
+	auto itp1 = it + 1;
+	
+	while (itp1 != points.end()) {
+		result += ystr(*itp1 - *it, cnt % 2 ? '~' : '^');
+		it = itp1++;
+		cnt++;
 	}
 
 	return result;
