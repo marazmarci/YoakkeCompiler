@@ -1,3 +1,4 @@
+#include <cctype>
 #include <algorithm>
 #include "code_formatter.h"
 #include "str_utils.h"
@@ -43,7 +44,15 @@ void code_formatter::print(file_hnd const& file, interval pos, yopt<interval> po
 
 	if (first_annot == last_annot) {
 		// Single-line annotation
-
+		if (pos2) {
+			// Single line, two arrows
+			// ~~~~~~~~^^^^^^~~~~~~~~^^^^^^
+		}
+		else {
+			// Single line, one arrow
+			// ~~~~~~~~^^^^^^
+			print_line(file, first_annot, max_digs, pos.Start.Column, pos.End.Column);
+		}
 	}
 	else {
 		// Multiple annotated lines
@@ -78,19 +87,29 @@ ypair<ysize, ysize> code_formatter::get_bounds(file_hnd const& file, ysize from,
 	return { begin, end };
 }
 
-void code_formatter::print_line(file_hnd const& file, ysize idx, ysize max_digs) {
-	// Get a reference to the output stream for simpler syntax
-	std::ostream& outs = *Out;
-
-	// Get line info
-	const char* src;
-	ysize line_len;
-	std::tie(src, line_len) = file.line(idx);
-
-	// offs is where we are in the line
-	for (ysize offs = 0; offs < line_len; 
-		offs += print_line_sect(idx, src + offs, offs, line_len, max_digs));
-}
+//void code_formatter::print_line(file_hnd const& file, ysize idx, ysize max_digs) {
+//	// Get a reference to the output stream for simpler syntax
+//	std::ostream& outs = *Out;
+//
+//	// The actual text buffer size
+//	assert(BufferW > max_digs + s_LineSep.length() && "The buffer must have a positive size!");
+//	ysize text_w = BufferW - (max_digs + s_LineSep.length());
+//
+//	// Get line info
+//	const char* src;
+//	ysize line_len;
+//	std::tie(src, line_len) = file.line(idx);
+//
+//	// Expand the line
+//	ystr ln_exp = expand_line(src, line_len);
+//
+//	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
+//		// Print the beginning of the line (number and separator)
+//		print_line_begin(offs == 0, idx, max_digs);
+//		// Print the part of the line
+//		outs << ln_exp.substr(offs, text_w) << std::endl;
+//	}
+//}
 
 void code_formatter::print_line_begin(bool first, ysize idx, ysize max_digs) {
 	// Get a reference to the output stream for simpler syntax
@@ -112,40 +131,40 @@ void code_formatter::print_line_begin(bool first, ysize idx, ysize max_digs) {
 	}
 }
 
-ysize code_formatter::print_line_sect(ysize idx, const char* src, ysize offs, ysize line_len, ysize max_digs) {
-	// Get a reference to the output stream for simpler syntax
-	std::ostream& outs = *Out;
+ystr code_formatter::expand_line(const char* line, ysize len, std::initializer_list<yref<ysize>> points) {
+	// The expanded string
+	ystr result;
+	// Reserve as many chars as the line length to reduce allocations
+	result.reserve(len);
 
-	// The actual text buffer size
-	assert(BufferW > max_digs + s_LineSep.length() && "The buffer must have a positive size!");
-	ysize text_w = BufferW - (max_digs + s_LineSep.length());
-
-	ysize printed = 0;	// How many chars are printed
-	ysize moved = 0;	// How many characters the cursor has moved
-
-	// Print the beginning of the line
-	print_line_begin(offs == 0, idx, max_digs);
-
-	for (; moved < text_w && offs + printed < line_len; printed++) {
-		if (src[printed] == '\t') {
-			// Calculate how many characters a tab skips
-			ysize skip = TabSize - moved % TabSize;
-			// Skip that many chars
-			outs << ystr(skip, ' ');
-			// We have moved that much
-			moved += skip;
+	ysize i = 0;
+	for (auto it = points.begin(); it != points.end(); ++it) {
+		// For every point, find the corresponding space
+		ysize next = it->get();
+		for (; i < next; i++) {
+			char c = line[i];
+			if (c == '\t') {
+				// Skip to the next tabbing space
+				ysize skip = TabSize - result.length() % TabSize;
+				result += ystr(skip, ' ');
+			}
+			else if (std::isprint(c)) {
+				result += c;
+			}
 		}
-		else {
-			outs << src[printed];
-			moved++;
+		it->get() = result.length();
+	}
+	for (; i < len; i++) {
+		char c = line[i];
+		if (c == '\t') {
+			// Skip to the next tabbing space
+			ysize skip = TabSize - result.length() % TabSize;
+			result += ystr(skip, ' ');
+		}
+		else if (std::isprint(c)) {
+			result += c;
 		}
 	}
-	// End the line
-	outs << std::endl;
-	
-	if (src[printed] == '\r') {
-		// Fix for carriage return character
-		printed++;
-	}
-	return printed;
+
+	return result;
 }
