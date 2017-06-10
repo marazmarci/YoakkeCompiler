@@ -35,6 +35,11 @@ public:
 	static void print(file_hnd const& file, interval pos, yopt<interval> pos2 = {});
 
 private:
+	enum class arrow_state {
+		None, Begin, In, End
+	};
+
+private:
 	static ystr s_LineSep;		// Separates line numbering from content
 	static ystr s_LineSepInt;	// Separator in intervals
 
@@ -55,7 +60,7 @@ private:
 
 private:
 	template <typename... Ts>
-	static void print_line(file_hnd const& file, ysize idx, ysize max_digs, bool in, Ts... points) {
+	static void print_line(file_hnd const& file, ysize idx, ysize max_digs, arrow_state state, Ts... points) {
 		// Get a reference to the output stream for simpler syntax
 		std::ostream& outs = *Out;
 
@@ -81,7 +86,13 @@ private:
 
 			for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
 				// Print the beginning of the line (number and separator)
-				print_line_begin(offs == 0, idx, max_digs, in);
+				if ((state == arrow_state::Begin && created)
+					|| (state == arrow_state::End && !created)) {
+					print_line_begin(offs == 0, idx, max_digs, true);
+				}
+				else {
+					print_line_begin(offs == 0, idx, max_digs, state == arrow_state::In);
+				}
 				// Print the part of the line
 				outs << ln_exp.substr(offs, text_w) << std::endl;
 
@@ -94,7 +105,8 @@ private:
 				if (created) {
 					if (arr_at < arrow.length()) {
 						outs
-							<< ystr(max_digs + s_LineSep.length(), ' ')
+							<< ystr(max_digs, ' ')
+							<< ((state == arrow_state::None || (state == arrow_state::Begin && arr_at == 0)) ? ystr(s_LineSep.length(), ' ') : s_LineSepInt)
 							<< arrow.substr(arr_at, text_w)
 							<< std::endl;
 						arr_at += text_w;
@@ -105,7 +117,7 @@ private:
 		else {
 			for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
 				// Print the beginning of the line (number and separator)
-				print_line_begin(offs == 0, idx, max_digs, in);
+				print_line_begin(offs == 0, idx, max_digs, state == arrow_state::In);
 				// Print the part of the line
 				outs << ln_exp.substr(offs, text_w) << std::endl;
 			}

@@ -40,7 +40,7 @@ void code_formatter::print(file_hnd const& file, interval pos, yopt<interval> po
 
 	for (ysize i = first; i < first_annot; i++) {
 		// Print the lines before the annotated lines
-		print_line(file, i, max_digs, false);
+		print_line(file, i, max_digs, arrow_state::None);
 	}
 
 	if (first_annot == last_annot) {
@@ -48,39 +48,39 @@ void code_formatter::print(file_hnd const& file, interval pos, yopt<interval> po
 		if (pos2) {
 			// Single line, two arrows
 			// ~~~~~~~~^^^^^^~~~~~~~~^^^^^^
-			print_line(file, first_annot, max_digs, false, pos.Start.Column, pos.End.Column, pos2->Start.Column, pos2->End.Column);
+			print_line(file, first_annot, max_digs, arrow_state::None, pos.Start.Column, pos.End.Column, pos2->Start.Column, pos2->End.Column);
 		}
 		else {
 			// Single line, one arrow
 			// ~~~~~~~~^^^^^^
-			print_line(file, first_annot, max_digs, false, pos.Start.Column, pos.End.Column);
+			print_line(file, first_annot, max_digs, arrow_state::None, pos.Start.Column, pos.End.Column);
 		}
 	}
 	else {
 		// Multiple annotated lines
 		if (pos2) {
-			print_line(file, first_annot, max_digs, false,
+			print_line(file, first_annot, max_digs, arrow_state::Begin,
 				pos.Start.Column, pos.End.Column);
 			for (ysize i = first_annot + 1; i < last_annot; i++) {
-				print_line(file, i, max_digs, true);
+				print_line(file, i, max_digs, arrow_state::In);
 			}
-			print_line(file, last_annot, max_digs, true,
+			print_line(file, last_annot, max_digs, arrow_state::End,
 				pos2->Start.Column, pos2->End.Column);
 		}
 		else {
-			print_line(file, first_annot, max_digs, false,
+			print_line(file, first_annot, max_digs, arrow_state::Begin,
 				pos.Start.Column, pos.Start.Column + 1);
 			for (ysize i = first_annot + 1; i < last_annot; i++) {
-				print_line(file, i, max_digs, true);
+				print_line(file, i, max_digs, arrow_state::In);
 			}
-			print_line(file, last_annot, max_digs, true,
+			print_line(file, last_annot, max_digs, arrow_state::End,
 				pos.End.Column, pos.End.Column + 1);
 		}
 	}
 
 	for (ysize i = last_annot + 1; i <= last; i++) {
 		// Print the lines after the annotated lines
-		print_line(file, i, max_digs, false);
+		print_line(file, i, max_digs, arrow_state::None);
 	}
 }
 
@@ -171,13 +171,13 @@ ystr code_formatter::generate_arrows(ysize beg, std::initializer_list<ysize> poi
 
 	ysize cnt = 0;
 	result.reserve(beg + *(points.end() - 1) - *points.begin());
-	result += ystr(beg, '~');
+	result += ystr(beg, '_');
 
 	auto it = points.begin();
 	auto itp1 = it + 1;
 	
 	while (itp1 != points.end()) {
-		result += ystr(*itp1 - *it, cnt % 2 ? '~' : '^');
+		result += ystr(*itp1 - *it, cnt % 2 ? '_' : '^');
 		it = itp1++;
 		cnt++;
 	}
