@@ -10,7 +10,8 @@ ysize			code_formatter::LinesAfter	= 1;
 ysize			code_formatter::MaxBetween	= 3;
 ysize			code_formatter::TabSize		= 4;
 
-ystr			code_formatter::s_LineSep	= " | ";
+ystr			code_formatter::s_LineSep		= " | ";
+ystr			code_formatter::s_LineSepInt	= " ||";
 
 /**
  * Helper function that calculate the amount of digits needed to print a 
@@ -39,7 +40,7 @@ void code_formatter::print(file_hnd const& file, interval pos, yopt<interval> po
 
 	for (ysize i = first; i < first_annot; i++) {
 		// Print the lines before the annotated lines
-		print_line(file, i, max_digs);
+		print_line(file, i, max_digs, false);
 	}
 
 	if (first_annot == last_annot) {
@@ -47,21 +48,39 @@ void code_formatter::print(file_hnd const& file, interval pos, yopt<interval> po
 		if (pos2) {
 			// Single line, two arrows
 			// ~~~~~~~~^^^^^^~~~~~~~~^^^^^^
+			print_line(file, first_annot, max_digs, false, pos.Start.Column, pos.End.Column, pos2->Start.Column, pos2->End.Column);
 		}
 		else {
 			// Single line, one arrow
 			// ~~~~~~~~^^^^^^
-			print_line(file, first_annot, max_digs, pos.Start.Column, pos.End.Column);
+			print_line(file, first_annot, max_digs, false, pos.Start.Column, pos.End.Column);
 		}
 	}
 	else {
 		// Multiple annotated lines
-		
+		if (pos2) {
+			print_line(file, first_annot, max_digs, false,
+				pos.Start.Column, pos.End.Column);
+			for (ysize i = first_annot + 1; i < last_annot; i++) {
+				print_line(file, i, max_digs, true);
+			}
+			print_line(file, last_annot, max_digs, true,
+				pos2->Start.Column, pos2->End.Column);
+		}
+		else {
+			print_line(file, first_annot, max_digs, false,
+				pos.Start.Column, pos.Start.Column + 1);
+			for (ysize i = first_annot + 1; i < last_annot; i++) {
+				print_line(file, i, max_digs, true);
+			}
+			print_line(file, last_annot, max_digs, true,
+				pos.End.Column, pos.End.Column + 1);
+		}
 	}
 
 	for (ysize i = last_annot + 1; i <= last; i++) {
 		// Print the lines after the annotated lines
-		print_line(file, i, max_digs);
+		print_line(file, i, max_digs, false);
 	}
 }
 
@@ -87,7 +106,7 @@ ypair<ysize, ysize> code_formatter::get_bounds(file_hnd const& file, ysize from,
 	return { begin, end };
 }
 
-void code_formatter::print_line_begin(bool first, ysize idx, ysize max_digs) {
+void code_formatter::print_line_begin(bool first, ysize idx, ysize max_digs, bool in) {
 	// Get a reference to the output stream for simpler syntax
 	std::ostream& outs = *Out;
 
@@ -97,13 +116,13 @@ void code_formatter::print_line_begin(bool first, ysize idx, ysize max_digs) {
 		outs
 			<< ystr(max_digs - digit_count_of(idx), '0')	// Padding
 			<< str_utils::to_str(idx)						// Line number
-			<< s_LineSep;									// Line separator
+			<< (in ? s_LineSepInt : s_LineSep);				// Line separator
 	}
 	else {
 		// Just skip and separate
 		outs
-			<< ystr(max_digs, ' ')	// Padding
-			<< s_LineSep;			// Line separator
+			<< ystr(max_digs, ' ')				// Padding
+			<< (in ? s_LineSepInt : s_LineSep);	// Line separator
 	}
 }
 

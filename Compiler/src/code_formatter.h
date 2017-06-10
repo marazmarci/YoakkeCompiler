@@ -35,7 +35,8 @@ public:
 	static void print(file_hnd const& file, interval pos, yopt<interval> pos2 = {});
 
 private:
-	static ystr s_LineSep; // Separates line numbering from content
+	static ystr s_LineSep;		// Separates line numbering from content
+	static ystr s_LineSepInt;	// Separator in intervals
 
 private:
 	/**
@@ -48,13 +49,13 @@ private:
 	 */
 	static ypair<ysize, ysize> get_bounds(file_hnd const& file, ysize from, ysize to);
 
-	static void print_line_begin(bool first, ysize idx, ysize max_digs);
+	static void print_line_begin(bool first, ysize idx, ysize max_digs, bool in = false);
 	static ystr expand_line(const char* line, ysize len, std::initializer_list<yref<ysize>> points = {});
 	static ystr generate_arrows(ysize beg, std::initializer_list<ysize> points);
 
 private:
 	template <typename... Ts>
-	static void print_line(file_hnd const& file, ysize idx, ysize max_digs, Ts... points) {
+	static void print_line(file_hnd const& file, ysize idx, ysize max_digs, bool in, Ts... points) {
 		// Get a reference to the output stream for simpler syntax
 		std::ostream& outs = *Out;
 
@@ -80,7 +81,7 @@ private:
 
 			for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
 				// Print the beginning of the line (number and separator)
-				print_line_begin(offs == 0, idx, max_digs);
+				print_line_begin(offs == 0, idx, max_digs, in);
 				// Print the part of the line
 				outs << ln_exp.substr(offs, text_w) << std::endl;
 
@@ -104,7 +105,7 @@ private:
 		else {
 			for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
 				// Print the beginning of the line (number and separator)
-				print_line_begin(offs == 0, idx, max_digs);
+				print_line_begin(offs == 0, idx, max_digs, in);
 				// Print the part of the line
 				outs << ln_exp.substr(offs, text_w) << std::endl;
 			}

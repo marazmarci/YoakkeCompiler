@@ -16,6 +16,7 @@ namespace dbg {
 int main(void) {
 	try {
 		interval	tok_place(position(0, 0), position(1, 0));
+		interval	tok_place2(position(0, 0), position(1, 0));
 		file_hnd	file("C:/TMP/YoakkeTest/tokenizer.txt");
 		lexer		lex(file);
 		while (lex.has_next()) {
@@ -23,9 +24,12 @@ int main(void) {
 			if (t.Value == "Peter") {
 				tok_place = t.Pos;
 			}
+			if (t.Type == token_t::Arrow) {
+				tok_place2 = t.Pos;
+			}
 		}
 
-		code_formatter::print(file, tok_place);
+		code_formatter::print(file, tok_place, tok_place2);
 	}
 	catch (no_file_exception& nof) {
 		std::cout << "No such file: '" << nof.Path << "'" << std::endl;
