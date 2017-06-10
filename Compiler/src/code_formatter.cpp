@@ -175,11 +175,22 @@ ystr code_formatter::expand_line(const char* line, ysize len, yvec<ypair<ysize>*
 	return result;
 }
 
+ystr code_formatter::expand_line(const char* line, ysize len) {
+	// The expanded string
+	ystr result;
+	// Reserve as many chars as the line length to reduce allocations
+	result.reserve(len);
+
+	ysize i = 0;
+	expand_until(line, i, len, result);
+
+	return result;
+}
+
 ystr code_formatter::generate_arrows(ysize beg, std::vector<ypair<ysize>> const& points) {
 	ystr result;
 	assert(points.size() && "Cannot create arrows without points!");
 
-	ysize cnt = 0;
 	result.reserve(beg + (points.rbegin()->second - points.begin()->first));
 	result += ystr(beg, '_');
 
@@ -197,4 +208,206 @@ ystr code_formatter::generate_arrows(ysize beg, std::vector<ypair<ysize>> const&
 	}
 
 	return result;
+}
+
+void code_formatter::print_line(file_hnd const& file, ysize idx, ysize max_digs) {
+	// Get a reference to the output stream for simpler syntax
+	std::ostream& outs = *Out;
+
+	// The actual text buffer size
+	assert(BufferW > max_digs + s_LineSep.length() && "The buffer must have a positive size!");
+	ysize text_w = BufferW - (max_digs + s_LineSep.length());
+
+	// Get line info
+	const char* src;
+	ysize line_len;
+	std::tie(src, line_len) = file.line(idx);
+
+	// Expand the line
+	ystr ln_exp = expand_line(src, line_len);
+
+	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
+		// Print the beginning of the line (number and separator)
+		print_line_begin(offs == 0, idx, max_digs);
+		// Print the part of the line
+		outs << ln_exp.substr(offs, text_w) << std::endl;
+	}
+}
+
+void code_formatter::print_line_in(file_hnd const& file, ysize idx, ysize max_digs) {
+	// Get a reference to the output stream for simpler syntax
+	std::ostream& outs = *Out;
+
+	// The actual text buffer size
+	assert(BufferW > max_digs + s_LineSep.length() && "The buffer must have a positive size!");
+	ysize text_w = BufferW - (max_digs + s_LineSep.length());
+
+	// Get line info
+	const char* src;
+	ysize line_len;
+	std::tie(src, line_len) = file.line(idx);
+
+	// Expand the line
+	ystr ln_exp = expand_line(src, line_len);
+
+	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
+		// Print the beginning of the line (number and separator)
+		print_line_begin_in(offs == 0, idx, max_digs);
+		// Print the part of the line
+		outs << ln_exp.substr(offs, text_w) << std::endl;
+	}
+}
+
+void code_formatter::print_line_beg(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize>> points) {
+	// Get a reference to the output stream for simpler syntax
+	std::ostream& outs = *Out;
+
+	// The actual text buffer size
+	assert(BufferW > max_digs + s_LineSep.length() && "The buffer must have a positive size!");
+	ysize text_w = BufferW - (max_digs + s_LineSep.length());
+
+	// Get line info
+	const char* src;
+	ysize line_len;
+	std::tie(src, line_len) = file.line(idx);
+
+	yvec<ypair<ysize>*> points_ref;
+	for (ypair<ysize>& el : points) {
+		points_ref.push_back(&el);
+	}
+	// Expand the line
+	ystr ln_exp = expand_line(src, line_len, points_ref);
+
+	yopt<ystr> arrow;
+	ysize arr_at = 0;
+	ysize arrow_begin = points.begin()->first;
+
+	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
+		// Print the beginning of the line (number and separator)
+		if (arrow) {
+			print_line_begin_in(offs == 0, idx, max_digs);
+		}
+		else {
+			print_line_begin(offs == 0, idx, max_digs);
+		}
+		// Print the part of the line
+		outs << ln_exp.substr(offs, text_w) << std::endl;
+
+		if (!arrow && math::in_range(arrow_begin, offs, text_w)) {
+			ysize beg = arrow_begin - offs;
+			arrow = generate_arrows(beg, points);
+		}
+		if (arrow) {
+			if (arr_at < arrow->length()) {
+				if (arr_at == 0) {
+					print_line_begin(false, idx, max_digs);
+				}
+				else {
+					print_line_begin_in(false, idx, max_digs);
+				}
+				outs
+					<< arrow->substr(arr_at, text_w)
+					<< std::endl;
+				arr_at += text_w;
+			}
+		}
+	}
+}
+
+void code_formatter::print_line_end(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize>> points) {
+	// Get a reference to the output stream for simpler syntax
+	std::ostream& outs = *Out;
+
+	// The actual text buffer size
+	assert(BufferW > max_digs + s_LineSep.length() && "The buffer must have a positive size!");
+	ysize text_w = BufferW - (max_digs + s_LineSep.length());
+
+	// Get line info
+	const char* src;
+	ysize line_len;
+	std::tie(src, line_len) = file.line(idx);
+
+	yvec<ypair<ysize>*> points_ref;
+	for (ypair<ysize>& el : points) {
+		points_ref.push_back(&el);
+	}
+	// Expand the line
+	ystr ln_exp = expand_line(src, line_len, points_ref);
+
+	yopt<ystr> arrow;
+	ysize arr_at = 0;
+	ysize arrow_begin = points.begin()->first;
+
+	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
+		// Print the beginning of the line (number and separator)
+		if (!arrow) {
+			print_line_begin_in(offs == 0, idx, max_digs);
+		}
+		else {
+			print_line_begin(offs == 0, idx, max_digs);
+		}
+		// Print the part of the line
+		outs << ln_exp.substr(offs, text_w) << std::endl;
+
+		if (!arrow && math::in_range(arrow_begin, offs, text_w)) {
+			ysize beg = arrow_begin - offs;
+			arrow = generate_arrows(beg, points);
+		}
+		if (arrow) {
+			if (arr_at < arrow->length()) {
+				print_line_begin_in(false, idx, max_digs);
+				outs
+					<< arrow->substr(arr_at, text_w)
+					<< std::endl;
+				arr_at += text_w;
+			}
+		}
+	}
+}
+
+void code_formatter::print_line(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize>> points) {
+	// Get a reference to the output stream for simpler syntax
+	std::ostream& outs = *Out;
+
+	// The actual text buffer size
+	assert(BufferW > max_digs + s_LineSep.length() && "The buffer must have a positive size!");
+	ysize text_w = BufferW - (max_digs + s_LineSep.length());
+
+	// Get line info
+	const char* src;
+	ysize line_len;
+	std::tie(src, line_len) = file.line(idx);
+
+	yvec<ypair<ysize>*> points_ref;
+	for (ypair<ysize>& el : points) {
+		points_ref.push_back(&el);
+	}
+	// Expand the line
+	ystr ln_exp = expand_line(src, line_len, points_ref);
+
+	yopt<ystr> arrow;
+	ysize arr_at = 0;
+	ysize arrow_begin = points.begin()->first;
+
+	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
+		// Print the beginning of the line (number and separator)
+		print_line_begin(offs == 0, idx, max_digs);
+
+		// Print the part of the line
+		outs << ln_exp.substr(offs, text_w) << std::endl;
+
+		if (!arrow && math::in_range(arrow_begin, offs, text_w)) {
+			ysize beg = arrow_begin - offs;
+			arrow = generate_arrows(beg, points);
+		}
+		if (arrow) {
+			if (arr_at < arrow->length()) {
+				print_line_begin(false, idx, max_digs);
+				outs
+					<< arrow->substr(arr_at, text_w)
+					<< std::endl;
+				arr_at += text_w;
+			}
+		}
+	}
 }
