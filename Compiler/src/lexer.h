@@ -20,7 +20,7 @@
  * Mainly used by the parser.
  * @see lexer
  */
-using lexer_state = position;
+using lexer_state = point;
 
 /**
  * A lexer instance analyses a single file from a handle, outputting tokens

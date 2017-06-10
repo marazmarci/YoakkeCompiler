@@ -11,10 +11,10 @@ Contains positional information for error reporting.
 namespace yk {
 	class ast_node {
 	public:
-		const position Position;
+		const point Position;
 
 	protected:
-		ast_node(position const& pos);
+		ast_node(point const& pos);
 
 	public:
 		virtual ~ast_node();

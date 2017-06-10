@@ -11,7 +11,7 @@ namespace yk {
 		ystr Name;
 
 	protected:
-		node_tag(position const& pos, token const& id);
+		node_tag(point const& pos, token const& id);
 
 	public:
 		virtual ~node_tag();

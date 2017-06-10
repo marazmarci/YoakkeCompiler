@@ -134,6 +134,7 @@
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\file_hnd.h" />
     <ClInclude Include="src\lexer.h" />
+    <ClInclude Include="src\math.h" />
     <ClInclude Include="src\parselet.h" />
     <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\position.h" />

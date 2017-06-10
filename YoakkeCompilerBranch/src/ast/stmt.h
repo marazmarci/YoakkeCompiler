@@ -11,7 +11,7 @@ namespace yk {
 		META_BaseVisitable(stmt)
 
 	protected:
-		stmt(position const& pos);
+		stmt(point const& pos);
 
 	public:
 		virtual ~stmt();

@@ -13,7 +13,7 @@ namespace yk {
 
 	public:
 		token();
-		token(ytoken_t tt, ystr const& val, position const& pos);
+		token(ytoken_t tt, ystr const& val, point const& pos);
 
 	public:
 		ystr format() const;

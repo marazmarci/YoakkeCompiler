@@ -1,7 +1,7 @@
 #include "position.h"
 
 namespace yk {
-	position::position(ysize r, ysize c)
+	point::point(ysize r, ysize c)
 		: Row(r), Col(c) {
 	}
 
@@ -9,7 +9,7 @@ namespace yk {
 		: Start(0, 0), End(0, 0) {
 	}
 
-	interval::interval(position const& st, ysize len)
+	interval::interval(point const& st, ysize len)
 		: Start(st.Row, st.Col - len), End(st) {
 	}
 

@@ -40,7 +40,7 @@ namespace yk {
 		// Lexical
 
 		// EOF
-		unexpected_eof::unexpected_eof(file_handle const& f, position const& p)
+		unexpected_eof::unexpected_eof(file_handle const& f, point const& p)
 			: err(f, false), Position(p) {
 		}
 
@@ -54,7 +54,7 @@ namespace yk {
 		}
 
 		// Unknown token
-		unrecognized_char::unrecognized_char(file_handle const& f, position const& p, char c)
+		unrecognized_char::unrecognized_char(file_handle const& f, point const& p, char c)
 			: err(f, false), Position(p), Char(c) {
 		}
 

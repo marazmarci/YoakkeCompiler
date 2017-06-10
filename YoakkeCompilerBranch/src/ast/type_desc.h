@@ -15,7 +15,7 @@ namespace yk {
 		type_symbol* SymbolForm;
 
 	protected:
-		ty_expr(position const& pos);
+		ty_expr(point const& pos);
 
 	public:
 		virtual ~ty_expr();

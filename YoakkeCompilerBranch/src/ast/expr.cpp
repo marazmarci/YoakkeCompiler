@@ -4,7 +4,7 @@
 
 namespace yk {
 	// Expression
-	expr::expr(position const& pos)
+	expr::expr(point const& pos)
 		: ast_node(pos), Hint(nullptr), EvalType(nullptr), Lvalue(false) {
 	}
 
@@ -12,35 +12,35 @@ namespace yk {
 
 	// Identifier expression
 	ident_expr::ident_expr(token const& tok)
-		: expr(position::get(tok)), identifier(tok.value()), ValueSymbol(nullptr) {
+		: expr(point::get(tok)), identifier(tok.value()), ValueSymbol(nullptr) {
 	}
 
 	ident_expr::~ident_expr() { }
 
 	// Unit expression
 	unit_expr::unit_expr(token const& beg, token const& end)
-		: expr(position::interval(position::get(beg), position::get(end))) {
+		: expr(point::interval(point::get(beg), point::get(end))) {
 	}
 
 	unit_expr::~unit_expr() { }
 
 	// Integer literal expression
 	int_lit_expr::int_lit_expr(token const& tok)
-		: expr(position::get(tok)), Value(std::atoi(tok.value().c_str())) {
+		: expr(point::get(tok)), Value(std::atoi(tok.value().c_str())) {
 	}
 
 	int_lit_expr::~int_lit_expr() { }
 
 	// Real literal expression
 	real_lit_expr::real_lit_expr(token const& tok)
-		: expr(position::get(tok)), Value(std::atof(tok.value().c_str())) {
+		: expr(point::get(tok)), Value(std::atof(tok.value().c_str())) {
 	}
 
 	real_lit_expr::~real_lit_expr() { }
 
 	// Binary expression
 	bin_expr::bin_expr(expr* l, expr* r, token const& o)
-		: expr(position::interval(l->Position, r->Position)), LHS(l), RHS(r), OP(o),
+		: expr(point::interval(l->Position, r->Position)), LHS(l), RHS(r), OP(o),
 		Function(nullptr) {
 	}
 
@@ -51,7 +51,7 @@ namespace yk {
 
 	// Prefix unary expression
 	preury_expr::preury_expr(expr* s, token const& o)
-		: expr(position::interval(position::get(o), s->Position)), Sub(s), OP(o) {
+		: expr(point::interval(point::get(o), s->Position)), Sub(s), OP(o) {
 	}
 
 	preury_expr::~preury_expr() {
@@ -60,7 +60,7 @@ namespace yk {
 
 	// Postfix unary expression
 	postury_expr::postury_expr(expr* s, token const& o)
-		: expr(position::interval(s->Position, position::get(o))), Sub(s), OP(o) {
+		: expr(point::interval(s->Position, point::get(o))), Sub(s), OP(o) {
 	}
 
 	postury_expr::~postury_expr() {
@@ -69,7 +69,7 @@ namespace yk {
 
 	// Expression list expression
 	list_expr::list_expr(yvec<expr*> const& ls)
-		: expr(position::interval(ls[0]->Position, ls[ls.size() - 1]->Position)), List(ls) {
+		: expr(point::interval(ls[0]->Position, ls[ls.size() - 1]->Position)), List(ls) {
 	}
 
 	list_expr::~list_expr() {
@@ -77,7 +77,7 @@ namespace yk {
 	}
 
 	// Mixfix expression
-	mixfix_expr::mixfix_expr(ystr const& o, yvec<expr*> const& opers, position const& pos)
+	mixfix_expr::mixfix_expr(ystr const& o, yvec<expr*> const& opers, point const& pos)
 		: expr(pos), OP(o), Operands(opers) {
 	}
 
@@ -86,17 +86,17 @@ namespace yk {
 	}
 
 	// Block expression
-	block_expr::block_expr(position const& pos)
+	block_expr::block_expr(point const& pos)
 		: expr(pos) {
 	}
 
 	block_expr::~block_expr() { }
 
 	// Function prototype
-	func_proto::func_proto(token const& beg, position const& end, 
+	func_proto::func_proto(token const& beg, point const& end, 
 		yvec<param_expr*> const& pars, ty_expr* rett,
 		ymap<ystr, node_tag*> const& tags)
-		: expr(position::interval(position::get(beg), end)),
+		: expr(point::interval(point::get(beg), end)),
 		Parameters(pars), ReturnType(rett), Tags(tags) {
 	}
 
@@ -107,7 +107,7 @@ namespace yk {
 
 	// Function expression
 	func_expr::func_expr(func_proto* pr, expr* bod)
-		: block_expr(position::interval(pr->Position, bod->Position)), Prototype(pr), Body(bod) {
+		: block_expr(point::interval(pr->Position, bod->Position)), Prototype(pr), Body(bod) {
 	}
 
 	func_expr::~func_expr() {
@@ -117,7 +117,7 @@ namespace yk {
 
 	// Block expression
 	body_expr::body_expr(token const& beg, token const& end, yvec<stmt*> const& stmts)
-		: block_expr(position::interval(position::get(beg), position::get(end))),
+		: block_expr(point::interval(point::get(beg), point::get(end))),
 		Statements(stmts) {
 	}
 
@@ -125,12 +125,12 @@ namespace yk {
 
 	// Parameter expr
 	param_expr::param_expr(token const& name, token const& col, ty_expr* type)
-		: expr(position::interval(position::get(name), type->Position)),
+		: expr(point::interval(point::get(name), type->Position)),
 		Name(name), Type(type) {
 	}
 
 	param_expr::param_expr(token const& col, ty_expr* type)
-		: expr(position::interval(position::get(col), type->Position)),
+		: expr(point::interval(point::get(col), type->Position)),
 		Name(None), Type(type), ValueSymbol(nullptr) {
 	}
 
@@ -140,7 +140,7 @@ namespace yk {
 
 	// Let expression
 	let_expr::let_expr(token const& beg, pat_expr* l, ty_expr* t, expr* v)
-		: expr(position::interval(position::get(beg),
+		: expr(point::interval(point::get(beg),
 			v ? v->Position : (t ? t->Position : l->Position))),
 			Left(l), Type(t), Value(v) {
 	}
@@ -153,7 +153,7 @@ namespace yk {
 
 	// Const assignment expression
 	const_asgn_expr::const_asgn_expr(ident_expr* l, expr* r)
-		: expr(position::interval(l->Position, r->Position)),
+		: expr(point::interval(l->Position, r->Position)),
 		LHS(l), RHS(r) {
 	}
 

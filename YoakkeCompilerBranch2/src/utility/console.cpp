@@ -16,13 +16,13 @@ namespace yk {
 		TabSize = 8;
 	}
 
-	position console::get_cursor_pos() {
+	point console::get_cursor_pos() {
 		static CONSOLE_SCREEN_BUFFER_INFO csbi;
 		GetConsoleScreenBufferInfo(s_Handle, &csbi);
-		return position(csbi.dwCursorPosition.Y, csbi.dwCursorPosition.X);
+		return point(csbi.dwCursorPosition.Y, csbi.dwCursorPosition.X);
 	}
 
-	void console::set_cursor_pos(position const& pos) {
+	void console::set_cursor_pos(point const& pos) {
 		COORD pos_p = { pos.Col, pos.Row };
 		SetConsoleCursorPosition(s_Handle, pos_p);
 	}

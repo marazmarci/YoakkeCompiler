@@ -62,5 +62,8 @@
     <ClInclude Include="src\code_formatter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

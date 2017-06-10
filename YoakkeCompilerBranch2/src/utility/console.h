@@ -16,8 +16,8 @@ namespace yk {
 
 	public:
 		static void initialize();
-		static position get_cursor_pos();
-		static void set_cursor_pos(position const& pos);
+		static point get_cursor_pos();
+		static void set_cursor_pos(point const& pos);
 
 	public:
 		console() = delete;

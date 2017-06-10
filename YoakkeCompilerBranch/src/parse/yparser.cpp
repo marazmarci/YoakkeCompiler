@@ -194,7 +194,7 @@ namespace yk {
 						proto = new func_proto(begin, rett->Position, params, rett, tags);
 					}
 					else {
-						proto = new func_proto(begin, position::get(end.get()), params, 
+						proto = new func_proto(begin, point::get(end.get()), params, 
 							new ident_ty_expr(token("unit", "unit")), tags);
 					}
 					if (body) {
@@ -238,7 +238,7 @@ namespace yk {
 				}
 				parser->consume();
 				return new mixfix_expr("call", operands,
-					position::interval(left->Position, position::get(last)));
+					point::interval(left->Position, point::get(last)));
 			}
 		};
 

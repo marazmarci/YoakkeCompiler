@@ -31,7 +31,7 @@ namespace yk {
 		bool Lvalue;
 
 	protected:
-		expr(position const& pos);
+		expr(point const& pos);
 
 	public:
 		virtual ~expr();
@@ -145,13 +145,13 @@ namespace yk {
 		yvec<expr*> Operands;
 
 	public:
-		mixfix_expr(ystr const& o, yvec<expr*> const& opers, position const& pos);
+		mixfix_expr(ystr const& o, yvec<expr*> const& opers, point const& pos);
 		virtual ~mixfix_expr();
 	};
 
 	class block_expr : public expr {
 	protected:
-		block_expr(position const& pos);
+		block_expr(point const& pos);
 
 	public:
 		virtual ~block_expr();
@@ -167,7 +167,7 @@ namespace yk {
 		ymap<ystr, node_tag*> Tags;
 
 	public:
-		func_proto(token const& beg, position const& end, 
+		func_proto(token const& beg, point const& end, 
 			yvec<param_expr*> const& pars, ty_expr* rett,
 			ymap<ystr, node_tag*> const& tags);
 		virtual ~func_proto();

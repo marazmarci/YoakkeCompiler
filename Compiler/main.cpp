@@ -15,8 +15,8 @@ namespace dbg {
 
 int main(void) {
 	try {
-		interval	tok_place(position(0, 0), position(1, 0));
-		interval	tok_place2(position(0, 0), position(1, 0));
+		interval	tok_place(point(0, 0), point(1, 0));
+		interval	tok_place2(point(0, 0), point(1, 0));
 		file_hnd	file("C:/TMP/YoakkeTest/tokenizer.txt");
 		lexer		lex(file);
 		while (lex.has_next()) {
@@ -34,6 +34,7 @@ int main(void) {
 	catch (no_file_exception& nof) {
 		std::cout << "No such file: '" << nof.Path << "'" << std::endl;
 	}
+
 	std::cin.get();
 	return 0;
 }

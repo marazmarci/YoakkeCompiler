@@ -4,9 +4,9 @@
 
 namespace yk {
 	class token;
-	class position;
+	class point;
 
-	using lexer_state = ypair<const char*, position>;
+	using lexer_state = ypair<const char*, point>;
 
 	class lexer {
 	public:

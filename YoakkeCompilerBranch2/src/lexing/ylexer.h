@@ -11,8 +11,8 @@ namespace yk {
 	private:
 		file_handle&				m_File;			// Source file
 		const char*					m_Ptr;			// Pointer in the source
-		position					m_Position;		// Counts lines and columns
-		position					m_LastVisible;	// Holds the last non-space position
+		point					m_Position;		// Counts lines and columns
+		point					m_LastVisible;	// Holds the last non-space position
 
 		ymap<ystr, ytoken_t>		m_Symbols;		// Symbolic tokens
 		yopt_map<ystr, ytoken_t>	m_Keywords;		// Reserved keywords

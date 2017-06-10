@@ -6,13 +6,13 @@ namespace yk {
 	/*
 	A single x, y position in files.
 	*/
-	class position {
+	class point {
 	public:
 		ysize Row;
 		ysize Col;
 
 	public:
-		position(ysize r, ysize c);
+		point(ysize r, ysize c);
 	};
 
 	/*
@@ -20,12 +20,12 @@ namespace yk {
 	*/
 	class interval {
 	public:
-		position Start;
-		position End;
+		point Start;
+		point End;
 
 	public:
 		interval();
-		interval(position const& st, ysize len);
+		interval(point const& st, ysize len);
 		interval(interval const& a, interval const& b);
 	};
 

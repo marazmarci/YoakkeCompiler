@@ -46,10 +46,10 @@ namespace yk {
 
 		class unexpected_eof : public err {
 		public:
-			position	Position;
+			point	Position;
 
 		public:
-			unexpected_eof(file_handle const& f, position const& p);
+			unexpected_eof(file_handle const& f, point const& p);
 
 		public:
 			virtual void print_head(std::ostream& os) const override;
@@ -58,11 +58,11 @@ namespace yk {
 
 		class unrecognized_char : public err {
 		private:
-			position	Position;
+			point	Position;
 			char		Char;
 
 		public:
-			unrecognized_char(file_handle const& f, position const& p, char c);
+			unrecognized_char(file_handle const& f, point const& p, char c);
 
 		public:
 			virtual void print_head(std::ostream& os) const override;

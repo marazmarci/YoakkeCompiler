@@ -15,16 +15,16 @@
 /**
  * Describes a single place in the file, like a character.
  */
-struct position {
+struct point {
 	ysize Column;	// x position
 	ysize Row;		// y position
 
 	/**
-	 * Create a position at the given coordinates.
+	 * Create a point at the given coordinates.
 	 * @param c The column (x).
 	 * @param r The row (y).
 	 */
-	position(ysize c, ysize r)
+	point(ysize c, ysize r)
 		: Column(c), Row(r) {
 	}
 };
@@ -33,25 +33,25 @@ struct position {
  * Describes an interval in file from start to finish.
  */
 struct interval {
-	position Start;	// Beginning position
-	position End;	// Ending position
+	point Start;	// Beginning point
+	point End;		// Ending point
 
 	/**
-	 * Creates an interval from two positions.
-	 * @param s The starting position.
-	 * @param e The ending position.
+	 * Creates an interval from two points.
+	 * @param s The starting point.
+	 * @param e The ending points.
 	 */
-	interval(position const& s, position const& e)
+	interval(point const& s, point const& e)
 		: Start(s), End(e) {
 	}
 
 	/**
-	 * Creates an interval from an ending position and a length.
-	 * @param ep The ending position.
+	 * Creates an interval from an ending point and a length.
+	 * @param ep The ending point.
 	 * @param len The length of the interval.
 	 */
-	interval(position const& ep, ysize len)
-		: Start(position(ep.Column - len, ep.Row)), End(ep) {
+	interval(point const& ep, ysize len)
+		: Start(point(ep.Column - len, ep.Row)), End(ep) {
 	}
 
 	/**

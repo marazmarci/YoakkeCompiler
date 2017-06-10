@@ -5,7 +5,7 @@
 namespace yk {
 	class pat_expr : public ast_node {
 	protected:
-		pat_expr(position const& pos);
+		pat_expr(point const& pos);
 
 	public:
 		virtual ~pat_expr();

@@ -4,7 +4,7 @@
 #include "../common.h"
 
 namespace yk {
-	struct position {
+	struct point {
 	public:
 		ysize StartX;
 		ysize StartY;
@@ -12,10 +12,10 @@ namespace yk {
 		ysize EndY;
 
 	public:
-		position(ysize sx, ysize sy, ysize ex, ysize ey);
+		point(ysize sx, ysize sy, ysize ex, ysize ey);
 
 	public:
-		static position get(token const& tok);
-		static position interval(position const& a, position const& b);
+		static point get(token const& tok);
+		static point interval(point const& a, point const& b);
 	};
 }

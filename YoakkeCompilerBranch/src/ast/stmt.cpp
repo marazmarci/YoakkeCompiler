@@ -3,7 +3,7 @@
 
 namespace yk {
 	// Statement
-	stmt::stmt(position const& pos)
+	stmt::stmt(point const& pos)
 		: ast_node(pos) {
 	}
 
@@ -15,7 +15,7 @@ namespace yk {
 	}
 
 	expr_stmt::expr_stmt(expr* sub, token const& sc)
-		: stmt(position::interval(sub->Position, position::get(sc))), Sub(sub), Semicol(sc) {
+		: stmt(point::interval(sub->Position, point::get(sc))), Sub(sub), Semicol(sc) {
 	}
 
 	expr_stmt::~expr_stmt() {
