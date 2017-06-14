@@ -41,6 +41,9 @@ protected:
 	AST_expr(interval const& pos, expr_t ty)
 		: AST_node(pos), Type(ty) {
 	}
+
+public:
+	virtual ~AST_expr() { }
 };
 
 /**
@@ -57,6 +60,8 @@ struct AST_ident_expr : public AST_expr {
 	AST_ident_expr(token const& tok)
 		: AST_expr(tok.Pos, expr_t::Ident), ID(tok.Value) {
 	}
+
+	virtual ~AST_ident_expr() { }
 };
 
 /**
@@ -73,6 +78,8 @@ struct AST_int_lit_expr : public AST_expr {
 		: AST_expr(tok.Pos, expr_t::IntLit), 
 		Value(std::atoll(tok.Value.c_str())) {
 	}
+
+	virtual ~AST_int_lit_expr() { }
 };
 
 /**
@@ -80,16 +87,20 @@ struct AST_int_lit_expr : public AST_expr {
  */
 struct AST_pre_expr : public AST_expr {
 	token			OP;		// Operator
-	ysptr<AST_expr> Sub;	// Operand
+	AST_expr*		Sub;	// Operand
 
 	/**
 	 * Creates a prefix unary expression with the given operand and operator.
 	 * @param op The operator token.
 	 * @param sub The operand.
 	 */
-	AST_pre_expr(token const& op, ysptr<AST_expr> sub)
+	AST_pre_expr(token const& op, AST_expr* sub)
 		: AST_expr(interval(op.Pos, sub->Pos), expr_t::PreOp),
 		OP(op), Sub(sub) {
+	}
+
+	virtual ~AST_pre_expr() {
+		delete Sub;
 	}
 };
 
@@ -99,16 +110,20 @@ struct AST_pre_expr : public AST_expr {
  */
 struct AST_post_expr : public AST_expr {
 	token			OP;		// Operator
-	ysptr<AST_expr> Sub;	// Operand
+	AST_expr*		Sub;	// Operand
 
 	/**
 	 * Creates a postfix unary expression with the given operand and operator.
 	 * @param op The operator token.
 	 * @param sub The operand.
 	 */
-	AST_post_expr(token const& op, ysptr<AST_expr> sub)
+	AST_post_expr(token const& op, AST_expr* sub)
 		: AST_expr(interval(sub->Pos, op.Pos), expr_t::PostOp),
 		OP(op), Sub(sub) {
+	}
+
+	virtual ~AST_post_expr() {
+		delete Sub;
 	}
 };
 
@@ -117,8 +132,8 @@ struct AST_post_expr : public AST_expr {
  */
 struct AST_bin_expr : public AST_expr {
 	token			OP;		// Operator between nodes
-	ysptr<AST_expr> LHS;	// Left-hand side operand
-	ysptr<AST_expr> RHS;	// Right-hand side operand
+	AST_expr*		LHS;	// Left-hand side operand
+	AST_expr*		RHS;	// Right-hand side operand
 
 	/**
 	 * Creates a binary expression with the given operands and operator.
@@ -126,8 +141,13 @@ struct AST_bin_expr : public AST_expr {
 	 * @param left The left-hand side operand.
 	 * @param right The right-hand side operand.
 	 */
-	AST_bin_expr(token const& op, ysptr<AST_expr> left, ysptr<AST_expr> right)
+	AST_bin_expr(token const& op, AST_expr* left, AST_expr* right)
 		: AST_expr(interval(LHS->Pos, RHS->Pos), expr_t::BinOp),
 		OP(op), LHS(left), RHS(right) {
+	}
+
+	virtual ~AST_bin_expr() {
+		delete LHS;
+		delete RHS;
 	}
 };

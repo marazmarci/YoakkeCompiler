@@ -23,4 +23,7 @@ protected:
 	AST_node(interval const& pos)
 		: Pos(pos) {
 	}
+
+public:
+	virtual ~AST_node() { }
 };

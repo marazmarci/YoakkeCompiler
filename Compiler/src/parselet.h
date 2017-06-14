@@ -21,7 +21,7 @@ class parser;
  * The template parameter T is the pointer type that the function returns.
  */
 template <typename T>
-using prefix_parselet = std::function<ysptr<T>(parser&, token const&)>;
+using prefix_parselet = std::function<T* (parser&, token const&)>;
 
 /**
  * An infix parselet is a pair of precedence and a function. The function
@@ -33,5 +33,5 @@ using prefix_parselet = std::function<ysptr<T>(parser&, token const&)>;
 template <typename T>
 using infix_parselet = ypair<
 	ysize, 
-	std::function<ysptr<T>(parser&, ysptr<T>, token const&)>
+	std::function<T* (parser&, T*, token const&)>
 >;

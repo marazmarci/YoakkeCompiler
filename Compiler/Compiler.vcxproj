@@ -123,6 +123,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\parser.cpp" />
     <ClCompile Include="src\code_formatter.cpp" />
     <ClCompile Include="src\file_hnd.cpp" />
     <ClCompile Include="src\lexer.cpp" />

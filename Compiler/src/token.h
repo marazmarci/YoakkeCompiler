@@ -51,9 +51,9 @@ enum class token_t {
  * The Value filed is only used if nesecarry (number, identifier, string, ...)
  */
 struct token {
-	const interval	Pos;	// Position in file
-	const token_t	Type;	// Category
-	const ystr		Value;	// Content
+	interval	Pos;	// Position in file
+	token_t		Type;	// Category
+	ystr		Value;	// Content
 
 	/**
 	 * Creates a token from a position, type and a value.

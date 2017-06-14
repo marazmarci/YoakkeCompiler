@@ -32,9 +32,6 @@ template <typename K, typename T>
 using ymap = std::map<K, T>;
 
 template <typename T>
-using ysptr = std::shared_ptr<T>;
-
-template <typename T>
 using yref = std::reference_wrapper<T>;
 
 template <typename T>
