@@ -35,3 +35,14 @@ using infix_parselet = ypair<
 	ysize, 
 	std::function<T* (parser&, T*, token const&)>
 >;
+
+// TODO: commenting
+
+namespace prefix {
+	template <typename T>
+	inline prefix_parselet<T> pass() {
+		return [](parser&, token const& t) {
+			return new T(t);
+		};
+	}
+}

@@ -3,6 +3,8 @@
 #include "src/str_utils.h"
 #include "src/lexer.h"
 #include "src/code_formatter.h"
+#include "src/parser.h"
+#include "src/ast_printer.h"
 
 namespace dbg {
 	void print_tok(token const& tok) {
@@ -15,21 +17,17 @@ namespace dbg {
 
 int main(void) {
 	try {
-		interval	tok_place(point(0, 0), point(1, 0));
-		interval	tok_place2(point(0, 0), point(1, 0));
 		file_hnd	file("C:/TMP/YoakkeTest/tokenizer.txt");
 		lexer		lex(file);
-		while (lex.has_next()) {
-			token t = lex.next();
-			if (t.Value == "Peter") {
-				tok_place = t.Pos;
-			}
-			if (t.Type == token_t::Arrow) {
-				tok_place2 = t.Pos;
-			}
-		}
+		parser		par(lex);
 
-		code_formatter::print(file, tok_place, tok_place2);
+		AST_expr* exp = par.parse_expr();
+		if (exp) {
+			ast_printer::print(exp);
+		}
+		else {
+			std::cout << "No expression to print! :(" << std::endl;
+		}
 	}
 	catch (no_file_exception& nof) {
 		std::cout << "No such file: '" << nof.Path << "'" << std::endl;

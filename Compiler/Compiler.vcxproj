@@ -123,6 +123,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\ast_printer.cpp" />
     <ClCompile Include="src\parser.cpp" />
     <ClCompile Include="src\code_formatter.cpp" />
     <ClCompile Include="src\file_hnd.cpp" />
@@ -131,6 +132,7 @@
   <ItemGroup>
     <ClInclude Include="src\ast.h" />
     <ClInclude Include="src\ast_expr.h" />
+    <ClInclude Include="src\ast_printer.h" />
     <ClInclude Include="src\code_formatter.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\file_hnd.h" />

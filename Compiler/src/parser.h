@@ -31,10 +31,12 @@ struct parselet_set {
 	ymap<token_t, infix_parselet<T>>	Infix;
 
 	void add(token_t tt, prefix_parselet<T> pp) {
+		assert(Prefix.find(tt) == Prefix.end() && "Prefix parselet already added!");
 		Prefix.insert({ tt, pp });
 	}
 
 	void add(token_t tt, infix_parselet<T> pp) {
+		assert(Infix.find(tt) == Infix.end() && "Infix parselet already added!");
 		Infix.insert({ tt, pp });
 	}
 };
