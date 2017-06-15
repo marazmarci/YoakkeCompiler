@@ -102,7 +102,7 @@ token lexer::next() {
 				// Advance the pointer and position
 				advance(sym.length());
 				// Return the token with the type
-				return token(interval(m_State, sym.length()), it->second);
+				return token(interval(m_State, sym.length()), it->second, it->first);
 			}
 		}
 
@@ -148,7 +148,7 @@ token lexer::next() {
 			else {
 				// There is a keyword with a given type
 				return token(interval(m_State, ident.length()),
-					it->second, ident);
+					it->second);
 			}
 		}
 

@@ -24,8 +24,6 @@ private:
 	static void tag_begin(ystr const& name);
 	static void tag_end(ystr const& name);
 
-	static ystr op_to_str(token const& t);
-
 public:
 	ast_printer() = delete;
 };

@@ -15,7 +15,7 @@ void ast_printer::print(const AST_expr* exp) {
 	switch (exp->Type) {
 	case expr_t::BinOp: {
 		const AST_bin_expr* bexp = static_cast<const AST_bin_expr*>(exp);
-		tag_begin("bin_op" + op_to_str(bexp->OP));
+		tag_begin("bin_op" + bexp->OP.Value);
 		print(bexp->LHS);
 		print(bexp->RHS);
 		tag_end("bin_op");
@@ -42,7 +42,7 @@ void ast_printer::print(const AST_expr* exp) {
 
 	case expr_t::PostOp: {
 		const AST_post_expr* pexp = static_cast<const AST_post_expr*>(exp);
-		tag_begin("post_op" + op_to_str(pexp->OP));
+		tag_begin("post_op" + pexp->OP.Value);
 		print(pexp->Sub);
 		tag_end("post_op");
 	}
@@ -50,7 +50,7 @@ void ast_printer::print(const AST_expr* exp) {
 
 	case expr_t::PreOp: {
 		const AST_pre_expr* pexp = static_cast<const AST_pre_expr*>(exp);
-		tag_begin("pre_op" + op_to_str(pexp->OP));
+		tag_begin("pre_op" + pexp->OP.Value);
 		print(pexp->Sub);
 		tag_end("pre_op");
 	}
@@ -90,15 +90,4 @@ void ast_printer::tag_end(ystr const& name) {
 	indent_out();
 	write_indent();
 	outs << "</" << name << '>' << std::endl;
-}
-
-ystr ast_printer::op_to_str(token const& t) {
-	switch (t.Type) {
-
-	default:
-		assert(false && "Unhandled operator for printer!");
-	}
-
-	assert(false && "Unreachable!");
-	return "";
 }
