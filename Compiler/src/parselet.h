@@ -10,6 +10,7 @@
 #pragma once
 
 #include <functional>
+#include <type_traits>
 #include "common.h"
 
 struct token;
@@ -43,6 +44,39 @@ namespace prefix {
 	inline prefix_parselet<T> pass() {
 		return [](parser&, token const& t) {
 			return new T(t);
+		};
+	}
+}
+
+namespace infix {
+	template <typename T, typename ResT, typename Fn>
+	inline infix_parselet<T> lassoc(ysize prec, Fn func) {
+		return {
+			prec,
+			[prec, &func](parser& p, T* left, token const& begin) -> T* {
+				T* right = func(p, prec);
+				if (!right) {
+					// TODO: error
+					return nullptr;
+				}
+				return new ResT(begin, left, right);
+			}
+		};
+	}
+
+	template <typename T, typename ResT, typename Fn>
+	inline infix_parselet<T> rassoc(ysize prec, Fn func) {
+		assert(prec > 0 && "Right associative operator must have a precedence greater than 0!");
+		return {
+			prec,
+			[prec, &func](parser& p, T* left, token const& begin) -> T* {
+				T* right = func(p, prec - 1);
+				if (!right) {
+					// TODO: error
+					return nullptr;
+				}
+				return new ResT(begin, left, right);
+			}
 		};
 	}
 }

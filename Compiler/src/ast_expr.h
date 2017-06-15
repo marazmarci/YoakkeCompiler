@@ -142,7 +142,7 @@ struct AST_bin_expr : public AST_expr {
 	 * @param right The right-hand side operand.
 	 */
 	AST_bin_expr(token const& op, AST_expr* left, AST_expr* right)
-		: AST_expr(interval(LHS->Pos, RHS->Pos), expr_t::BinOp),
+		: AST_expr(interval(left->Pos, right->Pos), expr_t::BinOp),
 		OP(op), LHS(left), RHS(right) {
 	}
 

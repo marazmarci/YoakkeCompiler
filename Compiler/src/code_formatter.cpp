@@ -150,7 +150,7 @@ void code_formatter::expand_until(const char* line, ysize& start, ysize end, yst
 	}
 }
 
-ystr code_formatter::expand_line(const char* line, ysize len, yvec<ypair<ysize>*>& points) {
+ystr code_formatter::expand_line(const char* line, ysize len, yvec<ypair<ysize, ysize>*>& points) {
 	// The expanded string
 	ystr result;
 	// Reserve as many chars as the line length to reduce allocations
@@ -187,7 +187,7 @@ ystr code_formatter::expand_line(const char* line, ysize len) {
 	return result;
 }
 
-ystr code_formatter::generate_arrows(ysize beg, std::vector<ypair<ysize>> const& points) {
+ystr code_formatter::generate_arrows(ysize beg, std::vector<ypair<ysize, ysize>> const& points) {
 	ystr result;
 	assert(points.size() && "Cannot create arrows without points!");
 
@@ -258,7 +258,7 @@ void code_formatter::print_line_in(file_hnd const& file, ysize idx, ysize max_di
 	}
 }
 
-void code_formatter::print_line_beg(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize>> points) {
+void code_formatter::print_line_beg(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize, ysize>> points) {
 	// Get a reference to the output stream for simpler syntax
 	std::ostream& outs = *Out;
 
@@ -271,8 +271,8 @@ void code_formatter::print_line_beg(file_hnd const& file, ysize idx, ysize max_d
 	ysize line_len;
 	std::tie(src, line_len) = file.line(idx);
 
-	yvec<ypair<ysize>*> points_ref;
-	for (ypair<ysize>& el : points) {
+	yvec<ypair<ysize, ysize>*> points_ref;
+	for (ypair<ysize, ysize>& el : points) {
 		points_ref.push_back(&el);
 	}
 	// Expand the line
@@ -314,7 +314,7 @@ void code_formatter::print_line_beg(file_hnd const& file, ysize idx, ysize max_d
 	}
 }
 
-void code_formatter::print_line_end(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize>> points) {
+void code_formatter::print_line_end(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize, ysize>> points) {
 	// Get a reference to the output stream for simpler syntax
 	std::ostream& outs = *Out;
 
@@ -327,8 +327,8 @@ void code_formatter::print_line_end(file_hnd const& file, ysize idx, ysize max_d
 	ysize line_len;
 	std::tie(src, line_len) = file.line(idx);
 
-	yvec<ypair<ysize>*> points_ref;
-	for (ypair<ysize>& el : points) {
+	yvec<ypair<ysize, ysize>*> points_ref;
+	for (ypair<ysize, ysize>& el : points) {
 		points_ref.push_back(&el);
 	}
 	// Expand the line
@@ -365,7 +365,7 @@ void code_formatter::print_line_end(file_hnd const& file, ysize idx, ysize max_d
 	}
 }
 
-void code_formatter::print_line(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize>> points) {
+void code_formatter::print_line(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize, ysize>> points) {
 	// Get a reference to the output stream for simpler syntax
 	std::ostream& outs = *Out;
 
@@ -378,8 +378,8 @@ void code_formatter::print_line(file_hnd const& file, ysize idx, ysize max_digs,
 	ysize line_len;
 	std::tie(src, line_len) = file.line(idx);
 
-	yvec<ypair<ysize>*> points_ref;
-	for (ypair<ysize>& el : points) {
+	yvec<ypair<ysize, ysize>*> points_ref;
+	for (ypair<ysize, ysize>& el : points) {
 		points_ref.push_back(&el);
 	}
 	// Expand the line

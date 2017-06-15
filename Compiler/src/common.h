@@ -25,7 +25,7 @@ using ystr	= std::string;
 template <typename T>
 using yvec = std::vector<T>;
 
-template <typename T, typename U = T>
+template <typename T, typename U>
 using ypair = std::pair<T, U>;
 
 template <typename K, typename T>

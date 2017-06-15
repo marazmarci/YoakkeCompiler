@@ -53,15 +53,15 @@ private:
 	static void print_line_begin(bool first, ysize idx, ysize max_digs);
 	static void print_line_begin_in(bool first, ysize idx, ysize max_digs);
 	static ystr expand_line(const char* line, ysize len);
-	static ystr expand_line(const char* line, ysize len, yvec<ypair<ysize>*>& points);
+	static ystr expand_line(const char* line, ysize len, yvec<ypair<ysize, ysize>*>& points);
 	static void expand_until(const char* line, ysize& start, ysize end, ystr& result);
-	static ystr generate_arrows(ysize beg, yvec<ypair<ysize>> const& points);
+	static ystr generate_arrows(ysize beg, yvec<ypair<ysize, ysize>> const& points);
 
 	static void print_line(file_hnd const& file, ysize idx, ysize max_digs);
-	static void print_line(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize>> points);
-	static void print_line_beg(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize>> points);
+	static void print_line(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize, ysize>> points);
+	static void print_line_beg(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize, ysize>> points);
 	static void print_line_in(file_hnd const& file, ysize idx, ysize max_digs);
-	static void print_line_end(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize>> points);
+	static void print_line_end(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize, ysize>> points);
 
 public:
 	code_formatter() = delete; // Cannot instantiate
