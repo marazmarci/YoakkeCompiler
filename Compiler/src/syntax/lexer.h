@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "common.h"
-#include "file_hnd.h"
+#include "../common.h"
+#include "../io/file_hnd.h"
 #include "position.h"
 #include "token.h"
 

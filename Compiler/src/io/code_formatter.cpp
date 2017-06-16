@@ -1,7 +1,7 @@
 #include <cctype>
 #include <algorithm>
 #include "code_formatter.h"
-#include "str_utils.h"
+#include "../str_utils.h"
 
 std::ostream*	code_formatter::Out			= &std::cout;
 ysize			code_formatter::BufferW		= 20;

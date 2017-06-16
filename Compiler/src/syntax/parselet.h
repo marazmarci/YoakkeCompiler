@@ -10,8 +10,7 @@
 #pragma once
 
 #include <functional>
-#include <type_traits>
-#include "common.h"
+#include "../common.h"
 
 struct token;
 class parser;
@@ -37,9 +36,11 @@ using infix_parselet = ypair<
 	std::function<T* (parser&, T*, token const&)>
 >;
 
-// TODO: commenting
-
 namespace prefix {
+	/**
+	 * Creates a passing parselet that constructs a node from a single token.
+	 * @return The parselet.
+	 */
 	template <typename T>
 	inline prefix_parselet<T> pass() {
 		return [](parser&, token const& t) {
@@ -49,6 +50,12 @@ namespace prefix {
 }
 
 namespace infix {
+	/**
+	 * Creates a left-associative infix parselet.
+	 * @param The precedence of the parselet.
+	 * @param func The parselet for the right-hand side.
+	 * @return The infix parselet.
+	 */
 	template <typename T, typename ResT, typename Fn>
 	inline infix_parselet<T> lassoc(ysize prec, Fn func) {
 		return {
@@ -64,6 +71,12 @@ namespace infix {
 		};
 	}
 
+	/**
+	 * Creates a right-associative infix parselet.
+	 * @param The precedence of the parselet.
+	 * @param func The parselet for the right-hand side.
+	 * @return The infix parselet.
+	 */
 	template <typename T, typename ResT, typename Fn>
 	inline infix_parselet<T> rassoc(ysize prec, Fn func) {
 		assert(prec > 0 && "Right associative operator must have a precedence greater than 0!");

@@ -12,10 +12,9 @@
 
 #include <cassert>
 #include <iostream>
-#include "common.h"
 #include "file_hnd.h"
-#include "position.h"
-#include "math.h"
+#include "../common.h"
+#include "../syntax/position.h"
 
 struct code_formatter {
 public:
@@ -50,13 +49,59 @@ private:
 	 */
 	static ypair<ysize, ysize> get_bounds(file_hnd const& file, ysize from, ysize to);
 
+	/**
+	 * Prints a line numbering or the space for the numbering followed by the
+	 * separator pipes.
+	 * @param first The line number is printed if true, spaces otherwise.
+	 * @param idx The line number.
+	 * @param max_digs The digit count of the highest printed line number.
+	 */
 	static void print_line_begin(bool first, ysize idx, ysize max_digs);
+	
+	/**
+	 * Prints a line numbering or the space for the numbering followed by the
+	 * separator pipes when inside an interval notation.
+	 * @param first The line number is printed if true, spaces otherwise.
+	 * @param idx The line number.
+	 * @param max_digs The digit count of the highest printed line number.
+	 */
 	static void print_line_begin_in(bool first, ysize idx, ysize max_digs);
+
+	/**
+	 * Expands a line, removing all special characters, like tabs.
+	 * @param line The pointer to the beinning of the line.
+	 * @param len The length of the line.
+	 * @return The expanded line string.
+	 */
 	static ystr expand_line(const char* line, ysize len);
+
+	/**
+	 * Expands a line, removing all special characters, like tabs and tracks
+	 * given points and their changes in space.
+	 * @param line The pointer to the beinning of the line.
+	 * @param len The length of the line.
+	 * @param points The points that are tracked and modified to their new
+	 * place accordingly.
+	 * @return The expanded line string.
+	 */
 	static ystr expand_line(const char* line, ysize len, yvec<ypair<ysize, ysize>*>& points);
+	
+	/**
+	 * A helper function for expand_line..
+	 * @see expand_line
+	 */
 	static void expand_until(const char* line, ysize& start, ysize end, ystr& result);
+	
+	/**
+	 * Generates arrows pointing to the given intervals.
+	 * @param beg The beginning position of the arrow.
+	 * @param points The pointed intervals.
+	 * @return A string containing the arrow.
+	 */
 	static ystr generate_arrows(ysize beg, yvec<ypair<ysize, ysize>> const& points);
 
+	// Various print functions that have a lot of common structures
+	// TODO: refactor these, lot of common code
 	static void print_line(file_hnd const& file, ysize idx, ysize max_digs);
 	static void print_line(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize, ysize>> points);
 	static void print_line_beg(file_hnd const& file, ysize idx, ysize max_digs, yvec<ypair<ysize, ysize>> points);

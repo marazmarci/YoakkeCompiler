@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "common.h"
+#include "../common.h"
 
 /**
  * This exception is thrown when the file handle could not open the source

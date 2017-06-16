@@ -123,26 +123,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\ast_printer.cpp" />
-    <ClCompile Include="src\parser.cpp" />
-    <ClCompile Include="src\code_formatter.cpp" />
-    <ClCompile Include="src\file_hnd.cpp" />
-    <ClCompile Include="src\lexer.cpp" />
+    <ClCompile Include="src\debug\ast_printer.cpp" />
+    <ClCompile Include="src\syntax\parser.cpp" />
+    <ClCompile Include="src\io\code_formatter.cpp" />
+    <ClCompile Include="src\io\file_hnd.cpp" />
+    <ClCompile Include="src\syntax\lexer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ast.h" />
-    <ClInclude Include="src\ast_expr.h" />
-    <ClInclude Include="src\ast_printer.h" />
-    <ClInclude Include="src\code_formatter.h" />
+    <ClInclude Include="src\syntax\ast.h" />
+    <ClInclude Include="src\syntax\ast_expr.h" />
+    <ClInclude Include="src\debug\ast_printer.h" />
+    <ClInclude Include="src\io\code_formatter.h" />
     <ClInclude Include="src\common.h" />
-    <ClInclude Include="src\file_hnd.h" />
-    <ClInclude Include="src\lexer.h" />
+    <ClInclude Include="src\io\file_hnd.h" />
+    <ClInclude Include="src\syntax\lexer.h" />
     <ClInclude Include="src\math.h" />
-    <ClInclude Include="src\parselet.h" />
-    <ClInclude Include="src\parser.h" />
-    <ClInclude Include="src\position.h" />
+    <ClInclude Include="src\syntax\parselet.h" />
+    <ClInclude Include="src\syntax\parser.h" />
+    <ClInclude Include="src\syntax\position.h" />
     <ClInclude Include="src\str_utils.h" />
-    <ClInclude Include="src\token.h" />
+    <ClInclude Include="src\syntax\token.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
