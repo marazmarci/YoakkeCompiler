@@ -28,7 +28,7 @@ struct no_file_exception {
  * This is the actual file handle that contains all the file contents and 
  * line info.
  */
-class file_hnd {
+struct file_hnd {
 public:
 	/**
 	 * Line iterator for iterating over pointer-length pairs.

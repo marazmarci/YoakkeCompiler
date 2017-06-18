@@ -10,10 +10,10 @@
 
 #pragma once
 
-#include "../common.h"
-#include "../io/file_hnd.h"
 #include "position.h"
 #include "token.h"
+#include "../io/file_hnd.h"
+#include "../common.h"
 
 /**
  * The lexer state can be used to go back to a previous state if needed.
@@ -27,7 +27,7 @@ using lexer_state = point;
  * with positional information. The lexer has an internal state that can be
  * used to restore a previous state if needed.
  */
-class lexer {
+struct lexer {
 public:
 	/**
 	 * Creates a new lexer from a file handle.
@@ -88,11 +88,11 @@ private:
 	void add_symbol(ystr const& sym, token_t ty);
 
 	/**
-	* Adds a keyword to the keywords list. Do not use ymap::insert!
-	* Use this instead.
-	* @param kw The keyword.
-	* @param ty The keyword's type.
-	*/
+	 * Adds a keyword to the keywords list. Do not use ymap::insert!
+	 * Use this instead.
+	 * @param kw The keyword.
+	 * @param ty The keyword's type.
+	 */
 	void add_keyword(ystr const& kw, token_t ty);
 
 private:

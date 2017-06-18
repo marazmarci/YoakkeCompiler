@@ -57,7 +57,7 @@ struct parselet_set {
  * The parser applies the rules of the rule sets based on the supported
  * token stream (usually the lexer).
  */
-class parser {
+struct parser {
 public:
 	/**
 	 * Creates a parser with a given lexer.

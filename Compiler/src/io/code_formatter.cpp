@@ -1,6 +1,7 @@
 #include <cctype>
 #include <algorithm>
 #include "code_formatter.h"
+#include "../math.h"
 #include "../str_utils.h"
 
 std::ostream*	code_formatter::Out			= &std::cout;
@@ -12,6 +13,8 @@ ysize			code_formatter::TabSize		= 4;
 
 ystr			code_formatter::s_LineSep		= " | ";
 ystr			code_formatter::s_LineSepInt	= " ||";
+
+// TODO: implement max between
 
 void code_formatter::print(file_hnd const& file, interval pos, yopt<interval> pos2) {
 	// Simplify access to positions

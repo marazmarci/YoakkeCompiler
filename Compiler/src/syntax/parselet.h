@@ -13,7 +13,7 @@
 #include "../common.h"
 
 struct token;
-class parser;
+struct parser;
 
 /**
  * A prefix parselet is just a function that receives a beginning token and
