@@ -71,6 +71,37 @@ namespace prefix {
 			return new T(t);
 		};
 	}
+
+	/**
+	 * Creates an enclosing parselet that encloses a subexpression
+	 * with two tokens.
+	 * @param func The parselet for the subexpression.
+	 * @param right_t The token type of the closing token.
+	 * @param in_desc A description of the subexpression (for error reporting).
+	 * @param end_desc A description of the closing token (for error reporting).
+	 */
+	template <typename T, typename Fn>
+	inline prefix_parselet<T> enclose(Fn func, token_t right_t, ystr const& in_desc, ystr const& end_desc) {
+		return [&func, right_t, in_desc, end_desc](parser& p, token const& lhs) -> T* {
+			T* sub = func(p, 0);
+			if (!sub) {
+				token const& ahead = p.peek();
+				throw parser_expect_exception(p.file(), ahead.Pos,
+					in_desc, ahead.fmt());
+				return nullptr;
+			}
+			if (p.peek().Type != right_t) {
+				token const& ahead = p.peek();
+				throw parser_expect_exception(p.file(), ahead.Pos,
+					end_desc, ahead.fmt());
+				return nullptr;
+			}
+			token rhs = p.consume();
+			// Modify position (include enclosing tokens)
+			sub->Pos = interval(lhs.Pos, rhs.Pos);
+			return sub;
+		};
+	}
 }
 
 namespace infix {

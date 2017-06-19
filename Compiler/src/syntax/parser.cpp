@@ -12,6 +12,10 @@ parser::parser(lexer& lex)
 	m_Expr.add(token_t::Ident,	prefix::pass<AST_ident_expr>());
 	m_Expr.add(token_t::IntLit, prefix::pass<AST_int_lit_expr>());
 
+	// Add grouping
+	m_Expr.add(token_t::LParen,
+		prefix::enclose<AST_expr>(get_expr, token_t::RParen, "expression", "')'"));
+
 	// Expression operators
 
 	ysize prec = 1;
