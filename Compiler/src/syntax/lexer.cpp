@@ -4,7 +4,7 @@
 #include "lexer.h"
 
 lexer::lexer(file_hnd const& src) 
-	: m_File(src), m_State(0, 0) {
+	: m_File(src), m_State(0, 0), m_Last(0, 0) {
 	// The pointer is either the first char or null if there are no lines
 	m_Ptr = m_File.line_count() ? m_File.line(0).first : nullptr;
 
@@ -82,7 +82,7 @@ token lexer::next() {
 					depth--;
 				}
 				else if (end()) {
-					// TODO: Error - EOF before closing comment
+					throw lexer_eof_exception(m_File, m_Last, "Yoakke supports nested multi-line comments!");
 				}
 				else {
 					advance();
@@ -174,6 +174,10 @@ void lexer::advance(ysize delta) {
 		else {
 			// No new line, go to the next char
 			m_State.Column++;
+			if (!std::isspace(*m_Ptr)) {
+				// This is a visible character
+				m_Last = m_State;
+			}
 		}
 	}
 }

@@ -16,6 +16,30 @@
 #include "../common.h"
 
 /**
+ * This exception is thrown when there is something that needs to be closed
+ * tokenwise, but the end of file was reached without closing it. This could
+ * be an unmatched nested comment, or missing aphostrophe at the end of a
+ * string literal.
+ */
+struct lexer_eof_exception {
+public:
+	file_hnd const& File;	// The file where the error happened
+	point			Pos;	// Where was the last visible character
+	yopt<ystr>		Note;	// An optional note for the user
+
+public:
+	/**
+	 * Creates an unexpected EOF exception at the given position.
+	 * @param file The source file.
+	 * @param pos The last visible character's place in the file.
+	 * @param not An optional note for the user for specific help.
+	 */
+	lexer_eof_exception(file_hnd const& file, point const& pos, yopt<ystr> not = {})
+		: File(file), Pos(pos), Note(not) {
+	}
+};
+
+/**
  * The lexer state can be used to go back to a previous state if needed.
  * Mainly used by the parser.
  * @see lexer
@@ -98,6 +122,7 @@ private:
 private:
 	file_hnd const& m_File;		// The handle for the tokenized file
 	lexer_state		m_State;	// The current state of the lexer
+	point			m_Last;		// The last visible character's position
 	const char*		m_Ptr;		// A pointer in the source for easy lexing
 
 	ymap<ystr, token_t>	m_Symbols;	// Tokens with special characters (greedy)

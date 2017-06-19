@@ -122,7 +122,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\debug\ast_printer.cpp" />
     <ClCompile Include="src\syntax\parser.cpp" />
     <ClCompile Include="src\io\code_formatter.cpp" />

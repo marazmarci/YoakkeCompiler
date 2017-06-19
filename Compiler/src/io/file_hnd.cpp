@@ -22,7 +22,7 @@ namespace {
 }
 
 file_hnd::file_hnd(const char* path) 
-	: m_Buffer(nullptr) {
+	: m_Path(path), m_Buffer(nullptr) {
 	// Open file for reading
 	FILE* file = std::fopen(path, "rb");
 	if (!file) {
