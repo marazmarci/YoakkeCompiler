@@ -14,9 +14,10 @@ ysize			code_formatter::TabSize		= 4;
 ystr			code_formatter::s_LineSep		= " | ";
 ystr			code_formatter::s_LineSepInt	= " ||";
 
-// TODO: implement max between
-
 void code_formatter::print(file_hnd const& file, interval pos, yopt<interval> pos2) {
+	// Get a reference to the output stream for simpler syntax
+	std::ostream& outs = *Out;
+	
 	// Simplify access to positions
 	point const& beg_pos = pos.Start;
 	point const& end_pos = pos2 ? pos2->End : pos.End;
@@ -51,11 +52,20 @@ void code_formatter::print(file_hnd const& file, interval pos, yopt<interval> po
 	}
 	else {
 		// Multiple annotated lines
+		ysize annot_cnt = last_annot - first_annot;
 		if (pos2) {
 			print_line_beg(file, first_annot, max_digs,
 			{ { pos.Start.Column, pos.End.Column } });
-			for (ysize i = first_annot + 1; i < last_annot; i++) {
-				print_line_in(file, i, max_digs);
+			if (annot_cnt > MaxBetween) {
+				outs
+					<< ystr(max_digs, ' ')
+					<< "..."
+					<< std::endl;
+			}
+			else {
+				for (ysize i = first_annot + 1; i < last_annot; i++) {
+					print_line_in(file, i, max_digs);
+				}
 			}
 			print_line_end(file, last_annot, max_digs,
 			{ { pos2->Start.Column, pos2->End.Column } });
@@ -63,8 +73,16 @@ void code_formatter::print(file_hnd const& file, interval pos, yopt<interval> po
 		else {
 			print_line_beg(file, first_annot, max_digs,
 			{ { pos.Start.Column, pos.Start.Column + 1 } });
-			for (ysize i = first_annot + 1; i < last_annot; i++) {
-				print_line_in(file, i, max_digs);
+			if (annot_cnt > MaxBetween) {
+				outs
+					<< ystr(max_digs, ' ')
+					<< "..."
+					<< std::endl;
+			}
+			else {
+				for (ysize i = first_annot + 1; i < last_annot; i++) {
+					print_line_in(file, i, max_digs);
+				}
 			}
 			print_line_end(file, last_annot, max_digs,
 			{ { pos.End.Column, pos.End.Column + 1 } });
@@ -229,11 +247,19 @@ void code_formatter::print_line(file_hnd const& file, ysize idx, ysize max_digs)
 	// Expand the line
 	ystr ln_exp = expand_line(src, line_len);
 
-	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
-		// Print the beginning of the line (number and separator)
-		print_line_begin(offs == 0, idx, max_digs);
-		// Print the part of the line
-		outs << ln_exp.substr(offs, text_w) << std::endl;
+	if (ln_exp.length()) {
+		// There is something to print
+		for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
+			// Print the beginning of the line (number and separator)
+			print_line_begin(offs == 0, idx, max_digs);
+			// Print the part of the line
+			outs << ln_exp.substr(offs, text_w) << std::endl;
+		}
+	}
+	else {
+		// Empty line
+		print_line_begin(true, idx, max_digs);
+		outs << std::endl;
 	}
 }
 
@@ -253,11 +279,19 @@ void code_formatter::print_line_in(file_hnd const& file, ysize idx, ysize max_di
 	// Expand the line
 	ystr ln_exp = expand_line(src, line_len);
 
-	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
-		// Print the beginning of the line (number and separator)
-		print_line_begin_in(offs == 0, idx, max_digs);
-		// Print the part of the line
-		outs << ln_exp.substr(offs, text_w) << std::endl;
+	if (ln_exp.length()) {
+		// There is something to print
+		for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
+			// Print the beginning of the line (number and separator)
+			print_line_begin_in(offs == 0, idx, max_digs);
+			// Print the part of the line
+			outs << ln_exp.substr(offs, text_w) << std::endl;
+		}
+	}
+	else {
+		// Empty line
+		print_line_begin_in(true, idx, max_digs);
+		outs << std::endl;
 	}
 }
 
@@ -285,6 +319,7 @@ void code_formatter::print_line_beg(file_hnd const& file, ysize idx, ysize max_d
 	ysize arr_at = 0;
 	ysize arrow_begin = points.begin()->first;
 
+	assert(ln_exp.length() && "An annotated line must have a length when expanded!");
 	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
 		// Print the beginning of the line (number and separator)
 		if (arrow) {
@@ -341,6 +376,7 @@ void code_formatter::print_line_end(file_hnd const& file, ysize idx, ysize max_d
 	ysize arr_at = 0;
 	ysize arrow_begin = points.begin()->first;
 
+	assert(ln_exp.length() && "An annotated line must have a length when expanded!");
 	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
 		// Print the beginning of the line (number and separator)
 		if (!arrow) {
@@ -392,6 +428,7 @@ void code_formatter::print_line(file_hnd const& file, ysize idx, ysize max_digs,
 	ysize arr_at = 0;
 	ysize arrow_begin = points.begin()->first;
 
+	assert(ln_exp.length() && "An annotated line must have a length when expanded!");
 	for (ysize offs = 0; offs < ln_exp.length(); offs += text_w) {
 		// Print the beginning of the line (number and separator)
 		print_line_begin(offs == 0, idx, max_digs);
