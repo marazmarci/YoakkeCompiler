@@ -64,4 +64,21 @@ struct token {
 	token(interval const& pos, token_t type, ystr const& val = "")
 		: Pos(pos), Type(type), Value(val) {
 	}
+
+	/**
+	 * Gets a formatted representation of the token for error printing.
+	 * @return The string representing the token.
+	 */
+	ystr fmt() const {
+		if (Type == token_t::Ident) {
+			return "identifier";
+		}
+		if (Type == token_t::IntLit) {
+			return "integer";
+		}
+		if (Type == token_t::EndOfFile) {
+			return "end-of-file";
+		}
+		return '\'' + Value + '\'';
+	}
 };

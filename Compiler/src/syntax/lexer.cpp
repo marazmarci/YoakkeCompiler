@@ -33,6 +33,10 @@ lexer::lexer(file_hnd const& src)
 	add_symbol("->",	token_t::Arrow		);	// '->'
 }
 
+file_hnd const& lexer::file() const {
+	return m_File;
+}
+
 lexer_state lexer::get_state() const {
 	return m_State;
 }
@@ -45,7 +49,7 @@ void lexer::set_state(lexer_state const& state) {
 token lexer::next() {
 	while (true) {
 		if (end()) {
-			return token(interval(m_State, 1), token_t::EndOfFile);
+			return token(interval(m_Last, 1), token_t::EndOfFile);
 		}
 
 		// Skip whitespace

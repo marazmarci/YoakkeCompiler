@@ -36,6 +36,13 @@ int main(void) {
 				<< std::endl;
 			code_formatter::print(un.File, un.Pos);
 		}
+		catch (parser_expect_exception& pe) {
+			std::cout << "Syntax error in file: '" << pe.File.path() << "'."
+				<< std::endl;
+			code_formatter::print(pe.File, pe.Pos);
+			std::cout << "Expected " << pe.Expected << ", but got "
+				<< pe.Got << "!" << std::endl;
+		}
 	}
 	catch (no_file_exception& nof) {
 		std::cout << "No such file: '" << nof.Path << "'" << std::endl;

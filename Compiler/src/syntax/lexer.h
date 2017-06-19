@@ -22,14 +22,12 @@
  * string literal.
  */
 struct lexer_eof_exception {
-public:
 	file_hnd const& File;	// The file where the error happened
 	interval		Start;	// Where was the beginning of the token
 	interval		End;	// Where was the last visible character
 	ystr			Msg;	// What was not escaped
 	yopt<ystr>		Note;	// An optional note for the user
 
-public:
 	/**
 	 * Creates an unexpected EOF exception at the given positions.
 	 * @param file The source file.
@@ -88,6 +86,12 @@ public:
 
 public:
 	/**
+	 * Gets the file source that the lexer has.
+	 * @return The file handle to the lexed source.
+	 */
+	file_hnd const& file() const;
+
+	/**
 	 * Get the current state of the lexer.
 	 * @return A lexer state of the lexer.
 	 * @see lexer_state
@@ -105,6 +109,7 @@ public:
 	 * @return The next token in the file. If there is none, a token withe
 	 * type EndOfFile is returned.
 	 * @throw lexer_eof_exception When the token is unescaped until EOF.
+	 * @throw lexer_unknown_exception When an unknown token is encountered.
 	 */
 	token next();
 

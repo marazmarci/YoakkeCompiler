@@ -67,6 +67,25 @@ public:
 
 public:
 	/**
+	 * Gets the file source that the lexer has.
+	 * @return The file handle to the parsed source.
+	 */
+	file_hnd const& file() const;
+
+	/**
+	 * Peeks, but does not consume an upcoming token.
+	 * @param delta The amount to peek forward, 0 by default.
+	 * @return The peeked token.
+	 */
+	token const& peek(ysize delta = 0);
+
+	/**
+	 * Consumes the next token in the stream.
+	 * @return The consumed token.
+	 */
+	token consume();
+
+	/**
 	 * Tries to parse an expression from the current tokens.
 	 * @param min_prec The minimum precedence required to accept an operator.
 	 * @preturn A pointer to an expression node. Null if none found.
@@ -122,20 +141,6 @@ private:
 		assert(false && "Unreachable!");
 		return nullptr;
 	}
-
-private:
-	/**
-	 * Peeks, but does not consume an upcoming token.
-	 * @param delta The amount to peek forward, 0 by default.
-	 * @return The peeked token.
-	 */
-	token const& peek(ysize delta = 0);
-
-	/**
-	 * Consumes the next token in the stream.
-	 * @return The consumed token.
-	 */
-	token consume();
 
 private:
 	lexer&					m_Lexer;	// The token stream
