@@ -46,6 +46,27 @@ public:
 };
 
 /**
+ * This is thrown when an unknown token is encountered.
+ */
+struct lexer_unknown_exception {
+public:
+	file_hnd const& File;	// The file where the error happened
+	interval		Pos;	// Where the error happened
+	ystr			Tok;	// The value of the token
+
+public:
+	/**
+	 * Creates an unknown token exception with a given position.
+	 * @param file The file the error happened in.
+	 * @param pos The position of the unknown token.
+	 * @param val The unknown token literal itself.
+	 */
+	lexer_unknown_exception(file_hnd const& file, interval const& pos, ystr const& val)
+		: File(file), Pos(pos), Tok(val) {
+	}
+};
+
+/**
  * The lexer state can be used to go back to a previous state if needed.
  * Mainly used by the parser.
  * @see lexer

@@ -30,6 +30,12 @@ int main(void) {
 				std::cout << "Note: " << *eof.Note << std::endl;
 			}
 		}
+		catch (lexer_unknown_exception& un) {
+			std::cout << "Unknown token: '" 
+				<< un.Tok << "' in file: '" << un.File.path() << "'."
+				<< std::endl;
+			code_formatter::print(un.File, un.Pos);
+		}
 	}
 	catch (no_file_exception& nof) {
 		std::cout << "No such file: '" << nof.Path << "'" << std::endl;

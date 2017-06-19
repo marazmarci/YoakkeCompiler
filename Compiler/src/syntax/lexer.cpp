@@ -158,7 +158,9 @@ token lexer::next() {
 			}
 		}
 
-		// TODO: error, no such token
+		throw lexer_unknown_exception(m_File, 
+			interval(point(m_State.Column + 1, m_State.Row), 1), 
+			ystr{ *m_Ptr });
 	}
 
 	assert(false && "Unreachable!");
