@@ -40,6 +40,15 @@ parser::parser(lexer& lex)
 		infix::lassoc<AST_expr, AST_bin_expr>(prec, get_expr, "expression"));
 }
 
+parser_state parser::get_state() const {
+	return parser_state(m_Lexer.get_state(), m_Tokens);
+}
+
+void parser::set_state(parser_state const& st) {
+	m_Lexer.set_state(st.LexState);
+	m_Tokens = st.Tokens;
+}
+
 file_hnd const& parser::file() const {
 	return m_Lexer.file();
 }

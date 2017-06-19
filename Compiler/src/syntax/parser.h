@@ -24,6 +24,24 @@
 #include "../common.h"
 
 /**
+ * A parser state represents the exact state of the parser to be able to
+ * rollback to a previous position if needed.
+ */
+struct parser_state {
+	lexer_state	LexState;	// The state of the lexer
+	yvec<token> Tokens;		// The peek buffer
+
+	/**
+	 * Creates a parser state from the lexer and internal parser state.
+	 * @param lexs The state of the lexer.
+	 * @param toks The token/peek buffer of the parser.
+	 */
+	parser_state(lexer_state const& lexs, yvec<token> const& toks)
+		: LexState(lexs), Tokens(toks) {
+	}
+};
+
+/**
  * A parselet set is a set of prefix and infix rules of a given node category.
  * For example the expression rules are in a parselet_set<AST_expr> container.
  */
@@ -66,6 +84,18 @@ public:
 	parser(lexer& lex);
 
 public:
+	/**
+	 * Gets the current state of the parser.
+	 * @return The current parser state.
+	 */
+	parser_state get_state() const;
+
+	/**
+	 * Sets the parser's state to rollback to a previous position.
+	 * @param st The state to rollback to.
+	 */
+	void set_state(parser_state const& st);
+
 	/**
 	 * Gets the file source that the lexer has.
 	 * @return The file handle to the parsed source.
