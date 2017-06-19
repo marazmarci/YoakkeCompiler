@@ -114,7 +114,7 @@ private:
 		// Parse using the prefix parselet
 		T* left = pre_parselet->second(*this, ahead);
 		if (!left) {
-			// TODO: error?
+			assert(false && "The parselet should have thrown an error!");
 			return nullptr;
 		}
 		while (true) {
@@ -133,7 +133,7 @@ private:
 			// Parse with the parselet
 			left = in_parselet->second.second(*this, left, ahead);
 			if (!left) {
-				// TODO: error?
+				assert(false && "The parselet should have thrown an error!");
 				return nullptr;
 			}
 		}

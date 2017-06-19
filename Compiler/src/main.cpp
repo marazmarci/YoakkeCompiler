@@ -6,6 +6,9 @@
 #include "syntax/parser.h"
 #include "debug/ast_printer.h"
 
+// TODO: Maybe handle the error somewhere else?
+// TODO: Make continuable errors continue
+
 int main(void) {
 	try {
 		file_hnd	file("C:/TMP/YoakkeTest/tokenizer.txt");
@@ -39,7 +42,12 @@ int main(void) {
 		catch (parser_expect_exception& pe) {
 			std::cout << "Syntax error in file: '" << pe.File.path() << "'."
 				<< std::endl;
-			code_formatter::print(pe.File, pe.Pos);
+			if (pe.BegPos) {
+				code_formatter::print(pe.File, *pe.BegPos, pe.Pos);
+			}
+			else {
+				code_formatter::print(pe.File, pe.Pos);
+			}
 			std::cout << "Expected " << pe.Expected << ", but got "
 				<< pe.Got << "!" << std::endl;
 		}

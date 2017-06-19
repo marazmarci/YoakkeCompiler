@@ -43,6 +43,7 @@ using infix_parselet = ypair<
  */
 struct parser_expect_exception {
 	file_hnd const& File;	// The file the error occured in
+	yopt<interval> BegPos;	// An optional beginning position
 	interval Pos;			// The position of the error
 	ystr Expected;			// What the expected thing was
 	ystr Got;				// What we have got instead
@@ -53,10 +54,11 @@ struct parser_expect_exception {
 	 * @param pos The position of the error.
 	 * @param expect What was expected.
 	 * @param got What we have got instead of the expected.
+	 * @param beg Optional beginning position of the error.
 	 */
 	parser_expect_exception(file_hnd const& file, interval const& pos,
-		ystr const& expect, ystr const& got)
-		: File(file), Pos(pos), Expected(expect), Got(got) {
+		ystr const& expect, ystr const& got, yopt<interval> beg = {})
+		: File(file), Pos(pos), Expected(expect), Got(got), BegPos(beg) {
 	}
 };
 
@@ -93,7 +95,7 @@ namespace prefix {
 			if (p.peek().Type != right_t) {
 				token const& ahead = p.peek();
 				throw parser_expect_exception(p.file(), ahead.Pos,
-					end_desc, ahead.fmt());
+					end_desc, ahead.fmt(), lhs.Pos);
 				return nullptr;
 			}
 			token rhs = p.consume();
