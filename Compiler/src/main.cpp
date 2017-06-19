@@ -24,7 +24,8 @@ int main(void) {
 		catch (lexer_eof_exception& eof) {
 			std::cout << "Unexpected EOF in file: '" << eof.File.path() << "'."
 				<< std::endl;
-			code_formatter::print(eof.File, interval(eof.Pos, 1));
+			code_formatter::print(eof.File, eof.Start, eof.End);
+			std::cout << eof.Msg << std::endl;
 			if (eof.Note) {
 				std::cout << "Note: " << *eof.Note << std::endl;
 			}

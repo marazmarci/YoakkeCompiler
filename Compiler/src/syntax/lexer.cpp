@@ -69,6 +69,9 @@ token lexer::next() {
 		// Multi-line, possibly nested comments
 		if (std::strncmp(m_Ptr, "/*", 2) == 0) {
 			advance(2);
+			// Save where we are for error if we reach an EOF
+			interval comment_beg = interval(m_State, 2);
+			// Nesting depth
 			ysize depth = 1;
 			while (depth) {
 				if (std::strncmp(m_Ptr, "/*", 2) == 0) {
@@ -82,7 +85,10 @@ token lexer::next() {
 					depth--;
 				}
 				else if (end()) {
-					throw lexer_eof_exception(m_File, m_Last, "Yoakke supports nested multi-line comments!");
+					throw lexer_eof_exception(m_File,
+						comment_beg, interval(m_Last, 1),
+						"A nested comment was unescaped before the end-of-file!",
+						"Yoakke supports nested comments!");
 				}
 				else {
 					advance();
@@ -154,6 +160,8 @@ token lexer::next() {
 
 		// TODO: error, no such token
 	}
+
+	assert(false && "Unreachable!");
 }
 
 bool lexer::has_next() const {

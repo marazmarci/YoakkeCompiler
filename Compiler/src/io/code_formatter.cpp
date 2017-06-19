@@ -5,7 +5,7 @@
 #include "../str_utils.h"
 
 std::ostream*	code_formatter::Out			= &std::cout;
-ysize			code_formatter::BufferW		= 20;
+ysize			code_formatter::BufferW		= 120;
 ysize			code_formatter::LinesBefore = 1;
 ysize			code_formatter::LinesAfter	= 1;
 ysize			code_formatter::MaxBetween	= 3;

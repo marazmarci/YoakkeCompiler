@@ -24,18 +24,24 @@
 struct lexer_eof_exception {
 public:
 	file_hnd const& File;	// The file where the error happened
-	point			Pos;	// Where was the last visible character
+	interval		Start;	// Where was the beginning of the token
+	interval		End;	// Where was the last visible character
+	ystr			Msg;	// What was not escaped
 	yopt<ystr>		Note;	// An optional note for the user
 
 public:
 	/**
-	 * Creates an unexpected EOF exception at the given position.
+	 * Creates an unexpected EOF exception at the given positions.
 	 * @param file The source file.
-	 * @param pos The last visible character's place in the file.
+	 * @param start The beginning of the token.
+	 * @param end The last visible character's place in the file.
+	 * @param msg A message telling what was unescaped.
 	 * @param not An optional note for the user for specific help.
 	 */
-	lexer_eof_exception(file_hnd const& file, point const& pos, yopt<ystr> not = {})
-		: File(file), Pos(pos), Note(not) {
+	lexer_eof_exception(file_hnd const& file, 
+		interval const& start, interval const& end,
+		ystr const& msg, yopt<ystr> not = {})
+		: File(file), Start(start), End(end), Msg(msg), Note(not) {
 	}
 };
 
@@ -77,7 +83,7 @@ public:
 	 * Consumes and gets the next token from the file.
 	 * @return The next token in the file. If there is none, a token withe
 	 * type EndOfFile is returned.
-	 * @throw TODO
+	 * @throw lexer_eof_exception When the token is unescaped until EOF.
 	 */
 	token next();
 
