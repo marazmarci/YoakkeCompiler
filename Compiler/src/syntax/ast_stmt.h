@@ -56,7 +56,8 @@ struct AST_expr_stmt : public AST_stmt {
 	 */
 	AST_expr_stmt(AST_expr* sub, yopt<token> semicol = {})
 		: AST_stmt(semicol ? interval(sub->Pos, semicol->Pos) : sub->Pos
-		, AST_stmt_t::Expr) {
+		, AST_stmt_t::Expr),
+		Sub(sub) {
 	}
 
 	virtual ~AST_expr_stmt() {

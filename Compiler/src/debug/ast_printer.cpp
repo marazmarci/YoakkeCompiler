@@ -1,5 +1,6 @@
 #include "ast_printer.h"
 #include "../str_utils.h"
+#include "../syntax/ast_stmt.h"
 
 std::ostream* AST_printer::Out = &std::cout;
 
@@ -55,6 +56,46 @@ void AST_printer::print(const AST_expr* exp, ysize indent) {
 			outs << '[' << n->Label->Value << ']';
 		}
 		outs << std::endl;
+		for (auto st : n->Body->Statements) {
+			print(st, indent + 1);
+		}
+		if (n->Body->Return) {
+			print(n->Body->Return, indent + 1);
+		}
+		break;
+	}
+
+	case AST_expr_t::Call: {
+		const AST_call_expr* n = static_cast<const AST_call_expr*>(exp);
+		outs << "call" << std::endl;
+		print(n->Func, indent + 1);
+		for (auto a : n->Args) {
+			print(a, indent + 1);
+		}
+		break;
+	}
+
+	default:
+		assert(false && "Unhandled case in printer()!");
+	}
+}
+
+void AST_printer::print(const AST_stmt* stmt, ysize indent) {
+	// Reference the outstream for simpler syntax
+	std::ostream& outs = *Out;
+
+	/*
+	// Indent accordingly to the current depth
+	for (ysize i = 0; i < indent; i++) {
+		outs << "  |";
+	}
+	outs << "--";
+	*/
+
+	switch (stmt->Type) {
+	case AST_stmt_t::Expr: {
+		const AST_expr_stmt* n = static_cast<const AST_expr_stmt*>(stmt);
+		print(n->Sub, indent);
 		break;
 	}
 

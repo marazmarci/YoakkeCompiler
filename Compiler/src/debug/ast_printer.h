@@ -35,4 +35,11 @@ public:
 	 * @param indent The current depth of the tree, 0 by default.
 	 */
 	static void print(const AST_expr* exp, ysize indent = 0);
+
+	/**
+	 * Prints a given node and all it's subnodes.
+	 * @param stmt The root node to print.
+	 * @param indent The current depth of the tree, 0 by default.
+	 */
+	static void print(const AST_stmt* stmt, ysize indent = 0);
 };

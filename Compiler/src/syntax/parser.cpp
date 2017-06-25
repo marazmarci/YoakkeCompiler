@@ -67,6 +67,7 @@ parser::parser(lexer& lex)
 			throw parser_expect_exception(p.file(), rbrace.Pos,
 				"'}'", rbrace.fmt(), lbrace.Pos);
 		}
+		p.consume();
 		return new AST_body_expr(lbrace, rbrace, statements, ret);
 	};
 
