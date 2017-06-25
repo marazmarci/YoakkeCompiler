@@ -27,6 +27,7 @@ enum class AST_expr_t {
 	PreOp,
 	PostOp,
 	Func,
+	Call
 };
 
 /**
@@ -219,5 +220,41 @@ struct AST_func_expr : public AST_expr {
 		yopt<token> name = {})
 		: AST_expr(interval(beg.Pos, body->Pos), AST_expr_t::Func),
 		Args(args), Return(ret), Body(body), Label(name) {
+	}
+
+	virtual ~AST_func_expr() {
+		for (auto a : Args) {
+			delete a.second;
+		}
+		delete Return;
+		delete Body;
+	}
+};
+
+/**
+ * A call expression calls a function expression with a given list of 
+ * arguments.
+ */
+struct AST_call_expr : public AST_expr {
+	AST_expr*		Func;	// The function expression
+	yvec<AST_expr*>	Args;	// The arguments to call with
+
+	/**
+	 * Creates a function call expression for a given function with the given
+	 * parameters.
+	 * @param fn The function expression.
+	 * @param args The list of arguments.
+	 * @param end The right parenthese of the call.
+	 */
+	AST_call_expr(AST_expr* fn, yvec<AST_expr*> const& args, token const& end)
+		: AST_expr(interval(fn->Pos, end.Pos), AST_expr_t::Call),
+		Func(fn), Args(args) {
+	}
+
+	virtual ~AST_call_expr() {
+		delete Func;
+		for (auto a : Args) {
+			delete a;
+		}
 	}
 };

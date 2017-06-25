@@ -153,11 +153,14 @@ namespace infix {
 	 * @param func The parselet for the right-hand side.
 	 * @param rhs_desc What is expected on the right-hand side 
 	 * (for error reporting).
+	 * @param apply Optional predicate for when can be applied.
 	 * @return The infix parselet.
 	 * @throw parser_expect_exception When the right-hand side parsing failed.
 	 */
 	template <typename T, typename ResT, typename Fn>
-	inline infix_parselet<T> lassoc(ysize prec, Fn func, ystr const& rhs_desc) {
+	inline infix_parselet<T> 
+	lassoc(	ysize prec, Fn func, ystr const& rhs_desc, 
+			typename infix_parselet<T>::apply_t apply = nullptr) {
 		return infix_parselet<T>(
 			prec,
 			[prec, &func, rhs_desc](parser& p, T* left, token const& begin) -> T* {
@@ -169,7 +172,8 @@ namespace infix {
 					return nullptr;
 				}
 				return new ResT(begin, left, right);
-			}
+			},
+			apply
 		);
 	}
 
@@ -179,11 +183,14 @@ namespace infix {
 	 * @param func The parselet for the right-hand side.
 	 * @param rhs_desc What is expected on the right-hand side
 	 * (for error reporting).
+	 * @param apply Optional predicate for when can be applied.
 	 * @return The infix parselet.
 	 * @throw parser_expect_exception When the right-hand side parsing failed.
 	 */
 	template <typename T, typename ResT, typename Fn>
-	inline infix_parselet<T> rassoc(ysize prec, Fn func, ystr const& rhs_desc) {
+	inline infix_parselet<T> 
+	rassoc(	ysize prec, Fn func, ystr const& rhs_desc,
+			typename infix_parselet<T>::apply_t apply = nullptr) {
 		assert(prec > 0 && "Right associative operator must have a precedence greater than 0!");
 		return infix_parselet<T>(
 			prec,
@@ -196,7 +203,8 @@ namespace infix {
 					return nullptr;
 				}
 				return new ResT(begin, left, right);
-			}
+			},
+			apply
 		);
 	}
 }

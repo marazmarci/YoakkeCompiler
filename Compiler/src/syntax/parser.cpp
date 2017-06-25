@@ -48,6 +48,7 @@ parser::parser(lexer& lex)
 
 	// Create a combinator that parses a body for braced constructs
 	auto get_body = [](parser& p) -> AST_body_expr* {
+		// TODO: capture list
 		token lbrace = p.peek();
 		if (lbrace.Type != token_t::LBrace) {
 			return nullptr;
@@ -154,6 +155,7 @@ parser::parser(lexer& lex)
 			token beg = p.peek();
 			throw parser_expect_exception(p.file(), beg.Pos,
 				"body", beg.fmt());
+			return nullptr;
 		}
 		return new AST_func_expr(beg, params, rett, body, ident);
 	}));
@@ -180,6 +182,43 @@ parser::parser(lexer& lex)
 		infix::lassoc<AST_expr, AST_bin_expr>(prec, get_expr, "expression"));
 	m_Expr.add(token_t::Mod, 
 		infix::lassoc<AST_expr, AST_bin_expr>(prec, get_expr, "expression"));
+
+	prec++;
+
+	m_Expr.add(token_t::LParen,
+		infix_parselet<AST_expr>(
+		prec,
+		[&get_tok](parser& p, AST_expr* left, token const& lpar) -> AST_expr* {
+			// TODO: Change when making comma separated list expressions
+			yvec<AST_expr*> params;
+			if (AST_expr* par = p.parse_expr()) {
+				params.push_back(par);
+				while (get_tok(p, token_t::Comma)) {
+					if (AST_expr* par2 = p.parse_expr()) {
+						params.push_back(par2);
+					}
+					else {
+						auto ahead = p.peek();
+						throw parser_expect_exception(p.file(), ahead.Pos,
+							"parameter", ahead.fmt());
+						return nullptr;
+					}
+				}
+			}
+			if (auto rpar = get_tok(p, token_t::RParen)) {
+				return new AST_call_expr(left, params, *rpar);
+			}
+			else {
+				auto ahead = p.peek();
+				throw parser_expect_exception(p.file(), ahead.Pos,
+					"')'", ahead.fmt());
+				return nullptr;
+			}
+		},
+		[](parser& p) -> bool {
+			return p.last().Type != token_t::RBrace;
+		})
+	);
 
 	// TYPES //////////////////////////////////////////////////////////////////
 
