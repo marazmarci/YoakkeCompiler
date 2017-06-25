@@ -136,6 +136,8 @@
     <ClInclude Include="src\io\code_formatter.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\io\file_hnd.h" />
+    <ClInclude Include="src\syntax\ast_stmt.h" />
+    <ClInclude Include="src\syntax\ast_ty.h" />
     <ClInclude Include="src\syntax\lexer.h" />
     <ClInclude Include="src\math.h" />
     <ClInclude Include="src\syntax\parselet.h" />

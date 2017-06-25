@@ -74,5 +74,11 @@
     <ClInclude Include="src\io\file_hnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\syntax\ast_ty.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\ast_stmt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -30,14 +30,16 @@
 struct parser_state {
 	lexer_state	LexState;	// The state of the lexer
 	yvec<token> Tokens;		// The peek buffer
+	token		Last;		// The last consumed token
 
 	/**
 	 * Creates a parser state from the lexer and internal parser state.
 	 * @param lexs The state of the lexer.
 	 * @param toks The token/peek buffer of the parser.
+	 * @param last The last consumed token of the parser.
 	 */
-	parser_state(lexer_state const& lexs, yvec<token> const& toks)
-		: LexState(lexs), Tokens(toks) {
+	parser_state(lexer_state const& lexs, yvec<token> const& toks, token const& last)
+		: LexState(lexs), Tokens(toks), Last(last) {
 	}
 };
 
@@ -110,6 +112,12 @@ public:
 	token const& peek(ysize delta = 0);
 
 	/**
+	 * Get the last consumed token.
+	 * @return The last consumed token from the stream (Epsilon by default).
+	 */
+	token const& last() const;
+
+	/**
 	 * Consumes the next token in the stream.
 	 * @return The consumed token.
 	 */
@@ -176,4 +184,5 @@ private:
 	lexer&					m_Lexer;	// The token stream
 	yvec<token>				m_Tokens;	// The peeked token buffer
 	parselet_set<AST_expr>	m_Expr;		// The set of expression rules
+	token					m_Last;		// The last consumed token
 };

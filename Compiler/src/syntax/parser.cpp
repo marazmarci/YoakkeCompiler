@@ -1,7 +1,7 @@
 #include "parser.h"
 
 parser::parser(lexer& lex)
-	: m_Lexer(lex) {
+	: m_Lexer(lex), m_Last(token(interval(point(0, 0), 0), token_t::Epsilon)) {
 
 	// Create a combinator that parses an expression with a given precedence
 	auto get_expr = [](parser& p, ysize prec) {
@@ -41,12 +41,13 @@ parser::parser(lexer& lex)
 }
 
 parser_state parser::get_state() const {
-	return parser_state(m_Lexer.get_state(), m_Tokens);
+	return parser_state(m_Lexer.get_state(), m_Tokens, m_Last);
 }
 
 void parser::set_state(parser_state const& st) {
 	m_Lexer.set_state(st.LexState);
 	m_Tokens = st.Tokens;
+	m_Last = st.Last;
 }
 
 file_hnd const& parser::file() const {
@@ -65,9 +66,13 @@ token const& parser::peek(ysize delta) {
 	return m_Tokens[delta];
 }
 
+token const& parser::last() const {
+	return m_Last;
+}
+
 token parser::consume() {
-	token ret = peek();
+	m_Last = peek();
 	// Consuming is just erasing from the peek buffer
 	m_Tokens.erase(m_Tokens.begin());
-	return ret;
+	return m_Last;
 }
