@@ -156,34 +156,48 @@ private:
 		// Look what token is coming
 		token ahead = peek();
 		// Check if we have a prefix parselet for that
-		auto pre_parselet = set.Prefix.find(ahead.Type);
-		if (pre_parselet == set.Prefix.end()) {
+		auto pre_parselet_it = set.Prefix.find(ahead.Type);
+		if (pre_parselet_it == set.Prefix.end()) {
 			// No such prefix operator
+			return nullptr;
+		}
+		// Get the element for easy access
+		auto& pre_parselet = pre_parselet_it->second;
+		if (pre_parselet.Applyable &&
+			!pre_parselet.Applyable(*this)) {
+			// Cannot apply this
 			return nullptr;
 		}
 		// Eat the token
 		ahead = consume();
 		// Parse using the prefix parselet
-		T* left = pre_parselet->second(*this, ahead);
+		T* left = pre_parselet.Func(*this, ahead);
 		if (!left) {
 			assert(false && "The parselet should have thrown an error!");
 			return nullptr;
 		}
 		while (true) {
 			ahead = peek();
-			auto in_parselet = set.Infix.find(ahead.Type);
-			if (in_parselet == set.Infix.end()) {
+			auto in_parselet_it = set.Infix.find(ahead.Type);
+			if (in_parselet_it == set.Infix.end()) {
 				// No such infix operator
 				return left;
 			}
-			if (prec >= in_parselet->second.first) {
+			// Get the element for easy access
+			auto& in_parselet = in_parselet_it->second;
+			if (in_parselet.Applyable &&
+				!in_parselet.Applyable(*this)) {
+				// Cannot apply this
+				return left;
+			}
+			if (prec >= in_parselet.Prec) {
 				// Our precedence is greater, exit
 				return left;
 			}
 			// Eat the token
 			ahead = consume();
 			// Parse with the parselet
-			left = in_parselet->second.second(*this, left, ahead);
+			left = in_parselet.Func(*this, left, ahead);
 			if (!left) {
 				assert(false && "The parselet should have thrown an error!");
 				return nullptr;

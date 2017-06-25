@@ -22,20 +22,55 @@ struct file_hnd;
  * The template parameter T is the pointer type that the function returns.
  */
 template <typename T>
-using prefix_parselet = std::function<T* (parser&, token const&)>;
+struct prefix_parselet {
+public:
+	// Just for shorter types
+	using parselet_t = std::function<T* (parser&, token const&)>;
+	using apply_t = std::function<bool(parser&)>;
+
+public:
+	parselet_t	Func;		// Parser function
+	apply_t		Applyable;	// Can this be applied?
+
+	/**
+	 * Creates a prefix parselet with the given function.
+	 * @param func The parser function.
+	 * @param apply A predicate telling if the parselet is applyable (optional).
+	 */
+	prefix_parselet(parselet_t func, apply_t apply = nullptr)
+		: Func(func), Applyable(apply) {
+	}
+};
 
 /**
- * An infix parselet is a pair of precedence and a function. The function
+ * An infix parselet consist of a precedence and a function. The function
  * receives the parser the function was called from, the left-hand side of
  * the parsed piece and the beginning of the current one.
  * The template parameter T is the pointer type that the function receives
  * and returns.
  */
 template <typename T>
-using infix_parselet = ypair<
-	ysize, 
-	std::function<T* (parser&, T*, token const&)>
->;
+struct infix_parselet {
+public:
+	// Just for shorter types
+	using parselet_t = std::function<T* (parser&, T*, token const&)>;
+	using apply_t = std::function<bool(parser&)>;
+
+public:
+	ysize		Prec;		// The precedence of the parselet
+	parselet_t	Func;		// Parser function
+	apply_t		Applyable;	// Can this be applied?
+
+	/**
+	 * Creates an infix parselet with the given precedence and function.
+	 * @param prec The precedence this parser can be applied.
+	 * @param func The parser function.
+	 * @param apply A predicate telling if the parselet is applyable (optional).
+	 */
+	infix_parselet(ysize prec, parselet_t func, apply_t apply = nullptr)
+		: Prec(prec), Func(func), Applyable(apply) {
+	}
+};
 
 /**
  * This exception is thrown when the parser expects a different input from
@@ -67,11 +102,14 @@ namespace prefix {
 	 * Creates a passing parselet that constructs a node from a single token.
 	 * @return The parselet.
 	 */
-	template <typename T>
-	inline prefix_parselet<T> pass() {
-		return [](parser&, token const& t) {
-			return new T(t);
-		};
+	template <typename U, typename T>
+	inline prefix_parselet<U> pass() {
+		return 
+		prefix_parselet<U>(
+			[](parser&, token const& t) -> U* {
+				return new T(t);
+			}
+		);
 	}
 
 	/**
@@ -84,7 +122,9 @@ namespace prefix {
 	 */
 	template <typename T, typename Fn>
 	inline prefix_parselet<T> enclose(Fn func, token_t right_t, ystr const& in_desc, ystr const& end_desc) {
-		return [&func, right_t, in_desc, end_desc](parser& p, token const& lhs) -> T* {
+		return 
+		prefix_parselet<T>(
+		[&func, right_t, in_desc, end_desc](parser& p, token const& lhs) -> T* {
 			T* sub = func(p, 0);
 			if (!sub) {
 				token const& ahead = p.peek();
@@ -102,7 +142,7 @@ namespace prefix {
 			// Modify position (include enclosing tokens)
 			sub->Pos = interval(lhs.Pos, rhs.Pos);
 			return sub;
-		};
+		});
 	}
 }
 
@@ -118,7 +158,7 @@ namespace infix {
 	 */
 	template <typename T, typename ResT, typename Fn>
 	inline infix_parselet<T> lassoc(ysize prec, Fn func, ystr const& rhs_desc) {
-		return {
+		return infix_parselet<T>(
 			prec,
 			[prec, &func, rhs_desc](parser& p, T* left, token const& begin) -> T* {
 				T* right = func(p, prec);
@@ -130,7 +170,7 @@ namespace infix {
 				}
 				return new ResT(begin, left, right);
 			}
-		};
+		);
 	}
 
 	/**
@@ -145,7 +185,7 @@ namespace infix {
 	template <typename T, typename ResT, typename Fn>
 	inline infix_parselet<T> rassoc(ysize prec, Fn func, ystr const& rhs_desc) {
 		assert(prec > 0 && "Right associative operator must have a precedence greater than 0!");
-		return {
+		return infix_parselet<T>(
 			prec,
 			[prec, &func, &rhs_desc](parser& p, T* left, token const& begin) -> T* {
 				T* right = func(p, prec - 1);
@@ -157,6 +197,6 @@ namespace infix {
 				}
 				return new ResT(begin, left, right);
 			}
-		};
+		);
 	}
 }

@@ -70,8 +70,8 @@ parser::parser(lexer& lex)
 	};
 
 	// Add the literal passes
-	m_Expr.add(token_t::Ident,	prefix::pass<AST_ident_expr>());
-	m_Expr.add(token_t::IntLit, prefix::pass<AST_int_lit_expr>());
+	m_Expr.add(token_t::Ident,	prefix::pass<AST_expr, AST_ident_expr>());
+	m_Expr.add(token_t::IntLit, prefix::pass<AST_expr, AST_int_lit_expr>());
 
 	// Add grouping
 	m_Expr.add(token_t::LParen,
@@ -79,6 +79,7 @@ parser::parser(lexer& lex)
 
 	// Function
 	m_Expr.add(token_t::Fn,
+	prefix_parselet<AST_expr>(
 	[&get_body, &get_label, &get_tok](parser& p, token const& beg) -> AST_expr* {
 		yopt<token> ident = get_label(p);
 		// Params
@@ -155,7 +156,7 @@ parser::parser(lexer& lex)
 				"body", beg.fmt());
 		}
 		return new AST_func_expr(beg, params, rett, body, ident);
-	});
+	}));
 
 	// Expression operators
 
@@ -183,7 +184,7 @@ parser::parser(lexer& lex)
 	// TYPES //////////////////////////////////////////////////////////////////
 
 	// Add the literal passes
-	m_Ty.add(token_t::Ident, prefix::pass<AST_ident_ty>());
+	m_Ty.add(token_t::Ident, prefix::pass<AST_ty, AST_ident_ty>());
 }
 
 parser_state parser::get_state() const {
