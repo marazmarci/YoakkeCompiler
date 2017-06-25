@@ -48,6 +48,15 @@ protected:
 
 public:
 	virtual ~AST_expr() { }
+
+public:
+	/**
+	 * Check if this node is a braced construct.
+	 * @return True, if braced.
+	 */
+	bool is_braced() const {
+		return Type == AST_expr_t::Func;
+	}
 };
 
 /**
@@ -159,9 +168,25 @@ struct AST_bin_expr : public AST_expr {
 /**
  * This represents a braced code block without a name, used for other language
  * constructs like functions and if statements.
+ * Does not inherit AST_expr, as this is just a helper construct.
  */
-struct AST_body_expr : public AST_expr {
+struct AST_body_expr {
 	// TODO: capture block
+	interval		Pos;		// Position in the file
+	yvec<AST_stmt*>	Statements;	// The statements of the body
+	AST_expr*		Return;		// The return expression at the end
+
+	/**
+	 * Creates a braced expression from statements.
+	 * @param beg The beginning brace.
+	 * @param end The ending brace.
+	 * @param stmts The list of statements.
+	 * @param ret The return expression at the end (may be null).
+	 */
+	AST_body_expr(token const& beg, token const& end,
+		yvec<AST_stmt*> const& stmts, AST_expr* ret = nullptr)
+		: Pos(beg.Pos, end.Pos), Statements(stmts), Return(ret) {
+	}
 };
 
 // Helper for the function expression, a type representing a param

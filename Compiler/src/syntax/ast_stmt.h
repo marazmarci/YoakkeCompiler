@@ -52,9 +52,11 @@ struct AST_expr_stmt : public AST_stmt {
 	/**
 	 * Creates an expression statement from an expression.
 	 * @param sub The expression to wrap.
+	 * @param semicol Optional semicolon token.
 	 */
-	AST_expr_stmt(AST_expr* sub)
-		: AST_stmt(sub->Pos, AST_stmt_t::Expr) {
+	AST_expr_stmt(AST_expr* sub, yopt<token> semicol = {})
+		: AST_stmt(semicol ? interval(sub->Pos, semicol->Pos) : sub->Pos
+		, AST_stmt_t::Expr) {
 	}
 
 	virtual ~AST_expr_stmt() {

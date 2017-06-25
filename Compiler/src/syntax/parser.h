@@ -131,6 +131,20 @@ public:
 	 */
 	AST_expr* parse_expr(ysize min_prec = 0);
 
+	/**
+	 * Tries to parse a type descriptor from the current tokens.
+	 * @param min_prec The minimum precedence required to accept an operator.
+	 * @preturn A pointer to a type descriptor node. Null if none found.
+	 * @see parse_set
+	 */
+	AST_ty* parse_ty(ysize min_prec = 0);
+
+	/*
+	 * Tries to parse a statement from the upcoming tokens.
+	 * @return A pointer to a statement node. Null if none found.
+	 */
+	AST_stmt* parse_stmt();
+
 private:
 	/**
 	 * Parses based of a given rule set and precedence.
@@ -184,5 +198,6 @@ private:
 	lexer&					m_Lexer;	// The token stream
 	yvec<token>				m_Tokens;	// The peeked token buffer
 	parselet_set<AST_expr>	m_Expr;		// The set of expression rules
+	parselet_set<AST_ty>	m_Ty;		// The set of type rules
 	token					m_Last;		// The last consumed token
 };

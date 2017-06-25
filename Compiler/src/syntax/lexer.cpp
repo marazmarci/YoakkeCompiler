@@ -14,7 +14,7 @@ lexer::lexer(file_hnd const& src)
 	add_symbol("{",		token_t::LBrace		);	// '{'
 	add_symbol("}",		token_t::RBrace		);	// '}'
 	add_symbol("[",		token_t::LBracket	);	// '['
-	add_symbol("]",		token_t::Rbracket	);	// ']'
+	add_symbol("]",		token_t::RBracket	);	// ']'
 	add_symbol("+",		token_t::Add		);	// '+'
 	add_symbol("-",		token_t::Sub		);	// '-'
 	add_symbol("*",		token_t::Mul		);	// '*'
@@ -28,9 +28,13 @@ lexer::lexer(file_hnd const& src)
 	add_symbol(">=",	token_t::GrEq		);	// '>='
 	add_symbol("<=",	token_t::LeEq		);	// '<='
 	add_symbol(".",		token_t::Dot		);	// '.'
+	add_symbol(",",		token_t::Comma		);	// ','
 	add_symbol(":",		token_t::Colon		);	// ':'
 	add_symbol(";",		token_t::Semicol	);	// ';'
 	add_symbol("->",	token_t::Arrow		);	// '->'
+
+	// Initialize keywords
+	add_keyword("fn",	token_t::Fn			);	// 'fn'
 }
 
 file_hnd const& lexer::file() const {

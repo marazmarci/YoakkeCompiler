@@ -48,6 +48,16 @@ void AST_printer::print(const AST_expr* exp, ysize indent) {
 		break;
 	}
 
+	case AST_expr_t::Func: {
+		const AST_func_expr* n = static_cast<const AST_func_expr*>(exp);
+		outs << "fn";
+		if (n->Label) {
+			outs << '[' << n->Label->Value << ']';
+		}
+		outs << std::endl;
+		break;
+	}
+
 	default:
 		assert(false && "Unhandled case in printer()!");
 	}

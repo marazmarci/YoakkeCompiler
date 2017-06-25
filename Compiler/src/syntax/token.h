@@ -27,7 +27,7 @@ enum class token_t {
 	LBrace,		// Left brace			'{'
 	RBrace,		// Right brace			'}'
 	LBracket,	// Left bracket			'['
-	Rbracket,	// Right bracket		']'
+	RBracket,	// Right bracket		']'
 	Add,		// Plus sign			'+'
 	Sub,		// Minus sign			'-'
 	Mul,		// Star sign			'*'
@@ -41,9 +41,11 @@ enum class token_t {
 	GrEq,		// Greater-or-eq sign	'>='
 	LeEq,		// Greater-or-eq sign	'<='
 	Dot,		// Dot					'.'
+	Comma,		// Comma				','
 	Colon,		// Colon				':'
 	Semicol,	// Semicolon			';'
 	Arrow,		// Arrow sign			'->'
+	Fn,			// Function def			'fn'
 };
 
 /**
