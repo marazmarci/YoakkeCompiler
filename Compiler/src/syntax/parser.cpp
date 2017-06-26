@@ -1,75 +1,13 @@
 #include "ast_stmt.h"
 #include "ast_ty.h"
 #include "parser.h"
+#include "parselet_common.h"
+#include "parselet_expr.h"
 
 parser::parser(lexer& lex)
 	: m_Lexer(lex), m_Last(token(interval(point(0, 0), 0), token_t::Epsilon)) {
 
 	// EXPRESSIONS ////////////////////////////////////////////////////////////
-
-	// Create a combinator for parsing an optional single token
-	auto get_tok = [](parser& p, token_t tt) -> yopt<token> {
-		if (p.peek().Type == tt) {
-			return p.consume();
-		}
-		return {};
-	};
-
-	// Create a combinator for labels
-	auto get_label = [&get_tok](parser& p) -> yopt<token> {
-		if (auto lbracket = get_tok(p, token_t::LBracket)) {
-			if (auto id = get_tok(p, token_t::Ident)) {
-				if (auto rbracket = get_tok(p, token_t::RBracket)) {
-					return id;
-				}
-				else {
-					token ahead = p.peek();
-					throw parser_expect_exception(p.file(), ahead.Pos,
-						"']'", ahead.fmt(), lbracket->Pos);
-					return {};
-				}
-			}
-			else {
-				token ahead = p.peek();
-				throw parser_expect_exception(p.file(), ahead.Pos,
-					"identifier", ahead.fmt());
-				return {};
-			}
-		}
-		else {
-			return {};
-		}
-	};
-
-	// Create a combinator that parses an expression with a given precedence
-	auto get_expr = [](parser& p, ysize prec) {
-		return p.parse_expr(prec);
-	};
-
-	// Create a combinator that parses a body for braced constructs
-	auto get_body = [](parser& p) -> AST_body_expr* {
-		// TODO: capture list
-		token lbrace = p.peek();
-		if (lbrace.Type != token_t::LBrace) {
-			return nullptr;
-		}
-		p.consume();
-		// { parsed
-		yvec<AST_stmt*> statements;
-		while (AST_stmt* stmt = p.parse_stmt()) {
-			statements.push_back(stmt);
-		}
-		// Now we check if there is a last expression
-		AST_expr* ret = p.parse_expr();
-		// Expect a }
-		token rbrace = p.peek();
-		if (rbrace.Type != token_t::RBrace) {
-			throw parser_expect_exception(p.file(), rbrace.Pos,
-				"'}'", rbrace.fmt(), lbrace.Pos);
-		}
-		p.consume();
-		return new AST_body_expr(lbrace, rbrace, statements, ret);
-	};
 
 	// Add the literal passes
 	m_Expr.add(token_t::Ident,	prefix::pass<AST_expr, AST_ident_expr>());
@@ -77,142 +15,125 @@ parser::parser(lexer& lex)
 
 	// Add grouping
 	m_Expr.add(token_t::LParen,
-		prefix::enclose<AST_expr>(get_expr, token_t::RParen, "expression", "')'"));
+		prefix::enclose<AST_expr>(parselet_expr::get_expr, 
+			token_t::RParen, "expression", "')'"));
 
 	// Function
 	m_Expr.add(token_t::Fn,
-	prefix_parselet<AST_expr>(
-	[&get_body, &get_label, &get_tok](parser& p, token const& beg) -> AST_expr* {
-		yopt<token> ident = get_label(p);
-		// Params
-		auto lpar = get_tok(p, token_t::LParen);
+	prefix_parselet<AST_expr>(parselet_expr::get_func));
 
-		// Parse params
-		auto get_param = [&get_tok](parser& p) -> yopt<param_t> {
-			auto ident = get_tok(p, token_t::Ident);
-			if (!get_tok(p, token_t::Colon)) {
-				if (ident) {
-					auto ahead = p.peek();
-					throw parser_expect_exception(p.file(), ahead.Pos,
-						"':'", ahead.fmt());
-					return {};
-				}
-				else {
-					return {};
+	// If
+	{
+		std::function<AST_if_expr*(parser&, token const&)> parse_if;
+		parse_if = [&](parser& p, token const& beg) -> AST_if_expr* {
+			yopt<token> ident = parselet_common::get_label(p);
+
+			// Condition
+			AST_expr* cond = parselet_expr::get_expr(p);
+			if (!cond) {
+				parselet_common::parse_error(p, "condition");
+				return nullptr;
+			}
+
+			// Return type
+			AST_ty* rett = nullptr;
+			if (parselet_common::get_token<token_t::Arrow>(p)) {
+				if (!(rett = p.parse_ty())) {
+					parselet_common::parse_error(p, "return type");
+					return nullptr;
 				}
 			}
-			AST_ty* ty = p.parse_ty();
-			if (!ty) {
-				auto ahead = p.peek();
-				throw parser_expect_exception(p.file(), ahead.Pos,
-					"type", ahead.fmt());
-				return {};
+
+			// Body
+			AST_body_expr* body = parselet_expr::get_body(p);
+			if (!body) {
+				token beg = p.peek();
+				parselet_common::parse_error(p, "body");
+				return nullptr;
 			}
-			return param_t({ ident, ty });
+			// Else if, else
+			AST_body_expr* elbody = nullptr;
+			if (auto elift = parselet_common::get_token<token_t::Elif>(p)) {
+				AST_if_expr* exp = parse_if(p, *elift);
+				assert(exp && "parse_if should have thrown an error!");
+				elbody = new AST_body_expr(new AST_expr_stmt(exp));
+			}
+			else if (auto elt = parselet_common::get_token<token_t::Else>(p)) {
+				elbody = parselet_expr::get_body(p);
+				if (!elbody) {
+					parselet_common::parse_error(p, "else block");
+					return nullptr;
+				}
+			}
+
+			return new AST_if_expr(beg, ident, cond, rett, body, elbody);
 		};
-
-		yvec<param_t> params;
-		{
-			if (auto par = get_param(p)) {
-				params.push_back(*par);
-				while (get_tok(p, token_t::Comma)) {
-					if (auto par2 = get_param(p)) {
-						params.push_back(*par2);
-					}
-					else {
-						auto ahead = p.peek();
-						throw parser_expect_exception(p.file(), ahead.Pos,
-							"parameter", ahead.fmt());
-						return {};
-					}
-				}
-			}
-		}
-
-		if (lpar) {
-			token rpar = p.peek();
-			if (rpar.Type != token_t::RParen) {
-				throw parser_expect_exception(p.file(), rpar.Pos,
-					"')'", rpar.fmt(), lpar->Pos);
-				return nullptr;
-			}
-			p.consume();
-		}
-
-		// Return type
-		AST_ty* rett = nullptr;
-		if (get_tok(p, token_t::Arrow)) {
-			if (!(rett = p.parse_ty())) {
-				auto ahead = p.peek();
-				throw parser_expect_exception(p.file(), ahead.Pos,
-					"return type", ahead.fmt());
-				return nullptr;
-			}
-		}
-
-		// Body
-		AST_body_expr* body = get_body(p);
-		if (!body) {
-			token beg = p.peek();
-			throw parser_expect_exception(p.file(), beg.Pos,
-				"body", beg.fmt());
-			return nullptr;
-		}
-		return new AST_func_expr(beg, params, rett, body, ident);
-	}));
+		m_Expr.add(token_t::If, prefix_parselet<AST_expr>(parse_if));
+	}
 
 	// Expression operators
 
 	ysize prec = 1;
 
 	m_Expr.add(token_t::Asgn, 
-		infix::rassoc<AST_expr, AST_bin_expr>(prec, get_expr, "expression"));
+		infix::rassoc<AST_expr, AST_bin_expr>(prec, 
+			parselet_expr::get_expr, "expression"));
 
 	prec++;
 
 	m_Expr.add(token_t::Add, 
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, get_expr, "expression"));
+		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
+			parselet_expr::get_expr, "expression"));
 	m_Expr.add(token_t::Sub, 
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, get_expr, "expression"));
+		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
+			parselet_expr::get_expr, "expression"));
 
 	prec++;
 
 	m_Expr.add(token_t::Mul, 
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, get_expr, "expression"));
+		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
+			parselet_expr::get_expr, "expression"));
 	m_Expr.add(token_t::Div, 
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, get_expr, "expression"));
+		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
+			parselet_expr::get_expr, "expression"));
 	m_Expr.add(token_t::Mod, 
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, get_expr, "expression"));
+		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
+			parselet_expr::get_expr, "expression"));
+
+	prec++;
+
+	m_Expr.add(token_t::Eq,
+		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
+			parselet_expr::get_expr, "expression"));
+	m_Expr.add(token_t::Neq,
+		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
+			parselet_expr::get_expr, "expression"));
 
 	prec++;
 
 	m_Expr.add(token_t::LParen,
 		infix_parselet<AST_expr>(
 		prec,
-		[&get_tok](parser& p, AST_expr* left, token const& lpar) -> AST_expr* {
+		[](parser& p, AST_expr* left, token const& lpar) -> AST_expr* {
 			// TODO: Change when making comma separated list expressions
 			yvec<AST_expr*> params;
 			if (AST_expr* par = p.parse_expr()) {
 				params.push_back(par);
-				while (get_tok(p, token_t::Comma)) {
+				while (parselet_common::get_token<token_t::Comma>(p)) {
 					if (AST_expr* par2 = p.parse_expr()) {
 						params.push_back(par2);
 					}
 					else {
-						auto ahead = p.peek();
-						throw parser_expect_exception(p.file(), ahead.Pos,
-							"parameter", ahead.fmt());
+						parselet_common::parse_error(p, "parameter");
 						return nullptr;
 					}
 				}
 			}
-			if (auto rpar = get_tok(p, token_t::RParen)) {
+			if (auto rpar = parselet_common::get_token<token_t::RParen>(p)) {
 				return new AST_call_expr(left, params, *rpar);
 			}
 			else {
-				auto ahead = p.peek();
-				throw parser_expect_exception(p.file(), ahead.Pos,
-					"')'", ahead.fmt());
+				parselet_common::parse_error(p, "')'");
 				return nullptr;
 			}
 		},
@@ -223,8 +144,17 @@ parser::parser(lexer& lex)
 
 	// TYPES //////////////////////////////////////////////////////////////////
 
+	// Create a combinator that parses a type with a given precedence
+	auto get_ty = [](parser& p, ysize prec) {
+		return p.parse_ty(prec);
+	};
+
 	// Add the literal passes
 	m_Ty.add(token_t::Ident, prefix::pass<AST_ty, AST_ident_ty>());
+
+	// Add grouping
+	m_Ty.add(token_t::LParen,
+		prefix::enclose<AST_ty>(get_ty, token_t::RParen, "type", "')'"));
 }
 
 parser_state parser::get_state() const {

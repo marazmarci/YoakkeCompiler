@@ -163,7 +163,7 @@ namespace infix {
 			typename infix_parselet<T>::apply_t apply = nullptr) {
 		return infix_parselet<T>(
 			prec,
-			[prec, &func, rhs_desc](parser& p, T* left, token const& begin) -> T* {
+			[prec, func, rhs_desc](parser& p, T* left, token const& begin) -> T* {
 				T* right = func(p, prec);
 				if (!right) {
 					token const& ahead = p.peek();

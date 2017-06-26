@@ -27,7 +27,8 @@ enum class AST_expr_t {
 	PreOp,
 	PostOp,
 	Func,
-	Call
+	Call,
+	If,
 };
 
 /**
@@ -43,21 +44,17 @@ protected:
 	 * @param pos The position of the represented node in the file.
 	 * @param ty The expresstion type.
 	 */
-	AST_expr(interval const& pos, AST_expr_t ty)
-		: AST_node(pos), Type(ty) {
-	}
+	AST_expr(interval const& pos, AST_expr_t ty);
 
 public:
-	virtual ~AST_expr() { }
+	virtual ~AST_expr();
 
 public:
 	/**
 	 * Check if this node is a braced construct.
 	 * @return True, if braced.
 	 */
-	bool is_braced() const {
-		return Type == AST_expr_t::Func;
-	}
+	bool is_braced() const;
 };
 
 /**
@@ -71,11 +68,9 @@ struct AST_ident_expr : public AST_expr {
 	 * Creates an identifier expression from a given token.
 	 * @param tok The token that represents the identifier.
 	 */
-	AST_ident_expr(token const& tok)
-		: AST_expr(tok.Pos, AST_expr_t::Ident), ID(tok.Value) {
-	}
+	AST_ident_expr(token const& tok);
 
-	virtual ~AST_ident_expr() { }
+	virtual ~AST_ident_expr();
 };
 
 /**
@@ -88,12 +83,9 @@ struct AST_int_lit_expr : public AST_expr {
 	 * Creates an integer literal expression from a given token.
 	 * @param tok The token that represents the number.
 	 */
-	AST_int_lit_expr(token const& tok)
-		: AST_expr(tok.Pos, AST_expr_t::IntLit),
-		Value(std::atoll(tok.Value.c_str())) {
-	}
+	AST_int_lit_expr(token const& tok);
 
-	virtual ~AST_int_lit_expr() { }
+	virtual ~AST_int_lit_expr();
 };
 
 /**
@@ -108,14 +100,9 @@ struct AST_pre_expr : public AST_expr {
 	 * @param op The operator token.
 	 * @param sub The operand.
 	 */
-	AST_pre_expr(token const& op, AST_expr* sub)
-		: AST_expr(interval(op.Pos, sub->Pos), AST_expr_t::PreOp),
-		OP(op), Sub(sub) {
-	}
+	AST_pre_expr(token const& op, AST_expr* sub);
 
-	virtual ~AST_pre_expr() {
-		delete Sub;
-	}
+	virtual ~AST_pre_expr();
 };
 
 /**
@@ -131,14 +118,9 @@ struct AST_post_expr : public AST_expr {
 	 * @param op The operator token.
 	 * @param sub The operand.
 	 */
-	AST_post_expr(token const& op, AST_expr* sub)
-		: AST_expr(interval(sub->Pos, op.Pos), AST_expr_t::PostOp),
-		OP(op), Sub(sub) {
-	}
+	AST_post_expr(token const& op, AST_expr* sub);
 
-	virtual ~AST_post_expr() {
-		delete Sub;
-	}
+	virtual ~AST_post_expr();
 };
 
 /**
@@ -155,15 +137,9 @@ struct AST_bin_expr : public AST_expr {
 	 * @param left The left-hand side operand.
 	 * @param right The right-hand side operand.
 	 */
-	AST_bin_expr(token const& op, AST_expr* left, AST_expr* right)
-		: AST_expr(interval(left->Pos, right->Pos), AST_expr_t::BinOp),
-		OP(op), LHS(left), RHS(right) {
-	}
+	AST_bin_expr(token const& op, AST_expr* left, AST_expr* right);
 
-	virtual ~AST_bin_expr() {
-		delete LHS;
-		delete RHS;
-	}
+	virtual ~AST_bin_expr();
 };
 
 /**
@@ -185,9 +161,15 @@ struct AST_body_expr {
 	 * @param ret The return expression at the end (may be null).
 	 */
 	AST_body_expr(token const& beg, token const& end,
-		yvec<AST_stmt*> const& stmts, AST_expr* ret = nullptr)
-		: Pos(beg.Pos, end.Pos), Statements(stmts), Return(ret) {
-	}
+		yvec<AST_stmt*> const& stmts, AST_expr* ret = nullptr);
+
+	/**
+	 * Creates a braced expression from a single statement.
+	 * @param stmt The statement to create the body from.
+	 */
+	AST_body_expr(AST_stmt* stmt);
+
+	~AST_body_expr();
 };
 
 // Helper for the function expression, a type representing a param
@@ -199,10 +181,10 @@ using param_t = ypair<yopt<token>, AST_ty*>;
  * In that case it's just a normal function.
  */
 struct AST_func_expr : public AST_expr {
+	yopt<token>		Label;	// An optional name
 	yvec<param_t>	Args;	// The list of arguments
 	AST_ty*			Return;	// The return type
 	AST_body_expr*	Body;	// The body containing the code
-	yopt<token>		Label;	// An optional name
 
 	/**
 	 * Creates a function expression with the given arguments, return type
@@ -214,21 +196,12 @@ struct AST_func_expr : public AST_expr {
 	 * @param name An optional name, making it a normal named function.
 	 */
 	AST_func_expr(
-		token const& beg, 
-		yvec<param_t> const& args, AST_ty* ret, 
-		AST_body_expr* body,
-		yopt<token> name = {})
-		: AST_expr(interval(beg.Pos, body->Pos), AST_expr_t::Func),
-		Args(args), Return(ret), Body(body), Label(name) {
-	}
+		token const& beg,
+		yopt<token> name,
+		yvec<param_t> const& args, AST_ty* ret,
+		AST_body_expr* body);
 
-	virtual ~AST_func_expr() {
-		for (auto a : Args) {
-			delete a.second;
-		}
-		delete Return;
-		delete Body;
-	}
+	virtual ~AST_func_expr();
 };
 
 /**
@@ -246,15 +219,35 @@ struct AST_call_expr : public AST_expr {
 	 * @param args The list of arguments.
 	 * @param end The right parenthese of the call.
 	 */
-	AST_call_expr(AST_expr* fn, yvec<AST_expr*> const& args, token const& end)
-		: AST_expr(interval(fn->Pos, end.Pos), AST_expr_t::Call),
-		Func(fn), Args(args) {
-	}
+	AST_call_expr(AST_expr* fn, yvec<AST_expr*> const& args, token const& end);
 
-	virtual ~AST_call_expr() {
-		delete Func;
-		for (auto a : Args) {
-			delete a;
-		}
-	}
+	virtual ~AST_call_expr();
+};
+
+/**
+ * An if expression runs the body based on the evaluation of the condition.
+ */
+struct AST_if_expr : public AST_expr {
+	yopt<token>		Label;		// An optional name
+	AST_expr*		Condition;	// When to run the Then block
+	AST_ty*			Return;		// Return type (may be null)
+	AST_body_expr*	Then;		// Run if condition is true
+	AST_body_expr*	Else;		// Run if false (may be null)
+
+	/**
+	 * Creates an if expression.
+	 * @param beg The 'if' token.
+	 * @param name An optional label name.
+	 * @param cond The condition.
+	 * @param ret An optional return type.
+	 * @param then The body followed by the condition and return type.
+	 * @param els An optional else body.
+	 */
+	AST_if_expr(
+		token const& beg,
+		yopt<token> name,
+		AST_expr* cond, AST_ty* ret,
+		AST_body_expr* then, AST_body_expr* els);
+
+	virtual ~AST_if_expr();
 };

@@ -33,12 +33,10 @@ protected:
 	 * @param pos The position of the represented node in the file.
 	 * @param ty The type descriptor type.
 	 */
-	AST_ty(interval const& pos, AST_ty_t ty)
-		: AST_node(pos), Type(ty) {
-	}
+	AST_ty(interval const& pos, AST_ty_t ty);
 
 public:
-	virtual ~AST_ty() { }
+	virtual ~AST_ty();
 };
 
 /**
@@ -52,9 +50,7 @@ struct AST_ident_ty : public AST_ty {
 	 * Creates an identifier type descriptor from a given token.
 	 * @param tok The token that represents the identifier.
 	 */
-	AST_ident_ty(token const& tok)
-		: AST_ty(tok.Pos, AST_ty_t::Ident), ID(tok.Value) {
-	}
+	AST_ident_ty(token const& tok);
 
-	virtual ~AST_ident_ty() { }
+	virtual ~AST_ident_ty();
 };

@@ -75,6 +75,23 @@ void AST_printer::print(const AST_expr* exp, ysize indent) {
 		break;
 	}
 
+	case AST_expr_t::If: {
+		const AST_if_expr* n = static_cast<const AST_if_expr*>(exp);
+		outs << "if";
+		if (n->Label) {
+			outs << '[' << n->Label->Value << ']';
+		}
+		outs << std::endl;
+		print(n->Condition, indent + 1);
+		for (auto st : n->Then->Statements) {
+			print(st, indent + 1);
+		}
+		if (n->Then->Return) {
+			print(n->Then->Return, indent + 1);
+		}
+		break;
+	}
+
 	default:
 		assert(false && "Unhandled case in printer()!");
 	}

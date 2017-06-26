@@ -10,7 +10,10 @@
 #pragma once
 
 #include "ast.h"
-#include "ast_expr.h"
+#include "position.h"
+#include "token.h"
+
+struct AST_expr;
 
 /**
  * This enum contains all the types a statement node can have.
@@ -33,12 +36,10 @@ protected:
 	* @param pos The position of the represented node in the file.
 	* @param ty The statement type.
 	*/
-	AST_stmt(interval const& pos, AST_stmt_t ty)
-		: AST_node(pos), Type(ty) {
-	}
+	AST_stmt(interval const& pos, AST_stmt_t ty);
 
 public:
-	virtual ~AST_stmt() { }
+	virtual ~AST_stmt();
 };
 
 /**
@@ -54,14 +55,8 @@ struct AST_expr_stmt : public AST_stmt {
 	 * @param sub The expression to wrap.
 	 * @param semicol Optional semicolon token.
 	 */
-	AST_expr_stmt(AST_expr* sub, yopt<token> semicol = {})
-		: AST_stmt(semicol ? interval(sub->Pos, semicol->Pos) : sub->Pos
-		, AST_stmt_t::Expr),
-		Sub(sub) {
-	}
+	AST_expr_stmt(AST_expr* sub, yopt<token> semicol = {});
 
-	virtual ~AST_expr_stmt() {
-		delete Sub;
-	}
+	virtual ~AST_expr_stmt();
 };
 
