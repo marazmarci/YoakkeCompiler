@@ -197,7 +197,7 @@ private:
 			// Eat the token
 			ahead = consume();
 			// Parse with the parselet
-			left = in_parselet.Func(*this, left, ahead);
+			left = in_parselet.Func(*this, in_parselet.Prec, left, ahead);
 			if (!left) {
 				assert(false && "The parselet should have thrown an error!");
 				return nullptr;

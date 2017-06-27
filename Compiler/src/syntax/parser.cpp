@@ -33,38 +33,46 @@ parser::parser(lexer& lex)
 	ysize prec = 1;
 
 	m_Expr.add(token_t::Asgn, 
-		infix::rassoc<AST_expr, AST_bin_expr>(prec, 
-			parselet::get_expr, "expression"));
+	infix_parselet<AST_expr>(prec,
+		parselet::make_rassoc<AST_bin_expr, AST_expr>
+		(parselet::get_expr, "expression")));
 
 	prec++;
 
 	m_Expr.add(token_t::Add, 
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
-			parselet::get_expr, "expression"));
+		infix_parselet<AST_expr>(prec,
+			parselet::make_lassoc<AST_bin_expr, AST_expr>
+			(parselet::get_expr, "expression")));
 	m_Expr.add(token_t::Sub, 
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
-			parselet::get_expr, "expression"));
+		infix_parselet<AST_expr>(prec,
+			parselet::make_lassoc<AST_bin_expr, AST_expr>
+			(parselet::get_expr, "expression")));
 
 	prec++;
 
 	m_Expr.add(token_t::Mul, 
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
-			parselet::get_expr, "expression"));
+		infix_parselet<AST_expr>(prec,
+			parselet::make_lassoc<AST_bin_expr, AST_expr>
+			(parselet::get_expr, "expression")));
 	m_Expr.add(token_t::Div, 
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
-			parselet::get_expr, "expression"));
+		infix_parselet<AST_expr>(prec,
+			parselet::make_lassoc<AST_bin_expr, AST_expr>
+			(parselet::get_expr, "expression")));
 	m_Expr.add(token_t::Mod, 
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
-			parselet::get_expr, "expression"));
+		infix_parselet<AST_expr>(prec,
+			parselet::make_lassoc<AST_bin_expr, AST_expr>
+			(parselet::get_expr, "expression")));
 
 	prec++;
 
 	m_Expr.add(token_t::Eq,
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
-			parselet::get_expr, "expression"));
+		infix_parselet<AST_expr>(prec,
+			parselet::make_lassoc<AST_bin_expr, AST_expr>
+			(parselet::get_expr, "expression")));
 	m_Expr.add(token_t::Neq,
-		infix::lassoc<AST_expr, AST_bin_expr>(prec, 
-			parselet::get_expr, "expression"));
+		infix_parselet<AST_expr>(prec,
+			parselet::make_lassoc<AST_bin_expr, AST_expr>
+			(parselet::get_expr, "expression")));
 
 	prec++;
 
