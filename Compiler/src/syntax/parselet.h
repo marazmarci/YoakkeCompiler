@@ -10,11 +10,17 @@
 #pragma once
 
 #include <functional>
+#include "token.h"
+#include "position.h"
 #include "../common.h"
 
 struct token;
 struct parser;
 struct file_hnd;
+struct AST_expr;
+struct AST_ty;
+struct AST_stmt;
+struct AST_body_expr;
 
 /**
  * A prefix parselet is just a function that receives a beginning token and
@@ -207,4 +213,95 @@ namespace infix {
 			apply
 		);
 	}
+}
+
+namespace parselet {
+	void error(parser& p, ystr const& what);
+	void error(parser& p, ystr const& what, interval const& from);
+
+	template <typename T>
+	auto& unwrap(T& val) {
+		return val;
+	}
+
+	template <typename T>
+	auto& unwrap(yopt<T>& val) {
+		return val.value();
+	}
+
+	template <token_t TT>
+	yopt<token> term(parser& p) {
+		if (p.peek().Type == TT) {
+			return p.consume();
+		}
+		return {};
+	}
+
+	template <typename T>
+	T* from_term(parser& p, token const& tok) {
+		return new T(tok);
+	}
+
+	template <token_t EndTok, typename Fn>
+	auto make_enclose(Fn inner, const char* idesc, const char* enddesc) {
+		using ResT = std::result_of_t<Fn(parser&)>;
+		return [&](parser& p, token const& beg) -> ResT {
+			if (auto in = inner(p)) {
+				if (auto end = term<EndTok>(p)) {
+					return in;
+				}
+				else {
+					error(p, idesc, beg.Pos);
+					return ResT();
+				}
+			}
+			else {
+				error(p, idesc);
+				return ResT();
+			}
+		};
+	}
+
+	template <typename ElemT, token_t SEP, typename Fn>
+	auto make_sep_seq(Fn get_elem, const char* elemdesc) {
+		return [&](parser& p) {
+			yvec<ElemT> elems;
+			if (auto el = get_elem(p)) {
+				elems.push_back(unwrap(el));
+				while (term<SEP>(p)) {
+					auto el2 = get_elem(p);
+					if (!el2) {
+						error(p, elemdesc);
+						return yvec<ElemT>{};
+					}
+					elems.push_back(unwrap(el2));
+				}
+				return elems;
+			}
+			return elems;
+		};
+	}
+
+	yopt<token> get_label(parser& p);
+
+	AST_expr* get_expr(parser& p, ysize prec);
+
+	template <ysize PR>
+	AST_expr* get_expr_p(parser& p) {
+		return get_expr(p, PR);
+	}
+
+	AST_ty* get_ty(parser& p, ysize prec);
+
+	template <ysize PR>
+	AST_ty* get_ty_p(parser& p) {
+		return get_ty(p, PR);
+	}
+
+	AST_stmt* get_stmt(parser& p);
+
+	AST_expr* get_func(parser& p, token const& beg);
+	AST_ty* get_ty_not(parser& p);
+
+	AST_body_expr* get_body(parser& p);
 }

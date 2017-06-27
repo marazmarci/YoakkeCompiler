@@ -127,17 +127,13 @@
     <ClCompile Include="src\syntax\ast_expr.cpp" />
     <ClCompile Include="src\syntax\ast_stmt.cpp" />
     <ClCompile Include="src\syntax\ast_ty.cpp" />
-    <ClCompile Include="src\syntax\parselet_common.cpp" />
-    <ClCompile Include="src\syntax\parselet_expr.cpp" />
-    <ClCompile Include="src\syntax\parselet_stmt.cpp" />
-    <ClCompile Include="src\syntax\parselet_ty.cpp" />
+    <ClCompile Include="src\syntax\parselet.cpp" />
     <ClCompile Include="src\syntax\parser.cpp" />
     <ClCompile Include="src\io\code_formatter.cpp" />
     <ClCompile Include="src\io\file_hnd.cpp" />
     <ClCompile Include="src\syntax\lexer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\fnl_utils.h" />
     <ClInclude Include="src\syntax\ast.h" />
     <ClInclude Include="src\syntax\ast_expr.h" />
     <ClInclude Include="src\debug\ast_printer.h" />
@@ -149,10 +145,6 @@
     <ClInclude Include="src\syntax\lexer.h" />
     <ClInclude Include="src\math.h" />
     <ClInclude Include="src\syntax\parselet.h" />
-    <ClInclude Include="src\syntax\parselet_common.h" />
-    <ClInclude Include="src\syntax\parselet_expr.h" />
-    <ClInclude Include="src\syntax\parselet_stmt.h" />
-    <ClInclude Include="src\syntax\parselet_ty.h" />
     <ClInclude Include="src\syntax\parser.h" />
     <ClInclude Include="src\syntax\position.h" />
     <ClInclude Include="src\str_utils.h" />

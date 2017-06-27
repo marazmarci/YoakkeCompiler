@@ -165,7 +165,7 @@ token lexer::next() {
 			else {
 				// There is a keyword with a given type
 				return token(interval(m_State, ident.length()),
-					it->second);
+					it->second, ident);
 			}
 		}
 
