@@ -5,6 +5,7 @@
  *
  * Description:
  *  A parselet is a kind of parser-combinator for precedence parsing.
+ *  Here are all the parselets and combinators used for the language.
  */
 
 #pragma once
@@ -304,4 +305,6 @@ namespace parselet {
 	AST_ty* get_ty_not(parser& p);
 
 	AST_body_expr* get_body(parser& p);
+
+	AST_expr* get_if(parser& p, token const& beg);
 }

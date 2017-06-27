@@ -24,6 +24,10 @@ parser::parser(lexer& lex)
 	m_Expr.add(token_t::Fn,
 	prefix_parselet<AST_expr>(parselet::get_func));
 
+	// If statement
+	m_Expr.add(token_t::If,
+		prefix_parselet<AST_expr>(parselet::get_if));
+
 	// Expression operators
 
 	ysize prec = 1;

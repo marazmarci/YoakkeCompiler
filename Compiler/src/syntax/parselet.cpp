@@ -1,5 +1,6 @@
 #include "parselet.h"
 #include "parser.h"
+#include "ast_stmt.h"
 
 namespace parselet {
 	void error(parser& p, ystr const& what) {
@@ -13,6 +14,9 @@ namespace parselet {
 	}
 
 	yopt<token> get_label(parser& p) {
+		// TODO: Ambiguity! Could be [ident,] which is a list!
+		// Change this to a stricter version (functions)
+		// And a non-strich one (if, for, ...)
 		if (auto beg = term<token_t::LBracket>(p)) {
 			if (auto ident = term<token_t::Ident>(p)) {
 				if (auto end = term<token_t::RBracket>(p)) {
@@ -119,5 +123,35 @@ namespace parselet {
 			return nullptr;
 		}
 		return new AST_body_expr(*lbr, *rbr, stmts, exp);
+	}
+
+	AST_expr* get_if(parser& p, token const& beg) {
+		auto name = get_label(p);
+		auto cond = get_expr_p<0>(p);
+		if (!cond) {
+			error(p, "condition");
+			return nullptr;
+		}
+		auto rett = get_ty_not(p);
+		auto body = get_body(p);
+		if (!body) {
+			error(p, "then body");
+			return nullptr;
+		}
+		AST_body_expr* elbody = nullptr;
+		if (auto elif = term<token_t::Elif>(p)) {
+			auto elifst = get_if(p, *elif);
+			if (!elifst) {
+				assert(false && "Should have thrown error!");
+			}
+			elbody = new AST_body_expr(new AST_expr_stmt(elifst));
+		}
+		else if (auto el = term<token_t::Else>(p)) {
+			elbody = get_body(p);
+			if (!elbody) {
+				error(p, "else body");
+			}
+		}
+		return new AST_if_expr(beg, name, cond, rett, body, elbody);
 	}
 }

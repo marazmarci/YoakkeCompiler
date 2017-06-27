@@ -42,4 +42,7 @@ public:
 	 * @param indent The current depth of the tree, 0 by default.
 	 */
 	static void print(const AST_stmt* stmt, ysize indent = 0);
+
+private:
+	static void print_indent(ysize indent);
 };

@@ -9,10 +9,7 @@ void AST_printer::print(const AST_expr* exp, ysize indent) {
 	std::ostream& outs = *Out;
 	
 	// Indent accordingly to the current depth
-	for (ysize i = 0; i < indent; i++) {
-		outs << "  |";
-	}
-	outs << "--";
+	print_indent(indent);
 
 	switch (exp->Type) {
 	case AST_expr_t::BinOp: {
@@ -89,6 +86,16 @@ void AST_printer::print(const AST_expr* exp, ysize indent) {
 		if (n->Then->Return) {
 			print(n->Then->Return, indent + 1);
 		}
+		if (n->Else) {
+			print_indent(indent);
+			outs << "else" << std::endl;
+			for (auto el : n->Else->Statements) {
+				print(el, indent + 1);
+			}
+			if (n->Else->Return) {
+				print(n->Else->Return, indent + 1);
+			}
+		}
 		break;
 	}
 
@@ -100,14 +107,6 @@ void AST_printer::print(const AST_expr* exp, ysize indent) {
 void AST_printer::print(const AST_stmt* stmt, ysize indent) {
 	// Reference the outstream for simpler syntax
 	std::ostream& outs = *Out;
-
-	/*
-	// Indent accordingly to the current depth
-	for (ysize i = 0; i < indent; i++) {
-		outs << "  |";
-	}
-	outs << "--";
-	*/
 
 	switch (stmt->Type) {
 	case AST_stmt_t::Expr: {
@@ -121,3 +120,13 @@ void AST_printer::print(const AST_stmt* stmt, ysize indent) {
 	}
 }
 
+void AST_printer::print_indent(ysize indent) {
+	// Reference the outstream for simpler syntax
+	std::ostream& outs = *Out;
+
+	// Indent accordingly to the current depth
+	for (ysize i = 0; i < indent; i++) {
+		outs << "  |";
+	}
+	outs << "--";
+}
