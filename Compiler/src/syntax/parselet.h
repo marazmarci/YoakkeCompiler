@@ -221,4 +221,27 @@ namespace parselet {
 			return new ResT(begin, left, right);
 		};
 	}
+
+	template <typename NodT, typename ElemT, token_t SEP, typename Fn>
+	auto make_from_seq(Fn get_elem, const char* elemdesc) {
+		return [=](parser& p, ysize prec, ElemT* first, token const& beg) -> NodT* {
+			yvec<ElemT*> elems{ first };
+			if (auto el = get_elem(p, prec + 1)) {
+				elems.push_back(unwrap(el));
+				while (term<SEP>(p)) {
+					auto el2 = get_elem(p, prec + 1);
+					if (!el2) {
+						error(p, elemdesc);
+						return nullptr;
+					}
+					elems.push_back(unwrap(el2));
+				}
+				return new NodT(elems);
+			}
+			else {
+				error(p, elemdesc);
+				return nullptr;
+			}
+		};
+	}
 }

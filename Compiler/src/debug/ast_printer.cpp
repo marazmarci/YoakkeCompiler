@@ -99,6 +99,15 @@ void AST_printer::print(const AST_expr* exp, ysize indent) {
 		break;
 	}
 
+	case AST_expr_t::List: {
+		const AST_list_expr* n = static_cast<const AST_list_expr*>(exp);
+		outs << "expr_list" << std::endl;
+		for (auto el : n->Elements) {
+			print(el, indent + 1);
+		}
+		break;
+	}
+
 	default:
 		assert(false && "Unhandled case in printer()!");
 	}

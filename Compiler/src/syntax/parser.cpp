@@ -32,6 +32,13 @@ parser::parser(lexer& lex)
 
 	ysize prec = 1;
 
+	m_Expr.add(token_t::Comma,
+		infix_parselet<AST_expr>(prec,
+			parselet::make_from_seq<AST_list_expr, AST_expr, token_t::Comma>
+			(parselet::get_expr, "expression")));
+
+	prec++;
+
 	m_Expr.add(token_t::Asgn, 
 	infix_parselet<AST_expr>(prec,
 		parselet::make_rassoc<AST_bin_expr, AST_expr>

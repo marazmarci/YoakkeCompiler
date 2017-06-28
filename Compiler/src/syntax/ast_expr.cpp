@@ -135,3 +135,18 @@ AST_if_expr::~AST_if_expr() {
 	delete Then;
 	delete Else;
 }
+
+// AST_list_expr
+
+AST_list_expr::AST_list_expr(yvec<AST_expr*> const& elems)
+	: AST_expr(interval((*elems.begin())->Pos, 
+	(*elems.rbegin())->Pos), 
+	AST_expr_t::List),
+	Elements(elems) {
+}
+
+AST_list_expr::~AST_list_expr() {
+	for (auto el : Elements) {
+		delete el;
+	}
+}

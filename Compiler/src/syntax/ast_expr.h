@@ -29,6 +29,7 @@ enum class AST_expr_t {
 	Func,
 	Call,
 	If,
+	List,
 };
 
 /**
@@ -250,4 +251,19 @@ struct AST_if_expr : public AST_expr {
 		AST_body_expr* then, AST_body_expr* els);
 
 	virtual ~AST_if_expr();
+};
+
+/**
+ * A list expression is a composition of expressions separated by a comma.
+ */
+struct AST_list_expr : public AST_expr {
+	yvec<AST_expr*> Elements;	// The contained elements
+
+	/**
+	 * Creates a list expression from a vector of expressions.
+	 * @param elems The vector of elements.
+	 */
+	AST_list_expr(yvec<AST_expr*> const& elems);
+
+	virtual ~AST_list_expr();
 };
