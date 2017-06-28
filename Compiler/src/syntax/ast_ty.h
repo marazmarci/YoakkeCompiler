@@ -18,6 +18,8 @@
  */
 enum class AST_ty_t {
 	Ident,
+	BinOp,
+	List,
 };
 
 /**
@@ -53,4 +55,39 @@ struct AST_ident_ty : public AST_ty {
 	AST_ident_ty(token const& tok);
 
 	virtual ~AST_ident_ty();
+};
+
+/**
+ * A binary type descriptor combines two types constructing a new type.
+ * Used for example for functions: A -> B.
+ */
+struct AST_bin_ty : public AST_ty {
+	token		OP;		// Operator between nodes
+	AST_ty*		LHS;	// Left-hand side operand
+	AST_ty*		RHS;	// Right-hand side operand
+
+	/**
+	 * Creates a binary type descriptor with the given operands and operator.
+	 * @param op The operator token.
+	 * @param left The left-hand side operand.
+	 * @param right The right-hand side operand.
+	 */
+	AST_bin_ty(token const& op, AST_ty* left, AST_ty* right);
+
+	virtual ~AST_bin_ty();
+};
+
+/**
+ * A list type is a composition of types separated by a comma creating a tuple.
+ */
+struct AST_list_ty : public AST_ty {
+	yvec<AST_ty*> Elements;	// The contained elements
+
+	/**
+	 * Creates a tuple type from a vector of types.
+	 * @param elems The vector of elements.
+	 */
+	AST_list_ty(yvec<AST_ty*> const& elems);
+
+	virtual ~AST_list_ty();
 };
