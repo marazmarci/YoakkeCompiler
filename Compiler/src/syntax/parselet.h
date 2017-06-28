@@ -107,6 +107,8 @@ struct parser_expect_exception {
 };
 
 namespace parselet {
+	// TODO: A lot to clean up here
+
 	void error(parser& p, ystr const& what);
 	void error(parser& p, ystr const& what, interval const& from);
 
