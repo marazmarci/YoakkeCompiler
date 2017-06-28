@@ -16,7 +16,7 @@
   * Used for faster casting.
   */
 enum class ty_symbol_t {
-	Native,
+	Construct,
 };
 
 /**
@@ -37,3 +37,22 @@ protected:
 public:
 	virtual ~ty_symbol();
 };
+
+/**
+ * A construct type is a name and a list of types constructing it.
+ * Example: integer (0 constructor types), vector<float> (1 constructor type),
+ * tuple<...> (any number of constructor types).
+ */
+struct construct_ty_symbol : public ty_symbol {
+	yvec<ty_symbol*> Subtypes;	// The constructor types
+
+	/**
+	 * Creates a construct type with a name and a list of subtypes.
+	 * @param name The name of the construct type.
+	 * @param tys The constructor subtypes (optional).
+	 */
+	construct_ty_symbol(ystr const& name, yvec<ty_symbol*> const& tys = yvec<ty_symbol*>{});
+
+	virtual ~construct_ty_symbol();
+};
+
