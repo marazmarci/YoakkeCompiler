@@ -63,7 +63,7 @@ namespace parselet {
 				return {};
 			}
 		}
-		auto ty = get_ty_p<0>(p);
+		auto ty = get_ty_p<1>(p);
 		if (!ty) {
 			error(p, "parameter type");
 			return {};
@@ -157,5 +157,19 @@ namespace parselet {
 			}
 		}
 		return new AST_if_expr(beg, name, cond, rett, body, elbody);
+	}
+
+	AST_expr* get_call(parser& p, ysize prec, AST_expr* left, token const& lpar) {
+		static auto get_expr_list =
+			make_sep_seq<AST_expr*, token_t::Comma>(get_expr_p<1>,
+				"parameter after ','");
+
+		auto params = get_expr_list(p);
+		auto rpar = term<token_t::RParen>(p);
+		if (!rpar) {
+			error(p, "')' for end of function call", lpar.Pos);
+			return nullptr;
+		}
+		return new AST_call_expr(left, params, unwrap(rpar));
 	}
 }

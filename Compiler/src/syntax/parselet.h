@@ -180,7 +180,7 @@ namespace parselet {
 
 	template <typename ElemT, token_t SEP, typename Fn>
 	auto make_sep_seq(Fn get_elem, const char* elemdesc) {
-		return [&](parser& p) {
+		return [=](parser& p) {
 			yvec<ElemT> elems;
 			if (auto el = get_elem(p)) {
 				elems.push_back(unwrap(el));
@@ -229,6 +229,7 @@ namespace parselet {
 	AST_body_expr* get_body(parser& p);
 
 	AST_expr* get_if(parser& p, token const& beg);
+	AST_expr* get_call(parser& p, ysize prec, AST_expr* left, token const& lpar);
 
 	template <typename ResT, typename T, typename Fn>
 	auto make_lassoc(Fn func, const char* rhs_desc) {
