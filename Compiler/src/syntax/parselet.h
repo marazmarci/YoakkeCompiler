@@ -136,7 +136,7 @@ namespace parselet {
 	template <token_t EndTok, typename Fn>
 	auto make_enclose(Fn inner, const char* idesc, const char* enddesc) {
 		using ResT = std::result_of_t<Fn(parser&)>;
-		return [&](parser& p, token const& beg) -> ResT {
+		return [=](parser& p, token const& beg) -> ResT {
 			if (auto in = inner(p)) {
 				if (auto end = term<EndTok>(p)) {
 					return in;
@@ -156,7 +156,7 @@ namespace parselet {
 	template <token_t EndTok, typename OtherT, typename Fn>
 	auto make_enclose_or(Fn inner, const char* idesc, const char* enddesc) {
 		using ResT = std::result_of_t<Fn(parser&)>;
-		return [&](parser& p, token const& beg) -> ResT {
+		return [=](parser& p, token const& beg) -> ResT {
 			if (auto in = inner(p)) {
 				if (auto end = term<EndTok>(p)) {
 					return in;
