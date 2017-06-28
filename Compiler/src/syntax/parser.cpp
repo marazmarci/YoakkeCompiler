@@ -83,6 +83,12 @@ parser::parser(lexer& lex)
 
 	prec++;
 
+	m_Expr.add(token_t::LParen,
+		infix_parselet<AST_expr>(prec,
+			parselet::get_call));
+
+	prec++;
+
 	// TYPES //////////////////////////////////////////////////////////////////
 
 	// Add the literal passes
