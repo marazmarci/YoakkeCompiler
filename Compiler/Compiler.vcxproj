@@ -124,6 +124,8 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\debug\ast_printer.cpp" />
+    <ClCompile Include="src\semantics\ty_symbol.cpp" />
+    <ClCompile Include="src\semantics\unifier.cpp" />
     <ClCompile Include="src\syntax\ast_expr.cpp" />
     <ClCompile Include="src\syntax\ast_pat.cpp" />
     <ClCompile Include="src\syntax\ast_stmt.cpp" />
@@ -135,6 +137,12 @@
     <ClCompile Include="src\syntax\lexer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\semantics\scope.h" />
+    <ClInclude Include="src\semantics\sem_checker.h" />
+    <ClInclude Include="src\semantics\symbol.h" />
+    <ClInclude Include="src\semantics\sym_tab.h" />
+    <ClInclude Include="src\semantics\ty_symbol.h" />
+    <ClInclude Include="src\semantics\unifier.h" />
     <ClInclude Include="src\syntax\ast.h" />
     <ClInclude Include="src\syntax\ast_expr.h" />
     <ClInclude Include="src\debug\ast_printer.h" />

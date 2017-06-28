@@ -16,4 +16,6 @@
 struct sem_checker {
 public:
 
+private:
+
 };

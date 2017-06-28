@@ -17,6 +17,7 @@
 #include <set>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <vector>
 
 using ysize = std::size_t;
@@ -36,3 +37,6 @@ using yref = std::reference_wrapper<T>;
 
 template <typename T>
 using yopt = std::optional<T>;
+
+template <typename K, typename V>
+using yhash_map = std::unordered_map<K, V>;
