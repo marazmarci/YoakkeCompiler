@@ -145,6 +145,10 @@ AST_list_expr::AST_list_expr(yvec<AST_expr*> const& elems)
 	Elements(elems) {
 }
 
+AST_list_expr::AST_list_expr(token const& beg, token const& end)
+	: AST_expr(interval(beg.Pos, end.Pos), AST_expr_t::List) {
+}
+
 AST_list_expr::~AST_list_expr() {
 	for (auto el : Elements) {
 		delete el;

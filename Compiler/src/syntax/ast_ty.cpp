@@ -37,6 +37,10 @@ AST_list_ty::AST_list_ty(yvec<AST_ty*> const& elems)
 	Elements(elems) {
 }
 
+AST_list_ty::AST_list_ty(token const& beg, token const& end)
+	: AST_ty(interval(beg.Pos, end.Pos), AST_ty_t::List) {
+}
+
 AST_list_ty::~AST_list_ty() {
 	for (auto el : Elements) {
 		delete el;

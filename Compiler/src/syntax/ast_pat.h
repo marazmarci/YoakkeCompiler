@@ -68,5 +68,12 @@ struct AST_list_pat : public AST_pat {
 	 */
 	AST_list_pat(yvec<AST_pat*> const& elems);
 
+	/**
+	 * Creates an empty list pattern just from a pair of parenthesis.
+	 * @param beg The opening parenthese token.
+	 * @param end The closing parenthese token.
+	 */
+	AST_list_pat(token const& beg, token const& end);
+
 	virtual ~AST_list_pat();
 };

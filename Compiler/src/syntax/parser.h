@@ -18,6 +18,7 @@
 
 #include <cassert>
 #include "ast_expr.h"
+#include "ast_pat.h"
 #include "lexer.h"
 #include "parselet.h"
 #include "token.h"
@@ -139,6 +140,14 @@ public:
 	 */
 	AST_ty* parse_ty(ysize min_prec = 0);
 
+	/**
+	 * Tries to parse a pattern from the current tokens.
+	 * @param min_prec The minimum precedence required to accept an operator.
+	 * @preturn A pointer to a pattern node. Null if none found.
+	 * @see parse_set
+	 */
+	AST_pat* parse_pat(ysize min_prec = 0);
+
 	/*
 	 * Tries to parse a statement from the upcoming tokens.
 	 * @return A pointer to a statement node. Null if none found.
@@ -211,7 +220,8 @@ private:
 private:
 	lexer&					m_Lexer;	// The token stream
 	yvec<token>				m_Tokens;	// The peeked token buffer
+	token					m_Last;		// The last consumed token
 	parselet_set<AST_expr>	m_Expr;		// The set of expression rules
 	parselet_set<AST_ty>	m_Ty;		// The set of type rules
-	token					m_Last;		// The last consumed token
+	parselet_set<AST_pat>	m_Pat;		// The set of pattern rules
 };

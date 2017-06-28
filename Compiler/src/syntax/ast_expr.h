@@ -265,5 +265,12 @@ struct AST_list_expr : public AST_expr {
 	 */
 	AST_list_expr(yvec<AST_expr*> const& elems);
 
+	/**
+	 * Creates an empty list expression just from a pair of parenthesis.
+	 * @param beg The opening parenthese token.
+	 * @param end The closing parenthese token.
+	 */
+	AST_list_expr(token const& beg, token const& end);
+
 	virtual ~AST_list_expr();
 };

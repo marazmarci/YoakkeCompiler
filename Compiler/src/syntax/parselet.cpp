@@ -43,6 +43,10 @@ namespace parselet {
 		return p.parse_ty(prec);
 	}
 
+	AST_pat* get_pat(parser& p, ysize prec) {
+		return p.parse_pat(prec);
+	}
+
 	AST_stmt* get_stmt(parser& p) {
 		return p.parse_stmt();
 	}

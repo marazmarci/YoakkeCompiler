@@ -16,7 +16,7 @@ parser::parser(lexer& lex)
 	// Add grouping
 	m_Expr.add(token_t::LParen,
 	prefix_parselet<AST_expr>(
-		parselet::make_enclose<token_t::RParen>(
+		parselet::make_enclose_or<token_t::RParen, AST_list_expr>(
 			parselet::get_expr_p<0>,
 			"expression", "')'")));
 
@@ -92,9 +92,47 @@ parser::parser(lexer& lex)
 	// Add grouping
 	m_Ty.add(token_t::LParen,
 	prefix_parselet<AST_ty>(
-		parselet::make_enclose<token_t::RParen>(
+		parselet::make_enclose_or<token_t::RParen, AST_list_ty>(
 			parselet::get_ty_p<0>,
 			"type", "')'")));
+
+	// Binary operators
+
+	prec = 1;
+
+	m_Ty.add(token_t::Comma,
+		infix_parselet<AST_ty>(prec,
+			parselet::make_from_seq<AST_list_ty, AST_ty, token_t::Comma>
+			(parselet::get_ty, "type")));
+
+	prec++;
+
+	m_Ty.add(token_t::Arrow,
+		infix_parselet<AST_ty>(prec,
+			parselet::make_lassoc<AST_bin_ty, AST_ty>
+			(parselet::get_ty, "type")));
+
+	// PATTERNS ///////////////////////////////////////////////////////////////
+
+	// Add the literal passes
+	m_Pat.add(token_t::Ident,
+		prefix_parselet<AST_pat>(parselet::from_term<AST_ident_pat>));
+
+	// Add grouping
+	m_Pat.add(token_t::LParen,
+		prefix_parselet<AST_pat>(
+			parselet::make_enclose_or<token_t::RParen, AST_list_pat>(
+				parselet::get_pat_p<0>,
+				"pattern", "')'")));
+
+	// Binary operators
+
+	prec = 1;
+
+	m_Pat.add(token_t::Comma,
+		infix_parselet<AST_pat>(prec,
+			parselet::make_from_seq<AST_list_pat, AST_pat, token_t::Comma>
+			(parselet::get_pat, "pattern")));
 }
 
 parser_state parser::get_state() const {
@@ -117,6 +155,10 @@ AST_expr* parser::parse_expr(ysize min_prec) {
 
 AST_ty* parser::parse_ty(ysize min_prec) {
 	return parse_set(m_Ty, min_prec);
+}
+
+AST_pat* parser::parse_pat(ysize min_prec) {
+	return parse_set(m_Pat, min_prec);
 }
 
 AST_stmt* parser::parse_stmt() {

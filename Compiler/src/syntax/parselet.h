@@ -23,6 +23,7 @@ struct AST_expr;
 struct AST_ty;
 struct AST_stmt;
 struct AST_body_expr;
+struct AST_pat;
 
 /**
  * A prefix parselet is just a function that receives a beginning token and
@@ -141,13 +142,38 @@ namespace parselet {
 					return in;
 				}
 				else {
-					error(p, idesc, beg.Pos);
+					error(p, enddesc, beg.Pos);
 					return ResT();
 				}
 			}
 			else {
 				error(p, idesc);
 				return ResT();
+			}
+		};
+	}
+
+	template <token_t EndTok, typename OtherT, typename Fn>
+	auto make_enclose_or(Fn inner, const char* idesc, const char* enddesc) {
+		using ResT = std::result_of_t<Fn(parser&)>;
+		return [&](parser& p, token const& beg) -> ResT {
+			if (auto in = inner(p)) {
+				if (auto end = term<EndTok>(p)) {
+					return in;
+				}
+				else {
+					error(p, enddesc, beg.Pos);
+					return ResT();
+				}
+			}
+			else {
+				if (auto end = term<EndTok>(p)) {
+					return new OtherT(beg, unwrap(end));
+				}
+				else {
+					error(p, idesc);
+					return ResT();
+				}
 			}
 		};
 	}
@@ -186,6 +212,13 @@ namespace parselet {
 	template <ysize PR>
 	AST_ty* get_ty_p(parser& p) {
 		return get_ty(p, PR);
+	}
+
+	AST_pat* get_pat(parser& p, ysize prec);
+
+	template <ysize PR>
+	AST_pat* get_pat_p(parser& p) {
+		return get_pat(p, PR);
 	}
 
 	AST_stmt* get_stmt(parser& p);

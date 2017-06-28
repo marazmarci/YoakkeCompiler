@@ -89,5 +89,12 @@ struct AST_list_ty : public AST_ty {
 	 */
 	AST_list_ty(yvec<AST_ty*> const& elems);
 
+	/**
+	 * Creates an empty list type just from a pair of parenthesis.
+	 * @param beg The opening parenthese token.
+	 * @param end The closing parenthese token.
+	 */
+	AST_list_ty(token const& beg, token const& end);
+
 	virtual ~AST_list_ty();
 };

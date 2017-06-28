@@ -125,6 +125,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\debug\ast_printer.cpp" />
     <ClCompile Include="src\syntax\ast_expr.cpp" />
+    <ClCompile Include="src\syntax\ast_pat.cpp" />
     <ClCompile Include="src\syntax\ast_stmt.cpp" />
     <ClCompile Include="src\syntax\ast_ty.cpp" />
     <ClCompile Include="src\syntax\parselet.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="src\io\code_formatter.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\io\file_hnd.h" />
+    <ClInclude Include="src\syntax\ast_pat.h" />
     <ClInclude Include="src\syntax\ast_stmt.h" />
     <ClInclude Include="src\syntax\ast_ty.h" />
     <ClInclude Include="src\syntax\lexer.h" />

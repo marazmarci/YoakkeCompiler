@@ -25,6 +25,10 @@ AST_list_pat::AST_list_pat(yvec<AST_pat*> const& elems)
 	Elements(elems) {
 }
 
+AST_list_pat::AST_list_pat(token const& beg, token const& end)
+	: AST_pat(interval(beg.Pos, end.Pos), AST_pat_t::List) {
+}
+
 AST_list_pat::~AST_list_pat() {
 	for (auto el : Elements) {
 		delete el;
