@@ -9,6 +9,10 @@
 
 #pragma once
 
+#include "sym_tab.h"
+
+struct ty_symbol;
+
 /**
  * A semantic checker contains symbolic information and inserts them
  * based on the encountered nodes.
@@ -16,6 +20,7 @@
 struct sem_checker {
 public:
 
-private:
 
+private:
+	sym_tab<ty_symbol> m_Types;
 };
