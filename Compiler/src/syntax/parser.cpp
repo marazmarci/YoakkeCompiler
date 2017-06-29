@@ -168,6 +168,11 @@ AST_pat* parser::parse_pat(ysize min_prec) {
 }
 
 AST_stmt* parser::parse_stmt() {
+	// TODO: this was a temporary fix
+	if (peek().Type == token_t::EndOfFile) {
+		return nullptr;
+	}
+
 	// Try expression statement
 	parser_state state = get_state();
 	AST_expr* exp = parse_expr();

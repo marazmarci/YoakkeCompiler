@@ -24,12 +24,15 @@ public:
 		assert(m_GlobalScope != m_CurrentScope && "Cannot pop global scope!");
 		assert(m_CurrentScope->Parent && "Scope did not have a parent!");
 
-		m_CurrentScope = CurrentScope->Parent;
+		m_CurrentScope = m_CurrentScope->Parent;
 	}
 
-	void push(scope<T>* sc) {
-		assert(sc->Parent == nullptr && "Cannot set multiple parents for scope!");
-		
+	void push() {
+		// This was a parameter but not yet needed
+		// Maybe never
+		//assert(sc->Parent == nullptr && "Cannot set multiple parents for scope!");
+		auto sc = new scope<T>();
+
 		sc->Parent = m_CurrentScope;
 		m_CurrentScope = sc;
 	}

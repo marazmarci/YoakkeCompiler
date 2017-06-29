@@ -4,6 +4,7 @@
 #include "syntax/lexer.h"
 #include "io/code_formatter.h"
 #include "syntax/parser.h"
+#include "semantics/sem_checker.h"
 #include "debug/ast_printer.h"
 
 // TODO: Maybe handle the error somewhere else?
@@ -15,13 +16,15 @@ int main(void) {
 		try {
 			lexer		lex(file);
 			parser		par(lex);
-
-			AST_expr* exp = par.parse_expr();
-			if (exp) {
-				AST_printer::print(exp);
+			
+			yvec<AST_stmt*> program;
+			while (auto st = par.parse_stmt()) {
+				program.push_back(st);
 			}
-			else {
-				std::cout << "No expression to print! :(" << std::endl;
+
+			sem_checker sem;
+			for (auto st : program) {
+				sem.check(st);
 			}
 		}
 		catch (lexer_eof_exception& eof) {

@@ -40,3 +40,6 @@ using yopt = std::optional<T>;
 
 template <typename K, typename V>
 using yhash_map = std::unordered_map<K, V>;
+
+template <typename T>
+using yset = std::set<T>;

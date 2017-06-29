@@ -36,6 +36,7 @@ public:
 		return &it->second;
 	}
 
-private:
-	ymap<ystr, yvec<T*>> m_Symbols;
+public:
+	ymap<ystr, yvec<T*>>	m_Symbols;
+	scope<T>*				Parent;
 };
