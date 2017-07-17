@@ -22,9 +22,16 @@ int main(void) {
 				program.push_back(st);
 			}
 
-			sem_checker sem;
-			for (auto st : program) {
-				sem.check(st);
+			try {
+				sem_checker sem(file);
+				for (auto st : program) {
+					sem.check(st);
+				}
+			}
+			catch (undef_sym_exception& ud) {
+				std::cout << "Undefined symbol: '" << ud.Name << "' in file: '"
+					<< ud.File.path() << "'!" << std::endl;
+				code_formatter::print(ud.File, ud.Pos);
 			}
 		}
 		catch (lexer_eof_exception& eof) {

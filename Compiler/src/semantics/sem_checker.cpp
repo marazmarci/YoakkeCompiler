@@ -10,10 +10,11 @@ ty_symbol* sem_checker::I32		= new construct_ty_symbol("i32");
 ty_symbol* sem_checker::BOOL	= new construct_ty_symbol("bool");
 ty_symbol* sem_checker::UNIT	= new construct_ty_symbol("tuple");
 
-sem_checker::sem_checker() {
+sem_checker::sem_checker(file_hnd const& file)
+	: m_File(file) {
 	m_Types.curr()->decl(I32);
 	m_Types.curr()->decl(BOOL);
-	// Noo need for unit, thet is constructed
+	// Noo need for unit, that is constructed
 }
 
 void sem_checker::check(AST_stmt* st) {
@@ -119,7 +120,7 @@ ty_symbol* sem_checker::check(AST_expr* exp) {
 		// TODO: helper types for filtering
 		auto* res = m_Values.curr()->ref(n->ID);
 		if (!res) {
-			// TODO: error
+			throw undef_sym_exception(m_File, n->Pos, n->ID);
 			return nullptr;
 		}
 		// Get the last one for now
