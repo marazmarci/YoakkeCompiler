@@ -43,3 +43,5 @@ using yhash_map = std::unordered_map<K, V>;
 
 template <typename T>
 using yset = std::set<T>;
+
+using unit = std::tuple<>;
