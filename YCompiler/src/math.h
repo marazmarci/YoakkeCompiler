@@ -39,4 +39,17 @@ namespace math {
 	constexpr T const& clamp(T const& v, T const& lo, T const& hi) {
 		return clamp(v, lo, hi, std::less<>());
 	}
+
+	/**
+	 * Determines if a given value is in a specified range. Inclusive at the
+	 * start, exclusive at the end (start <= value < start + length).
+	 * @param val The value checked in the range.
+	 * @param start The start of the range.
+	 * @param len The length of the range.
+	 * @return True, if the value is in the range.
+	 */
+	template <typename T>
+	bool in_range(T const& val, T const& start, T const& len) {
+		return val >= start && val < start + len;
+	}
 }

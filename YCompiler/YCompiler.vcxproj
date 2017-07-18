@@ -79,6 +79,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -117,10 +118,13 @@
   <ItemGroup>
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\io\file_hnd.h" />
+    <ClInclude Include="src\io\fmt_code.h" />
+    <ClInclude Include="src\math.h" />
     <ClInclude Include="src\syntax\position.h" />
     <ClInclude Include="src\syntax\token.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\io\fmt_code.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\io\file_hnd.cpp" />
     <ClCompile Include="src\syntax\position.cpp" />
