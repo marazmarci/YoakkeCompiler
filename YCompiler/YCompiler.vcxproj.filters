@@ -30,6 +30,9 @@
     <ClCompile Include="src\io\fmt_code.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\syntax\lexer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

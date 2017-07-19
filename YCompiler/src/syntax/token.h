@@ -79,3 +79,5 @@ struct token {
 	 */
 	ystr fmt() const;
 };
+
+std::ostream& operator<<(std::ostream& os, token const& tok);

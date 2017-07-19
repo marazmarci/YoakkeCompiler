@@ -120,6 +120,7 @@
     <ClInclude Include="src\io\file_hnd.h" />
     <ClInclude Include="src\io\fmt_code.h" />
     <ClInclude Include="src\math.h" />
+    <ClInclude Include="src\syntax\lexer.h" />
     <ClInclude Include="src\syntax\position.h" />
     <ClInclude Include="src\syntax\token.h" />
   </ItemGroup>
@@ -127,6 +128,7 @@
     <ClCompile Include="src\io\fmt_code.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\io\file_hnd.cpp" />
+    <ClCompile Include="src\syntax\lexer.cpp" />
     <ClCompile Include="src\syntax\position.cpp" />
     <ClCompile Include="src\syntax\token.cpp" />
   </ItemGroup>

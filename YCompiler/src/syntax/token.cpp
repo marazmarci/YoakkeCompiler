@@ -30,3 +30,8 @@ ystr token::fmt() const {
 	}
 	return "<error>";
 }
+
+std::ostream& operator<<(std::ostream& os, token const& tok) {
+	os << '<' << tok.fmt() << ", " << tok.Value << '>';
+	return os;
+}
