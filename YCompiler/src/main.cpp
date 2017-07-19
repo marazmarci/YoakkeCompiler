@@ -10,7 +10,15 @@ int main(void) {
 	}
 	lexer lex(file);
 	while (lex.has_next()) {
-		
+		auto res = lex.next();
+		if (res.is_ok()) {
+			token tok = res.get_ok();
+			std::cout << tok << std::endl;
+		}
+		else {
+			auto err = res.get_err();
+			std::cout << "error" << std::endl;
+		}
 	}
 
 	std::cin.get();

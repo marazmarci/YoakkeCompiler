@@ -32,6 +32,6 @@ ystr token::fmt() const {
 }
 
 std::ostream& operator<<(std::ostream& os, token const& tok) {
-	os << '<' << tok.fmt() << ", " << tok.Value << '>';
+	os << '<' << tok.Value << '>';
 	return os;
 }

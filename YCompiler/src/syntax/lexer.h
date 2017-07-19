@@ -29,7 +29,7 @@ struct lexer_eof_err {
 	yopt<ystr>		Note;	// An optional note for the user
 
 	/**
-	 * Creates an unexpected EOF exception at the given positions.
+	 * Creates an unexpected EOF error at the given positions.
 	 * @param file The source file.
 	 * @param start The beginning of the token.
 	 * @param end The last visible character's place in the file.
@@ -52,7 +52,7 @@ public:
 
 public:
 	/**
-	 * Creates an unknown token exception with a given position.
+	 * Creates an unknown token error with a given position.
 	 * @param file The file the error happened in.
 	 * @param pos The position of the unknown token.
 	 * @param val The unknown token literal itself.

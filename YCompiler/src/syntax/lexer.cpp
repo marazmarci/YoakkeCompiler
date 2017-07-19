@@ -181,9 +181,14 @@ yresult<token, lexer_err> lexer::next() {
 			}
 		}
 
-		return lexer_err(lexer_unk_tok_err(m_File,
+		// Construct the error message
+		auto ret = lexer_err(lexer_unk_tok_err(m_File,
 			interval(point(m_State.Column + 1, m_State.Row), 1),
 			ystr{ *m_Ptr }));
+		// Advance to avoid infinite loops
+		advance();
+
+		return ret;
 	}
 
 	assert(false && "Unreachable!");
