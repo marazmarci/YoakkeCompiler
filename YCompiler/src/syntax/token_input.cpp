@@ -7,7 +7,7 @@ token_input::token_input(lexer& lex)
 }
 
 token& token_input::head() {
-	return m_Lexer.peek();
+	return m_Lexer.peek(m_Index);
 }
 
 token_input token_input::tail() {
