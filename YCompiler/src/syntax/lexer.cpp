@@ -15,7 +15,9 @@ lexer_unk_tok_err::lexer_unk_tok_err(file_hnd const& file,
 }
 
 lexer::lexer(file_hnd const& src)
-	: m_File(src), m_State(0, 0), m_Last(0, 0) {
+	: m_File(src), 
+	m_State(std::make_tuple(point(), yvec<token>{})), 
+	m_Last(0, 0) {
 	// The pointer is either the first char or null if there are no lines
 	m_Ptr = m_File.line_count() ? std::get<0>(m_File.line(0)) : nullptr;
 
@@ -55,13 +57,18 @@ file_hnd const& lexer::file() const {
 	return m_File;
 }
 
-lexer_state lexer::get_state() const {
+lexer_state const& lexer::get_state() const {
+	return m_State;
+}
+
+lexer_state& lexer::get_state() {
 	return m_State;
 }
 
 void lexer::set_state(lexer_state const& state) {
 	m_State = state;
-	m_Ptr = std::get<0>(m_File.line(state.Row)) + state.Column;
+	auto& pt = std::get<0>(m_State);
+	m_Ptr = std::get<0>(m_File.line(pt.Row)) + pt.Column;
 }
 
 yresult<token, lexer_err> lexer::next() {
@@ -92,7 +99,7 @@ yresult<token, lexer_err> lexer::next() {
 		if (std::strncmp(m_Ptr, "/*", 2) == 0) {
 			advance(2);
 			// Save where we are for error if we reach an EOF
-			interval comment_beg = interval(m_State, 2);
+			interval comment_beg = interval(std::get<0>(m_State), 2);
 			// Nesting depth
 			ysize depth = 1;
 			while (depth) {
@@ -131,7 +138,7 @@ yresult<token, lexer_err> lexer::next() {
 				// Advance the pointer and position
 				advance(sym.length());
 				// Return the token with the type
-				return token(interval(m_State, sym.length()), it->second, it->first);
+				return token(interval(std::get<0>(m_State), sym.length()), it->second, it->first);
 			}
 		}
 
@@ -150,11 +157,11 @@ yresult<token, lexer_err> lexer::next() {
 					num += *m_Ptr;
 					advance();
 				}
-				return token(interval(m_State, num.length()),
+				return token(interval(std::get<0>(m_State), num.length()),
 					token_t::RealLit, num);
 			}
 			else {
-				return token(interval(m_State, num.length()),
+				return token(interval(std::get<0>(m_State), num.length()),
 					token_t::IntLit, num);
 			}
 		}
@@ -171,19 +178,20 @@ yresult<token, lexer_err> lexer::next() {
 			auto it = m_Keywords.find(ident);
 			if (it == m_Keywords.end()) {
 				// No such keyword, identifier
-				return token(interval(m_State, ident.length()),
+				return token(interval(std::get<0>(m_State), ident.length()),
 					token_t::Ident, ident);
 			}
 			else {
 				// There is a keyword with a given type
-				return token(interval(m_State, ident.length()),
+				return token(interval(std::get<0>(m_State), ident.length()),
 					it->second, ident);
 			}
 		}
 
 		// Construct the error message
+		auto& pt = std::get<0>(m_State);
 		auto ret = lexer_err(lexer_unk_tok_err(m_File,
-			interval(point(m_State.Column + 1, m_State.Row), 1),
+			interval(point(pt.Column + 1, pt.Row), 1),
 			ystr{ *m_Ptr }));
 		// Advance to avoid infinite loops
 		advance();
@@ -203,18 +211,19 @@ bool lexer::end() const {
 }
 
 void lexer::advance(ysize delta) {
+	auto& pt = std::get<0>(m_State);
 	for (ysize i = 0; i < delta; i++, m_Ptr++) {
 		if (*m_Ptr == '\n') {
 			// We have encountered a newline, go to the next line
-			m_State.Column = 0;
-			m_State.Row++;
+			pt.Column = 0;
+			pt.Row++;
 		}
 		else {
 			// No new line, go to the next char
-			m_State.Column++;
+			pt.Column++;
 			if (!std::isspace(*m_Ptr)) {
 				// This is a visible character
-				m_Last = m_State;
+				m_Last = pt;
 			}
 		}
 	}
@@ -228,4 +237,26 @@ void lexer::add_symbol(ystr const& sym, token_t ty) {
 void lexer::add_keyword(ystr const& kw, token_t ty) {
 	assert(m_Keywords.find(kw) == m_Keywords.end() && "Keyword already inserted!");
 	m_Keywords.insert({ kw, ty });
+}
+
+token& lexer::peek(ysize delta) {
+	auto& buff = std::get<1>(m_State);
+	while (buff.size() <= delta) {
+		auto res = next();
+		if (res.is_ok()) {
+			buff.push_back(res.get_ok());
+		}
+		else {
+			// TODO: error
+		}
+	}
+	return buff[delta];
+}
+
+token lexer::consume() {
+	// Consuming is just erasing from the beginning of the buffer
+	auto& buff = std::get<1>(m_State);
+	token tok = peek();
+	buff.erase(buff.begin());
+	return tok;
 }

@@ -56,5 +56,8 @@
     <ClInclude Include="src\syntax\lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\syntax\token_input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

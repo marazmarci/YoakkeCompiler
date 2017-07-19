@@ -70,7 +70,7 @@ using lexer_err = yvar<lexer_eof_err, lexer_unk_tok_err>;
  * Mainly used by the parser.
  * @see lexer
  */
-using lexer_state = point;
+using lexer_state = ytup<point, yvec<token>>;
 
 /**
  * A lexer instance analyses a single file from a handle, outputting tokens
@@ -79,6 +79,10 @@ using lexer_state = point;
  */
 struct lexer {
 public:
+	// Illegal operations
+	lexer(lexer const&) = delete;
+	lexer& operator=(lexer const&) = delete;
+
 	/**
 	 * Creates a new lexer from a file handle.
 	 * @param src The file handle to tokenize.
@@ -94,16 +98,36 @@ public:
 
 	/**
 	 * Get the current state of the lexer.
-	 * @return A lexer state of the lexer.
+	 * @return A lexer_state of the lexer.
 	 * @see lexer_state
 	 */
-	lexer_state get_state() const;
+	lexer_state const& get_state() const;
+
+	/**
+	 * Get the current state of the lexer.
+	 * @return A lexer_state of the lexer.
+	 * @see lexer_state
+	 */
+	lexer_state& get_state();
 
 	/**
 	 * Sets the current lexer state to a given one.
 	 * @param state The lexer state to set the lexer to.
 	 */
 	void set_state(lexer_state const& state);
+
+	/**
+	 * Peeks a number of tokens ahead.
+	 * @param delta How much to peek ahead (0 by default).
+	 * @return A token delta tokens away from the starting point.
+	 */
+	token& peek(ysize delta = 0);
+
+	/**
+	 * Consumes a token from the token buffer.
+	 * @return The consumed token.
+	 */
+	token consume();
 
 	/**
 	 * Consumes and gets the next token from the file.

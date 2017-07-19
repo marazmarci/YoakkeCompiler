@@ -28,6 +28,10 @@ public:
 	using line_it = yvec<line_info>::const_iterator;
 
 public:
+	// Illegal operations
+	file_hnd(file_hnd const&) = delete;
+	file_hnd& operator=(file_hnd const&) = delete;
+
 	/**
 	 * Creates a file handle from the given file path.
 	 * @param path The file path as a C string.

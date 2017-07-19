@@ -123,6 +123,7 @@
     <ClInclude Include="src\syntax\lexer.h" />
     <ClInclude Include="src\syntax\position.h" />
     <ClInclude Include="src\syntax\token.h" />
+    <ClInclude Include="src\syntax\token_input.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\io\fmt_code.cpp" />
