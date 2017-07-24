@@ -13,10 +13,14 @@ int main(void) {
 	lexer lex(file);
 	token_input in(lex);
 	
+	auto expr_m = combinator::terminal<token_t::IntLit>();
+	auto op_m = combinator::either(
+		combinator::terminal<token_t::Add>(),
+		combinator::terminal<token_t::Sub>()
+	);
+
 	auto matcher = combinator::sequence(
-		combinator::terminal<token_t::LBracket>(),
-		combinator::terminal<token_t::Ident>(),
-		combinator::terminal<token_t::RBracket>()
+		expr_m, op_m, expr_m
 	);
 	if (auto res = matcher(in)) {
 		std::cout << "Match!" << std::endl;

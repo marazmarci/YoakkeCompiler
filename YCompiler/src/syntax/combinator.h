@@ -33,7 +33,7 @@ namespace combinator {
 
 	template <typename T>
 	auto fail() {
-		return []() -> return_t<T> {
+		return [](token_input& in) -> return_t<T> {
 			return {};
 		};
 	}
@@ -53,24 +53,12 @@ namespace combinator {
 
 		template <typename Fn, typename... Fns>
 		struct sequence<Fn, Fns...> {
-			//using helper_t = std::result_of_t<Fn()>;
-			//using result_t = decltype(
-			//	std::tuple_cat(
-			//		std::declval<ytup<
-			//			std::tuple_element_t<0,
-			//			std::result_of_t<helper_t(token_input&)>::value_type
-			//			>
-			//		>>(),
-			//		std::declval<typename sequence<Fns...>::result_t>()
-			//	));
-
 			using result_t = decltype(
 				std::tuple_cat(
 					std::declval<ytup<
-					std::tuple_element_t<0,
-					std::result_of_t<Fn(token_input&)>::value_type
-					>
-					>>(),
+						std::tuple_element_t<0,
+						typename std::result_of_t<Fn(token_input&)>::value_type
+					>>>(),
 					std::declval<typename sequence<Fns...>::result_t>()
 				));
 
@@ -105,7 +93,57 @@ namespace combinator {
 		return internal__::sequence<Fns...>::create(funcs...);
 	}
 
-	typedef return_t<token>(*opt_tok_fn_t)(token_input&);
+	namespace internal__ {
+		template <typename... Fns>
+		struct either;
+
+		template <typename Fn>
+		struct either<Fn> {
+			using helper_t =
+				std::tuple_element_t<0,
+				typename std::result_of_t<Fn(token_input&)>::value_type>;
+
+			static auto create(Fn func) {
+				return [=](token_input& in) -> return_t<helper_t> {
+					if (auto res = func(in)) {
+						auto& res_u = *res;
+						auto& left = std::get<0>(res_u);
+						auto& in2 = std::get<1>(res_u);
+						return std::make_tuple(left, in2);
+					}
+					else {
+						return {};
+					}
+				};
+			}
+		};
+
+		template <typename Fn, typename... Fns>
+		struct either<Fn, Fns...> {
+			using helper_t =
+				std::tuple_element_t<0,
+				typename std::result_of_t<Fn(token_input&)>::value_type>;
+
+			static auto create(Fn func, Fns... rest) {
+				return [=](token_input& in) -> return_t<helper_t> {
+					if (auto res = func(in)) {
+						auto& res_u = *res;
+						auto& left = std::get<0>(res_u);
+						auto& in2 = std::get<1>(res_u);
+						return std::make_tuple(left, in2);
+					}
+					else {
+						return either<Fns...>::create(rest...)(in);
+					}
+				};
+			}
+		};
+	}
+
+	template <typename... Fns>
+	auto either(Fns... funcs) {
+		return internal__::either<Fns...>::create(funcs...);
+	}
 
 	template <token_t TokT>
 	auto terminal() {

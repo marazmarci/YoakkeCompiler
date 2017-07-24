@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cctype>
 #include <algorithm>
 #include "code_formatter.h"
