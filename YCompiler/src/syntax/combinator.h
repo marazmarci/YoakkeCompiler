@@ -7,68 +7,86 @@ namespace combinator {
 	template <typename T>
 	using return_t = yopt<ytup<T, token_input>>;
 
+	namespace internal__ {
+		template <typename Fn, typename... Args, ysize... I>
+		auto call_func(Fn func, ytup<Args...>& args, std::index_sequence<I...>) {
+			return func(std::get<I>(args)...);
+		}
+
+		template <typename Fn, typename... Args>
+		auto delayed_dispatch(Fn func, ytup<Args...>& args) {
+			return call_func(func, args, std::index_sequence_for<Args...>{});
+		}
+	}
+
+	template <typename Fn, typename... Ts>
+	auto apply(Fn func, ytup<Ts...>& args) {
+		return internal__::delayed_dispatch(func, args);
+	}
+
 	template <typename T>
 	auto success(T const& val) {
 		return [=](token_input& in) -> return_t<T> {
 			return std::make_tuple(val, in);
-		}
+		};
 	}
 
 	template <typename T>
 	auto fail() {
 		return []() -> return_t<T> {
 			return {};
-		}
-	}
-
-	template <token_t TT>
-	auto terminal() {
-		return [](token_input& in) -> return_t<token> {
-			token tok = in.head();
-			if (tok.Type == TT) {
-				return std::make_tuple(tok, in.tail());
-			}
-			else {
-				return {};
-			}
 		};
 	}
 
 	namespace internal__ {
-		template <token_t... Toks>
-		struct terminal_seq_helper;
+		template <typename... Fns>
+		struct sequence;
 
 		template <>
-		struct terminal_seq_helper<> {
-			using tuple_t = ytup<>;
+		struct sequence<> {
+			using result_t = ytup<>;
 
 			static auto create() {
-				return [](token_input& in) -> return_t<tuple_t> {
-					return std::make_tuple(std::make_tuple(), in);
-				};
+				return success(std::make_tuple());
 			}
 		};
 
-		template <token_t Head, token_t... Tail>
-		struct terminal_seq_helper<Head, Tail...> {
-			using tuple_t = decltype(
-				std::tuple_cat(
-					std::declval<ytup<token>>(), 
-					std::declval<terminal_seq_helper<Tail...>::tuple_t>()));
+		template <typename Fn, typename... Fns>
+		struct sequence<Fn, Fns...> {
+			//using helper_t = std::result_of_t<Fn()>;
+			//using result_t = decltype(
+			//	std::tuple_cat(
+			//		std::declval<ytup<
+			//			std::tuple_element_t<0,
+			//			std::result_of_t<helper_t(token_input&)>::value_type
+			//			>
+			//		>>(),
+			//		std::declval<typename sequence<Fns...>::result_t>()
+			//	));
 
-			static auto create() {
-				return[](token_input& in) -> return_t<tuple_t> {
-					if (auto result = terminal<Head>()(in)) {
-						auto& result_unw = *result;
-						token tok_head = std::get<0>(result_unw);
-						auto& in2 = std::get<1>(result_unw);
-						if (auto result2 = terminal_seq_helper<Tail...>::create()(in2)) {
-							auto& result2_unw = *result2;
-							auto& tup_result = std::get<0>(result2_unw);
-							auto& in3 = std::get<1>(result2_unw);
+			using result_t = decltype(
+				std::tuple_cat(
+					std::declval<ytup<
+					std::tuple_element_t<0,
+					std::result_of_t<Fn(token_input&)>::value_type
+					>
+					>>(),
+					std::declval<typename sequence<Fns...>::result_t>()
+				));
+
+			static auto create(Fn func, Fns... rest) {
+				return [=](token_input& in) -> return_t<result_t> {
+					if (auto res = func(in)) {
+						auto& res_u = *res;
+						auto& head = std::get<0>(res_u);
+						auto& in2 = std::get<1>(res_u);
+						if (auto res2 = sequence<Fns...>::create(rest...)(in2)) {
+							auto& res2_u = *res2;
+							auto& tail_tup = std::get<0>(res2_u);
+							auto& in3 = std::get<1>(res2_u);
 							return std::make_tuple(std::tuple_cat(
-								std::make_tuple(tok_head),
-								tup_result), in3);
+									std::make_tuple(head), tail_tup
+							), in3);
 						}
 						else {
 							return {};
@@ -82,8 +100,23 @@ namespace combinator {
 		};
 	}
 
-	template <token_t... TTs>
-	auto terminal_seq() {
-		return internal__::terminal_seq_helper<TTs...>::create();
+	template <typename... Fns>
+	auto sequence(Fns... funcs) {
+		return internal__::sequence<Fns...>::create(funcs...);
+	}
+
+	typedef return_t<token>(*opt_tok_fn_t)(token_input&);
+
+	template <token_t TokT>
+	auto terminal() {
+		return [](token_input& in) -> return_t<token> {
+			token& tok = in.head();
+			if (tok.Type == TokT) {
+				return std::make_tuple(tok, in.tail());
+			}
+			else {
+				return {};
+			}
+		};
 	}
 }

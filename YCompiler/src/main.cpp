@@ -12,15 +12,17 @@ int main(void) {
 	}
 	lexer lex(file);
 	token_input in(lex);
-	auto matcher = combinator::terminal_seq<
-		token_t::LBracket,
-		token_t::Ident,
-		token_t::RBracket>();
+	
+	auto matcher = combinator::sequence(
+		combinator::terminal<token_t::LBracket>(),
+		combinator::terminal<token_t::Ident>(),
+		combinator::terminal<token_t::RBracket>()
+	);
 	if (auto res = matcher(in)) {
 		std::cout << "Match!" << std::endl;
 	}
 	else {
-		std::cout << "No match!" << std::endl;
+		std::cout << "No macth!" << std::endl;
 	}
 
 	std::cin.get();
