@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{CA3CA709-A309-4B5A-9F56-10927FACCEC9}</ProjectGuid>
     <RootNamespace>YCompiler</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -120,7 +120,9 @@
     <ClInclude Include="src\io\file_hnd.h" />
     <ClInclude Include="src\io\fmt_code.h" />
     <ClInclude Include="src\math.h" />
+    <ClInclude Include="src\syntax\combinator.h" />
     <ClInclude Include="src\syntax\lexer.h" />
+    <ClInclude Include="src\syntax\parser.h" />
     <ClInclude Include="src\syntax\position.h" />
     <ClInclude Include="src\syntax\token.h" />
     <ClInclude Include="src\syntax\token_input.h" />
