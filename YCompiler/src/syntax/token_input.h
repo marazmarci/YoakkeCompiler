@@ -49,5 +49,5 @@ private:
 
 private:
 	lexer& m_Lexer;
-	const ysize m_Index;
+	ysize m_Index;
 };

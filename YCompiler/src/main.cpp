@@ -67,13 +67,12 @@ int main(void) {
 	};
 
 	auto matcher =
-		BinOp(IntLit >= (Add | Sub) >= IntLit)
+		IntLit >= (*((Add | Sub) >= IntLit))
 		;
 	auto res = matcher(in);
 	if (res.is_ok()) {
 		auto& ok = res.get_ok();
-		auto& ok_v = std::get<0>(std::get<0>(ok));
-		std::cout << ok_v.eval() << std::endl;
+		std::cout << typeid(ok).name() << std::endl;
 	}
 	else {
 		std::cout << "No match!" << std::endl;

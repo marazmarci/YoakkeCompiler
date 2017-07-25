@@ -17,6 +17,9 @@ namespace combinator {
 	template <typename... Ts>
 	using parser_t = std::function<result_t<Ts...>(token_input&)>;
 
+	template <typename T>
+	using parser_tt = std::function<T(token_input&)>;
+
 	struct fail_info {
 
 	};
@@ -162,6 +165,33 @@ namespace combinator {
 			}
 			// TODO
 			return result_t<Ts...>(fail_info());
+		};
+	}
+
+	template <typename... Ts>
+	parser_tt<result_t<yvec<ytup<Ts...>>>> operator*(parser_t<Ts...> fn) {
+		using elem_t = ytup<Ts...>;
+		using ret_t = result_t<yvec<elem_t>>;
+		return [=](token_input& in) -> ret_t {
+			yvec<elem_t> result_list;
+			token_input* in2 = new token_input(in);
+			while (true) {
+				auto result = fn(*in2);
+				if (result.is_ok()) {
+					auto& result_ok = result.get_ok();
+					auto& elem = std::get<0>(result_ok);
+					auto& in3 = std::get<1>(result_ok);
+					result_list.push_back(elem);
+					delete in2;
+					in2 = new token_input(in3);
+				}
+				else {
+					break;
+				}
+			}
+			return std::make_tuple(
+				result_list,
+				*in2);
 		};
 	}
 
