@@ -122,7 +122,7 @@ namespace combinator {
 	}
 
 	template <typename... Ts1, typename... Ts2>
-	parser_t<Ts2...> operator<(parser_t<Ts1...> fn1, parser_t<Ts2...> fn2) {
+	parser_t<Ts1...> operator<(parser_t<Ts1...> fn1, parser_t<Ts2...> fn2) {
 		return [=](token_input& in) -> result_t<Ts1...> {
 			auto result = fn1(in);
 			if (result.is_ok()) {

@@ -69,22 +69,28 @@ int main(void) {
 		);
 	auto Add = combinator::terminal<token_t::Add>();
 	auto Sub = combinator::terminal<token_t::Sub>();
+	auto LParen = combinator::terminal<token_t::LParen>();
+	auto RParen = combinator::terminal<token_t::RParen>();
 
 	auto BinOp = [=](auto res) {
 		return combinator::wrap(make_op, res);
 	};
+	
+	combinator::parser_t<expr*>& expr_rr;
+	auto braced_r = LParen > expr_rr < RParen;
 
-	auto matcher =
-		BinOp(IntLit >= (*((Add | Sub) >= IntLit)))
-		;
-	auto res = matcher(in);
-	if (res.is_ok()) {
-		auto& ok = res.get_ok();
-		std::cout << std::get<0>(std::get<0>(ok))->eval() << std::endl;
-	}
-	else {
-		std::cout << "No match!" << std::endl;
-	}
+	std::cout << typeid(std::result_of_t<decltype(braced_r)(token_input&)>).name() << std::endl;
+
+	combinator::parser_t<expr*> expr_r = IntLit;
+
+	//auto res = matcher(in);
+	//if (res.is_ok()) {
+	//	auto& ok = res.get_ok();
+	//	std::cout << std::get<0>(std::get<0>(ok))->eval() << std::endl;
+	//}
+	//else {
+	//	std::cout << "No match!" << std::endl;
+	//}
 
 	std::cin.get();
 	return 0;
