@@ -6,6 +6,44 @@
 #include "syntax/token_input.h"
 #include "syntax/combinator.h"
 
+struct expr {
+	virtual int eval() = 0;
+};
+
+struct int_expr : public expr {
+	int v;
+
+	int_expr(int i) 
+		: v(i) {
+	}
+
+	int eval() override {
+		return v;
+	}
+};
+
+struct bin_expr : public expr {
+	expr* l;
+	expr* r;
+	token op;
+
+	bin_expr(expr* l, token op, expr* r)
+		: l(l), r(r), op(op) {
+	}
+
+	int eval() override {
+		int a = l->eval();
+		int b = r->eval();
+		switch (op.Type) {
+		case::token_t::Add: return a + b;
+		case::token_t::Sub: return a - b;
+		}
+
+		std::cout << "Error" << std::endl;
+		return 0;
+	}
+};
+
 int main(void) {
 	file_hnd file("C:/TMP/YoakkeTest/tokenizer.txt");
 	if (!file.good()) {
@@ -13,52 +51,22 @@ int main(void) {
 	}
 	lexer lex(file);
 	token_input in(lex);
-	
-	//auto expr_m = combinator::terminal<token_t::IntLit>();
-	//auto op_m = combinator::either(
-	//	combinator::terminal<token_t::Add>(),
-	//	combinator::terminal<token_t::Sub>()
-	//);
-	//
-	//auto matcher = combinator::sequence(
-	//	expr_m, op_m, expr_m
-	//);
-	//if (auto res = matcher(in)) {
-	//	std::cout << "Match!" << std::endl;
-	//}
-	//else {
-	//	std::cout << "No macth!" << std::endl;
-	//}
 
-	struct simple_op {
-		token left;
-		token op;
-		token right;
+	auto make_op = [](ytup<expr*, yvec<ytup<token, expr*>>>& input) -> expr* {
+		auto left = std::get<0>(input);
+		auto& right_rec = std::get<1>(input);
 
-		simple_op(token a, token b, token c) {
-			left = a;
-			op = b;
-			right = c;
+		for (auto it = right_rec.begin(); it != right_rec.end(); it++) {
+			auto elem = *it;
+			left = new bin_expr(left, std::get<0>(elem), std::get<1>(elem));
 		}
-
-		int eval() {
-			int res = 0;
-			int a = std::atoi(left.Value.c_str());
-			int b = std::atoi(right.Value.c_str());
-			switch (op.Type) {
-			case token_t::Add: return a + b;
-			case token_t::Sub: return a - b;
-			}
-			std::cout << "error" << std::endl;
-			return 0;
-		}
+		return left;
 	};
 
-	auto make_op = [](ytup<token, token, token>& tokens) {
-		return simple_op(std::get<0>(tokens), std::get<1>(tokens), std::get<2>(tokens));
-	};
-
-	auto IntLit = combinator::terminal<token_t::IntLit>();
+	auto IntLit = combinator::wrap(
+			[](auto res) -> expr* { return new int_expr(std::atoi(std::get<0>(res).Value.c_str())); },
+			combinator::terminal<token_t::IntLit>()
+		);
 	auto Add = combinator::terminal<token_t::Add>();
 	auto Sub = combinator::terminal<token_t::Sub>();
 
@@ -67,12 +75,12 @@ int main(void) {
 	};
 
 	auto matcher =
-		IntLit >= (*((Add | Sub) >= IntLit))
+		BinOp(IntLit >= (*((Add | Sub) >= IntLit)))
 		;
 	auto res = matcher(in);
 	if (res.is_ok()) {
 		auto& ok = res.get_ok();
-		std::cout << typeid(ok).name() << std::endl;
+		std::cout << std::get<0>(std::get<0>(ok))->eval() << std::endl;
 	}
 	else {
 		std::cout << "No match!" << std::endl;
