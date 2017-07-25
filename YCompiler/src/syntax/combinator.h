@@ -1,159 +1,181 @@
 #pragma once
 
+#include <functional>
+#include <type_traits>
 #include "token_input.h"
 #include "../common.h"
 
 namespace combinator {
-	template <typename T>
-	using return_t = yopt<ytup<T, token_input>>;
+	struct fail_info;
 
-	namespace internal__ {
-		template <typename Fn, typename... Args, ysize... I>
-		auto call_func(Fn func, ytup<Args...>& args, std::index_sequence<I...>) {
-			return func(std::get<I>(args)...);
-		}
+	template <typename... Ts>
+	using success_t = ytup<ytup<Ts...>, token_input>;
 
-		template <typename Fn, typename... Args>
-		auto delayed_dispatch(Fn func, ytup<Args...>& args) {
-			return call_func(func, args, std::index_sequence_for<Args...>{});
-		}
+	template <typename... Ts>
+	using result_t = yresult<success_t<Ts...>, fail_info>;
+
+	template <typename... Ts>
+	using parser_t = std::function<result_t<Ts...>(token_input&)>;
+
+	struct fail_info {
+
+	};
+	
+	template <typename... Ts>
+	parser_t<Ts...> success(Ts const&... vals) {
+		return [=](token_input& in) -> result_t<Ts...> {
+			return std::make_tuple(std::tuple_cat(vals...), in);
+		};
+	}
+
+	template <typename... Ts>
+	parser_t<Ts...> fail() {
+		return [](token_input& in) -> result_t<Ts...> {
+			return fail_info();
+		};
 	}
 
 	template <typename Fn, typename... Ts>
-	auto apply(Fn func, ytup<Ts...>& args) {
-		return internal__::delayed_dispatch(func, args);
-	}
-
-	template <typename T>
-	auto success(T const& val) {
-		return [=](token_input& in) -> return_t<T> {
-			return std::make_tuple(val, in);
-		};
-	}
-
-	template <typename T>
-	auto fail() {
-		return [](token_input& in) -> return_t<T> {
-			return {};
-		};
-	}
-
-	namespace internal__ {
-		template <typename... Fns>
-		struct sequence;
-
-		template <>
-		struct sequence<> {
-			using result_t = ytup<>;
-
-			static auto create() {
-				return success(std::make_tuple());
+	auto wrap(Fn wrapper, parser_t<Ts...> parser) {
+		using wrap_t = std::result_of_t<Fn(ytup<Ts...>&)>;
+		return parser_t<wrap_t>(
+			[=](token_input& in) -> result_t<wrap_t> {
+				auto result = parser(in);
+				if (result.is_ok()) {
+					auto& result_ok = result.get_ok();
+					auto& value = std::get<0>(result_ok);
+					auto& in2 = std::get<1>(result_ok);
+					return std::make_tuple(
+						wrapper(value),
+						in2
+					);
+				}
+				else {
+					// TODO
+					return result_t<wrap_t>(result.get_err());
+				}
 			}
-		};
-
-		template <typename Fn, typename... Fns>
-		struct sequence<Fn, Fns...> {
-			using result_t = decltype(
-				std::tuple_cat(
-					std::declval<ytup<
-						std::tuple_element_t<0,
-						typename std::result_of_t<Fn(token_input&)>::value_type
-					>>>(),
-					std::declval<typename sequence<Fns...>::result_t>()
-				));
-
-			static auto create(Fn func, Fns... rest) {
-				return [=](token_input& in) -> return_t<result_t> {
-					if (auto res = func(in)) {
-						auto& res_u = *res;
-						auto& head = std::get<0>(res_u);
-						auto& in2 = std::get<1>(res_u);
-						if (auto res2 = sequence<Fns...>::create(rest...)(in2)) {
-							auto& res2_u = *res2;
-							auto& tail_tup = std::get<0>(res2_u);
-							auto& in3 = std::get<1>(res2_u);
-							return std::make_tuple(std::tuple_cat(
-									std::make_tuple(head), tail_tup
-							), in3);
-						}
-						else {
-							return {};
-						}
-					}
-					else {
-						return {};
-					}
-				};
-			}
-		};
+		);
 	}
 
-	template <typename... Fns>
-	auto sequence(Fns... funcs) {
-		return internal__::sequence<Fns...>::create(funcs...);
-	}
+	template <typename... Ts1, typename... Ts2>
+	parser_t<Ts1..., Ts2...> operator>=(parser_t<Ts1...> fn1, parser_t<Ts2...> fn2) {
+		return [=](token_input& in) -> result_t<Ts1..., Ts2...> {
+			auto result = fn1(in);
+			if (result.is_ok()) {
+				auto& result_ok = result.get_ok();
+				auto& left = std::get<0>(result_ok);
+				auto& in2 = std::get<1>(result_ok);
 
-	namespace internal__ {
-		template <typename... Fns>
-		struct either;
-
-		template <typename Fn>
-		struct either<Fn> {
-			using helper_t =
-				std::tuple_element_t<0,
-				typename std::result_of_t<Fn(token_input&)>::value_type>;
-
-			static auto create(Fn func) {
-				return [=](token_input& in) -> return_t<helper_t> {
-					if (auto res = func(in)) {
-						auto& res_u = *res;
-						auto& left = std::get<0>(res_u);
-						auto& in2 = std::get<1>(res_u);
-						return std::make_tuple(left, in2);
-					}
-					else {
-						return {};
-					}
-				};
-			}
-		};
-
-		template <typename Fn, typename... Fns>
-		struct either<Fn, Fns...> {
-			using helper_t =
-				std::tuple_element_t<0,
-				typename std::result_of_t<Fn(token_input&)>::value_type>;
-
-			static auto create(Fn func, Fns... rest) {
-				return [=](token_input& in) -> return_t<helper_t> {
-					if (auto res = func(in)) {
-						auto& res_u = *res;
-						auto& left = std::get<0>(res_u);
-						auto& in2 = std::get<1>(res_u);
-						return std::make_tuple(left, in2);
-					}
-					else {
-						return either<Fns...>::create(rest...)(in);
-					}
-				};
-			}
-		};
-	}
-
-	template <typename... Fns>
-	auto either(Fns... funcs) {
-		return internal__::either<Fns...>::create(funcs...);
-	}
-
-	template <token_t TokT>
-	auto terminal() {
-		return [](token_input& in) -> return_t<token> {
-			token& tok = in.head();
-			if (tok.Type == TokT) {
-				return std::make_tuple(tok, in.tail());
+				auto result2 = fn2(in2);
+				if (result2.is_ok()) {
+					auto& result2_ok = result2.get_ok();
+					auto& right = std::get<0>(result2_ok);
+					auto& in3 = std::get<1>(result2_ok);
+					return result_t<Ts1..., Ts2...>(std::make_tuple(
+						std::tuple_cat(left, right),
+						in3
+					));
+				}
+				else {
+					// TODO
+					return result_t<Ts1..., Ts2...>(result2.get_err());
+				}
 			}
 			else {
-				return {};
+				// TODO
+				return result_t<Ts1..., Ts2...>(result.get_err());
+			}
+		};
+	}
+
+	template <typename... Ts1, typename... Ts2>
+	parser_t<Ts2...> operator>(parser_t<Ts1...> fn1, parser_t<Ts2...> fn2) {
+		return [=](token_input& in) -> result_t<Ts2...> {
+			auto result = fn1(in);
+			if (result.is_ok()) {
+				auto& result_ok = result.get_ok();
+				auto& in2 = std::get<1>(result_ok);
+
+				auto result2 = fn2(in2);
+				if (result2.is_ok()) {
+					auto& result2_ok = result2.get_ok();
+					auto& right = std::get<0>(result2_ok);
+					auto& in3 = std::get<1>(result2_ok);
+					return result_t<Ts2...>(std::make_tuple(
+						right,
+						in3
+					));
+				}
+				else {
+					// TODO
+					return result_t<Ts2...>(result2.get_err());
+				}
+			}
+			else {
+				return result_t<Ts2...>(result.get_err());
+			}
+		};
+	}
+
+	template <typename... Ts1, typename... Ts2>
+	parser_t<Ts2...> operator<(parser_t<Ts1...> fn1, parser_t<Ts2...> fn2) {
+		return [=](token_input& in) -> result_t<Ts1...> {
+			auto result = fn1(in);
+			if (result.is_ok()) {
+				auto& result_ok = result.get_ok();
+				auto& left = std::get<0>(result_ok);
+				auto& in2 = std::get<1>(result_ok);
+
+				auto result2 = fn2(in2);
+				if (result2.is_ok()) {
+					auto& result2_ok = result2.get_ok();
+					auto& in3 = std::get<1>(result2_ok);
+					return result_t<Ts1...>(std::make_tuple(
+						left,
+						in3
+					));
+				}
+				else {
+					// TODO
+					return result_t<Ts1...>(result2.get_err());
+				}
+			}
+			else {
+				// TODO
+				return result_t<Ts1...>(result.get_err());
+			}
+		};
+	}
+
+	template <typename... Ts>
+	parser_t<Ts...> operator|(parser_t<Ts...> fn1, parser_t<Ts...> fn2) {
+		return [=](token_input& in) -> result_t<Ts...> {
+			// TODO: check for ambiguity by applying both
+			auto result = fn1(in);
+			if (result.is_ok()) {
+				return result;
+			}
+			auto result2 = fn2(in);
+			if (result2.is_ok()) {
+				return result2;
+			}
+			// TODO
+			return result_t<Ts...>(fail_info());
+		};
+	}
+
+	template <token_t TokenT>
+	parser_t<token> terminal() {
+		return [](token_input& in) -> result_t<token> {
+			token tok = in.head();
+			if (tok.Type == TokenT) {
+				token_input in2 = in.tail();
+				return std::make_tuple(std::make_tuple(tok), in2);
+			}
+			else {
+				// TODO:
+				return result_t<token>(fail_info());
 			}
 		};
 	}
