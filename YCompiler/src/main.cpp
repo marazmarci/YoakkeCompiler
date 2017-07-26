@@ -61,9 +61,29 @@ int main(void) {
 
 	auto t1 = make_result_list(1, true);
 	auto t2 = make_result_list(std::make_tuple(1, 2));
+	auto t3 = make_result_list_from_tuple(std::make_tuple(1, 2));
+	auto t4 = cat_result_lists(t2, t3);
+	auto t5 = cat_result_lists(make_result_list(1, 2), make_result_list(true, false));
+	auto t6 = cat_result_list_with_element(t5, 1.0f);
+	auto t7 = cat_element_with_result_list(1.0f, t5);
+	auto t8 = cat_results(1, true);
+	auto t9 = cat_results(1, std::make_tuple());
+	auto t10 = cat_results(t8, 1.0f);
+	auto t11 = cat_results(1.0f, t8);
+	auto t12 = cat_results(t10, t11);
 
 	write_t(t1);
 	write_t(t2);
+	write_t(t3);
+	write_t(t4);
+	write_t(t5);
+	write_t(t6);
+	write_t(t7);
+	write_t(t8);
+	write_t(t9);
+	write_t(t10);
+	write_t(t11);
+	write_t(t12);
 
 	std::cin.get();
 	return 0;
