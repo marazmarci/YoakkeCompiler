@@ -124,6 +124,7 @@
     <ClInclude Include="src\syntax\lexer.h" />
     <ClInclude Include="src\syntax\parser.h" />
     <ClInclude Include="src\syntax\position.h" />
+    <ClInclude Include="src\syntax\result_list.h" />
     <ClInclude Include="src\syntax\token.h" />
     <ClInclude Include="src\syntax\token_input.h" />
   </ItemGroup>

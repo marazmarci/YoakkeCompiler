@@ -44,6 +44,11 @@ struct bin_expr : public expr {
 	}
 };
 
+template <typename T>
+void write_t(T const& t) {
+	std::cout << typeid(t).name() << std::endl;
+}
+
 int main(void) {
 	file_hnd file("C:/TMP/YoakkeTest/tokenizer.txt");
 	if (!file.good()) {
@@ -52,45 +57,13 @@ int main(void) {
 	lexer lex(file);
 	token_input in(lex);
 
-	auto make_op = [](ytup<expr*, yvec<ytup<token, expr*>>>& input) -> expr* {
-		auto left = std::get<0>(input);
-		auto& right_rec = std::get<1>(input);
+	using namespace combinator;
 
-		for (auto it = right_rec.begin(); it != right_rec.end(); it++) {
-			auto elem = *it;
-			left = new bin_expr(left, std::get<0>(elem), std::get<1>(elem));
-		}
-		return left;
-	};
+	auto t1 = make_result_list(1, true);
+	auto t2 = make_result_list(std::make_tuple(1, 2));
 
-	auto IntLit = combinator::wrap(
-			[](auto res) -> expr* { return new int_expr(std::atoi(std::get<0>(res).Value.c_str())); },
-			combinator::terminal<token_t::IntLit>()
-		);
-	auto Add = combinator::terminal<token_t::Add>();
-	auto Sub = combinator::terminal<token_t::Sub>();
-	auto LParen = combinator::terminal<token_t::LParen>();
-	auto RParen = combinator::terminal<token_t::RParen>();
-
-	auto BinOp = [=](auto res) {
-		return combinator::wrap(make_op, res);
-	};
-	
-	combinator::parser_t<expr*>& expr_rr;
-	auto braced_r = LParen > expr_rr < RParen;
-
-	std::cout << typeid(std::result_of_t<decltype(braced_r)(token_input&)>).name() << std::endl;
-
-	combinator::parser_t<expr*> expr_r = IntLit;
-
-	//auto res = matcher(in);
-	//if (res.is_ok()) {
-	//	auto& ok = res.get_ok();
-	//	std::cout << std::get<0>(std::get<0>(ok))->eval() << std::endl;
-	//}
-	//else {
-	//	std::cout << "No match!" << std::endl;
-	//}
+	write_t(t1);
+	write_t(t2);
 
 	std::cin.get();
 	return 0;
