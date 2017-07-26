@@ -31,6 +31,10 @@ using yvar = std::variant<T, E>;
 template <typename T, typename E>
 struct yresult {
 public:
+	using ok_type = T;
+	using err_type = E;
+
+public:
 	yresult(T const& val)
 		: m_Data(val) {
 	}
