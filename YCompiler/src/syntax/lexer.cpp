@@ -5,8 +5,8 @@
 
 lexer_eof_err::lexer_eof_err(file_hnd const& file,
 	interval const& start, interval const& end,
-	ystr const& msg, yopt<ystr> not)
-	: File(file), Start(start), End(end), Msg(msg), Note(not) {
+	ystr const& msg, yopt<ystr> note)
+	: File(file), Start(start), End(end), Msg(msg), Note(note) {
 }
 
 lexer_unk_tok_err::lexer_unk_tok_err(file_hnd const& file, 
@@ -239,7 +239,7 @@ void lexer::add_keyword(ystr const& kw, token_t ty) {
 	m_Keywords.insert({ kw, ty });
 }
 
-token& lexer::peek(ysize delta) {
+yresult<token, lexer_err> lexer::peek(ysize delta) {
 	auto& buff = std::get<1>(m_State);
 	while (buff.size() <= delta) {
 		auto res = next();
@@ -247,16 +247,18 @@ token& lexer::peek(ysize delta) {
 			buff.push_back(res.get_ok());
 		}
 		else {
-			// TODO: error
+			return res.get_err();
 		}
 	}
 	return buff[delta];
 }
 
-token lexer::consume() {
+yresult<token, lexer_err> lexer::consume() {
 	// Consuming is just erasing from the beginning of the buffer
 	auto& buff = std::get<1>(m_State);
-	token tok = peek();
-	buff.erase(buff.begin());
+	auto tok = peek();
+	if (tok.is_ok()) {
+		buff.erase(buff.begin());
+	}
 	return tok;
 }

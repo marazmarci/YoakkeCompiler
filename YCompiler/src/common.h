@@ -25,8 +25,8 @@ using yopt = std::optional<T>;
 template <typename K, typename V>
 using ymap = std::map<K, V>;
 
-template <typename T, typename E>
-using yvar = std::variant<T, E>;
+template <typename... Ts>
+using yvar = std::variant<Ts...>;
 
 template <typename T, typename E>
 struct yresult {

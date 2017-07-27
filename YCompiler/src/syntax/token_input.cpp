@@ -13,12 +13,20 @@ token_input const& token_input::operator=(token_input const& other) {
 	return *this;
 }
 
-token& token_input::head() {
+yresult<token, lexer_err> token_input::head() {
 	return m_Lexer.peek(m_Index);
 }
 
 token_input token_input::tail() {
 	return token_input(m_Lexer, m_Index + 1);
+}
+
+lexer const& token_input::get_lexer() const {
+	return m_Lexer;
+}
+
+ysize token_input::get_index() const {
+	return m_Index;
 }
 
 token_input::token_input(lexer& lex, ysize idx) 

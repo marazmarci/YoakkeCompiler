@@ -34,11 +34,11 @@ struct lexer_eof_err {
 	 * @param start The beginning of the token.
 	 * @param end The last visible character's place in the file.
 	 * @param msg A message telling what was unescaped.
-	 * @param not An optional note for the user for specific help.
+	 * @param note An optional note for the user for specific help.
 	 */
 	lexer_eof_err(file_hnd const& file,
 		interval const& start, interval const& end,
-		ystr const& msg, yopt<ystr> not = {});
+		ystr const& msg, yopt<ystr> note = {});
 };
 
 /**
@@ -119,15 +119,15 @@ public:
 	/**
 	 * Peeks a number of tokens ahead.
 	 * @param delta How much to peek ahead (0 by default).
-	 * @return A token delta tokens away from the starting point.
+	 * @return A token delta tokens away from the starting point or a lexer error.
 	 */
-	token& peek(ysize delta = 0);
+	yresult<token, lexer_err> peek(ysize delta = 0);
 
 	/**
 	 * Consumes a token from the token buffer.
-	 * @return The consumed token.
+	 * @return The consumed token or a lexer error.
 	 */
-	token consume();
+	yresult<token, lexer_err> consume();
 
 	/**
 	 * Consumes and gets the next token from the file.

@@ -5,9 +5,10 @@
 #include "syntax/lexer.h"
 #include "syntax/token_input.h"
 #include "syntax/combinator.h"
+#include "functions.h"
 
 struct expr {
-	virtual int eval() = 0;
+	virtual float eval() = 0;
 };
 
 struct int_expr : public expr {
@@ -17,7 +18,19 @@ struct int_expr : public expr {
 		: v(std::atoi(tok.Value.c_str())) {
 	}
 
-	int eval() override {
+	float eval() override {
+		return v;
+	}
+};
+
+struct float_expr : public expr {
+	float v;
+
+	float_expr(token const& tok)
+		: v(std::atof(tok.Value.c_str())) {
+	}
+
+	float eval() override {
 		return v;
 	}
 };
@@ -31,7 +44,7 @@ struct bin_expr : public expr {
 		: l(l), r(r), op(op) {
 	}
 
-	int eval() override {
+	float eval() override {
 		int a = l->eval();
 		int b = r->eval();
 		switch (op.Type) {
@@ -61,32 +74,32 @@ int main(void) {
 
 	using namespace combinator;
 	
-	auto IntLit = terminal<token_t::IntLit>();
+	auto IntLit = terminal<token_t::IntLit>("integer literal");
+	auto RealLit = terminal<token_t::RealLit>("real literal");
 
-	auto Add = terminal<token_t::Add>();
-	auto Sub = terminal<token_t::Sub>();
+	auto Add = terminal<token_t::Add>("'+'");
+	auto Sub = terminal<token_t::Sub>("'-'");
 
-	auto Mul = terminal<token_t::Mul>();
-	auto Div = terminal<token_t::Div>();
+	auto Mul = terminal<token_t::Mul>("'*'");
+	auto Div = terminal<token_t::Div>("'/'");
 
-	auto TransformLeftAssoc = [](auto& args) -> expr* {
-		auto& left = std::get<0>(args);
-		auto& rights = std::get<1>(args);
-		for (auto it = rights.begin(); it != rights.end(); it++) {
-			auto& elem = *it;
-			auto& op = std::get<0>(elem);
-			auto& right = std::get<1>(elem);
-			left = new bin_expr(left, op, right);
-		}
-		return left;
+	auto ComposeLeftAssoc = [](auto& left, auto& right_pair) -> expr* {
+		auto& op = std::get<0>(right_pair);
+		auto& right = std::get<1>(right_pair);
+		return new bin_expr(left, op, right);
+	};
+
+	auto TransformLeftAssoc = [=](auto& left, auto& rights) -> expr* {
+		return fnl::fold(rights.begin(), rights.end(), left, ComposeLeftAssoc);
 	};
 
 	auto Factor
-		= (IntLit) ^ [](token& tok) -> expr* { return new int_expr(tok); };
+		= ((IntLit) ^ [](token& tok) -> expr* { return new int_expr(tok); })
+		| ((RealLit) ^ [](token& tok) -> expr* { return new float_expr(tok); });
 	auto Term
-		= (Factor >= (*((Mul | Div) >= Factor))) ^ TransformLeftAssoc;
+		= (Factor >= (*((Mul | Div) >> Factor))) ^ TransformLeftAssoc;
 	auto Expr
-		= (Term >= (*((Add | Sub) >= Term))) ^ TransformLeftAssoc;
+		= (Term >= (*((Add | Sub) >> Term))) ^ TransformLeftAssoc;
 
 	auto res = Expr(in);
 	if (res.is_ok()) {
@@ -95,7 +108,42 @@ int main(void) {
 		std::cout << res_ninp->eval() << std::endl;
 	}
 	else {
-		std::cout << "No match!" << std::endl;
+		// TODO: match
+		auto& err = res.get_err().Error.Data;
+		fnl::match(err)(
+		[=](lexer_err& err) {
+			fnl::match(err)(
+			[=](lexer_eof_err& err) {
+				std::cout << "EOF" << std::endl;
+			},
+			[=](lexer_unk_tok_err& err) {
+				std::cout << "UNK TOK" << std::endl;
+			}
+			);
+		},
+		[=](parser_err& err) {
+			fnl::match(err)(
+			[=](parser_exp_tok_err& err) {
+				auto& file = err.File;
+				auto& token = err.Got;
+				auto& pos = token.Pos;
+				std::cout << "Syntax error in file: '"
+					<< file.path() << "' at line "
+					<< pos.Start.Row << ", character " << pos.Start.Column 
+					<< '.' << std::endl;
+				fmt_code::print(file, pos);
+				std::cout << "Expected "
+					<< err.Expected << ", but got "
+					<< token.fmt() << '.' << std::endl;
+			}
+			);
+		},
+		[=](auto& mixture_error) {
+			std::cout << "EITHER" << std::endl;
+			for (auto i : mixture_error) {
+				std::cout << "alt" << std::endl;
+			}
+		});
 	}
 
 	std::cin.get();

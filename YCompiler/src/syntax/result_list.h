@@ -125,4 +125,39 @@ namespace combinator {
 			std::forward<TT>(a), std::forward<UU>(b)
 		);
 	}
+
+	namespace internal__ {
+		template <bool B, typename Fn, typename T>
+		struct apply_result_impl;
+
+		template <typename Fn, typename T>
+		struct apply_result_impl<true, Fn, T> {
+			static auto apply(Fn&& func, T&& res) {
+				// TODO: forward?
+				return	std::apply(
+					std::forward<Fn>(func), 
+					res.as_tuple()
+				);
+			}
+		};
+
+		template <typename Fn, typename T>
+		struct apply_result_impl<false, Fn, T> {
+			static auto apply(Fn&& func, T&& res) {
+				// TODO: forward
+				return func(res);
+			}
+		};
+	}
+
+	template <typename Fn, typename T>
+	auto apply_result(Fn&& func, T&& res) {
+		//using FFn = std::decay_t<Fn>;
+		using TT = std::decay_t<T>;
+		constexpr bool A = is_specialization<TT, result_list>::value;
+		return internal__::apply_result_impl<A, Fn, TT>::apply(
+			std::forward<Fn>(func), 
+			std::forward<TT>(res)
+		);
+	}
 }

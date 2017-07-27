@@ -34,15 +34,27 @@ public:
 public:
 	/**
 	 * Returns the token at the position this instance points at.
-	 * @return The pointed token.
+	 * @return The pointed token or a lexer error.
 	 */
-	token& head();
+	yresult<token, lexer_err> head();
 	
 	/**
 	 * Returns the token input proceeding this one.
 	 * @return The token input containing the rest of the tokens.
 	 */
 	token_input tail();
+
+	/**
+	 * Returns the lexer used by this input wrapper.
+	 * @return The underlying lexer.
+	 */
+	lexer const& get_lexer() const;
+
+	/**
+	 * Returns the index of this input wrapper.
+	 * @return The token index of the token pointer.
+	 */
+	ysize get_index() const;
 
 private:
 	/**
