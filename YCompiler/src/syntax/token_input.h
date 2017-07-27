@@ -24,6 +24,13 @@ public:
 	 */
 	token_input(lexer& lex);
 
+	/**
+	 * Implements the assignment operator for the type for mutability.
+	 * @param other The token input to be copied.
+	 * @return An immutable reference to this object.
+	 */
+	token_input const& operator=(token_input const& other);
+
 public:
 	/**
 	 * Returns the token at the position this instance points at.

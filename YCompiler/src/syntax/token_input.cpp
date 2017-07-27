@@ -1,9 +1,16 @@
+#include <cassert>
 #include "lexer.h"
 #include "token.h"
 #include "token_input.h"
 
 token_input::token_input(lexer& lex)
 	: m_Lexer(lex), m_Index(0) {
+}
+
+token_input const& token_input::operator=(token_input const& other) {
+	assert(&m_Lexer == &other.m_Lexer && "The lexers must match!");
+	m_Index = other.m_Index;
+	return *this;
 }
 
 token& token_input::head() {
