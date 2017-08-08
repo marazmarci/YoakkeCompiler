@@ -12,10 +12,10 @@ namespace combinator {
 	struct fail_info;
 	
 	template <typename T>
-	using return_t = yresult<ytup<T, token_input>, fail_info>;
+	using result_t = yresult<ytup<T, token_input>, fail_info>;
 
 	template <typename T>
-	using parser_t = std::function<return_t<T>(token_input&)>;
+	using parser_t = std::function<result_t<T>(token_input&)>;
 
 	struct parser_exp_tok_err {
 	public:
@@ -37,23 +37,52 @@ namespace combinator {
 
 	struct fail_info {
 	public:
-		bool	Fatal;
 		ysize	Index;
 		error_t	Error;
 
 	public:
 		fail_info(ysize idx, lexer_err const& err)
-			: Fatal(false), Index(idx), Error{ err } {
+			: Index(idx), Error{ err } {
 		}
 
 		fail_info(ysize idx, parser_err const& err)
-			: Fatal(false), Index(idx), Error{ err } {
+			: Index(idx), Error{ err } {
 		}
 
 		fail_info(ysize idx, yvec<error_t> const& err)
-			: Fatal(false), Index(idx), Error{ err } {
+			: Index(idx), Error{ err } {
+		}
+
+	public:
+		auto const& err() const {
+			return Error.Data;
+		}
+
+		auto& err() {
+			return Error.Data;
 		}
 	};
+
+	template <typename T, typename U>
+	auto operator>=(parser_t<T> fn1, parser_t<U> fn2);
+	template <typename T, typename U>
+	auto operator>(parser_t<T> fn1, parser_t<U> fn2);
+	template <typename T, typename U>
+	auto operator<(parser_t<T> fn1, parser_t<U> fn2);
+	template <typename T>
+	auto operator|(parser_t<T> fn1, parser_t<T> fn2);
+	template <typename T>
+	auto operator*(parser_t<T> fn);
+	template <typename T, typename Fn>
+	auto operator^(parser_t<T> fn, Fn wrapper);
+	template <token_t TokenT>
+	parser_t<token> terminal(ystr const& expect);
+
+	inline auto success(token_input& in) {
+		using succ_t = result_list<>;
+		
+		return result_t<succ_t>(std::make_tuple(make_result_list(), in));
+	}
 
 	template <typename T, typename U>
 	auto operator>=(parser_t<T> fn1, parser_t<U> fn2) {
@@ -65,11 +94,11 @@ namespace combinator {
 		using right_ok_t = typename std::result_of_t<fn2_t(token_input&)>::ok_type;
 		using right_t = std::tuple_element_t<0, right_ok_t>;
 
-		using success_t = decltype(
+		using succ_t = decltype(
 			cat_results(std::declval<left_t>(), std::declval<right_t>())
 		);
 
-		return parser_t<success_t>([=](token_input& in) -> return_t<success_t> {
+		return parser_t<succ_t>([=](token_input& in) -> result_t<succ_t> {
 			auto result = fn1(in);
 			if (result.is_ok()) {
 				auto& result_ok = result.get_ok();
@@ -98,56 +127,12 @@ namespace combinator {
 	}
 
 	template <typename T, typename U>
-	auto operator>>(parser_t<T> fn1, parser_t<U> fn2) {
-		using fn1_t = decltype(fn1);
-		using left_ok_t = typename std::result_of_t<fn1_t(token_input&)>::ok_type;
-		using left_t = std::tuple_element_t<0, left_ok_t>;
-
-		using fn2_t = decltype(fn2);
-		using right_ok_t = typename std::result_of_t<fn2_t(token_input&)>::ok_type;
-		using right_t = std::tuple_element_t<0, right_ok_t>;
-
-		using success_t = decltype(
-			cat_results(std::declval<left_t>(), std::declval<right_t>())
-		);
-
-		return parser_t<success_t>([=](token_input& in) -> return_t<success_t> {
-			auto result = fn1(in);
-			if (result.is_ok()) {
-				auto& result_ok = result.get_ok();
-				auto& left = std::get<0>(result_ok);
-				auto& in2 = std::get<1>(result_ok);
-
-				auto result2 = fn2(in2);
-				if (result2.is_ok()) {
-					auto& result2_ok = result2.get_ok();
-					auto& right = std::get<0>(result2_ok);
-					auto& in3 = std::get<1>(result2_ok);
-
-					return std::make_tuple(
-						cat_results(left, right),
-						in3
-					);
-				}
-				else {
-					auto& err = result2.get_err();
-					err.Fatal = true;
-					return err;
-				}
-			}
-			else {
-				return result.get_err();
-			}
-		});
-	}
-
-	template <typename T, typename U>
 	auto operator>(parser_t<T> fn1, parser_t<U> fn2) {
 		using fn2_t = decltype(fn2);
 		using right_ok_t = typename std::result_of_t<fn2_t(token_input&)>::ok_type;
 		using right_t = std::tuple_element_t<0, right_ok_t>;
 
-		return parser_t<right_t>([=](token_input& in) -> return_t<right_t> {
+		return parser_t<right_t>([=](token_input& in) -> result_t<right_t> {
 			auto result = fn1(in);
 			if (result.is_ok()) {
 				auto& result_ok = result.get_ok();
@@ -180,7 +165,7 @@ namespace combinator {
 		using left_ok_t = typename std::result_of_t<fn1_t(token_input&)>::ok_type;
 		using left_t = std::tuple_element_t<0, left_ok_t>;
 
-		return parser_t<left_t>([=](token_input& in) -> return_t<left_t> {
+		return parser_t<left_t>([=](token_input& in) -> result_t<left_t> {
 			auto result = fn1(in);
 			if (result.is_ok()) {
 				auto& result_ok = result.get_ok();
@@ -209,32 +194,27 @@ namespace combinator {
 
 	template <typename T>
 	auto operator|(parser_t<T> fn1, parser_t<T> fn2) {
-		return parser_t<T>([=](token_input& in) -> return_t<T> {
+		return parser_t<T>([=](token_input& in) -> result_t<T> {
 			auto result = fn1(in);
 			if (result.is_ok()) {
 				return result;
 			}
 			else {
 				auto& err1 = result.get_err();
-				if (err1.Fatal) {
-					return err1;
+				auto result2 = fn2(in);
+				if (result2.is_ok()) {
+					return result2;
 				}
 				else {
-					auto result2 = fn2(in);
-					if (result2.is_ok()) {
-						return result2;
+					auto& err2 = result2.get_err();
+					if (err1.Index > err2.Index) {
+						return err1;
+					}
+					else if (err2.Index > err1.Index) {
+						return err2;
 					}
 					else {
-						auto& err2 = result2.get_err();
-						if (err1.Index > err2.Index) {
-							return err1;
-						}
-						else if (err2.Index > err1.Index) {
-							return err2;
-						}
-						else {
-							return fail_info(err1.Index, { err1.Error, err2.Error });
-						}
+						return fail_info(err1.Index, { err1.Error, err2.Error });
 					}
 				}
 			}
@@ -243,7 +223,7 @@ namespace combinator {
 
 	template <typename T>
 	auto operator*(parser_t<T> fn) {
-		return parser_t<yvec<T>>([=](token_input& in) -> return_t<yvec<T>> {
+		return parser_t<yvec<T>>([=](token_input& in) -> result_t<yvec<T>> {
 			yvec<T> elements;
 			token_input in2 = in;
 			while (true) {
@@ -255,13 +235,7 @@ namespace combinator {
 					elements.push_back(elem);
 				}
 				else {
-					auto& err = result.get_err();
-					if (err.Fatal) {
-						return err;
-					}
-					else {
-						break;
-					}
+					break;
 				}
 			}
 			return std::make_tuple(elements, in2);
@@ -277,7 +251,7 @@ namespace combinator {
 		using ret_t = decltype(
 			apply_result(std::declval<wrapper_t>(), std::declval<left_t>())
 		);
-		return parser_t<ret_t>([=](token_input& in) -> return_t<ret_t> {
+		return parser_t<ret_t>([=](token_input& in) -> result_t<ret_t> {
 			auto result = fn(in);
 			if (result.is_ok()) {
 				auto& result_ok = result.get_ok();
@@ -294,7 +268,7 @@ namespace combinator {
 
 	template <token_t TokenT>
 	parser_t<token> terminal(ystr const& expect) {
-		return [=](token_input& in) -> return_t<token> {
+		return [=](token_input& in) -> result_t<token> {
 			auto result = in.head();
 			if (result.is_ok()) {
 				auto& tok = result.get_ok();

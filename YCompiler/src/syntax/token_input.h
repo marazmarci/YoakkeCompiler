@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "lexer.h"
 #include "../common.h"
 
 // TODO: const-ing, mutable

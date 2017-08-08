@@ -15,7 +15,7 @@ namespace yk {
 
 		class enclose : public expr_pre_parselet {
 		public:
-			yopt<return_t> parse(token const& lpar, yparser& par) override {
+			yopt<result_t> parse(token const& lpar, yparser& par) override {
 				yvec<param_t> params;
 				if (par.same(ytoken_t::Colon)
 				 || par.same(ytoken_t::Ident, ytoken_t::Colon)) {

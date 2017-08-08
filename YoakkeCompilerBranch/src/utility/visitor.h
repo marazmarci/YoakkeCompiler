@@ -156,7 +156,7 @@ visitable_invocation_info(std::vector<bool> const& statusTable) {		\
 		using base_t = Base;
 		using thunk_t = ReturnType(visitor::*)(Base&, Args&&...);
 		using vtable_t = visitor_vtable<Base const, thunk_t>;
-		using return_t = ReturnType;
+		using result_t = ReturnType;
 
 	private:
 		template <typename VisitorImpl, typename Invoker, typename... VisitedList>
@@ -225,7 +225,7 @@ struct visitor_invoker_details {													\
 	using InvokerType =																\
 	struct {																		\
 		template <typename VisitorImpl, typename VisitableImpl, typename... Args>	\
-		static typename VisitorImpl::return_t invoke(								\
+		static typename VisitorImpl::result_t invoke(								\
 			VisitorImpl& visitor, VisitableImpl& Visitable, Args&&... args) {		\
 			return visitor.VisitInvoker(Visitable, std::forward<Args>(args)...);	\
 		}																			\

@@ -26,9 +26,9 @@ namespace yk {
 		template <typename T, typename R>
 		class pass : public pre_parselet<T> {
 		public:
-			yopt<typename pre_parselet<T>::return_t>
+			yopt<typename pre_parselet<T>::result_t>
 			parse(token const& tok, yparser& par) override {
-				return typename pre_parselet<T>::return_t(
+				return typename pre_parselet<T>::result_t(
 					tok.Position,
 					std::make_shared<R>(tok.Value)
 				);
@@ -38,9 +38,9 @@ namespace yk {
 		template <typename T, typename R>
 		class pass_ign : public pre_parselet<T> {
 		public:
-			yopt<typename pre_parselet<T>::return_t>
+			yopt<typename pre_parselet<T>::result_t>
 				parse(token const& tok, yparser& par) override {
-				return typename pre_parselet<T>::return_t(
+				return typename pre_parselet<T>::result_t(
 					tok.Position,
 					std::make_shared<R>()
 				);
