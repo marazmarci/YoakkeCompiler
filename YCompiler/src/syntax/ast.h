@@ -4,21 +4,12 @@
 #include "token.h"
 
 struct AST_node {
+public:
 	interval Pos;
 
-	virtual ~AST_node() { }
-
 protected:
-	AST_node(interval const& pos)
-		: Pos(pos) {
-	}
-};
+	AST_node(interval const& pos);
 
-struct label {
-	interval	Pos;
-	token		Name;
-
-	label(interval const& pos, token const& name)
-		: Pos(pos), Name(name) {
-	}
+public:
+	virtual ~AST_node();
 };

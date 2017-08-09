@@ -9,6 +9,11 @@
 #include "../common.h"
 
 namespace combinator {
+	template <typename ORIG, typename TO, typename... Ts>
+	ORIG* construct(Ts const&... params) {
+		return new TO(params...);
+	}
+
 	struct fail_info;
 	
 	template <typename T>
@@ -36,24 +41,22 @@ namespace combinator {
 	};
 
 	struct fail_info {
-	public:
 		ysize	Index;
 		error_t	Error;
+		bool	Fatal;
 
-	public:
 		fail_info(ysize idx, lexer_err const& err)
-			: Index(idx), Error{ err } {
+			: Index(idx), Error{ err }, Fatal(false) {
 		}
 
 		fail_info(ysize idx, parser_err const& err)
-			: Index(idx), Error{ err } {
+			: Index(idx), Error{ err }, Fatal(false) {
 		}
 
 		fail_info(ysize idx, yvec<error_t> const& err)
-			: Index(idx), Error{ err } {
+			: Index(idx), Error{ err }, Fatal(false) {
 		}
 
-	public:
 		auto const& err() const {
 			return Error.Data;
 		}
@@ -73,6 +76,10 @@ namespace combinator {
 	auto operator|(parser_t<T> fn1, parser_t<T> fn2);
 	template <typename T>
 	auto operator*(parser_t<T> fn);
+	template <typename T>
+	auto operator&(parser_t<T> fn);
+	template <typename T>
+	auto operator!(parser_t<T> fn);
 	template <typename T, typename Fn>
 	auto operator^(parser_t<T> fn, Fn wrapper);
 	template <token_t TokenT>
@@ -201,12 +208,18 @@ namespace combinator {
 			}
 			else {
 				auto& err1 = result.get_err();
+				if (err1.Fatal) {
+					return err1;
+				}
 				auto result2 = fn2(in);
 				if (result2.is_ok()) {
 					return result2;
 				}
 				else {
 					auto& err2 = result2.get_err();
+					if (err2.Fatal) {
+						return err2;
+					}
 					if (err1.Index > err2.Index) {
 						return err1;
 					}
@@ -235,10 +248,52 @@ namespace combinator {
 					elements.push_back(elem);
 				}
 				else {
+					auto& err = result.get_err();
+					if (err.Fatal) {
+						return err;
+					}
 					break;
 				}
 			}
 			return std::make_tuple(elements, in2);
+		});
+	}
+
+	template <typename T>
+	auto operator&(parser_t<T> fn) {
+		return parser_t<yopt<T>>([=](token_input& in) -> result_t<yopt<T>> {
+			auto result = fn(in);
+			if (result.is_ok()) {
+				auto& result_ok = result.get_ok();
+				auto& elem = std::get<0>(result_ok);
+				auto& in2 = std::get<1>(result_ok);
+				return std::make_tuple(yopt<T>(elem), in2);
+			}
+			else {
+				auto& err = result.get_err();
+				if (err.Fatal) {
+					return err;
+				}
+				return std::make_tuple(yopt<T>{}, in);
+			}
+		});
+	}
+
+	template <typename T>
+	auto operator!(parser_t<T> fn) {
+		return parser_t<T>([=](token_input& in) -> result_t<T> {
+			auto result = fn(in);
+			if (result.is_ok()) {
+				auto& result_ok = result.get_ok();
+				auto& elem = std::get<0>(result_ok);
+				auto& in2 = std::get<1>(result_ok);
+				return std::make_tuple(elem, in2);
+			}
+			else {
+				auto& err = result.get_err();
+				err.Fatal = true;
+				return err;
+			}
 		});
 	}
 

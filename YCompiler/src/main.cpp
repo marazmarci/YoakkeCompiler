@@ -24,15 +24,16 @@ int main(void) {
 	lexer lex(file);
 	token_input in(lex);
 
-	auto res = p_label(in);
-	if (res.is_ok()) {
-		auto& res_ok = res.get_ok();
-		auto& lab = std::get<0>(res_ok);
-		std::cout << lab.Name.Value << std::endl;
-	}
-	else {
-		std::cout << "Not eof :(" << std::endl;
-	}
+	parse_fn_expr(in);
+	//auto res = p_label(in);
+	//if (res.is_ok()) {
+	//	auto& res_ok = res.get_ok();
+	//	auto& lab = std::get<0>(res_ok);
+	//	std::cout << lab.Name.Value << std::endl;
+	//}
+	//else {
+	//	std::cout << "Not eof :(" << std::endl;
+	//}
 
 	std::cin.get();
 	return 0;

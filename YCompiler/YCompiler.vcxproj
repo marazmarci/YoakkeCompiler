@@ -122,7 +122,10 @@
     <ClInclude Include="src\io\fmt_code.h" />
     <ClInclude Include="src\math.h" />
     <ClInclude Include="src\syntax\ast.h" />
+    <ClInclude Include="src\syntax\ast_expr.h" />
+    <ClInclude Include="src\syntax\ast_printer.h" />
     <ClInclude Include="src\syntax\ast_stmt.h" />
+    <ClInclude Include="src\syntax\ast_ty.h" />
     <ClInclude Include="src\syntax\combinator.h" />
     <ClInclude Include="src\syntax\lexer.h" />
     <ClInclude Include="src\syntax\parser.h" />
@@ -135,6 +138,10 @@
     <ClCompile Include="src\io\fmt_code.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\io\file_hnd.cpp" />
+    <ClCompile Include="src\syntax\ast.cpp" />
+    <ClCompile Include="src\syntax\ast_expr.cpp" />
+    <ClCompile Include="src\syntax\ast_stmt.cpp" />
+    <ClCompile Include="src\syntax\ast_ty.cpp" />
     <ClCompile Include="src\syntax\lexer.cpp" />
     <ClCompile Include="src\syntax\parser.cpp" />
     <ClCompile Include="src\syntax\position.cpp" />
