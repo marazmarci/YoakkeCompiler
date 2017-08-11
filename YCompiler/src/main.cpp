@@ -5,7 +5,6 @@
 #include "io/fmt_code.h"
 #include "syntax/lexer.h"
 #include "syntax/token_input.h"
-#include "syntax/combinator.h"
 #include "functions.h"
 #include "syntax/parser.h"
 
@@ -24,7 +23,14 @@ int main(void) {
 	lexer lex(file);
 	token_input in(lex);
 
-	parse_fn_expr(in);
+	auto res = parse_decl_stmt(in);
+	if (res.is_ok()) {
+		std::cout << "ok!" << std::endl;
+	}
+	else {
+		std::cout << "NOT ok!" << std::endl;
+	}
+	//parse_fn_expr(in);
 	//auto res = p_label(in);
 	//if (res.is_ok()) {
 	//	auto& res_ok = res.get_ok();

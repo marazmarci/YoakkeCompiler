@@ -1,4 +1,6 @@
 #include "ast_expr.h"
+#include "ast_stmt.h"
+#include "ast_ty.h"
 
 AST_expr::AST_expr(interval const& pos, AST_expr_t ty)
 	: AST_node(pos), Ty(ty) {
@@ -26,11 +28,11 @@ AST_block_expr::~AST_block_expr() {
 
 /*****************************************************************************/
 
-AST_fn_expr::AST_fn_expr(yopt<token> const& first, 
-	yvec<param_t> const& params,
+AST_fn_expr::AST_fn_expr(yopt<token> beg, yvec<param_t> const& params,
 	yopt<AST_ty*> ret, AST_block_expr* body)
-	: AST_expr(interval(lparen, body->Pos), 
-		AST_expr_t::Fn), 
+	: AST_expr(
+		beg ? interval(beg->Pos, body->Pos) : body->Pos,
+		AST_expr_t::Fn),
 	Params(params), Return(std::move(ret)), Body(body) {
 }
 
@@ -41,4 +43,5 @@ AST_fn_expr::~AST_fn_expr() {
 	if (Return) {
 		delete *Return;
 	}
+	delete Body;
 }

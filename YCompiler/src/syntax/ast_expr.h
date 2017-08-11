@@ -35,8 +35,7 @@ struct AST_fn_expr : public AST_expr {
 	yopt<AST_ty*> Return;
 	AST_block_expr* Body;
 
-	AST_fn_expr(token const& lparen, 
-		yvec<param_t> const& params, 
+	AST_fn_expr(yopt<token> beg, yvec<param_t> const& params, 
 		yopt<AST_ty*> ret, AST_block_expr* body);
 	virtual ~AST_fn_expr();
 };
