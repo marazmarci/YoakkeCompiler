@@ -23,16 +23,19 @@ namespace parser {
 		const auto Asgn = terminal<token_t::Asgn>("'='");
 		const auto Let = terminal<token_t::Let>("'let'");
 		const auto Semicol = terminal<token_t::Semicol>("';'");
+		const auto If = terminal<token_t::If>("'if'");
+		const auto Else = terminal<token_t::Else>("'else'");
 
-		parser_t<AST_ty*> Type = parse_type;
-		parser_t<AST_stmt*> Stmt = parse_stmt;
-		parser_t<AST_expr*> Expr = parse_expr;
-		parser_t<AST_pat*> Pattern = parse_pat;
+		const parser_t<AST_ty*> Type = parse_type;
+		const parser_t<AST_stmt*> Stmt = parse_stmt;
+		const parser_t<AST_expr*> Expr = parse_expr;
+		const parser_t<AST_pat*> Pattern = parse_pat;
 
-		parser_t<AST_block_expr*> Block = parse_block_expr;
-		parser_t<AST_decl_stmt*> Decl = parse_decl_stmt;
-		parser_t<AST_fn_expr*> FnExpr = parse_fn_expr;
-		parser_t<AST_let_expr*> LetExpr = parse_let_expr;
+		const parser_t<AST_block_expr*> Block = parse_block_expr;
+		const parser_t<AST_decl_stmt*> Decl = parse_decl_stmt;
+		const parser_t<AST_fn_expr*> FnExpr = parse_fn_expr;
+		const parser_t<AST_let_expr*> LetExpr = parse_let_expr;
+		const parser_t<AST_if_expr*> IfExpr = parse_if_expr;
 	}
 
 	result_t<AST_ty*> parse_type(token_input& in) {
@@ -101,7 +104,8 @@ namespace parser {
 	result_t<AST_stmt*> parse_stmt(token_input& in) {
 		static auto stmt_parser =
 			  (Decl ^ [](auto& res) -> AST_stmt* { return res; })
-			| ((LetExpr >= Semicol) ^ [](auto& let, auto& sc) -> AST_stmt* { return new AST_expr_stmt(let, sc); });
+			| ((LetExpr >= Semicol) ^ [](auto& let, auto& sc) -> AST_stmt* { return new AST_expr_stmt(let, sc); })
+			| (IfExpr ^ [](auto& e) -> AST_stmt* { return new AST_expr_stmt(e); }); // TODO: remove this
 
 		return stmt_parser(in);
 	}
@@ -141,6 +145,49 @@ namespace parser {
 			};
 
 		return let_parser(in);
+	}
+
+	result_t<AST_if_expr*> parse_if_expr(token_input& in) {
+		static auto if_parser =
+			(If >= !(Expr / "condition") >= !(Block)
+			>= *(Else > If >= !(Expr / "condition") >= !(Block))
+			< !Else >= !Block)
+			^ [](auto& beg, auto& cond, auto& then, auto& elifs, auto& el) -> AST_if_expr* {
+				AST_block_expr* elbody = 
+					fnl::fold(elifs.rbegin(), elifs.rend(), el,
+					[](auto& curr, auto& elem) -> AST_block_expr* {
+						auto& e_tok = std::get<0>(elem);
+						auto& e_cond = std::get<1>(elem);
+						auto& e_block = std::get<2>(elem);
+						AST_if_expr* eif = new AST_if_expr(e_tok, e_cond, e_block, curr);
+						return new AST_block_expr(new AST_expr_stmt(eif));
+					});
+				return new AST_if_expr(beg, cond, then, elbody);
+			};
+
+		return if_parser(in);
+	}
+
+	// TODO: make just one if
+	result_t<AST_if_stmt*> parse_if_stmt(token_input& in) {
+		static auto if_parser =
+			(If >= !(Expr / "condition") >= !(Block)
+			>= *(Else > If >= !(Expr / "condition") >= !(Block))
+			>= &(Else > !(Block)))
+			^ [](auto& beg, auto& cond, auto& then, auto& elifs, auto& el) -> AST_if_expr* {
+				AST_block_expr* elbody =
+					fnl::fold(elifs.rbegin(), elifs.rend(), el,
+					[](auto& curr, auto& elem) -> AST_block_expr* {
+						auto& e_tok = std::get<0>(elem);
+						auto& e_cond = std::get<1>(elem);
+						auto& e_block = std::get<2>(elem);
+						AST_if_stmt* eif = new AST_if_stmt(e_tok, e_cond, e_block, curr);
+						return new AST_block_expr(eif);
+					});
+			return new AST_if_expr(beg, cond, then, elbody);
+		};
+
+		return if_parser(in);
 	}
 
 	/*************************************************************************/

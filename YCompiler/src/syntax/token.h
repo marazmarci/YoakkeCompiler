@@ -47,7 +47,6 @@ enum class token_t {
 	Arrow,		// Arrow sign			'->'
 	Fn,			// Function def			'fn'
 	If,			// If expression		'if'
-	Elif,		// Else if				'elif'
 	Else,		// Else					'else'
 	Let,		// Let					'let'
 	Mut,		// Mut					'mut'

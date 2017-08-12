@@ -12,6 +12,7 @@ enum class AST_expr_t {
 	Fn,
 	Ident,
 	Let,
+	If,
 };
 
 struct AST_expr : public AST_node {
@@ -30,6 +31,7 @@ struct AST_block_expr : public AST_expr {
 	AST_block_expr(token const& beg, 
 		yvec<AST_stmt*> const& stmts, yopt<AST_expr*> val, 
 		token const& end);
+	AST_block_expr(AST_stmt* st);
 	virtual ~AST_block_expr();
 };
 
@@ -59,4 +61,13 @@ struct AST_let_expr : public AST_expr {
 
 	AST_let_expr(token const& beg, AST_pat* pat, yopt<AST_ty*> ty, yopt<AST_expr*> val);
 	virtual ~AST_let_expr();
+};
+
+struct AST_if_expr : public AST_expr {
+	AST_expr* Condition;
+	AST_block_expr* Then;
+	AST_block_expr* Else;
+
+	AST_if_expr(token const& beg, AST_expr* cond, AST_block_expr* th, AST_block_expr* el);
+	virtual ~AST_if_expr();
 };

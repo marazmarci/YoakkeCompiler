@@ -8,6 +8,7 @@ struct AST_expr;
 enum class AST_stmt_t {
 	Decl,
 	Expr,
+	If,
 };
 
 struct AST_stmt : public AST_node {
@@ -33,4 +34,14 @@ struct AST_expr_stmt : public AST_stmt {
 	AST_expr_stmt(AST_expr* exp);
 	AST_expr_stmt(AST_expr* exp, token const& semicol);
 	virtual ~AST_expr_stmt();
+};
+
+struct AST_if_stmt : public AST_stmt {
+	AST_expr* Condition;
+	AST_block_expr* Then;
+	yopt<AST_block_expr*> Else;
+
+	AST_if_stmt(token const& beg, AST_expr* cond, AST_block_expr* th, AST_block_expr* el);
+	AST_if_stmt(token const& beg, AST_expr* cond, AST_block_expr* th);
+	virtual ~AST_if_stmt();
 };

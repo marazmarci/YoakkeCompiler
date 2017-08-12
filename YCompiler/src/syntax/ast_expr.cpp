@@ -18,6 +18,11 @@ AST_block_expr::AST_block_expr(token const& beg,
 	Statements(stmts), Value(std::move(val)) {
 }
 
+AST_block_expr::AST_block_expr(AST_stmt* st)
+	: AST_expr(st->Pos, AST_expr_t::Block),
+	Statements(yvec<AST_stmt*>{ st }), Value(yopt<AST_expr*>{}) {
+}
+
 AST_block_expr::~AST_block_expr() {
 	for (auto& st : Statements) {
 		delete st;
@@ -72,4 +77,18 @@ AST_let_expr::~AST_let_expr() {
 	if (Value) {
 		delete *Value;
 	}
+}
+
+/*****************************************************************************/
+
+AST_if_expr::AST_if_expr(token const& beg,
+	AST_expr* cond, AST_block_expr* th, AST_block_expr* el)
+	: AST_expr(interval(beg.Pos, el->Pos), AST_expr_t::If),
+	Condition(cond), Then(th), Else(el) {
+}
+
+AST_if_expr::~AST_if_expr() {
+	delete Condition;
+	delete Then;
+	delete Else;
 }
