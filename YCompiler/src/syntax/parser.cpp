@@ -40,9 +40,9 @@ namespace parser {
 	result_t<AST_fn_expr*> parse_fn_expr(token_input& in) {
 		yopt<token> first_tok = {};
 		static auto Param =
-			&Ident < Colon >= !Type;
+			&Ident < Colon >= !(Type / "parameter type");
 		static auto ParamList =
-			(LParen >= &(Param >= *(Comma > !Param)) >= !RParen)
+			(LParen >= &((Param / "parameter") >= *(Comma > !(Param / "parameter"))) >= !RParen)
 			^ [&](auto& lp, auto& params, auto& rp) {
 				if (params) {
 					auto& res_val = params.value();
@@ -95,7 +95,7 @@ namespace parser {
 
 	result_t<AST_stmt*> parse_stmt(token_input& in) {
 		static auto stmt_parser =
-			Ident ^ [](auto& in) -> AST_stmt* { return nullptr; };
+			Decl ^ [](auto& res) -> AST_stmt* { return res; };
 
 		return stmt_parser(in);
 	}
