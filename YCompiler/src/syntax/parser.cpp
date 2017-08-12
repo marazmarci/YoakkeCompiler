@@ -61,7 +61,7 @@ namespace parser {
 				}
 			};
 		static auto fn_parser =
-			(&ParamList >= &(Arrow >= !Type) >= Block)
+			(&ParamList >= &(Arrow >= !(Type / "return type")) >= Block)
 			^ [](auto& params, auto& rett, auto& body) -> AST_fn_expr* {
 				yopt<token> beg = {};
 				yopt<AST_ty*> rett_r = {};

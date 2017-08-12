@@ -324,7 +324,7 @@ namespace combinator {
 	}
 
 	template <typename T>
-	auto operator/(parser_t<T> fn, ystr const& rename) {
+	auto operator/(parser_t<T> fn, const char* rename) {
 		return parser_t<T>([=](token_input& in) -> result_t<T> {
 			auto res = fn(in);
 			if (res.is_ok()) {
@@ -336,9 +336,17 @@ namespace combinator {
 					return err;
 				}
 				else {
-					return parser_exp_tok_err(
-						in.get_lexer().file(), rename, in.head()
-					);
+					auto tok_res = in.head();
+					if (tok_res.is_ok()) {
+						return fail_info(in.get_index(),
+							parser_exp_tok_err(
+							in.get_lexer().file(), rename, tok_res.get_ok()
+						));
+					}
+					else {
+						return fail_info(in.get_index(),
+							tok_res.get_err());
+					}
 				}
 			}
 		});
