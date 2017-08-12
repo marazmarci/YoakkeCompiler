@@ -14,8 +14,6 @@ void write_t(T const& t) {
 }
 
 int main(void) {
-	using namespace parser;
-	
 	file_hnd file("C:/TMP/YoakkeTest/tokenizer.txt");
 	if (!file.good()) {
 		std::cout << "Could not open file: " << file.path() << '!' << std::endl;
@@ -23,23 +21,13 @@ int main(void) {
 	lexer lex(file);
 	token_input in(lex);
 
-	auto res = parse_decl_stmt(in);
+	auto res = parser::parse_decl_stmt(in);
 	if (res.is_ok()) {
 		std::cout << "ok!" << std::endl;
 	}
 	else {
-		std::cout << "NOT ok!" << std::endl;
+		parser::handle_error(res.get_err());
 	}
-	//parse_fn_expr(in);
-	//auto res = p_label(in);
-	//if (res.is_ok()) {
-	//	auto& res_ok = res.get_ok();
-	//	auto& lab = std::get<0>(res_ok);
-	//	std::cout << lab.Name.Value << std::endl;
-	//}
-	//else {
-	//	std::cout << "Not eof :(" << std::endl;
-	//}
 
 	std::cin.get();
 	return 0;

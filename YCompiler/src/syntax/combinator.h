@@ -37,7 +37,7 @@ namespace combinator {
 	using parser_err = yvar<parser_exp_tok_err>;
 
 	struct error_t {
-		yvar<lexer_err, parser_err, yvec<error_t>> Data;
+		yvar<lexer_err, parser_err/*, yvec<error_t>*/> Data;
 	};
 
 	struct fail_info {
@@ -53,9 +53,9 @@ namespace combinator {
 			: Index(idx), Error{ err }, Fatal(false) {
 		}
 
-		fail_info(ysize idx, yvec<error_t> const& err)
-			: Index(idx), Error{ err }, Fatal(false) {
-		}
+		//fail_info(ysize idx, yvec<error_t> const& err)
+		//	: Index(idx), Error{ err }, Fatal(false) {
+		//}
 
 		auto const& err() const {
 			return Error.Data;
@@ -84,6 +84,8 @@ namespace combinator {
 	auto operator^(parser_t<T> fn, Fn wrapper);
 	template <token_t TokenT>
 	parser_t<token> terminal(ystr const& expect);
+	template <typename T>
+	auto operator/(parser_t<T> fn, ystr const& rename);
 
 	inline auto success(token_input& in) {
 		using succ_t = result_list<>;
@@ -223,12 +225,12 @@ namespace combinator {
 					if (err1.Index > err2.Index) {
 						return err1;
 					}
-					else if (err2.Index > err1.Index) {
+					else /* if (err2.Index > err1.Index) */ {
 						return err2;
 					}
-					else {
-						return fail_info(err1.Index, { err1.Error, err2.Error });
-					}
+					//else {
+					//	return fail_info(err1.Index, { err1.Error, err2.Error });
+					//}
 				}
 			}
 		});
@@ -317,6 +319,27 @@ namespace combinator {
 			}
 			else {
 				return result.get_err();
+			}
+		});
+	}
+
+	template <typename T>
+	auto operator/(parser_t<T> fn, ystr const& rename) {
+		return parser_t<T>([=](token_input& in) -> result_t<T> {
+			auto res = fn(in);
+			if (res.is_ok()) {
+				return res.get_ok();
+			}
+			else {
+				auto& err = res.get_err();
+				if (err.Fatal) {
+					return err;
+				}
+				else {
+					return parser_exp_tok_err(
+						in.get_lexer().file(), rename, in.head()
+					);
+				}
 			}
 		});
 	}

@@ -5,6 +5,8 @@
 #include "ast_stmt.h"
 #include "parser.h"
 #include "token.h"
+#include "../functions.h"
+#include "../io/fmt_code.h"
 
 namespace parser {
 	namespace {
@@ -113,5 +115,65 @@ namespace parser {
 			};
 
 		return decl_parser(in);
+	}
+
+	/*************************************************************************/
+
+	namespace {
+		void handle_error_desc(yvar<lexer_err, parser_err>& err) {
+			fnl::match(err)(
+			[](lexer_err& err) {
+				fnl::match(err)(
+				[](lexer_eof_err& err) {
+					auto& start = err.Start;
+					auto& end = err.End;
+					std::cout
+						<< "Unexpected end of file in file '"
+						<< err.File.path() << "' at line "
+						<< end.End.Row << ", character "
+						<< end.End.Column << "!"
+						<< std::endl;
+					fmt_code::print(err.File, start, end);
+					std::cout << err.Msg << std::endl;
+					if (err.Note) {
+						std::cout << "Note: " << *err.Note << std::endl;
+					}
+				},
+				[](lexer_unk_tok_err& err) {
+					std::cout
+						<< "Unknown token '"
+						<< err.Tok << "' in file '"
+						<< err.File.path() << "' at line "
+						<< err.Pos.Start.Row << ", character "
+						<< err.Pos.Start.Column << "!"
+						<< std::endl;
+					fmt_code::print(err.File, err.Pos);
+				}
+				);
+			},
+			[](parser_err& err) {
+				fnl::match(err)(
+				[](parser_exp_tok_err& err) {
+					auto& pos = err.Got.Pos;
+					std::cout
+						<< "Syntax error in file '"
+						<< err.File.path() << "' at line "
+						<< pos.Start.Row << ", character "
+						<< pos.Start.Column << "!"
+						<< std::endl;
+					fmt_code::print(err.File, pos);
+					std::cout
+						<< "Expected " << err.Expected
+						<< ", but got " << err.Got.fmt()
+						<< "." << std::endl;
+				}
+				);
+			}
+			);
+		}
+	}
+
+	void handle_error(fail_info& err) {
+		handle_error_desc(err.err());
 	}
 }

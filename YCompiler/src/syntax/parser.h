@@ -19,4 +19,6 @@ namespace parser {
 	result_t<AST_stmt*> parse_stmt(token_input& in);
 	result_t<AST_expr*> parse_expr(token_input& in);
 	result_t<AST_decl_stmt*> parse_decl_stmt(token_input& in);
+
+	void handle_error(fail_info& err);
 }
