@@ -51,6 +51,8 @@ lexer::lexer(file_hnd const& src)
 	add_keyword("if", token_t::If);		// 'if'
 	add_keyword("elif", token_t::Elif);	// 'elif'
 	add_keyword("else", token_t::Else);	// 'else'
+	add_keyword("let", token_t::Let);	// 'let'
+	add_keyword("mut", token_t::Mut);	// 'mut'
 }
 
 file_hnd const& lexer::file() const {

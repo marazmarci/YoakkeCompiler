@@ -6,9 +6,11 @@
 struct AST_expr;
 struct AST_stmt;
 struct AST_ty;
+struct AST_pat;
 struct AST_fn_expr;
 struct AST_block_expr;
 struct AST_decl_stmt;
+struct AST_let_expr;
 
 namespace parser {
 	using namespace combinator;
@@ -18,7 +20,9 @@ namespace parser {
 	result_t<AST_block_expr*> parse_block_expr(token_input& in);
 	result_t<AST_stmt*> parse_stmt(token_input& in);
 	result_t<AST_expr*> parse_expr(token_input& in);
+	result_t<AST_pat*> parse_pat(token_input& in);
 	result_t<AST_decl_stmt*> parse_decl_stmt(token_input& in);
+	result_t<AST_let_expr*> parse_let_expr(token_input& in);
 
 	void handle_error(fail_info& err);
 }

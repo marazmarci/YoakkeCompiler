@@ -17,3 +17,17 @@ AST_decl_stmt::AST_decl_stmt(token const& beg, token const& n, AST_expr* exp)
 AST_decl_stmt::~AST_decl_stmt() {
 	delete Expression;
 }
+
+/*****************************************************************************/
+
+AST_expr_stmt::AST_expr_stmt(AST_expr* exp)
+	: AST_stmt(exp->Pos, AST_stmt_t::Expr), Expression(exp) {
+}
+
+AST_expr_stmt::AST_expr_stmt(AST_expr* exp, token const& semicol)
+	: AST_stmt(interval(exp->Pos, semicol.Pos), AST_stmt_t::Expr), Expression(exp) {
+}
+
+AST_expr_stmt::~AST_expr_stmt() {
+	delete Expression;
+}

@@ -9,7 +9,7 @@ AST_ty::~AST_ty() { }
 /*****************************************************************************/
 
 AST_ident_ty::AST_ident_ty(token const& val)
-	: AST_ty(val.Pos, AST_ty_t::Ident) {
+	: AST_ty(val.Pos, AST_ty_t::Ident), Value(val.Value) {
 }
 
 AST_ident_ty::~AST_ident_ty() { }

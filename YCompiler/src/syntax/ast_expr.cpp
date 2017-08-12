@@ -1,6 +1,7 @@
 #include "ast_expr.h"
 #include "ast_stmt.h"
 #include "ast_ty.h"
+#include "ast_pat.h"
 
 AST_expr::AST_expr(interval const& pos, AST_expr_t ty)
 	: AST_node(pos), Ty(ty) {
@@ -44,4 +45,31 @@ AST_fn_expr::~AST_fn_expr() {
 		delete *Return;
 	}
 	delete Body;
+}
+
+/*****************************************************************************/
+
+AST_ident_expr::AST_ident_expr(token const& val)
+	: AST_expr(val.Pos, AST_expr_t::Ident), Value(val.Value) {
+}
+
+AST_ident_expr::~AST_ident_expr() { }
+
+/*****************************************************************************/
+
+AST_let_expr::AST_let_expr(token const& beg,
+	AST_pat* pat, yopt<AST_ty*> ty, yopt<AST_expr*> val)
+	: AST_expr(interval(beg.Pos, val ? (*val)->Pos : (ty ? (*ty)->Pos : pat->Pos)),
+		AST_expr_t::Let), 
+	Pattern(pat), Type(std::move(ty)), Value(std::move(val)) {
+}
+
+AST_let_expr::~AST_let_expr() {
+	delete Pattern;
+	if (Type) {
+		delete *Type;
+	}
+	if (Value) {
+		delete *Value;
+	}
 }

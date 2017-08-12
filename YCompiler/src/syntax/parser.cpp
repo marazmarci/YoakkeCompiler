@@ -3,6 +3,7 @@
 #include "ast_ty.h"
 #include "ast_expr.h"
 #include "ast_stmt.h"
+#include "ast_pat.h"
 #include "parser.h"
 #include "token.h"
 #include "../functions.h"
@@ -20,14 +21,18 @@ namespace parser {
 		const auto Arrow = terminal<token_t::Arrow>("'->'");
 		const auto Fn = terminal<token_t::Fn>("'fn'");
 		const auto Asgn = terminal<token_t::Asgn>("'='");
+		const auto Let = terminal<token_t::Let>("'let'");
+		const auto Semicol = terminal<token_t::Semicol>("';'");
 
 		parser_t<AST_ty*> Type = parse_type;
 		parser_t<AST_stmt*> Stmt = parse_stmt;
 		parser_t<AST_expr*> Expr = parse_expr;
+		parser_t<AST_pat*> Pattern = parse_pat;
 
 		parser_t<AST_block_expr*> Block = parse_block_expr;
 		parser_t<AST_decl_stmt*> Decl = parse_decl_stmt;
 		parser_t<AST_fn_expr*> FnExpr = parse_fn_expr;
+		parser_t<AST_let_expr*> LetExpr = parse_let_expr;
 	}
 
 	result_t<AST_ty*> parse_type(token_input& in) {
@@ -95,26 +100,47 @@ namespace parser {
 
 	result_t<AST_stmt*> parse_stmt(token_input& in) {
 		static auto stmt_parser =
-			Decl ^ [](auto& res) -> AST_stmt* { return res; };
+			  (Decl ^ [](auto& res) -> AST_stmt* { return res; })
+			| ((LetExpr >= Semicol) ^ [](auto& let, auto& sc) -> AST_stmt* { return new AST_expr_stmt(let, sc); });
 
 		return stmt_parser(in);
 	}
 
 	result_t<AST_expr*> parse_expr(token_input& in) {
 		static auto expr_parser =
-			Ident ^ [](auto& in) -> AST_expr* { return nullptr; };
+			  (Ident ^ [](auto& in) -> AST_expr* { return new AST_ident_expr(in); })
+			| (LetExpr ^ [](auto& exp) -> AST_expr* { return exp; });
 
 		return expr_parser(in);
 	}
 
+	result_t<AST_pat*> parse_pat(token_input& in) {
+		static auto pat_parser =
+			Ident ^ [](auto& in) -> AST_pat* { return new AST_ident_pat(in); };
+
+		return pat_parser(in);
+	}
+
 	result_t<AST_decl_stmt*> parse_decl_stmt(token_input& in) {
 		static auto decl_parser =
-			(Fn >= !Ident < !Asgn >= FnExpr)
+			(Fn >= !Ident < !Asgn >= !(FnExpr / "function expression"))
 			^ [](auto& beg, auto& id, auto& fn) -> AST_decl_stmt* {
 				return new AST_decl_stmt(beg, id, fn);
 			};
 
 		return decl_parser(in);
+	}
+
+	result_t<AST_let_expr*> parse_let_expr(token_input& in) {
+		static auto let_parser =
+			(Let >= !(Pattern / "pattern")
+			>= &(Colon > !(Type / "type"))
+			>= &(Asgn > !(Expr / "expression")))
+			^ [](auto& beg, auto& pat, auto& ty, auto& val) -> AST_let_expr* {
+				return new AST_let_expr(beg, pat, ty, val);
+			};
+
+		return let_parser(in);
 	}
 
 	/*************************************************************************/
