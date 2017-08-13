@@ -20,6 +20,17 @@ namespace parser {
 		const auto Colon	= terminal<token_t::Colon>("':'");
 		const auto Comma	= terminal<token_t::Comma>("','");
 		const auto Arrow	= terminal<token_t::Arrow>("'->'");
+		const auto Plus		= terminal<token_t::Add>("'+'");
+		const auto Minus	= terminal<token_t::Sub>("'-'");
+		const auto Star		= terminal<token_t::Mul>("'*'");
+		const auto Slash	= terminal<token_t::Div>("'/'");
+		const auto Percent	= terminal<token_t::Mod>("'%'");
+		const auto Greater	= terminal<token_t::Greater>("'>'");
+		const auto Less		= terminal<token_t::Less>("'<'");
+		const auto Goe		= terminal<token_t::GrEq>("'>='");
+		const auto Loe		= terminal<token_t::LeEq>("'<='");
+		const auto Equals	= terminal<token_t::Eq>("'=='");
+		const auto NEquals	= terminal<token_t::Neq>("'<>'");
 		const auto Fn		= terminal<token_t::Fn>("'fn'");
 		const auto Asgn		= terminal<token_t::Asgn>("'='");
 		const auto Let		= terminal<token_t::Let>("'let'");
@@ -105,8 +116,8 @@ namespace parser {
 	result_t<AST_stmt*> parse_stmt(token_input& in) {
 		static auto stmt_parser =
 			  (Decl ^ [](auto& res) -> AST_stmt* { return res; })
-			| ((LetExpr >= Semicol) ^ [](auto& let, auto& sc) -> AST_stmt* { return new AST_expr_stmt(let, sc); })
-			| (IfExpr ^ [](auto& e) -> AST_stmt* { e->AsStatement = true; return new AST_expr_stmt(e); });
+			| (IfExpr ^ [](auto& e) -> AST_stmt* { e->AsStatement = true; return new AST_expr_stmt(e); })
+			| ((Expr >= Semicol) ^ [](auto& ex, auto& sc) -> AST_stmt* { return new AST_expr_stmt(ex, sc); });
 
 		return stmt_parser(in);
 	}
@@ -115,10 +126,41 @@ namespace parser {
 		static auto param_list =
 			Expr >= *(Comma > !Expr);
 		
+		static auto LeftAssocTree = [](auto& left, auto& rights) -> AST_expr* {
+			return fnl::fold(rights.begin(), rights.end(), left,
+				[](auto& left, auto& rhs) -> AST_expr* {
+				auto& op = std::get<0>(rhs);
+				auto& right = std::get<1>(rhs);
+				return new AST_bin_expr(left, op, right);
+			});
+		};
+
+		static auto RightAssocTree = [](auto& left, auto& rights) -> AST_expr* {
+			if (rights.size()) {
+				auto it = rights.rbegin();
+				auto op = std::get<0>(*it);
+				auto curr = std::get<1>(*it);
+				it++;
+				while (it != rights.rend()) {
+					auto& tup = *it;
+					auto right = std::get<1>(tup);
+					curr = new AST_bin_expr(right, op, curr);
+					op = std::get<0>(tup);
+					it++;
+				}
+				return new AST_bin_expr(left, op, curr);
+			}
+			else {
+				return left;
+			}
+		};
+
 		static auto lvl0 =
 			  (Ident ^ [](auto& in) -> AST_expr* { return new AST_ident_expr(in); })
+			| (IfExpr ^ [](auto& exp) -> AST_expr* { return exp; })
 			| (LetExpr ^ [](auto& exp) -> AST_expr* { return exp; })
-			| (LParen > !Expr < !RParen) ^ [](auto& exp) -> AST_expr* { return exp; };
+			| ((LParen > !(Expr / "expression") < !RParen) ^ [](auto& exp) -> AST_expr* { return exp; })
+			;
 
 		static auto lvl1 =
 			(lvl0 >= *(LParen > &param_list >= !RParen))
@@ -139,8 +181,35 @@ namespace parser {
 				});
 			};
 
+		static auto lvl2 =
+			(*(Plus | Minus) >= !lvl1) ^ [](auto& ops, auto& exp) -> AST_expr* {
+				return fnl::fold(ops.begin(), ops.end(), exp,
+				[](auto& exp, auto& op) -> AST_expr* {
+					return new AST_pre_expr(op, exp);
+				});
+			};
 
-		return lvl1(in);
+		static auto lvl3 =
+			(lvl2 >= *((Star | Slash | Percent) >= !(lvl2 / "expression")))
+			^ LeftAssocTree;
+
+		static auto lvl4 =
+			(lvl3 >= *((Plus | Minus) >= !(lvl3 / "expression")))
+			^ LeftAssocTree;
+
+		static auto lvl5 =
+			(lvl4 >= *((Greater | Less | Goe | Loe) >= !(lvl4 / "expression")))
+			^ LeftAssocTree;
+
+		static auto lvl6 =
+			(lvl5 >= *((Equals | NEquals) >= !(lvl5 / "expression")))
+			^ LeftAssocTree;
+
+		static auto lvl7 =
+			(lvl6 >= *((Asgn) >= !(lvl6 / "expression")))
+			^ RightAssocTree;
+
+		return lvl7(in);
 	}
 
 	result_t<AST_pat*> parse_pat(token_input& in) {

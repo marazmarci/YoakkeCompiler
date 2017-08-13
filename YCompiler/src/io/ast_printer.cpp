@@ -162,6 +162,35 @@ namespace AST_printer {
 			}
 			break;
 
+			case AST_expr_t::Pre: {
+				auto ex = (AST_pre_expr*)expr;
+				block(indent, "Pre: " + ex->Oper.Value, [&]() {
+					print(ex->Subexpr, indent + 1);
+				});
+			}
+			break;
+
+			case AST_expr_t::Post: {
+				auto ex = (AST_post_expr*)expr;
+				block(indent, "Post: " + ex->Oper.Value, [&]() {
+					print(ex->Subexpr, indent + 1);
+				});
+			}
+			break;
+
+			case AST_expr_t::Bin: {
+				auto ex = (AST_bin_expr*)expr;
+				block(indent, "Bin: " + ex->Oper.Value, [&]() {
+					block(indent + 1, "Left", [&]() {
+						print(ex->Left, indent + 2);
+					});
+					block(indent + 1, "Right", [&]() {
+						print(ex->Right, indent + 2);
+					});
+				});
+			}
+			break;
+
 			default:
 				assert(false && "Expression print unimplemented!");
 			}

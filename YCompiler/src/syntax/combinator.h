@@ -77,6 +77,8 @@ namespace combinator {
 	template <typename T>
 	auto operator*(parser_t<T> fn);
 	template <typename T>
+	auto operator+(parser_t<T> fn);
+	template <typename T>
 	auto operator&(parser_t<T> fn);
 	template <typename T>
 	auto operator!(parser_t<T> fn);
@@ -259,6 +261,14 @@ namespace combinator {
 			}
 			return std::make_tuple(elements, in2);
 		});
+	}
+
+	template <typename T>
+	auto operator+(parser_t<T> fn) {
+		return (fn >= (*fn)) ^ [](auto& first, auto& rest) {
+			rest.insert(rest.begin(), first);
+			return rest;
+		};
 	}
 
 	template <typename T>
