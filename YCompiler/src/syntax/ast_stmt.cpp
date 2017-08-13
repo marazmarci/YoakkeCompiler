@@ -33,22 +33,3 @@ AST_expr_stmt::~AST_expr_stmt() {
 }
 
 /*****************************************************************************/
-
-AST_if_stmt::AST_if_stmt(token const& beg,
-	AST_expr* cond, AST_block_expr* th, AST_block_expr* el)
-	: AST_stmt(interval(beg.Pos, el->Pos), AST_stmt_t::If),
-	Condition(cond), Then(th), Else(el) {
-}
-
-AST_if_stmt::AST_if_stmt(token const& beg, AST_expr* cond, AST_block_expr* th)
-	: AST_stmt(interval(beg.Pos, th->Pos), AST_stmt_t::If),
-	Condition(cond), Then(th), Else({}) {
-}
-
-AST_if_stmt::~AST_if_stmt() {
-	delete Condition;
-	delete Then;
-	if (Else) {
-		delete *Else;
-	}
-}

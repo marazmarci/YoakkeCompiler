@@ -64,10 +64,12 @@ struct AST_let_expr : public AST_expr {
 };
 
 struct AST_if_expr : public AST_expr {
+	bool AsStatement;
 	AST_expr* Condition;
 	AST_block_expr* Then;
-	AST_block_expr* Else;
+	yopt<AST_block_expr*> Else;
 
-	AST_if_expr(token const& beg, AST_expr* cond, AST_block_expr* th, AST_block_expr* el);
+	AST_if_expr(token const& beg, 
+		AST_expr* cond, AST_block_expr* th, yopt<AST_block_expr*> el);
 	virtual ~AST_if_expr();
 };

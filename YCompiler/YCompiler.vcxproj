@@ -124,7 +124,7 @@
     <ClInclude Include="src\syntax\ast.h" />
     <ClInclude Include="src\syntax\ast_expr.h" />
     <ClInclude Include="src\syntax\ast_pat.h" />
-    <ClInclude Include="src\syntax\ast_printer.h" />
+    <ClInclude Include="src\io\ast_printer.h" />
     <ClInclude Include="src\syntax\ast_stmt.h" />
     <ClInclude Include="src\syntax\ast_ty.h" />
     <ClInclude Include="src\syntax\combinator.h" />
@@ -136,6 +136,7 @@
     <ClInclude Include="src\syntax\token_input.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\io\ast_printer.cpp" />
     <ClCompile Include="src\io\fmt_code.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\io\file_hnd.cpp" />

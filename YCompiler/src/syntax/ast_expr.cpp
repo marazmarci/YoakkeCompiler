@@ -82,13 +82,15 @@ AST_let_expr::~AST_let_expr() {
 /*****************************************************************************/
 
 AST_if_expr::AST_if_expr(token const& beg,
-	AST_expr* cond, AST_block_expr* th, AST_block_expr* el)
-	: AST_expr(interval(beg.Pos, el->Pos), AST_expr_t::If),
-	Condition(cond), Then(th), Else(el) {
+	AST_expr* cond, AST_block_expr* th, yopt<AST_block_expr*> el)
+	: AST_expr(interval(beg.Pos, (el ? (*el)->Pos : th->Pos)), AST_expr_t::If),
+	AsStatement(false), Condition(cond), Then(th), Else(std::move(el)) {
 }
 
 AST_if_expr::~AST_if_expr() {
 	delete Condition;
 	delete Then;
-	delete Else;
+	if (Else) {
+		delete *Else;
+	}
 }

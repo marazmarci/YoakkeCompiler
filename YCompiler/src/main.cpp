@@ -7,6 +7,11 @@
 #include "syntax/token_input.h"
 #include "functions.h"
 #include "syntax/parser.h"
+#include "io/ast_printer.h"
+#include "syntax/ast_expr.h"
+#include "syntax/ast_stmt.h"
+#include "syntax/ast_ty.h"
+#include "syntax/ast_pat.h"
 
 template <typename T>
 void write_t(T const& t) {
@@ -23,7 +28,9 @@ int main(void) {
 
 	auto res = parser::parse_decl_stmt(in);
 	if (res.is_ok()) {
-		std::cout << "ok!" << std::endl;
+		auto& res_ok = res.get_ok();
+		auto& ast = std::get<0>(res_ok);
+		AST_printer::print(ast);
 	}
 	else {
 		parser::handle_error(res.get_err());

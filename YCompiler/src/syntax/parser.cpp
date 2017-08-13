@@ -151,9 +151,9 @@ namespace parser {
 		static auto if_parser =
 			(If >= !(Expr / "condition") >= !(Block)
 			>= *(Else > If >= !(Expr / "condition") >= !(Block))
-			< !Else >= !Block)
+			>= &(Else > !Block))
 			^ [](auto& beg, auto& cond, auto& then, auto& elifs, auto& el) -> AST_if_expr* {
-				AST_block_expr* elbody = 
+				yopt<AST_block_expr*> elbody = 
 					fnl::fold(elifs.rbegin(), elifs.rend(), el,
 					[](auto& curr, auto& elem) -> AST_block_expr* {
 						auto& e_tok = std::get<0>(elem);
@@ -164,28 +164,6 @@ namespace parser {
 					});
 				return new AST_if_expr(beg, cond, then, elbody);
 			};
-
-		return if_parser(in);
-	}
-
-	// TODO: make just one if
-	result_t<AST_if_stmt*> parse_if_stmt(token_input& in) {
-		static auto if_parser =
-			(If >= !(Expr / "condition") >= !(Block)
-			>= *(Else > If >= !(Expr / "condition") >= !(Block))
-			>= &(Else > !(Block)))
-			^ [](auto& beg, auto& cond, auto& then, auto& elifs, auto& el) -> AST_if_expr* {
-				AST_block_expr* elbody =
-					fnl::fold(elifs.rbegin(), elifs.rend(), el,
-					[](auto& curr, auto& elem) -> AST_block_expr* {
-						auto& e_tok = std::get<0>(elem);
-						auto& e_cond = std::get<1>(elem);
-						auto& e_block = std::get<2>(elem);
-						AST_if_stmt* eif = new AST_if_stmt(e_tok, e_cond, e_block, curr);
-						return new AST_block_expr(eif);
-					});
-			return new AST_if_expr(beg, cond, then, elbody);
-		};
 
 		return if_parser(in);
 	}
