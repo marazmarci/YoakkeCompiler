@@ -82,12 +82,16 @@ namespace combinator {
 	auto operator&(parser_t<T> fn);
 	template <typename T>
 	auto operator!(parser_t<T> fn);
+	template <typename T>
+	auto operator-(parser_t<T> fn);
 	template <typename T, typename Fn>
 	auto operator^(parser_t<T> fn, Fn wrapper);
 	template <token_t TokenT>
 	parser_t<token> terminal(ystr const& expect);
 	template <typename T>
-	auto operator/(parser_t<T> fn, ystr const& rename);
+	auto operator/(parser_t<T> fn, const char* rename);
+	template <typename T>
+	auto operator%(parser_t<T> fn, const char* rename);
 
 	inline auto success(token_input& in) {
 		using succ_t = result_list<>;
@@ -309,6 +313,24 @@ namespace combinator {
 		});
 	}
 
+	template <typename T>
+	auto operator-(parser_t<T> fn) {
+		return parser_t<T>([=](token_input& in) -> result_t<T> {
+			auto result = fn(in);
+			if (result.is_ok()) {
+				auto& result_ok = result.get_ok();
+				auto& elem = std::get<0>(result_ok);
+				auto& in2 = std::get<1>(result_ok);
+				return std::make_tuple(elem, in2);
+			}
+			else {
+				auto& err = result.get_err();
+				err.Fatal = false;
+				return err;
+			}
+		});
+	}
+
 	template <typename T, typename Fn>
 	auto operator^(parser_t<T> fn, Fn wrapper) {
 		using fn_t = decltype(fn);
@@ -358,6 +380,28 @@ namespace combinator {
 							tok_res.get_err());
 					}
 				}
+			}
+		});
+	}
+
+	template <typename T>
+	auto operator%(parser_t<T> fn, const char* rename) {
+		return parser_t<T>([=](token_input& in) -> result_t<T> {
+			std::cout << "Trying " << rename << "..." << std::endl;
+			auto res = fn(in);
+			if (res.is_ok()) {
+				std::cout << rename << " succeeds!" << std::endl;
+				return res.get_ok();
+			}
+			else {
+				auto& err = res.get_err();
+				if (err.Fatal) {
+					std::cout << rename << " fails FATALLY!" << std::endl;
+				}
+				else {
+					std::cout << rename << " fails!" << std::endl;
+				}
+				return err;
 			}
 		});
 	}

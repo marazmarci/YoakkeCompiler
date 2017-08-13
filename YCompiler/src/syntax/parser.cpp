@@ -106,7 +106,7 @@ namespace parser {
 
 	result_t<AST_block_expr*> parse_block_expr(token_input& in) {
 		static auto block_parser =
-			(LBrace >= *(Stmt) >= &(ListExpr / "def") >= !RBrace)
+			(LBrace >= (*(Stmt) % "block/stmt") >= &(ListExpr % "block/return") >= !RBrace)
 			^ [](auto& lbr, auto& stmt_list, auto& val, auto& rbr) -> AST_block_expr* {
 				return new AST_block_expr(lbr, stmt_list, val, rbr);
 			};
@@ -118,7 +118,7 @@ namespace parser {
 		static auto stmt_parser =
 			  (Decl ^ [](auto& res) -> AST_stmt* { return res; })
 			| (IfExpr ^ [](auto& e) -> AST_stmt* { e->AsStatement = true; return new AST_expr_stmt(e); })
-			| (((ListExpr / "asd") >= Semicol) ^ [](auto& ex, auto& sc) -> AST_stmt* { return new AST_expr_stmt(ex, sc); });
+			| ((((ListExpr) >= Semicol) ^ [](auto& ex, auto& sc) -> AST_stmt* { return new AST_expr_stmt(ex, sc); }) % "stmt/list_expr");
 
 		return stmt_parser(in);
 	}
@@ -160,15 +160,15 @@ namespace parser {
 			  (Ident ^ [](auto& in) -> AST_expr* { return new AST_ident_expr(in); })
 			| (IfExpr ^ [](auto& exp) -> AST_expr* { return exp; })
 			| (LetExpr ^ [](auto& exp) -> AST_expr* { return exp; })
-			| ((LParen >= &ListExpr >= !RParen) 
-				^ [](auto& lp, auto& ls, auto& rp) -> AST_expr* { 
-					if (ls) {
-						return *ls;
-					}
-					else {
-						return new AST_list_expr(lp, rp);
-					}
+			| ((LParen >= RParen)
+				^ [](auto& lp, auto& rp) -> AST_expr* {
+					return new AST_list_expr(lp, rp);
 				})
+			| ((LParen > ListExpr < !RParen) 
+				^ [](auto& ls) -> AST_expr* { 
+					return ls;
+				})
+			| (Let ^ [](auto& l) { return (AST_expr*)nullptr; })
 			;
 
 		static auto lvl1 =
@@ -273,7 +273,7 @@ namespace parser {
 
 	result_t<AST_expr*> parse_list_expr(token_input& in) {
 		static auto list_parser =
-			((Expr >= *(Comma > !Expr))
+			(((Expr % "list_expr/first_expr") >= *((Comma > !(Expr)) % "list_expr/next_expr"))
 			^ [](auto& first, auto& rest) -> AST_expr* {
 				if (rest.size()) {
 					rest.insert(rest.begin(), first);
