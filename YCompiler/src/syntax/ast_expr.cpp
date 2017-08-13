@@ -94,3 +94,52 @@ AST_if_expr::~AST_if_expr() {
 		delete *Else;
 	}
 }
+
+/*****************************************************************************/
+
+AST_pre_expr::AST_pre_expr(token const& op, AST_expr* sub)
+	: AST_expr(interval(op.Pos, sub->Pos), AST_expr_t::Pre), 
+	Oper(op), Subexpr(sub) {
+}
+
+AST_pre_expr::~AST_pre_expr() {
+	delete Subexpr;
+}
+
+/*****************************************************************************/
+
+AST_bin_expr::AST_bin_expr(AST_expr* left, token const& op, AST_expr* right)
+	: AST_expr(interval(left->Pos, right->Pos), AST_expr_t::Bin),
+	Left(left), Oper(op), Right(right) {
+}
+
+AST_bin_expr::~AST_bin_expr() {
+	delete Left;
+	delete Right;
+}
+
+/*****************************************************************************/
+
+AST_post_expr::AST_post_expr(AST_expr* sub, token const& op)
+	: AST_expr(interval(sub->Pos, op.Pos), AST_expr_t::Post),
+	Subexpr(sub), Oper(op) {
+}
+
+AST_post_expr::~AST_post_expr() {
+	delete Subexpr;
+}
+
+/*****************************************************************************/
+
+AST_call_expr::AST_call_expr(AST_expr* fn, yvec<AST_expr*> const& params,
+	token const& end)
+	: AST_expr(interval(fn->Pos, end.Pos), AST_expr_t::Call),
+	Func(fn), Params(params) {
+}
+
+AST_call_expr::~AST_call_expr() {
+	delete Func;
+	for (auto& par : Params) {
+		delete par;
+	}
+}

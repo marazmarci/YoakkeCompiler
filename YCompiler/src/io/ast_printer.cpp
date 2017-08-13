@@ -143,6 +143,25 @@ namespace AST_printer {
 			}
 			break;
 
+			case AST_expr_t::Call: {
+				auto ex = (AST_call_expr*)expr;
+				block(indent, "Call", [&]() {
+					block(indent + 1, "Function", [&]() {
+						print(ex->Func, indent + 2);
+					});
+					if (ex->Params.size()) {
+						block(indent + 1, "Parameters", [&]() {
+							for (auto& par : ex->Params) {
+								block(indent + 2, "Param", [&]() {
+									print(par, indent + 3);
+								});
+							}
+						});
+					}
+				});
+			}
+			break;
+
 			default:
 				assert(false && "Expression print unimplemented!");
 			}

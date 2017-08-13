@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <tuple>
+#include <set>
 #include <map>
 #include <variant>
 #include <vector>
@@ -21,6 +22,9 @@ using yunit = ytup<>;
 
 template <typename T>
 using yopt = std::optional<T>;
+
+template <typename T>
+using yset = std::set<T>;
 
 template <typename K, typename V>
 using ymap = std::map<K, V>;

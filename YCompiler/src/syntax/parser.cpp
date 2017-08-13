@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include "ast.h"
 #include "ast_ty.h"
@@ -11,31 +12,31 @@
 
 namespace parser {
 	namespace {
-		const auto Ident = terminal<token_t::Ident>("identifier");
-		const auto LParen = terminal<token_t::LParen>("'('");
-		const auto RParen = terminal<token_t::RParen>("')'");
-		const auto LBrace = terminal<token_t::LBrace>("'{'");
-		const auto RBrace = terminal<token_t::RBrace>("'}'");
-		const auto Colon = terminal<token_t::Colon>("':'");
-		const auto Comma = terminal<token_t::Comma>("','");
-		const auto Arrow = terminal<token_t::Arrow>("'->'");
-		const auto Fn = terminal<token_t::Fn>("'fn'");
-		const auto Asgn = terminal<token_t::Asgn>("'='");
-		const auto Let = terminal<token_t::Let>("'let'");
-		const auto Semicol = terminal<token_t::Semicol>("';'");
-		const auto If = terminal<token_t::If>("'if'");
-		const auto Else = terminal<token_t::Else>("'else'");
+		const auto Ident	= terminal<token_t::Ident>("identifier");
+		const auto LParen	= terminal<token_t::LParen>("'('");
+		const auto RParen	= terminal<token_t::RParen>("')'");
+		const auto LBrace	= terminal<token_t::LBrace>("'{'");
+		const auto RBrace	= terminal<token_t::RBrace>("'}'");
+		const auto Colon	= terminal<token_t::Colon>("':'");
+		const auto Comma	= terminal<token_t::Comma>("','");
+		const auto Arrow	= terminal<token_t::Arrow>("'->'");
+		const auto Fn		= terminal<token_t::Fn>("'fn'");
+		const auto Asgn		= terminal<token_t::Asgn>("'='");
+		const auto Let		= terminal<token_t::Let>("'let'");
+		const auto Semicol	= terminal<token_t::Semicol>("';'");
+		const auto If		= terminal<token_t::If>("'if'");
+		const auto Else		= terminal<token_t::Else>("'else'");
 
-		const parser_t<AST_ty*> Type = parse_type;
-		const parser_t<AST_stmt*> Stmt = parse_stmt;
-		const parser_t<AST_expr*> Expr = parse_expr;
-		const parser_t<AST_pat*> Pattern = parse_pat;
+		const parser_t<AST_ty*>		Type	= parse_type;
+		const parser_t<AST_stmt*>	Stmt	= parse_stmt;
+		const parser_t<AST_expr*>	Expr	= parse_expr;
+		const parser_t<AST_pat*>	Pattern = parse_pat;
 
-		const parser_t<AST_block_expr*> Block = parse_block_expr;
-		const parser_t<AST_decl_stmt*> Decl = parse_decl_stmt;
-		const parser_t<AST_fn_expr*> FnExpr = parse_fn_expr;
-		const parser_t<AST_let_expr*> LetExpr = parse_let_expr;
-		const parser_t<AST_if_expr*> IfExpr = parse_if_expr;
+		const parser_t<AST_block_expr*> Block	= parse_block_expr;
+		const parser_t<AST_decl_stmt*>	Decl	= parse_decl_stmt;
+		const parser_t<AST_fn_expr*>	FnExpr	= parse_fn_expr;
+		const parser_t<AST_let_expr*>	LetExpr = parse_let_expr;
+		const parser_t<AST_if_expr*>	IfExpr	= parse_if_expr;
 	}
 
 	result_t<AST_ty*> parse_type(token_input& in) {
@@ -105,17 +106,41 @@ namespace parser {
 		static auto stmt_parser =
 			  (Decl ^ [](auto& res) -> AST_stmt* { return res; })
 			| ((LetExpr >= Semicol) ^ [](auto& let, auto& sc) -> AST_stmt* { return new AST_expr_stmt(let, sc); })
-			| (IfExpr ^ [](auto& e) -> AST_stmt* { return new AST_expr_stmt(e); }); // TODO: remove this
+			| (IfExpr ^ [](auto& e) -> AST_stmt* { e->AsStatement = true; return new AST_expr_stmt(e); });
 
 		return stmt_parser(in);
 	}
 
 	result_t<AST_expr*> parse_expr(token_input& in) {
-		static auto expr_parser =
+		static auto param_list =
+			Expr >= *(Comma > !Expr);
+		
+		static auto lvl0 =
 			  (Ident ^ [](auto& in) -> AST_expr* { return new AST_ident_expr(in); })
-			| (LetExpr ^ [](auto& exp) -> AST_expr* { return exp; });
+			| (LetExpr ^ [](auto& exp) -> AST_expr* { return exp; })
+			| (LParen > !Expr < !RParen) ^ [](auto& exp) -> AST_expr* { return exp; };
 
-		return expr_parser(in);
+		static auto lvl1 =
+			(lvl0 >= *(LParen > &param_list >= !RParen))
+			^ [](auto& fn, auto& params) -> AST_expr* {
+				return fnl::fold(params.begin(), params.end(), fn, 
+				[](auto& fn, auto& param_ls) -> AST_expr* {
+					auto& param_pack = std::get<0>(param_ls);
+					auto& rparen = std::get<1>(param_ls);
+					if (param_pack) {
+						auto& fpar = std::get<0>(*param_pack);
+						auto& restpars = std::get<1>(*param_pack);
+						restpars.insert(restpars.begin(), fpar);
+						return new AST_call_expr(fn, restpars, rparen);
+					}
+					else {
+						return new AST_call_expr(fn, yvec<AST_expr*>{}, rparen);
+					}
+				});
+			};
+
+
+		return lvl1(in);
 	}
 
 	result_t<AST_pat*> parse_pat(token_input& in) {

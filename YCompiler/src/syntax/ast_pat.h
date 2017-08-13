@@ -4,7 +4,10 @@
 #include "token.h"
 
 enum class AST_pat_t {
-	Ident
+	Ident,
+	Pre,
+	Bin,
+	Post,
 };
 
 struct AST_pat : public AST_node {
@@ -21,4 +24,29 @@ struct AST_ident_pat : public AST_pat {
 
 	AST_ident_pat(token const& val);
 	virtual ~AST_ident_pat();
+};
+
+struct AST_pre_pat : public AST_pat {
+	token		Oper;
+	AST_pat*	Subexpr;
+
+	AST_pre_pat(token const& op, AST_pat* sub);
+	virtual ~AST_pre_pat();
+};
+
+struct AST_bin_pat : public AST_pat {
+	AST_pat*	Left;
+	token		Oper;
+	AST_pat*	Right;
+
+	AST_bin_pat(AST_pat* left, token const& op, AST_pat* right);
+	virtual ~AST_bin_pat();
+};
+
+struct AST_post_pat : public AST_pat {
+	AST_pat*	Subexpr;
+	token		Oper;
+
+	AST_post_pat(AST_pat* sub, token const& op);
+	virtual ~AST_post_pat();
 };

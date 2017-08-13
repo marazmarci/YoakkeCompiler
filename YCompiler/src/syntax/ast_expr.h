@@ -13,6 +13,10 @@ enum class AST_expr_t {
 	Ident,
 	Let,
 	If,
+	Pre,
+	Bin,
+	Post,
+	Call,
 };
 
 struct AST_expr : public AST_node {
@@ -72,4 +76,37 @@ struct AST_if_expr : public AST_expr {
 	AST_if_expr(token const& beg, 
 		AST_expr* cond, AST_block_expr* th, yopt<AST_block_expr*> el);
 	virtual ~AST_if_expr();
+};
+
+struct AST_pre_expr : public AST_expr {
+	token		Oper;
+	AST_expr*	Subexpr;
+
+	AST_pre_expr(token const& op, AST_expr* sub);
+	virtual ~AST_pre_expr();
+};
+
+struct AST_bin_expr : public AST_expr {
+	AST_expr*	Left;
+	token		Oper;
+	AST_expr*	Right;
+
+	AST_bin_expr(AST_expr* left, token const& op, AST_expr* right);
+	virtual ~AST_bin_expr();
+};
+
+struct AST_post_expr : public AST_expr {
+	AST_expr*	Subexpr;
+	token		Oper;
+
+	AST_post_expr(AST_expr* sub, token const& op);
+	virtual ~AST_post_expr();
+};
+
+struct AST_call_expr : public AST_expr {
+	AST_expr*		Func;
+	yvec<AST_expr*>	Params;
+
+	AST_call_expr(AST_expr* fn, yvec<AST_expr*> const& params, token const& end);
+	virtual ~AST_call_expr();
 };
