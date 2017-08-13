@@ -386,6 +386,7 @@ namespace combinator {
 
 	template <typename T>
 	auto operator%(parser_t<T> fn, const char* rename) {
+#ifdef DEBUG_GRAMMAR
 		return parser_t<T>([=](token_input& in) -> result_t<T> {
 			std::cout << "Trying " << rename << "..." << std::endl;
 			auto res = fn(in);
@@ -404,6 +405,9 @@ namespace combinator {
 				return err;
 			}
 		});
+#else
+		return fn;
+#endif
 	}
 
 	template <token_t TokenT>

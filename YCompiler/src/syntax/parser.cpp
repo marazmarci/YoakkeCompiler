@@ -157,22 +157,22 @@ namespace parser {
 		};
 
 		static auto lvl0 =
-			  (Ident ^ [](auto& in) -> AST_expr* { return new AST_ident_expr(in); })
-			| (IfExpr ^ [](auto& exp) -> AST_expr* { return exp; })
-			| (LetExpr ^ [](auto& exp) -> AST_expr* { return exp; })
-			| ((LParen >= RParen)
+			  (((Ident ^ [](auto& in) -> AST_expr* { return new AST_ident_expr(in); }) % "expr/lvl0/rule0")
+			| ((IfExpr ^ [](auto& exp) -> AST_expr* { return exp; }) % "expr/lvl0/rule1")
+			| ((LetExpr ^ [](auto& exp) -> AST_expr* { return exp; }) % "expr/lvl0/rule2")
+			| (((LParen >= RParen)
 				^ [](auto& lp, auto& rp) -> AST_expr* {
 					return new AST_list_expr(lp, rp);
-				})
-			| ((LParen > ListExpr < !RParen) 
+				}) % "expr/lvl0/rule3")
+			| (((LParen > ListExpr < !RParen) 
 				^ [](auto& ls) -> AST_expr* { 
 					return ls;
-				})
-			| (Let ^ [](auto& l) { return (AST_expr*)nullptr; })
+				}) % "expr/lvl0/rule4")
+			| ((Let ^ [](auto& l) { return (AST_expr*)nullptr; })) % "expr/lvl0/rule5") % "expr/lvl0"
 			;
 
 		static auto lvl1 =
-			(lvl0 >= *(LParen > &param_list >= !RParen))
+			((lvl0 >= *(LParen > &param_list >= !RParen))
 			^ [](auto& fn, auto& params) -> AST_expr* {
 				return fnl::fold(params.begin(), params.end(), fn, 
 				[](auto& fn, auto& param_ls) -> AST_expr* {
@@ -188,35 +188,35 @@ namespace parser {
 						return new AST_call_expr(fn, yvec<AST_expr*>{}, rparen);
 					}
 				});
-			};
+			}) % "expr/lvl1";
 
 		static auto lvl2 =
-			(*(Plus | Minus) >= !lvl1) ^ [](auto& ops, auto& exp) -> AST_expr* {
+			((*(Plus | Minus) >= lvl1) ^ [](auto& ops, auto& exp) -> AST_expr* {
 				return fnl::fold(ops.begin(), ops.end(), exp,
 				[](auto& exp, auto& op) -> AST_expr* {
 					return new AST_pre_expr(op, exp);
 				});
-			};
+			}) % "expr/lvl2";
 
 		static auto lvl3 =
-			(lvl2 >= *((Star | Slash | Percent) >= !(lvl2 / "expression")))
-			^ LeftAssocTree;
+			((lvl2 >= *((Star | Slash | Percent) >= !(lvl2 / "expression")))
+			^ LeftAssocTree) % "expr/lvl3";
 
 		static auto lvl4 =
-			(lvl3 >= *((Plus | Minus) >= !(lvl3 / "expression")))
-			^ LeftAssocTree;
+			((lvl3 >= *((Plus | Minus) >= !(lvl3 / "expression")))
+			^ LeftAssocTree) % "expr/lvl4";
 
 		static auto lvl5 =
-			(lvl4 >= *((Greater | Less | Goe | Loe) >= !(lvl4 / "expression")))
-			^ LeftAssocTree;
+			((lvl4 >= *((Greater | Less | Goe | Loe) >= !(lvl4 / "expression")))
+			^ LeftAssocTree) % "expr/lvl5";
 
 		static auto lvl6 =
-			(lvl5 >= *((Equals | NEquals) >= !(lvl5 / "expression")))
-			^ LeftAssocTree;
+			((lvl5 >= *((Equals | NEquals) >= !(lvl5 / "expression")))
+			^ LeftAssocTree) % "expr/lvl6";
 
 		static auto lvl7 =
-			(lvl6 >= *((Asgn) >= !(lvl6 / "expression")))
-			^ RightAssocTree;
+			((lvl6 >= *((Asgn) >= !(lvl6 / "expression")))
+			^ RightAssocTree) % "expr/lvl7";
 
 		return lvl7(in);
 	}
