@@ -8,6 +8,7 @@ enum class AST_ty_t {
 	Pre,
 	Bin,
 	Post,
+	List,
 };
 
 struct AST_ty : public AST_node {
@@ -49,4 +50,12 @@ struct AST_post_ty : public AST_ty {
 
 	AST_post_ty(AST_ty* sub, token const& op);
 	virtual ~AST_post_ty();
+};
+
+struct AST_list_ty : public AST_ty {
+	yvec<AST_ty*>	Elements;
+
+	AST_list_ty(yvec<AST_ty*> const& elems);
+	AST_list_ty(token const& beg, token const& end);
+	virtual ~AST_list_ty();
 };

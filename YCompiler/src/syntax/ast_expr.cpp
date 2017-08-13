@@ -143,3 +143,21 @@ AST_call_expr::~AST_call_expr() {
 		delete par;
 	}
 }
+
+/*****************************************************************************/
+
+AST_list_expr::AST_list_expr(yvec<AST_expr*> const& elems)
+	: AST_expr(interval((*elems.begin())->Pos, (*elems.rbegin())->Pos), AST_expr_t::List), 
+	Elements(elems) {
+}
+
+AST_list_expr::AST_list_expr(token const& beg, token const& end)
+	: AST_expr(interval(beg.Pos, end.Pos), AST_expr_t::List), 
+	Elements(yvec<AST_expr*>{}) {
+}
+
+AST_list_expr::~AST_list_expr() {
+	for (auto& el : Elements) {
+		delete el;
+	}
+}

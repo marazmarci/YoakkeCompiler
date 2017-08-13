@@ -47,3 +47,21 @@ AST_post_pat::AST_post_pat(AST_pat* sub, token const& op)
 AST_post_pat::~AST_post_pat() {
 	delete Subexpr;
 }
+
+/*****************************************************************************/
+
+AST_list_pat::AST_list_pat(yvec<AST_pat*> const& elems)
+	: AST_pat(interval((*elems.begin())->Pos, (*elems.rbegin())->Pos), AST_pat_t::List),
+	Elements(elems) {
+}
+
+AST_list_pat::AST_list_pat(token const& beg, token const& end)
+	: AST_pat(interval(beg.Pos, end.Pos), AST_pat_t::List),
+	Elements(yvec<AST_pat*>{}) {
+}
+
+AST_list_pat::~AST_list_pat() {
+	for (auto& el : Elements) {
+		delete el;
+	}
+}

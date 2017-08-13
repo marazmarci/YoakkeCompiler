@@ -17,6 +17,7 @@ enum class AST_expr_t {
 	Bin,
 	Post,
 	Call,
+	List,
 };
 
 struct AST_expr : public AST_node {
@@ -109,4 +110,12 @@ struct AST_call_expr : public AST_expr {
 
 	AST_call_expr(AST_expr* fn, yvec<AST_expr*> const& params, token const& end);
 	virtual ~AST_call_expr();
+};
+
+struct AST_list_expr : public AST_expr {
+	yvec<AST_expr*>	Elements;
+
+	AST_list_expr(yvec<AST_expr*> const& elems);
+	AST_list_expr(token const& beg, token const& end);
+	virtual ~AST_list_expr();
 };

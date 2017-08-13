@@ -43,11 +43,12 @@ namespace parser {
 		const parser_t<AST_expr*>	Expr	= parse_expr;
 		const parser_t<AST_pat*>	Pattern = parse_pat;
 
-		const parser_t<AST_block_expr*> Block	= parse_block_expr;
-		const parser_t<AST_decl_stmt*>	Decl	= parse_decl_stmt;
-		const parser_t<AST_fn_expr*>	FnExpr	= parse_fn_expr;
-		const parser_t<AST_let_expr*>	LetExpr = parse_let_expr;
-		const parser_t<AST_if_expr*>	IfExpr	= parse_if_expr;
+		const parser_t<AST_block_expr*> Block	 = parse_block_expr;
+		const parser_t<AST_decl_stmt*>	Decl	 = parse_decl_stmt;
+		const parser_t<AST_fn_expr*>	FnExpr	 = parse_fn_expr;
+		const parser_t<AST_let_expr*>	LetExpr  = parse_let_expr;
+		const parser_t<AST_if_expr*>	IfExpr	 = parse_if_expr;
+		const parser_t<AST_expr*>		ListExpr = parse_list_expr;
 	}
 
 	result_t<AST_ty*> parse_type(token_input& in) {
@@ -105,7 +106,7 @@ namespace parser {
 
 	result_t<AST_block_expr*> parse_block_expr(token_input& in) {
 		static auto block_parser =
-			(LBrace >= *(Stmt) >= &Expr >= !RBrace)
+			(LBrace >= *(Stmt) >= &(ListExpr / "def") >= !RBrace)
 			^ [](auto& lbr, auto& stmt_list, auto& val, auto& rbr) -> AST_block_expr* {
 				return new AST_block_expr(lbr, stmt_list, val, rbr);
 			};
@@ -117,7 +118,7 @@ namespace parser {
 		static auto stmt_parser =
 			  (Decl ^ [](auto& res) -> AST_stmt* { return res; })
 			| (IfExpr ^ [](auto& e) -> AST_stmt* { e->AsStatement = true; return new AST_expr_stmt(e); })
-			| ((Expr >= Semicol) ^ [](auto& ex, auto& sc) -> AST_stmt* { return new AST_expr_stmt(ex, sc); });
+			| (((ListExpr / "asd") >= Semicol) ^ [](auto& ex, auto& sc) -> AST_stmt* { return new AST_expr_stmt(ex, sc); });
 
 		return stmt_parser(in);
 	}
@@ -159,7 +160,15 @@ namespace parser {
 			  (Ident ^ [](auto& in) -> AST_expr* { return new AST_ident_expr(in); })
 			| (IfExpr ^ [](auto& exp) -> AST_expr* { return exp; })
 			| (LetExpr ^ [](auto& exp) -> AST_expr* { return exp; })
-			| ((LParen > !(Expr / "expression") < !RParen) ^ [](auto& exp) -> AST_expr* { return exp; })
+			| ((LParen >= &ListExpr >= !RParen) 
+				^ [](auto& lp, auto& ls, auto& rp) -> AST_expr* { 
+					if (ls) {
+						return *ls;
+					}
+					else {
+						return new AST_list_expr(lp, rp);
+					}
+				})
 			;
 
 		static auto lvl1 =
@@ -260,6 +269,22 @@ namespace parser {
 			};
 
 		return if_parser(in);
+	}
+
+	result_t<AST_expr*> parse_list_expr(token_input& in) {
+		static auto list_parser =
+			((Expr >= *(Comma > !Expr))
+			^ [](auto& first, auto& rest) -> AST_expr* {
+				if (rest.size()) {
+					rest.insert(rest.begin(), first);
+					return new AST_list_expr(rest);
+				}
+				else {
+					return first;
+				}
+			});
+
+		return list_parser(in);
 	}
 
 	/*************************************************************************/

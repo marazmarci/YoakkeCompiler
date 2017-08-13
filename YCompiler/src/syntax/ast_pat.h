@@ -8,6 +8,7 @@ enum class AST_pat_t {
 	Pre,
 	Bin,
 	Post,
+	List,
 };
 
 struct AST_pat : public AST_node {
@@ -49,4 +50,12 @@ struct AST_post_pat : public AST_pat {
 
 	AST_post_pat(AST_pat* sub, token const& op);
 	virtual ~AST_post_pat();
+};
+
+struct AST_list_pat : public AST_pat {
+	yvec<AST_pat*>	Elements;
+
+	AST_list_pat(yvec<AST_pat*> const& elems);
+	AST_list_pat(token const& beg, token const& end);
+	virtual ~AST_list_pat();
 };

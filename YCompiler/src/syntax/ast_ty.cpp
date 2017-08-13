@@ -47,3 +47,21 @@ AST_post_ty::AST_post_ty(AST_ty* sub, token const& op)
 AST_post_ty::~AST_post_ty() {
 	delete Subexpr;
 }
+
+/*****************************************************************************/
+
+AST_list_ty::AST_list_ty(yvec<AST_ty*> const& elems)
+	: AST_ty(interval((*elems.begin())->Pos, (*elems.rbegin())->Pos), AST_ty_t::List),
+	Elements(elems) {
+}
+
+AST_list_ty::AST_list_ty(token const& beg, token const& end)
+	: AST_ty(interval(beg.Pos, end.Pos), AST_ty_t::List),
+	Elements(yvec<AST_ty*>{}) {
+}
+
+AST_list_ty::~AST_list_ty() {
+	for (auto& el : Elements) {
+		delete el;
+	}
+}

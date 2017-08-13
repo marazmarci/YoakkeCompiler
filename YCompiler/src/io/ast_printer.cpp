@@ -191,6 +191,18 @@ namespace AST_printer {
 			}
 			break;
 
+			case AST_expr_t::List: {
+				auto ex = (AST_list_expr*)expr;
+				block(indent, "List", [&]() {
+					for (auto& el : ex->Elements) {
+						block(indent + 1, "Element", [&]() {
+							print(el, indent + 2);
+						});
+					}
+				});
+			}
+			break;
+
 			default:
 				assert(false && "Expression print unimplemented!");
 			}

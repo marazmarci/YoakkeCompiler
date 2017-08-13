@@ -33,6 +33,9 @@ int main(void) {
 		AST_printer::print(ast);
 	}
 	else {
+		if (res.get_err().Fatal) {
+			std::cout << "FATAL" << std::endl;
+		}
 		parser::handle_error(res.get_err());
 	}
 
