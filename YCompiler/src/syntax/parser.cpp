@@ -52,10 +52,48 @@ namespace parser {
 	}
 
 	result_t<AST_ty*> parse_type(token_input& in) {
-		static auto type_parser =
-			Ident ^ [](auto& tok) -> AST_ty* { return new AST_ident_ty(tok); };
+		static auto lvl0 =
+			  (Ident ^ [](auto& tok) -> AST_ty* { return new AST_ident_ty(tok); })
+			| ((LParen >= RParen) ^ [](auto& lp, auto& rp) -> AST_ty* {
+				return new AST_list_ty(lp, rp);
+			  })
+			| ((LParen > Type < !RParen) ^ [](auto& t) { return t; });
 
-		return type_parser(in);
+		static auto lvl1 =
+			((lvl0 >= *(Arrow >= !lvl0))
+			^ [](auto& left, auto& rights) -> AST_ty* {
+				if (rights.size()) {
+					auto it = rights.rbegin();
+					auto op = std::get<0>(*it);
+					auto curr = std::get<1>(*it);
+					it++;
+					while (it != rights.rend()) {
+						auto& tup = *it;
+						auto right = std::get<1>(tup);
+						curr = new AST_bin_ty(right, op, curr);
+						op = std::get<0>(tup);
+						it++;
+					}
+					return new AST_bin_ty(left, op, curr);
+				}
+				else {
+					return left;
+				}
+			});
+
+		static auto lvl2 =
+			(((lvl1 % "list_ty/first_ty") >= *((Comma > !(lvl1)) % "list_ty/next_ty"))
+			^ [](auto& first, auto& rest) -> AST_ty* {
+				if (rest.size()) {
+					rest.insert(rest.begin(), first);
+					return new AST_list_ty(rest);
+				}
+				else {
+					return first;
+				}
+			});
+
+		return lvl2(in);
 	}
 
 	result_t<AST_fn_expr*> parse_fn_expr(token_input& in) {
@@ -222,10 +260,26 @@ namespace parser {
 	}
 
 	result_t<AST_pat*> parse_pat(token_input& in) {
-		static auto pat_parser =
-			Ident ^ [](auto& in) -> AST_pat* { return new AST_ident_pat(in); };
+		static auto lvl0 =
+			  (Ident ^ [](auto& tok) -> AST_pat* { return new AST_ident_pat(tok); })
+			| ((LParen >= RParen) ^ [](auto& lp, auto& rp) -> AST_pat* {
+				return new AST_list_pat(lp, rp);
+			  })
+			| ((LParen > Pattern < !RParen) ^ [](auto& t) { return t; });
 
-		return pat_parser(in);
+		static auto lvl1 =
+			(((lvl0 % "list_pat/first_pat") >= *((Comma > !(lvl0)) % "list_pat/next_pat"))
+			^ [](auto& first, auto& rest) -> AST_pat* {
+				if (rest.size()) {
+					rest.insert(rest.begin(), first);
+					return new AST_list_pat(rest);
+				}
+				else {
+					return first;
+				}
+			});
+
+		return lvl1(in);
 	}
 
 	result_t<AST_decl_stmt*> parse_decl_stmt(token_input& in) {

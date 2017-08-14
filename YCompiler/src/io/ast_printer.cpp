@@ -217,6 +217,47 @@ namespace AST_printer {
 			}
 			break;
 
+			case AST_ty_t::Pre: {
+				auto t = (AST_pre_ty*)ty;
+				block(indent, "Pre: " + t->Oper.Value, [&]() {
+					print(t->Subexpr, indent + 1);
+				});
+			}
+			break;
+
+			case AST_ty_t::Post: {
+				auto t = (AST_post_ty*)ty;
+				block(indent, "Post: " + t->Oper.Value, [&]() {
+					print(t->Subexpr, indent + 1);
+				});
+			}
+			break;
+
+			case AST_ty_t::Bin: {
+				auto t = (AST_bin_ty*)ty;
+				block(indent, "Bin: " + t->Oper.Value, [&]() {
+					block(indent + 1, "Left", [&]() {
+						print(t->Left, indent + 2);
+					});
+					block(indent + 1, "Right", [&]() {
+						print(t->Right, indent + 2);
+					});
+				});
+			}
+			break;
+
+			case AST_ty_t::List: {
+				auto t = (AST_list_ty*)ty;
+				block(indent, "List", [&]() {
+					for (auto& el : t->Elements) {
+						block(indent + 1, "Element", [&]() {
+							print(el, indent + 2);
+						});
+					}
+				});
+			}
+			break;
+
 			default:
 				assert(false && "Type print unimplemented!");
 			}
@@ -225,9 +266,50 @@ namespace AST_printer {
 		void print(AST_pat* pat, ysize indent) {
 			switch (pat->Ty) {
 			case AST_pat_t::Ident: {
-				auto pt = (AST_ident_ty*)pat;
+				auto pt = (AST_ident_pat*)pat;
 				do_indent(indent);
 				std::cout << "id: " << pt->Value << std::endl;
+			}
+			break;
+
+			case AST_pat_t::Pre: {
+				auto pt = (AST_pre_pat*)pat;
+				block(indent, "Pre: " + pt->Oper.Value, [&]() {
+					print(pt->Subexpr, indent + 1);
+				});
+			}
+			break;
+
+			case AST_pat_t::Post: {
+				auto pt = (AST_post_pat*)pat;
+				block(indent, "Post: " + pt->Oper.Value, [&]() {
+					print(pt->Subexpr, indent + 1);
+				});
+			}
+			break;
+
+			case AST_pat_t::Bin: {
+				auto pt = (AST_bin_pat*)pat;
+				block(indent, "Bin: " + pt->Oper.Value, [&]() {
+					block(indent + 1, "Left", [&]() {
+						print(pt->Left, indent + 2);
+					});
+					block(indent + 1, "Right", [&]() {
+						print(pt->Right, indent + 2);
+					});
+				});
+			}
+			break;
+
+			case AST_pat_t::List: {
+				auto pt = (AST_list_pat*)pat;
+				block(indent, "List", [&]() {
+					for (auto& el : pt->Elements) {
+						block(indent + 1, "Element", [&]() {
+							print(el, indent + 2);
+						});
+					}
+				});
 			}
 			break;
 
