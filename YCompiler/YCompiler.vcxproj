@@ -121,6 +121,9 @@
     <ClInclude Include="src\io\file_hnd.h" />
     <ClInclude Include="src\io\fmt_code.h" />
     <ClInclude Include="src\math.h" />
+    <ClInclude Include="src\semantics\symbol.h" />
+    <ClInclude Include="src\semantics\type.h" />
+    <ClInclude Include="src\semantics\unifier.h" />
     <ClInclude Include="src\syntax\ast.h" />
     <ClInclude Include="src\syntax\ast_expr.h" />
     <ClInclude Include="src\syntax\ast_pat.h" />
@@ -140,6 +143,8 @@
     <ClCompile Include="src\io\fmt_code.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\io\file_hnd.cpp" />
+    <ClCompile Include="src\semantics\type.cpp" />
+    <ClCompile Include="src\semantics\unifier.cpp" />
     <ClCompile Include="src\syntax\ast.cpp" />
     <ClCompile Include="src\syntax\ast_expr.cpp" />
     <ClCompile Include="src\syntax\ast_pat.cpp" />
