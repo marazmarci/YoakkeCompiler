@@ -156,6 +156,7 @@ namespace parser {
 		static auto stmt_parser =
 			  (Decl ^ [](auto& res) -> AST_stmt* { return res; })
 			| (IfExpr ^ [](auto& e) -> AST_stmt* { e->AsStatement = true; return new AST_expr_stmt(e); })
+			| (Block ^ [](auto& e) -> AST_stmt* { e->AsStatement = true; return new AST_expr_stmt(e); })
 			| ((((ListExpr) >= Semicol) ^ [](auto& ex, auto& sc) -> AST_stmt* { return new AST_expr_stmt(ex, sc); }) % "stmt/list_expr");
 
 		return stmt_parser(in);
@@ -198,6 +199,7 @@ namespace parser {
 			  (((Ident ^ [](auto& in) -> AST_expr* { return new AST_ident_expr(in); }) % "expr/lvl0/rule0")
 			| ((IfExpr ^ [](auto& exp) -> AST_expr* { return exp; }) % "expr/lvl0/rule1")
 			| ((LetExpr ^ [](auto& exp) -> AST_expr* { return exp; }) % "expr/lvl0/rule2")
+			| ((Block ^ [](auto& exp) -> AST_expr* { return exp; }) % "expr/lvl0/rule6")
 			| (((LParen >= RParen)
 				^ [](auto& lp, auto& rp) -> AST_expr* {
 					return new AST_list_expr(lp, rp);

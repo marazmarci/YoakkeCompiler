@@ -30,6 +30,7 @@ protected:
 };
 
 struct AST_block_expr : public AST_expr {
+	bool AsStatement;
 	yvec<AST_stmt*> Statements;
 	yopt<AST_expr*> Value;
 

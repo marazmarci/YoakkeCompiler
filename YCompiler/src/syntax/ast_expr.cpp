@@ -15,12 +15,12 @@ AST_block_expr::AST_block_expr(token const& beg,
 	yvec<AST_stmt*> const& stmts, yopt<AST_expr*> val,
 	token const& end) 
 	: AST_expr(interval(beg.Pos, end.Pos), AST_expr_t::Block),
-	Statements(stmts), Value(std::move(val)) {
+	AsStatement(false), Statements(stmts), Value(std::move(val)) {
 }
 
 AST_block_expr::AST_block_expr(AST_stmt* st)
 	: AST_expr(st->Pos, AST_expr_t::Block),
-	Statements(yvec<AST_stmt*>{ st }), Value(yopt<AST_expr*>{}) {
+	AsStatement(false), Statements(yvec<AST_stmt*>{ st }), Value(yopt<AST_expr*>{}) {
 }
 
 AST_block_expr::~AST_block_expr() {
