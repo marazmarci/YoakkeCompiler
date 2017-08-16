@@ -28,29 +28,6 @@ int main(void) {
 	lexer lex(file);
 	token_input in(lex);
 
-	{
-		type* t1 = new type_var();
-		type* t2 = new type_cons("tup", yvec<type*>{ t1 });
-
-		std::cout
-			<< unifier::to_str(t1)
-			<< " - "
-			<< unifier::to_str(t2)
-			<< std::endl;
-
-		auto res = unifier::unify(t1, t2);
-		if (res) {
-			std::cout << *res << std::endl;
-		}
-		else {
-			std::cout
-				<< unifier::to_str(t1)
-				<< " - "
-				<< unifier::to_str(t2)
-				<< std::endl;
-		}
-	}
-
 	auto res = parser::parse_decl_stmt(in);
 	if (res.is_ok()) {
 		auto& res_ok = res.get_ok();
