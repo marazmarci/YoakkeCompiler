@@ -63,6 +63,12 @@
     <ClCompile Include="src\semantics\unifier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\semantics\symbol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\semantics\scope.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h">
@@ -126,6 +132,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\semantics\unifier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\semantics\scope.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
