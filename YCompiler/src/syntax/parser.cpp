@@ -37,6 +37,7 @@ namespace parser {
 		const auto Semicol	= terminal<token_t::Semicol>("';'");
 		const auto If		= terminal<token_t::If>("'if'");
 		const auto Else		= terminal<token_t::Else>("'else'");
+		const auto Eof		= terminal<token_t::EndOfFile>("end-of-file");
 
 		const parser_t<AST_ty*>		Type	= parse_type;
 		const parser_t<AST_stmt*>	Stmt	= parse_stmt;
@@ -49,6 +50,13 @@ namespace parser {
 		const parser_t<AST_let_expr*>	LetExpr  = parse_let_expr;
 		const parser_t<AST_if_expr*>	IfExpr	 = parse_if_expr;
 		const parser_t<AST_expr*>		ListExpr = parse_list_expr;
+	}
+
+	result_t<yvec<AST_decl_stmt*>> parse_program(token_input& in) {
+		static auto program_parser =
+			*Decl < !Eof;
+
+		return program_parser(in);
 	}
 
 	result_t<AST_ty*> parse_type(token_input& in) {

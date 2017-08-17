@@ -28,11 +28,13 @@ int main(void) {
 	lexer lex(file);
 	token_input in(lex);
 
-	auto res = parser::parse_decl_stmt(in);
+	auto res = parser::parse_program(in);
 	if (res.is_ok()) {
 		auto& res_ok = res.get_ok();
-		auto& ast = std::get<0>(res_ok);
-		AST_printer::print(ast);
+		auto& decl_list = std::get<0>(res_ok);
+		for (auto& decl : decl_list) {
+			AST_printer::print(decl);
+		}
 	}
 	else {
 		parser::handle_error(res.get_err());

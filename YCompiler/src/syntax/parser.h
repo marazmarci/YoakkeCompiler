@@ -16,6 +16,7 @@ struct AST_if_expr;
 namespace parser {
 	using namespace combinator;
 
+	result_t<yvec<AST_decl_stmt*>> parse_program(token_input& in);
 	result_t<AST_ty*> parse_type(token_input& in);
 	result_t<AST_fn_expr*> parse_fn_expr(token_input& in);
 	result_t<AST_block_expr*> parse_block_expr(token_input& in);
