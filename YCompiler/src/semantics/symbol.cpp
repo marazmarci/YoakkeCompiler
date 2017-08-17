@@ -24,8 +24,8 @@ var_symbol::~var_symbol() { }
 
 /*****************************************************************************/
 
-overload_set_symbol::overload_set_symbol(ystr const& name, type* typ)
-	: symbol(symbol_t::OverloadSet, name), Types{ typ } {
+typeclass_symbol::typeclass_symbol(ystr const& name, type* typ)
+	: symbol(symbol_t::Typeclass, name), Types{ typ } {
 }
 
-overload_set_symbol::~overload_set_symbol() { }
+typeclass_symbol::~typeclass_symbol() { }

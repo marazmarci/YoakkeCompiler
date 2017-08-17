@@ -25,6 +25,9 @@ struct scope {
 	void decl_type(ystr const& name, type* ty);
 	void decl_sym(symbol* sym);
 
+	yopt<symbol*> remove_symbol(ystr const& name);
+	yopt<type*> remove_type(ystr const& name);
+
 	void shadow_symbol(ystr const& name);
 	void shadow_type(ystr const& name);
 
@@ -54,6 +57,15 @@ private:
 		assert(map.find(name) == map.end() && "Cannot override symbol/type!");
 
 		map.insert({ name, t });
+	}
+
+	template <typename T>
+	yopt<T> remove(ymap<ystr, T>& map, ystr const& name) {
+		auto it = map.find(name);
+		if (it == map.end()) {
+			return {};
+		}
+		return it->second;
 	}
 
 	template <typename T>

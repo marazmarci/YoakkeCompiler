@@ -18,6 +18,8 @@ enum class AST_expr_t {
 	Post,
 	Call,
 	List,
+	IntLit,
+	RealLit,
 };
 
 struct AST_expr : public AST_node {
@@ -119,4 +121,18 @@ struct AST_list_expr : public AST_expr {
 	AST_list_expr(yvec<AST_expr*> const& elems);
 	AST_list_expr(token const& beg, token const& end);
 	virtual ~AST_list_expr();
+};
+
+struct AST_int_lit_expr : public AST_expr {
+	long long int Value;
+
+	AST_int_lit_expr(token const& tok);
+	virtual ~AST_int_lit_expr();
+};
+
+struct AST_real_lit_expr : public AST_expr {
+	long double Value;
+
+	AST_real_lit_expr(token const& tok);
+	virtual ~AST_real_lit_expr();
 };

@@ -31,6 +31,14 @@ void scope::decl_sym(symbol* sym) {
 	decl(Symbols, sym->Name, sym);
 }
 
+yopt<symbol*> scope::remove_symbol(ystr const& name) {
+	return remove(Symbols, name);
+}
+
+yopt<type*> scope::remove_type(ystr const& name) {
+	return remove(Types, name);
+}
+
 void scope::shadow_symbol(ystr const& name) {
 	shadow(Symbols, name);
 }

@@ -5,7 +5,7 @@
 enum class symbol_t {
 	Constant,
 	Variable,
-	OverloadSet,
+	Typeclass,
 };
 
 struct type;
@@ -36,10 +36,10 @@ struct var_symbol : public symbol {
 	virtual ~var_symbol();
 };
 
-struct overload_set_symbol : public symbol {
+struct typeclass_symbol : public symbol {
 	yvec<type*>	Types;
 
-	overload_set_symbol(ystr const& name, type* typ);
-	virtual ~overload_set_symbol();
+	typeclass_symbol(ystr const& name, type* typ);
+	virtual ~typeclass_symbol();
 };
 
