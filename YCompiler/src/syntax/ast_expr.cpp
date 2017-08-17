@@ -161,3 +161,18 @@ AST_list_expr::~AST_list_expr() {
 		delete el;
 	}
 }
+
+/*****************************************************************************/
+
+AST_int_lit_expr::AST_int_lit_expr(token const& tok)
+	: AST_expr(tok.Pos, AST_expr_t::IntLit), Value(std::atoll(tok.Value.c_str())) {
+}
+
+AST_int_lit_expr::~AST_int_lit_expr() { }
+
+/*****************************************************************************/
+
+AST_real_lit_expr::AST_real_lit_expr(token const& tok)
+	: AST_expr(tok.Pos, AST_expr_t::RealLit), Value(std::atof(tok.Value.c_str())) {
+}
+AST_real_lit_expr::~AST_real_lit_expr() { }
