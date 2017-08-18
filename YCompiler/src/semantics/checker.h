@@ -8,6 +8,8 @@ struct AST_pat;
 struct type;
 
 namespace checker {
+	void init();
+
 	void check(AST_stmt* stmt);
 	type* check(AST_expr* expr);
 	type* check(AST_ty* ty);

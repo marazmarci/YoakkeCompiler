@@ -62,7 +62,43 @@ namespace unifier {
 			return false;
 		}
 
-		assert(false && "Unreachable!");
+		UNREACHABLE;
+	}
+
+	bool same(type* a, type* b) {
+		type* t1 = prune(a);
+		type* t2 = prune(b);
+
+		if (   t1->Ty == type_t::Variable
+			&& t2->Ty == type_t::Variable) {
+			type_var* tt1 = (type_var*)t1;
+			type_var* tt2 = (type_var*)t2;
+
+			return tt1->ID == tt2->ID;
+		}
+		else if (t1->Ty == type_t::Constructor
+			  && t2->Ty == type_t::Constructor) {
+			type_cons* tt1 = (type_cons*)t1;
+			type_cons* tt2 = (type_cons*)t2;
+
+			if (tt1->Name != tt2->Name) {
+				return false;
+			}
+			if (tt1->Params.size() != tt2->Params.size()) {
+				return false;
+			}
+			for (ysize i = 0; i < tt1->Params.size(); i++) {
+				if (!same(tt1->Params[i], tt2->Params[i])) {
+					return false;
+				}
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+
+		UNREACHABLE;
 	}
 
 	yopt<ystr> unify(type* a, type* b) {
@@ -115,13 +151,13 @@ namespace unifier {
 				return {};
 			}
 			else {
-				assert(false && "Unreachable!");
+				UNREACHABLE;
 			}
 		}
 		else {
-			assert(false && "Unreachable!");
+			UNREACHABLE;
 		}
 
-		assert(false && "Unreachable!");
+		UNREACHABLE;
 	}
 }

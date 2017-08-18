@@ -2,6 +2,11 @@
 
 #include "../common.h"
 
+namespace type_prefixes {
+	constexpr auto Tuple = "@tup";
+	constexpr auto Function = "@fn";
+}
+
 enum class type_t {
 	Variable,
 	Constructor,

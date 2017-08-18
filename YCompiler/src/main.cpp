@@ -14,6 +14,7 @@
 #include "syntax/ast_pat.h"
 #include "semantics/type.h"
 #include "semantics/unifier.h"
+#include "semantics/checker.h"
 
 template <typename T>
 void write_t(T const& t) {
@@ -29,16 +30,16 @@ int main(void) {
 	token_input in(lex);
 
 	auto res = parser::parse_program(in);
-	if (res.is_ok()) {
-		auto& res_ok = res.get_ok();
-		auto& decl_list = std::get<0>(res_ok);
-		for (auto& decl : decl_list) {
-			AST_printer::print(decl);
-		}
-	}
-	else {
+	if (res.is_err()) {
 		parser::handle_error(res.get_err());
+		return;
 	}
+	auto& res_ok = res.get_ok();
+	auto& decl_list = std::get<0>(res_ok);
+	for (auto& decl : decl_list) {
+		AST_printer::print(decl);
+	}
+	checker::init();
 
 	std::cin.get();
 	return 0;

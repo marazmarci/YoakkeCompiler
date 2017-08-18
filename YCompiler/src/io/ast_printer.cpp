@@ -44,7 +44,7 @@ namespace AST_printer {
 			break;
 
 			default:
-				assert(false && "Statement print unimplemented!");
+				UNIMPLEMENTED;
 			}
 		}
 
@@ -204,7 +204,7 @@ namespace AST_printer {
 			break;
 
 			default:
-				assert(false && "Expression print unimplemented!");
+				UNIMPLEMENTED;
 			}
 		}
 
@@ -259,7 +259,7 @@ namespace AST_printer {
 			break;
 
 			default:
-				assert(false && "Type print unimplemented!");
+				UNIMPLEMENTED;
 			}
 		}
 
@@ -314,7 +314,7 @@ namespace AST_printer {
 			break;
 
 			default:
-				assert(false && "Pattern print unimplemented!");
+				UNIMPLEMENTED;
 			}
 		}
 	}

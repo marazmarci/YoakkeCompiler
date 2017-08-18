@@ -1,13 +1,17 @@
 #pragma once
 
+#include <cassert>
 #include <cstddef>
+#include <map>
 #include <optional>
+#include <set>
 #include <string>
 #include <tuple>
-#include <set>
-#include <map>
 #include <variant>
 #include <vector>
+
+#define UNIMPLEMENTED assert(false && "Unimplemented!")
+#define UNREACHABLE assert(false && "Unreachable!")
 
 using ysize = std::size_t;
 using ystr = std::string;

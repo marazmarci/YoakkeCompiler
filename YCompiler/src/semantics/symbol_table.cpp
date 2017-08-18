@@ -20,3 +20,43 @@ void symbol_table::pop_scope() {
 
 	Current = Current->Parent;
 }
+
+void symbol_table::decl(type_cons* tc) {
+	Current->decl_type(tc->Name, tc);
+}
+
+void symbol_table::decl(symbol* sym) {
+	Current->decl_sym(sym);
+}
+
+yopt<symbol*> symbol_table::ref_sym(ystr const& name) {
+	return Current->ref_sym(name);
+}
+
+yopt<type*> symbol_table::ref_type(ystr const& name) {
+	return Current->ref_type(name);
+}
+
+yopt<symbol*> symbol_table::local_ref_sym(ystr const& name) {
+	return Current->local_ref_sym(name);
+}
+
+yopt<type*> symbol_table::local_ref_type(ystr const& name) {
+	return Current->local_ref_type(name);
+}
+
+yopt<symbol*> symbol_table::upper_ref_sym(ystr const& name) {
+	scope* par = Current->Parent;
+	if (par) {
+		return par->ref_sym(name);
+	}
+	return {};
+}
+
+yopt<type*> symbol_table::upper_ref_type(ystr const& name) {
+	scope* par = Current->Parent;
+	if (par) {
+		return par->ref_type(name);
+	}
+	return {};
+}
