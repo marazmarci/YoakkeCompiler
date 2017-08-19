@@ -30,8 +30,8 @@ struct scope {
 	yopt<symbol*> remove_symbol(ystr const& name);
 	yopt<type*> remove_type(ystr const& name);
 
-	void shadow_symbol(ystr const& name);
-	void shadow_type(ystr const& name);
+	bool shadow_symbol(ystr const& name);
+	bool shadow_type(ystr const& name);
 
 private:
 	template <typename T>
@@ -41,17 +41,6 @@ private:
 			return {};
 		}
 		return it->second;
-	}
-
-	template <typename T>
-	yopt<T> ref(ymap<ystr, T>& map, ystr const& name) {
-		if (auto r = local_ref(map, name)) {
-			return r;
-		}
-		if (Parent) {
-			return Parent->ref(map, name);
-		}
-		return {};
 	}
 
 	template <typename T>
@@ -71,7 +60,7 @@ private:
 	}
 
 	template <typename T>
-	void shadow(ymap<ystr, T>& map, ystr const& name) {
+	bool shadow(ymap<ystr, T>& map, ystr const& name) {
 		static const char shadowChar = '$';
 
 		auto it = map.find(name);
@@ -81,6 +70,8 @@ private:
 			map.erase(it);
 			shadow(map, newName);
 			map.insert({ newName, t });
+			return true;
 		}
+		return false;
 	}
 };

@@ -15,7 +15,7 @@ AST_block_expr::AST_block_expr(token const& beg,
 	yvec<AST_stmt*> const& stmts, yopt<AST_expr*> val,
 	token const& end) 
 	: AST_expr(interval(beg.Pos, end.Pos), AST_expr_t::Block),
-	AsStatement(false), Statements(stmts), Value(std::move(val)) {
+	AsStatement(false), Statements(stmts), Value(std::move(val)), Scope(nullptr) {
 }
 
 AST_block_expr::AST_block_expr(AST_stmt* st)
@@ -39,7 +39,7 @@ AST_fn_expr::AST_fn_expr(yopt<token> beg, yvec<param_t> const& params,
 	: AST_expr(
 		beg ? interval(beg->Pos, body->Pos) : body->Pos,
 		AST_expr_t::Fn),
-	Params(params), Return(std::move(ret)), Body(body) {
+	Params(params), Return(std::move(ret)), Body(body), Scope(nullptr), DeclType(nullptr) {
 }
 
 AST_fn_expr::~AST_fn_expr() {

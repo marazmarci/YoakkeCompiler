@@ -10,11 +10,23 @@ scope::scope(bool retDest)
 scope::~scope() { }
 
 yopt<type*> scope::ref_type(ystr const& name) {
-	return ref(Types, name);
+	if (auto r = local_ref_type(name)) {
+		return r;
+	}
+	if (Parent) {
+		return Parent->ref_type(name);
+	}
+	return {};
 }
 
 yopt<symbol*> scope::ref_sym(ystr const& name) {
-	return ref(Symbols, name);
+	if (auto r = local_ref_sym(name)) {
+		return r;
+	}
+	if (Parent) {
+		return Parent->ref_sym(name);
+	}
+	return {};
 }
 
 yopt<type*> scope::local_ref_type(ystr const& name) {
@@ -42,10 +54,10 @@ yopt<type*> scope::remove_type(ystr const& name) {
 	return remove(Types, name);
 }
 
-void scope::shadow_symbol(ystr const& name) {
-	shadow(Symbols, name);
+bool scope::shadow_symbol(ystr const& name) {
+	return shadow(Symbols, name);
 }
 
-void scope::shadow_type(ystr const& name) {
-	shadow(Types, name);
+bool scope::shadow_type(ystr const& name) {
+	return shadow(Types, name);
 }

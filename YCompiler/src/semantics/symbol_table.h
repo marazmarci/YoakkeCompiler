@@ -11,6 +11,7 @@ struct symbol_table {
 	~symbol_table();
 
 	scope* push_scope(bool ret);
+	void set_scope(scope* sc);
 	void pop_scope();
 
 	void decl(type_cons* tc);
@@ -26,4 +27,6 @@ struct symbol_table {
 	yopt<type*> upper_ref_type(ystr const& name);
 
 	yopt<scope*> nearest_ret_dest();
+
+	bool shadow_symbol(ystr const& name);
 };

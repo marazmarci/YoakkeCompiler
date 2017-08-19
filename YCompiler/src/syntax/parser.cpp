@@ -37,6 +37,8 @@ namespace parser {
 		const auto Semicol	= terminal<token_t::Semicol>("';'");
 		const auto If		= terminal<token_t::If>("'if'");
 		const auto Else		= terminal<token_t::Else>("'else'");
+		const auto IntLit	= terminal<token_t::IntLit>("integer literal");
+		const auto RealLit	= terminal<token_t::RealLit>("real literal");
 		const auto Eof		= terminal<token_t::EndOfFile>("end-of-file");
 		const auto DbgWrTy	= terminal<token_t::DbgWriteTy>("<debug>");
 
@@ -169,7 +171,10 @@ namespace parser {
 
 	result_t<AST_stmt*> parse_stmt(token_input& in) {
 		static auto stmt_parser =
-			  (Decl ^ [](auto& res) -> AST_stmt* { return res; })
+				((DbgWrTy >= ListExpr) ^ [](auto& beg, auto& exp)->AST_stmt* {
+					return new AST_dbg_write_ty_stmt(beg, exp);
+				})
+			| (Decl ^ [](auto& res) -> AST_stmt* { return res; })
 			| (IfExpr ^ [](auto& e) -> AST_stmt* { e->AsStatement = true; return new AST_expr_stmt(e); })
 			| (Block ^ [](auto& e) -> AST_stmt* { e->AsStatement = true; return new AST_expr_stmt(e); })
 			| ((((ListExpr) >= Semicol) ^ [](auto& ex, auto& sc) -> AST_stmt* { return new AST_expr_stmt(ex, sc); }) % "stmt/list_expr");
@@ -211,7 +216,9 @@ namespace parser {
 		};
 
 		static auto lvl0 =
-			  (((Ident ^ [](auto& in) -> AST_expr* { return new AST_ident_expr(in); }) % "expr/lvl0/rule0")
+			  (IntLit ^ [](auto& i) -> AST_expr* { return new AST_int_lit_expr(i); })
+			| (RealLit ^ [](auto& i) -> AST_expr* { return new AST_real_lit_expr(i); })
+			| ((Ident ^ [](auto& in) -> AST_expr* { return new AST_ident_expr(in); }) % "expr/lvl0/rule0")
 			| ((IfExpr ^ [](auto& exp) -> AST_expr* { return exp; }) % "expr/lvl0/rule1")
 			| ((LetExpr ^ [](auto& exp) -> AST_expr* { return exp; }) % "expr/lvl0/rule2")
 			| ((Block ^ [](auto& exp) -> AST_expr* { return exp; }) % "expr/lvl0/rule6")
@@ -223,7 +230,6 @@ namespace parser {
 				^ [](auto& ls) -> AST_expr* { 
 					return ls;
 				}) % "expr/lvl0/rule4")
-			| ((Let ^ [](auto& l) { return (AST_expr*)nullptr; })) % "expr/lvl0/rule5") % "expr/lvl0"
 			;
 
 		static auto lvl1 =
@@ -313,7 +319,7 @@ namespace parser {
 		static auto let_parser =
 			(Let >= !(Pattern / "pattern")
 			>= &(Colon > !(Type / "type"))
-			>= &(Asgn > !(Expr / "expression")))
+			>= &(Asgn > !(ListExpr / "expression")))
 			^ [](auto& beg, auto& pat, auto& ty, auto& val) -> AST_let_expr* {
 				return new AST_let_expr(beg, pat, ty, val);
 			};

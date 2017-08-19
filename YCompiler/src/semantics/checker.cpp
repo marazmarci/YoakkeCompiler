@@ -18,6 +18,47 @@ namespace checker {
 		type_cons* UNIT = new type_cons("@tup", {});
 		type_cons* I32	= new type_cons("i32", {});
 		type_cons* F32	= new type_cons("f32", {});
+
+		using elem_t = ytup<ystr, type*>;
+
+		type* generate_let_pattern(AST_pat* pat, yvec<elem_t>& buff) {
+			switch (pat->Ty) {
+			case AST_pat_t::List: {
+				AST_list_pat* pt = (AST_list_pat*)pat;
+				type_cons* tlist = new type_cons(type_prefixes::Tuple, {});
+				for (auto& elem : pt->Elements) {
+					tlist->add(generate_let_pattern(elem, buff));
+				}
+				return tlist;
+			}
+
+			case AST_pat_t::Ident: {
+				AST_ident_pat* pt = (AST_ident_pat*)pat;
+				type_var* tv = new type_var();
+				buff.push_back({ pt->Value, tv });
+				return tv;
+			}
+
+			case AST_pat_t::Bin: {
+				UNIMPLEMENTED;
+			}
+
+			case AST_pat_t::Pre: {
+				UNIMPLEMENTED;
+			}
+
+			case AST_pat_t::Post: {
+				UNIMPLEMENTED;
+			}
+			}
+			UNREACHABLE;
+		}
+
+		ytup<yvec<elem_t>, type*> generate_let_pattern(AST_pat* pat) {
+			yvec<elem_t> buff;
+			type* t = generate_let_pattern(pat, buff);
+			return { buff, t };
+		}
 	}
 
 	void init() {
@@ -26,40 +67,116 @@ namespace checker {
 		SymTab.decl(F32);
 	}
 
+	void pre_check(AST_stmt* stmt) {
+		switch (stmt->Ty) {
+		case AST_stmt_t::Decl: {
+			AST_decl_stmt* st = (AST_decl_stmt*)stmt;
+			auto expr_tt = pre_check(st->Expression);
+			if (!expr_tt) {
+				std::cout << "SANITY IN predecl!" << std::endl;
+				return;
+			}
+			auto expr_t = *expr_tt;
+			if (expr_t->Ty == type_t::Variable) {
+				std::cout << "Type var in pre-declaration ERROR!" << std::endl;
+				return;
+			}
+			if (expr_t->Ty == type_t::Constructor) {
+				type_cons* tc = (type_cons*)expr_t;
+				ystr const& name = st->Name.Value;
+
+				if (/*auto already_def = */SymTab.ref_sym(name)) {
+					// TODO
+					if (/*auto already_def2 = */SymTab.local_ref_sym(name)) {
+						std::cout
+							<< "TODO: error '" << name << "' already defined!"
+							<< std::endl;
+						if (tc->Name == type_prefixes::Function) {
+							std::cout << "(func overload)" << std::endl;
+						}
+					}
+					else {
+						std::cout << "Info: Shadowing '" << name << "'!" << std::endl;
+						SymTab.decl(new const_symbol(name, expr_t));
+					}
+				}
+				else {
+					SymTab.decl(new const_symbol(name, expr_t));
+				}
+				return;
+			}
+			UNREACHABLE;
+			return;
+		}
+
+		case AST_stmt_t::Expr: {
+			AST_expr_stmt* st = (AST_expr_stmt*)stmt;
+			pre_check(st->Expression);
+			return;
+		}
+
+		default:
+			return;
+		}
+		UNREACHABLE;
+	}
+
+	yopt<type*> pre_check(AST_expr* expr) {
+		switch (expr->Ty) {
+		case AST_expr_t::Block: {
+			AST_block_expr* ex = (AST_block_expr*)expr;
+			ex->Scope = SymTab.push_scope(!ex->AsStatement);
+			for (auto& st : ex->Statements) {
+				pre_check(st);
+			}
+			if (ex->Value) {
+				pre_check(*ex->Value);
+			}
+			SymTab.pop_scope();
+			return {};
+		}
+
+		case AST_expr_t::Fn: {
+			AST_fn_expr* ex = (AST_fn_expr*)expr;
+			ex->Scope = SymTab.push_scope(true);
+			type_cons* params_t = new type_cons(type_prefixes::Params, {});
+			for (auto& par : ex->Params) {
+				auto& name = std::get<0>(par);
+				auto& ty = std::get<1>(par);
+
+				type* tty = check(ty);
+				params_t->add(tty);
+
+				if (name) {
+					SymTab.decl(new var_symbol(name->Value, tty));
+				}
+				else {
+					// TODO
+					std::cout << "todo: Warning unnamed param" << std::endl;
+				}
+			}
+			type* rett = UNIT;
+			if (ex->Return) {
+				rett = check(*ex->Return);
+			}
+			SymTab.pop_scope();
+
+			return new type_cons(
+				type_prefixes::Function, { params_t, rett }
+			);
+		}
+
+		default:
+			return {};
+		}
+		UNREACHABLE;
+	}
+
 	void check(AST_stmt* stmt) {
 		switch (stmt->Ty) {
 			case AST_stmt_t::Decl: {
 				AST_decl_stmt* st = (AST_decl_stmt*)stmt;
-				type* expr_t = check(st->Expression);
-				if (expr_t->Ty == type_t::Variable) {
-					std::cout << "Type var in declaration ERROR!" << std::endl;
-					return;
-				}
-				if (expr_t->Ty == type_t::Constructor) {
-					type_cons* tc = (type_cons*)expr_t;
-					ystr const& name = st->Name.Value;
-
-					if (/*auto already_def = */SymTab.ref_sym(name)) {
-						// TODO
-						if (/*auto already_def2 = */SymTab.local_ref_sym(name)) {
-							std::cout
-								<< "TODO: error '" << name << "' already defined!"
-								<< std::endl;
-							if (tc->Name == type_prefixes::Function) {
-								std::cout << "(func overload)" << std::endl;
-							}
-						}
-						else {
-							std::cout << "Info: Shadowing '" << name << "'!" << std::endl;
-							SymTab.decl(new const_symbol(name, expr_t));
-						}
-					}
-					else {
-						SymTab.decl(new const_symbol(name, expr_t));
-					}
-					return;
-				}
-				UNREACHABLE;
+				check(st->Expression);
 				return;
 			}
 
@@ -86,7 +203,7 @@ namespace checker {
 		switch (expr->Ty) {
 		case AST_expr_t::Block: {
 			AST_block_expr* ex = (AST_block_expr*)expr;
-			SymTab.push_scope(!ex->AsStatement);
+			SymTab.set_scope(ex->Scope);
 			for (auto& st : ex->Statements) {
 				check(st);
 			}
@@ -98,16 +215,11 @@ namespace checker {
 				if (!ret_sc) {
 					// TODO
 					std::cout << "todo: No return destination!" << std::endl;
-					ret_ty = nullptr;
+					return nullptr;
 				}
-				else {
-					if (auto err = unifier::unify(ret_ty, (*ret_sc)->ReturnType)) {
-						std::cout << *err << std::endl;
-						ret_ty = nullptr;
-					}
-					else {
-						ret_ty = unifier::prune(ret_ty);
-					}
+				if (auto err = unifier::unify(ret_ty, (*ret_sc)->ReturnType)) {
+					std::cout << *err << std::endl;
+					return nullptr;
 				}
 			}
 			SymTab.pop_scope();
@@ -120,23 +232,7 @@ namespace checker {
 
 		case AST_expr_t::Fn: {
 			AST_fn_expr* ex = (AST_fn_expr*)expr;
-			scope* sc = SymTab.push_scope(true);
-			type_cons* params_t = new type_cons(type_prefixes::Params, {});
-			for (auto& par : ex->Params) {
-				auto& name = std::get<0>(par);
-				auto& ty = std::get<1>(par);
-				
-				type* tty = check(ty);
-				params_t->add(tty);
-
-				if (name) {
-					SymTab.decl(new var_symbol(name->Value, tty));
-				}
-				else {
-					// TODO
-					std::cout << "todo: Warning unnamed param" << std::endl;
-				}
-			}
+			SymTab.set_scope(ex->Scope);
 			type* rett = UNIT;
 			if (ex->Return) {
 				rett = check(*ex->Return);
@@ -147,12 +243,10 @@ namespace checker {
 				// TODO
 				return nullptr;
 			}
-			sc->ReturnType = rett;
+			ex->Scope->ReturnType = rett;
 			SymTab.pop_scope();
 
-			return new type_cons(
-				type_prefixes::Function, { params_t, rett }
-			);
+			return ex->DeclType;
 		}
 
 		case AST_expr_t::If: {
@@ -160,11 +254,47 @@ namespace checker {
 		}
 
 		case AST_expr_t::Let: {
-			UNIMPLEMENTED;
+			AST_let_expr* ex = (AST_let_expr*)expr;
+			auto res = generate_let_pattern(ex->Pattern);
+			auto& entries = std::get<0>(res);
+			auto& pat_ty = std::get<1>(res);
+
+			if (ex->Type) {
+				type* ty = check(*ex->Type);
+				if (auto err = unifier::unify(pat_ty, ty)) {
+					std::cout << *err << std::endl;
+					return nullptr;
+				}
+			}
+			if (ex->Value) {
+				type* ty = check(*ex->Value);
+				if (auto err = unifier::unify(pat_ty, ty)) {
+					std::cout << *err << std::endl;
+					return nullptr;
+				}
+			}
+			for (auto& entry : entries) {
+				auto& name = std::get<0>(entry);
+				auto& ty = std::get<1>(entry);
+				if (SymTab.shadow_symbol(name)) {
+					std::cout << "Warning: shadowing '" << name << "'" << std::endl;
+				}
+				SymTab.decl(new var_symbol(name, ty));
+			}
+			// Let always returns unit
+			return UNIT;
 		}
 
 		case AST_expr_t::List: {
-			UNIMPLEMENTED;
+			AST_list_expr* ex = (AST_list_expr*)expr;
+			if (ex->Elements.size() == 0) {
+				return UNIT;
+			}
+			type_cons* ls = new type_cons(type_prefixes::Tuple, {});
+			for (auto& td : ex->Elements) {
+				ls->add(check(td));
+			}
+			return ls;
 		}
 
 		case AST_expr_t::Ident: {
@@ -215,6 +345,35 @@ namespace checker {
 	}
 
 	type* check(AST_ty* ty) {
+		switch (ty->Ty) {
+		case AST_ty_t::Pre: {
+			UNIMPLEMENTED;
+		}
+
+		case AST_ty_t::Bin: {
+			UNIMPLEMENTED;
+		}
+
+		case AST_ty_t::Post: {
+			UNIMPLEMENTED;
+		}
+
+		case AST_ty_t::List: {
+			UNIMPLEMENTED;
+		}
+
+		case AST_ty_t::Ident: {
+			AST_ident_ty* tt = (AST_ident_ty*)ty;
+
+			if (auto tsym = SymTab.ref_type(tt->Value)) {
+				return *tsym;
+			}
+			else {
+				std::cout << "Undefined type: '" << tt->Value << "'" << std::endl;
+				return nullptr;
+			}
+		}
+		}
 		UNREACHABLE;
 	}
 

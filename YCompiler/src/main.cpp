@@ -32,6 +32,7 @@ int main(void) {
 	auto res = parser::parse_program(in);
 	if (res.is_err()) {
 		parser::handle_error(res.get_err());
+		std::cin.get();
 		return 0;
 	}
 	auto& res_ok = res.get_ok();
@@ -40,6 +41,9 @@ int main(void) {
 	//	AST_printer::print(decl);
 	//}
 	checker::init();
+	for (auto& st : st_list) {
+		checker::pre_check(st);
+	}
 	for (auto& st : st_list) {
 		checker::check(st);
 	}

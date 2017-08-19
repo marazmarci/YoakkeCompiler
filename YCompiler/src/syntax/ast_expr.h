@@ -6,6 +6,8 @@
 struct AST_stmt;
 struct AST_ty;
 struct AST_pat;
+struct scope;
+struct type;
 
 enum class AST_expr_t {
 	Block, 
@@ -35,6 +37,7 @@ struct AST_block_expr : public AST_expr {
 	bool AsStatement;
 	yvec<AST_stmt*> Statements;
 	yopt<AST_expr*> Value;
+	scope* Scope;
 
 	AST_block_expr(token const& beg, 
 		yvec<AST_stmt*> const& stmts, yopt<AST_expr*> val, 
@@ -49,6 +52,8 @@ struct AST_fn_expr : public AST_expr {
 	yvec<param_t> Params;
 	yopt<AST_ty*> Return;
 	AST_block_expr* Body;
+	scope* Scope;
+	type* DeclType;
 
 	AST_fn_expr(yopt<token> beg, yvec<param_t> const& params, 
 		yopt<AST_ty*> ret, AST_block_expr* body);

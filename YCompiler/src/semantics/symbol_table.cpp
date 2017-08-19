@@ -16,6 +16,10 @@ scope* symbol_table::push_scope(bool ret) {
 	return Current;
 }
 
+void symbol_table::set_scope(scope* sc) {
+	Current = sc;
+}
+
 void symbol_table::pop_scope() {
 	assert(Current->Parent && "Tried to pop a scope with no parent!");
 
@@ -71,4 +75,8 @@ yopt<scope*> symbol_table::nearest_ret_dest() {
 		sc = sc->Parent;
 	}
 	return {};
+}
+
+bool symbol_table::shadow_symbol(ystr const& name) {
+	return Current->shadow_symbol(name);
 }
