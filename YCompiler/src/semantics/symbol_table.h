@@ -1,7 +1,7 @@
 #pragma once
 
 struct scope;
-struct type_const;
+struct type_cons;
 
 struct symbol_table {
 	scope* Current;
@@ -10,7 +10,7 @@ struct symbol_table {
 	symbol_table();
 	~symbol_table();
 
-	void push_scope();
+	scope* push_scope(bool ret);
 	void pop_scope();
 
 	void decl(type_cons* tc);
@@ -24,4 +24,6 @@ struct symbol_table {
 
 	yopt<symbol*> upper_ref_sym(ystr const& name);
 	yopt<type*> upper_ref_type(ystr const& name);
+
+	yopt<scope*> nearest_ret_dest();
 };

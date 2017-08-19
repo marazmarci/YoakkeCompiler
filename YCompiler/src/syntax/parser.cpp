@@ -38,6 +38,7 @@ namespace parser {
 		const auto If		= terminal<token_t::If>("'if'");
 		const auto Else		= terminal<token_t::Else>("'else'");
 		const auto Eof		= terminal<token_t::EndOfFile>("end-of-file");
+		const auto DbgWrTy	= terminal<token_t::DbgWriteTy>("<debug>");
 
 		const parser_t<AST_ty*>		Type	= parse_type;
 		const parser_t<AST_stmt*>	Stmt	= parse_stmt;
@@ -52,9 +53,15 @@ namespace parser {
 		const parser_t<AST_expr*>		ListExpr = parse_list_expr;
 	}
 
-	result_t<yvec<AST_decl_stmt*>> parse_program(token_input& in) {
+	result_t<yvec<AST_stmt*>> parse_program(token_input& in) {
+		static auto ProgComponent =
+			  (Decl ^ [](auto& d) -> AST_stmt* { return d; })
+			| ((DbgWrTy >= ListExpr) ^ [](auto& beg, auto& exp)->AST_stmt*  {
+				return new AST_dbg_write_ty_stmt(beg, exp);
+			  })
+			;
 		static auto program_parser =
-			*Decl < !Eof;
+			*ProgComponent < !Eof;
 
 		return program_parser(in);
 	}

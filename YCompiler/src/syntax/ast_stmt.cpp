@@ -33,3 +33,12 @@ AST_expr_stmt::~AST_expr_stmt() {
 }
 
 /*****************************************************************************/
+
+AST_dbg_write_ty_stmt::AST_dbg_write_ty_stmt(token const& beg, AST_expr* exp)
+	: AST_stmt(interval(beg.Pos, exp->Pos), AST_stmt_t::DbgWriteTy),
+	Expression(exp) {
+}
+
+AST_dbg_write_ty_stmt::~AST_dbg_write_ty_stmt() {
+	delete Expression;
+}

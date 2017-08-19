@@ -1,7 +1,10 @@
 #include "scope.h"
 
-scope::scope()
-	: Parent(nullptr) {
+scope::scope(bool retDest)
+	: Parent(nullptr), ReturnDest(retDest), ReturnType(nullptr) {
+	if (retDest) {
+		ReturnType = new type_var();
+	}
 }
 
 scope::~scope() { }

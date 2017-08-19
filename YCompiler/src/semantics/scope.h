@@ -12,8 +12,10 @@ struct scope {
 	scope*				Parent;
 	ymap<ystr, type*>	Types;
 	ymap<ystr, symbol*>	Symbols;
+	bool				ReturnDest;
+	type*				ReturnType;
 
-	scope();
+	scope(bool retDest);
 	~scope();
 
 	yopt<type*> ref_type(ystr const& name);

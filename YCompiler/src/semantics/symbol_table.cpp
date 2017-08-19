@@ -2,17 +2,18 @@
 #include "symbol_table.h"
 
 symbol_table::symbol_table()
-	: Global(nullptr), Current(nullptr) {
-	Global = new scope();
+	: Current(nullptr), Global(nullptr) {
+	Global = new scope(false);
 	Current = Global;
 }
 
 symbol_table::~symbol_table() { }
 
-void symbol_table::push_scope() {
-	scope* sc = new scope();
+scope* symbol_table::push_scope(bool ret) {
+	scope* sc = new scope(ret);
 	sc->Parent = Current;
 	Current = sc;
+	return Current;
 }
 
 void symbol_table::pop_scope() {
@@ -57,6 +58,17 @@ yopt<type*> symbol_table::upper_ref_type(ystr const& name) {
 	scope* par = Current->Parent;
 	if (par) {
 		return par->ref_type(name);
+	}
+	return {};
+}
+
+yopt<scope*> symbol_table::nearest_ret_dest() {
+	scope* sc = Current;
+	while (sc) {
+		if (sc->ReturnDest) {
+			return sc;
+		}
+		sc = sc->Parent;
 	}
 	return {};
 }

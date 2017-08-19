@@ -8,6 +8,7 @@ struct AST_expr;
 enum class AST_stmt_t {
 	Decl,
 	Expr,
+	DbgWriteTy,
 };
 
 struct AST_stmt : public AST_node {
@@ -33,4 +34,11 @@ struct AST_expr_stmt : public AST_stmt {
 	AST_expr_stmt(AST_expr* exp);
 	AST_expr_stmt(AST_expr* exp, token const& semicol);
 	virtual ~AST_expr_stmt();
+};
+
+struct AST_dbg_write_ty_stmt : public AST_stmt {
+	AST_expr* Expression;
+
+	AST_dbg_write_ty_stmt(token const& beg, AST_expr* exp);
+	virtual ~AST_dbg_write_ty_stmt();
 };

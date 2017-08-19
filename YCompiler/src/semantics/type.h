@@ -5,6 +5,7 @@
 namespace type_prefixes {
 	constexpr auto Tuple = "@tup";
 	constexpr auto Function = "@fn";
+	constexpr auto Params = "@params";
 }
 
 enum class type_t {
@@ -40,4 +41,6 @@ struct type_cons : public type {
 
 	type_cons(ystr const& name, yvec<type*> const& params);
 	virtual ~type_cons();
+
+	void add(type* t);
 };

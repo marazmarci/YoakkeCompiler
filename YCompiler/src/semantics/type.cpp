@@ -23,3 +23,7 @@ type_cons::type_cons(ystr const& name, yvec<type*> const& params)
 }
 
 type_cons::~type_cons() { }
+
+void type_cons::add(type* t) {
+	Params.push_back(t);
+}
