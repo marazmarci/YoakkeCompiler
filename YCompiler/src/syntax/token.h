@@ -50,6 +50,7 @@ enum class token_t {
 	Else,		// Else					'else'
 	Let,		// Let					'let'
 	Mut,		// Mut					'mut'
+	Type,		// Type					'type'
 
 	// Debugging
 	DbgWriteTy	// Write Type			'write_ty'

@@ -14,7 +14,7 @@
 #include "syntax/ast_pat.h"
 #include "semantics/type.h"
 #include "semantics/unifier.h"
-#include "semantics/checker.h"
+//#include "semantics/checker.h"
 
 template <typename T>
 void write_t(T const& t) {
@@ -37,15 +37,8 @@ int main(void) {
 	}
 	auto& res_ok = res.get_ok();
 	auto& st_list = std::get<0>(res_ok);
-	//for (auto& decl : decl_list) {
-	//	AST_printer::print(decl);
-	//}
-	checker::init();
-	for (auto& st : st_list) {
-		checker::pre_check(st);
-	}
-	for (auto& st : st_list) {
-		checker::check(st);
+	for (auto& decl : st_list) {
+		AST_printer::print(decl);
 	}
 
 	std::cin.get();

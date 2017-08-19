@@ -37,6 +37,7 @@ namespace parser {
 		const auto Semicol	= terminal<token_t::Semicol>("';'");
 		const auto If		= terminal<token_t::If>("'if'");
 		const auto Else		= terminal<token_t::Else>("'else'");
+		const auto TypeKW	= terminal<token_t::Type>("'type'");
 		const auto IntLit	= terminal<token_t::IntLit>("integer literal");
 		const auto RealLit	= terminal<token_t::RealLit>("real literal");
 		const auto Eof		= terminal<token_t::EndOfFile>("end-of-file");
@@ -48,7 +49,7 @@ namespace parser {
 		const parser_t<AST_pat*>	Pattern = parse_pat;
 
 		const parser_t<AST_block_expr*> Block	 = parse_block_expr;
-		const parser_t<AST_decl_stmt*>	Decl	 = parse_decl_stmt;
+		const parser_t<AST_stmt*>	Decl		 = parse_decl_stmt;
 		const parser_t<AST_fn_expr*>	FnExpr	 = parse_fn_expr;
 		const parser_t<AST_let_expr*>	LetExpr  = parse_let_expr;
 		const parser_t<AST_if_expr*>	IfExpr	 = parse_if_expr;
@@ -305,12 +306,16 @@ namespace parser {
 		return lvl1(in);
 	}
 
-	result_t<AST_decl_stmt*> parse_decl_stmt(token_input& in) {
+	result_t<AST_stmt*> parse_decl_stmt(token_input& in) {
 		static auto decl_parser =
-			(Fn >= !Ident < !Asgn >= !(FnExpr / "function expression"))
-			^ [](auto& beg, auto& id, auto& fn) -> AST_decl_stmt* {
-				return new AST_decl_stmt(beg, id, fn);
-			};
+			  ((Fn >= !Ident < !Asgn >= !(FnExpr / "function expression"))
+			  ^ [](auto& beg, auto& id, auto& fn) -> AST_stmt* {
+			  	return new AST_decl_stmt(beg, id, fn);
+			  })
+			| ((TypeKW >= !Ident < !Asgn >= !(Type / "type"))
+				^ [](auto& beg, auto& id, auto& ty) -> AST_stmt* {
+				return new AST_ty_decl_stmt(beg, id, ty);
+			  });
 
 		return decl_parser(in);
 	}

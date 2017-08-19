@@ -52,6 +52,7 @@ lexer::lexer(file_hnd const& src)
 	add_keyword("else", token_t::Else);	// 'else'
 	add_keyword("let", token_t::Let);	// 'let'
 	add_keyword("mut", token_t::Mut);	// 'mut'
+	add_keyword("type", token_t::Type);	// 'type'
 	
 	// Debug keyword
 	add_keyword("write_ty", token_t::DbgWriteTy);	// 'write_ty'

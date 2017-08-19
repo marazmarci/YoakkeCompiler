@@ -4,10 +4,12 @@
 #include "token.h"
 
 struct AST_expr;
+struct AST_ty;
 
 enum class AST_stmt_t {
 	Decl,
 	Expr,
+	TyDecl,
 	DbgWriteTy,
 };
 
@@ -26,6 +28,14 @@ struct AST_decl_stmt : public AST_stmt {
 
 	AST_decl_stmt(token const& beg, token const& n, AST_expr* exp);
 	virtual ~AST_decl_stmt();
+};
+
+struct AST_ty_decl_stmt : public AST_stmt {
+	token		Name;
+	AST_ty*		Type;
+
+	AST_ty_decl_stmt(token const& beg, token const& n, AST_ty* ty);
+	virtual ~AST_ty_decl_stmt();
 };
 
 struct AST_expr_stmt : public AST_stmt {

@@ -1,5 +1,6 @@
 #include "ast_stmt.h"
 #include "ast_expr.h"
+#include "ast_ty.h"
 
 AST_stmt::AST_stmt(interval const& pos, AST_stmt_t ty)
 	: AST_node(pos), Ty(ty) {
@@ -16,6 +17,17 @@ AST_decl_stmt::AST_decl_stmt(token const& beg, token const& n, AST_expr* exp)
 
 AST_decl_stmt::~AST_decl_stmt() {
 	delete Expression;
+}
+
+/*****************************************************************************/
+
+AST_ty_decl_stmt::AST_ty_decl_stmt(token const& beg, token const& n, AST_ty* ty)
+	: AST_stmt(interval(beg.Pos, ty->Pos), AST_stmt_t::TyDecl),
+	Name(n), Type(ty) {
+}
+
+AST_ty_decl_stmt::~AST_ty_decl_stmt() {
+	delete Type;
 }
 
 /*****************************************************************************/

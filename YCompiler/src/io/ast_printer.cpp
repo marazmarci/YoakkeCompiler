@@ -43,6 +43,10 @@ namespace AST_printer {
 			}
 			break;
 
+			case AST_stmt_t::DbgWriteTy: {
+			}
+			break;
+
 			default:
 				UNIMPLEMENTED;
 			}
@@ -200,6 +204,13 @@ namespace AST_printer {
 						});
 					}
 				});
+			}
+			break;
+
+			case AST_expr_t::IntLit: {
+				auto ex = (AST_int_lit_expr*)expr;
+				do_indent(indent);
+				std::cout << "integer: " << ex->Value << std::endl;
 			}
 			break;
 
