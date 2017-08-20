@@ -4,6 +4,7 @@
 #include "symbol.h"
 #include "symbol_table.h"
 #include "type.h"
+#include "unifier.h"
 #include "../syntax/ast_stmt.h"
 #include "../syntax/ast_expr.h"
 #include "../syntax/ast_ty.h"
@@ -38,15 +39,42 @@ namespace checker_phase1 {
 						reff->DefPos, stmt->Name.Pos);
 				}
 				else {
-					// TODO: overloading
-					std::cout << "todo: overload" << std::endl;
+					if (reff->Ty == symbol_t::Variable) {
+						assert(false);
+					}
+					if (reff->Ty == symbol_t::Constant) {
+						auto other_sym = (const_symbol*)reff;
+						auto fn_ty = type_cons::generic_fn();
+						if (auto err = unifier::unify(fn_ty, other_sym->Type)) {
+							return type_unify_err(*err, stmt->Pos);
+						}
+
+						auto tyc = new typeclass_symbol(name);
+						type* ty = type_cons::generic_fn();
+						tyc->add(fn_ty);	// Already existing
+						tyc->add(ty);		// Current
+						stmt->TypeSym = ty;
+
+						if (!SymTab.remove_symbol(name)) {
+							assert(false);
+						}
+						SymTab.decl(tyc);
+					}
+					if (reff->Ty == symbol_t::Typeclass) {
+						auto tyclass = (typeclass_symbol*)reff;
+						
+						type* ty = type_cons::generic_fn();
+						tyclass->add(ty);
+						stmt->TypeSym = ty;
+					}
 				}
 			}
-			const_symbol* sym = new const_symbol(
-				name, type_cons::generic_fn()
-			);
-			SymTab.decl(sym);
-			stmt->Symbol = sym;
+			else {
+				type* ty = type_cons::generic_fn();
+				const_symbol* sym = new const_symbol(name, ty);
+				SymTab.decl(sym);
+				stmt->TypeSym = ty;
+			}
 		}
 		break;
 

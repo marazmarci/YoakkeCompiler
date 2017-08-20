@@ -33,7 +33,7 @@ struct AST_decl_stmt : public AST_stmt {
 	token			Name;
 	AST_expr*		Expression;
 	AST_decl_t		DeclType;
-	const_symbol*	Symbol;
+	type*			TypeSym;
 
 	AST_decl_stmt(token const& beg, token const& n, AST_expr* exp);
 	virtual ~AST_decl_stmt();

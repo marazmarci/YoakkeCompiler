@@ -35,3 +35,11 @@ type_cons* type_cons::fn(type* params, type* ret) {
 type_cons* type_cons::generic_fn() {
 	return new type_cons(type_prefixes::Function, { new type_var(), new type_var() });
 }
+
+/*****************************************************************************/
+
+type_set::type_set(yvec<type*>& ts) 
+	: type(type_t::Set), Types(ts) {
+}
+
+type_set::~type_set() { }

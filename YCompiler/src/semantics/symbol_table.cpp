@@ -83,6 +83,10 @@ yopt<scope*> symbol_table::nearest_ret_dest() {
 	return {};
 }
 
+yopt<symbol*> symbol_table::remove_symbol(ystr const& name) {
+	return Current->remove_symbol(name);
+}
+
 bool symbol_table::shadow_symbol(ystr const& name) {
 	return Current->shadow_symbol(name);
 }

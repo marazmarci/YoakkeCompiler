@@ -64,7 +64,7 @@ namespace checker_phase2 {
 				return res.get_err();
 			}
 			type* ty = res.get_ok();
-			if (auto err = unifier::unify(ty, stmt->Symbol->Type)) {
+			if (auto err = unifier::unify(ty, stmt->TypeSym)) {
 				return type_unify_err(*err, stmt->Name.Pos);
 			}
 			return {};
@@ -233,15 +233,7 @@ namespace checker_phase2 {
 			auto expr = (AST_ident_expr*)ex;
 			if (auto res = SymTab.ref_sym(expr->Value)) {
 				auto& rres = *res;
-				if (rres->Ty == symbol_t::Constant) {
-					auto sym = (const_symbol*)rres;
-					return sym->Type;
-				}
-				if (rres->Ty == symbol_t::Variable) {
-					auto sym = (var_symbol*)rres;
-					return sym->Type;
-				}
-				UNIMPLEMENTED;
+				return rres->Type;
 			}
 			else {
 				return result_t(undef_err("symbol", expr->Value, expr->Pos));

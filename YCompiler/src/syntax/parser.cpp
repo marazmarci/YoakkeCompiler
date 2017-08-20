@@ -227,6 +227,9 @@ namespace parser {
 						for (auto& par : params_ok) {
 							param_ls.push_back(par.as_tuple());
 						}
+						if (rett) {
+							rett_r = std::get<1>(*rett);
+						}
 					}
 					else if (rett) {
 						beg = std::get<0>(*rett);

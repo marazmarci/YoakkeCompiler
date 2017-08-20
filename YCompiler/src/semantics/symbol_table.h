@@ -31,5 +31,7 @@ struct symbol_table {
 
 	yopt<scope*> nearest_ret_dest();
 
+	yopt<symbol*> remove_symbol(ystr const& name);
+
 	bool shadow_symbol(ystr const& name);
 };

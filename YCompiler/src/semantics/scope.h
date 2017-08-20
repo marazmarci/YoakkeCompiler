@@ -57,7 +57,9 @@ private:
 		if (it == map.end()) {
 			return {};
 		}
-		return it->second;
+		T res = it->second;
+		map.erase(it);
+		return res;
 	}
 
 	template <typename T>
