@@ -14,6 +14,7 @@ struct scope {
 	ymap<ystr, symbol*>	Symbols;
 	bool				ReturnDest;
 	type*				ReturnType;
+	interval			ReturnPos;
 
 	scope(bool retDest);
 	~scope();

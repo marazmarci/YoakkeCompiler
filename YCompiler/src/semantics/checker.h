@@ -21,7 +21,26 @@ namespace checker {
 		}
 	};
 
-	using semantic_err = yvar<already_def_err>;
+	struct type_unify_err {
+		ystr Err;
+		interval Pos;
+		
+		type_unify_err(ystr const& err, interval const& pos)
+			: Err(err), Pos(pos) {
+		}
+	};
+
+	struct undef_err {
+		ystr Kind;
+		ystr Name;
+		interval Pos;
+
+		undef_err(ystr const& kind, ystr const& name, interval const& pos)
+			: Kind(kind), Name(name), Pos(pos) {
+		}
+	};
+
+	using semantic_err = yvar<already_def_err, type_unify_err, undef_err>;
 
 	using result_t = yopt<semantic_err>;
 

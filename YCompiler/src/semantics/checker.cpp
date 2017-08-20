@@ -63,6 +63,28 @@ namespace checker {
 				else {
 					fmt_code::print(*CurrentFile, redef_pos);
 				}
+			},
+			[](type_unify_err& err) {
+				std::cout
+					<< "Semantic error: "
+					<< err.Err
+					<< "' in file '"
+					<< CurrentFile->path() << "' at line "
+					<< err.Pos.Start.Row << ", character "
+					<< err.Pos.Start.Column << " already defined!" << std::endl;
+				fmt_code::print(*CurrentFile, err.Pos);
+			},
+			[](undef_err& err) {
+				std::cout
+					<< "Semantic error: "
+					<< "Undefined "
+					<< err.Kind << ": '"
+					<< err.Name
+					<< "' in file '"
+					<< CurrentFile->path() << "' at line "
+					<< err.Pos.Start.Row << ", character "
+					<< err.Pos.Start.Column << " already defined!" << std::endl;
+				fmt_code::print(*CurrentFile, err.Pos);
 			}
 		);
 	}

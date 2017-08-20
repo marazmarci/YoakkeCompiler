@@ -1,7 +1,7 @@
 #include "scope.h"
 
 scope::scope(bool retDest)
-	: Parent(nullptr), ReturnDest(retDest), ReturnType(nullptr) {
+	: Parent(nullptr), ReturnDest(retDest), ReturnType(nullptr), ReturnPos(interval()) {
 	if (retDest) {
 		ReturnType = new type_var();
 	}

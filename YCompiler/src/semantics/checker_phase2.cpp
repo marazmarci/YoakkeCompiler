@@ -64,10 +64,8 @@ namespace checker_phase2 {
 			}
 			type* ty = res.get_ok();
 			if (auto err = unifier::unify(ty, stmt->Symbol->Type)) {
-				std::cout << *err << std::endl;
-				assert(false && "Unification error!");
+				return type_unify_err(*err, stmt->Name.Pos);
 			}
-			// TODO: overloading
 			return {};
 		}
 
@@ -79,7 +77,7 @@ namespace checker_phase2 {
 			}
 			type* ty = res.get_ok();
 			if (auto err = unifier::unify(ty, stmt->TypeSym)) {
-				assert(false && "Unification error!");
+				return type_unify_err(*err, stmt->Name.Pos);
 			}
 			return {};
 		}
@@ -159,11 +157,10 @@ namespace checker_phase2 {
 				rett = res.get_ok();
 			}
 			if (auto err = unifier::unify(rett, body_t)) {
-				// TODO
-				std::cout << *err << std::endl;
-				assert(false);
+				return result_t(type_unify_err(*err, expr->Pos));
 			}
 			expr->Scope->ReturnType = rett;
+			expr->Scope->ReturnPos = expr->Body->Scope->ReturnPos;
 			SymTab.pop_scope();
 
 			return type_cons::fn(params_t, rett);
@@ -185,6 +182,22 @@ namespace checker_phase2 {
 					return res.get_err();
 				}
 				rett = res.get_ok();
+				auto ret_scope = SymTab.nearest_ret_dest();
+				if (!ret_scope) {
+					// TODO
+					assert(false);
+				}
+				auto sc = *ret_scope;
+				if (sc->ReturnType) {
+					if (auto err = unifier::unify(rett, sc->ReturnType)) {
+						// TODO: more positional data
+						return result_t(type_unify_err(*err, expr->Pos));
+					}
+				}
+				else {
+					sc->ReturnPos = expr->Pos;
+					sc->ReturnType = rett;
+				}
 			}
 
 			SymTab.pop_scope();
@@ -206,8 +219,7 @@ namespace checker_phase2 {
 				UNIMPLEMENTED;
 			}
 			else {
-				std::cout << "Undefined symbol: '" << expr->Value << "'!" << std::endl;
-				assert(false);
+				return result_t(undef_err("symbol", expr->Value, expr->Pos));
 			}
 		}
 
@@ -252,9 +264,7 @@ namespace checker_phase2 {
 				}
 				auto& ty = res.get_ok();
 				if (auto err = unifier::unify(pat_ty, ty)) {
-					// TODO
-					std::cout << *err << std::endl;
-					assert(false);
+					return result_t(type_unify_err(*err, expr->Pos));
 				}
 			}
 			if (expr->Value) {
@@ -264,9 +274,7 @@ namespace checker_phase2 {
 				}
 				auto& ty = res.get_ok();
 				if (auto err = unifier::unify(pat_ty, ty)) {
-					// TODO
-					std::cout << *err << std::endl;
-					assert(false);
+					return result_t(type_unify_err(*err, expr->Pos));
 				}
 			}
 			for (auto& entry : entries) {
@@ -350,8 +358,7 @@ namespace checker_phase2 {
 				return *tsym;
 			}
 			else {
-				std::cout << "Undefined type: '" << ty->Value << "'" << std::endl;
-				assert(false);
+				return result_t(undef_err("type", ty->Value, ty->Pos));
 			}
 		}
 
