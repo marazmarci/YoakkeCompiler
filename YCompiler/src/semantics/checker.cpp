@@ -71,7 +71,7 @@ namespace checker {
 					<< "' in file '"
 					<< CurrentFile->path() << "' at line "
 					<< err.Pos.Start.Row << ", character "
-					<< err.Pos.Start.Column << " already defined!" << std::endl;
+					<< err.Pos.Start.Column << "!" << std::endl;
 				fmt_code::print(*CurrentFile, err.Pos);
 			},
 			[](undef_err& err) {
@@ -83,7 +83,7 @@ namespace checker {
 					<< "' in file '"
 					<< CurrentFile->path() << "' at line "
 					<< err.Pos.Start.Row << ", character "
-					<< err.Pos.Start.Column << " already defined!" << std::endl;
+					<< err.Pos.Start.Column << "!" << std::endl;
 				fmt_code::print(*CurrentFile, err.Pos);
 			}
 		);

@@ -6,6 +6,7 @@
 #include "type.h"
 #include "unifier.h"
 
+// TODO: unification errors are temporary
 namespace checker_phase2 {
 	symbol_table& SymTab = checker::SymTab;
 
@@ -117,6 +118,30 @@ namespace checker_phase2 {
 
 	res2_t check(AST_expr* ex) {
 		switch (ex->Ty) {
+		case AST_expr_t::Call: {
+			auto expr = (AST_call_expr*)ex;
+			auto res = check(expr->Func);
+			if (res.is_err()) {
+				return res.get_err();
+			}
+			auto& fn_ty = res.get_ok();
+			
+			type_cons* params_t = new type_cons(type_prefixes::Params);
+			for (auto& par : expr->Params) {
+				auto pres = check(par);
+				if (pres.is_err()) {
+					return pres.get_err();
+				}
+				params_t->add(pres.get_ok());
+			}
+
+			type_cons* expected_fn = type_cons::fn(params_t, new type_var());
+			if (auto err = unifier::unify(fn_ty, expected_fn)) {
+				return result_t(type_unify_err(*err, expr->Pos));
+			}
+			return expected_fn->Params[1];
+		}
+
 		case AST_expr_t::Fn: {
 			auto expr = (AST_fn_expr*)ex;
 			SymTab.push_scope(expr->Scope);
@@ -316,10 +341,14 @@ namespace checker_phase2 {
 				type* params = res.get_ok();
 				if (params->Ty == type_t::Constructor) {
 					auto params_t = (type_cons*)params;
-
-					return type_cons::fn(
-						new type_cons(type_prefixes::Params, params_t->Params), 
-						res2.get_ok());
+					type_cons* params_fn = nullptr;
+					if (params_t->Name == type_prefixes::Tuple) {
+						params_fn = new type_cons(type_prefixes::Params, params_t->Params);
+					}
+					else {
+						params_fn = new type_cons(type_prefixes::Params, { params_t });
+					}
+					return type_cons::fn(params_fn, res2.get_ok());
 				}
 				else {
 					assert(false);
