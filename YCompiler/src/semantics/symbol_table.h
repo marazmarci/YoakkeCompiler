@@ -3,6 +3,7 @@
 struct scope;
 struct type_cons;
 struct symbol;
+struct type;
 
 struct symbol_table {
 	scope* Current;
@@ -16,6 +17,7 @@ struct symbol_table {
 	void pop_scope();
 
 	void decl(type_cons* tc);
+	void decl(ystr const& name, type* ty);
 	void decl(symbol* sym);
 
 	yopt<symbol*> ref_sym(ystr const& name);

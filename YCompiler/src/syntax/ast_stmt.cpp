@@ -23,7 +23,7 @@ AST_decl_stmt::~AST_decl_stmt() {
 
 AST_ty_decl_stmt::AST_ty_decl_stmt(token const& beg, token const& n, AST_ty* ty)
 	: AST_stmt(interval(beg.Pos, ty->Pos), AST_stmt_t::TyDecl),
-	Name(n), Type(ty) {
+	Name(n), Type(ty), TypeSym(nullptr) {
 }
 
 AST_ty_decl_stmt::~AST_ty_decl_stmt() {

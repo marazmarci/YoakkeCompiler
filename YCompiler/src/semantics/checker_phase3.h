@@ -1,5 +1,6 @@
 #pragma once
 
+#include "checker.h"
 #include "symbol_table.h"
 #include "../common.h"
 #include "../syntax/ast_stmt.h"
@@ -14,10 +15,8 @@ struct AST_ty;
 struct AST_par;
 
 namespace checker_phase3 {
-	struct semantic_err;
-
-	using result_t = yopt<semantic_err>;
+	using namespace checker;
 
 	void init(symbol_table& symt);
-	void check(AST_stmt* st);
+	result_t check(AST_stmt* st);
 }

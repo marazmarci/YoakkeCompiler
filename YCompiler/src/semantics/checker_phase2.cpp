@@ -7,4 +7,8 @@ namespace checker_phase2 {
 	void init(symbol_table& symt) {
 		SymTab = symt;
 	}
+
+	result_t check(AST_stmt* st) {
+		return {};
+	}
 }

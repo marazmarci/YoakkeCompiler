@@ -1,5 +1,6 @@
 #include "scope.h"
 #include "symbol_table.h"
+#include "unifier.h"
 
 symbol_table::symbol_table()
 	: Current(nullptr), Global(nullptr) {
@@ -27,7 +28,11 @@ void symbol_table::pop_scope() {
 }
 
 void symbol_table::decl(type_cons* tc) {
-	Current->decl_type(tc->Name, tc);
+	Current->decl_type(unifier::to_str(tc), tc);
+}
+
+void symbol_table::decl(ystr const& name, type* ty) {
+	Current->decl_type(name, ty);
 }
 
 void symbol_table::decl(symbol* sym) {

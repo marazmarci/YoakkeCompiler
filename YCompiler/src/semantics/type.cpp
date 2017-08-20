@@ -1,7 +1,7 @@
 #include "type.h"
 
 type::type(type_t tt)
-	: Ty(tt) {
+	: Ty(tt), DefPos({}) {
 }
 
 type::~type() { }

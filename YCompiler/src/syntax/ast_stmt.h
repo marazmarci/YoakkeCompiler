@@ -5,6 +5,7 @@
 
 struct AST_expr;
 struct AST_ty;
+struct type;
 
 enum class AST_stmt_t {
 	Decl,
@@ -33,6 +34,7 @@ struct AST_decl_stmt : public AST_stmt {
 struct AST_ty_decl_stmt : public AST_stmt {
 	token		Name;
 	AST_ty*		Type;
+	type*		TypeSym;
 
 	AST_ty_decl_stmt(token const& beg, token const& n, AST_ty* ty);
 	virtual ~AST_ty_decl_stmt();

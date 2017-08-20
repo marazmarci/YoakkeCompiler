@@ -38,7 +38,6 @@ yopt<symbol*> scope::local_ref_sym(ystr const& name) {
 }
 
 void scope::decl_type(ystr const& name, type* ty) {
-	assert(ty->Ty != type_t::Variable && "Cannot add a type variable");
 	decl(Types, name, ty);
 }
 

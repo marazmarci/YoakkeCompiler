@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common.h"
+#include "../syntax/position.h"
 
 namespace type_prefixes {
 	constexpr auto Tuple = "@tup";
@@ -16,6 +17,7 @@ enum class type_t {
 struct type {
 public:
 	type_t Ty;
+	yopt<interval> DefPos;
 
 protected:
 	type(type_t tt);

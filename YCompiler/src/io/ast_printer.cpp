@@ -37,6 +37,14 @@ namespace AST_printer {
 			}
 			break;
 
+			case AST_stmt_t::TyDecl: {
+				auto st = (AST_ty_decl_stmt*)stmt;
+				block(indent, "Type_Decl: " + st->Name.Value, [&]() {
+					print(st->Type, indent + 1);
+				});
+			}
+			break;
+
 			case AST_stmt_t::Expr: {
 				auto st = (AST_expr_stmt*)stmt;
 				print(st->Expression, indent);
