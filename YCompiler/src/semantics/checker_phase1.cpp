@@ -1,6 +1,7 @@
 #include <iostream>
 #include "checker.h"
 #include "checker_phase1.h"
+#include "symbol.h"
 #include "symbol_table.h"
 #include "type.h"
 #include "../syntax/ast_stmt.h"
@@ -21,7 +22,31 @@ namespace checker_phase1 {
 		switch (st->Ty) {
 		case AST_stmt_t::Decl: {
 			auto stmt = (AST_decl_stmt*)st;
-			return check(stmt->Expression);
+			ystr const& name = stmt->Name.Value;
+			if (auto err = check(stmt->Expression)) {
+				return *err;
+			}
+			// TODO: check for shadowing
+			if (auto ref = SymTab.local_ref_sym(name)) {
+				auto& reff = *ref;
+				if (stmt->DeclType == AST_decl_t::Const) {
+					// TODO: is the reff is function, return another error
+					// saying you cannot define a function and const
+					// with the same name in the same scope
+					return already_def_err(
+						"constant", name,
+						reff->DefPos, stmt->Name.Pos);
+				}
+				else {
+					// TODO: overloading
+					std::cout << "todo: overload" << std::endl;
+				}
+			}
+			const_symbol* sym = new const_symbol(
+				name, type_cons::generic_fn()
+			);
+			SymTab.decl(sym);
+			stmt->Symbol = sym;
 		}
 		break;
 
@@ -36,8 +61,8 @@ namespace checker_phase1 {
 			}
 			else {
 				if (auto ref = SymTab.upper_ref_type(name)) {
+					// TODO: Real warn
 					auto reff = *ref;
-					// TODO
 					std::cout << "Warning: shadowing type: '" << name << "'!" << std::endl;
 				}
 				type_var* ty = new type_var();
@@ -57,6 +82,9 @@ namespace checker_phase1 {
 		case AST_stmt_t::DbgWriteTy: {
 		}
 		break;
+
+		default:
+			UNIMPLEMENTED;
 		}
 
 		return {};

@@ -6,12 +6,18 @@
 struct AST_expr;
 struct AST_ty;
 struct type;
+struct const_symbol;
 
 enum class AST_stmt_t {
 	Decl,
 	Expr,
 	TyDecl,
 	DbgWriteTy,
+};
+
+enum class AST_decl_t {
+	Fn,
+	Const
 };
 
 struct AST_stmt : public AST_node {
@@ -24,8 +30,10 @@ protected:
 };
 
 struct AST_decl_stmt : public AST_stmt {
-	token		Name;
-	AST_expr*	Expression;
+	token			Name;
+	AST_expr*		Expression;
+	AST_decl_t		DeclType;
+	const_symbol*	Symbol;
 
 	AST_decl_stmt(token const& beg, token const& n, AST_expr* exp);
 	virtual ~AST_decl_stmt();

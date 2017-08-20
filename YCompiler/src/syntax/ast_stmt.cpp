@@ -12,7 +12,9 @@ AST_stmt::~AST_stmt() { }
 
 AST_decl_stmt::AST_decl_stmt(token const& beg, token const& n, AST_expr* exp)
 	: AST_stmt(interval(beg.Pos, exp->Pos), AST_stmt_t::Decl),
-	Name(n), Expression(exp) {
+	Name(n), Expression(exp), 
+	DeclType(beg.Value == "fn" ? AST_decl_t::Fn : AST_decl_t::Const),
+	Symbol(nullptr) {
 }
 
 AST_decl_stmt::~AST_decl_stmt() {

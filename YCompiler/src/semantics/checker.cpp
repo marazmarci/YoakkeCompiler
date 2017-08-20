@@ -6,7 +6,6 @@
 #include "../syntax/ast_stmt.h"
 #include "checker_phase1.h"
 #include "checker_phase2.h"
-#include "checker_phase3.h"
 #include "../io/fmt_code.h"
 
 namespace checker {
@@ -30,7 +29,6 @@ namespace checker {
 
 		checker_phase1::init(SymTab);
 		checker_phase2::init(SymTab);
-		checker_phase3::init(SymTab);
 
 		for (auto& st : prg) {
 			if (auto err = checker_phase1::check(st)) {
@@ -39,11 +37,6 @@ namespace checker {
 		}
 		for (auto& st : prg) {
 			if (auto err = checker_phase2::check(st)) {
-				return *err;
-			}
-		}
-		for (auto& st : prg) {
-			if (auto err = checker_phase3::check(st)) {
 				return *err;
 			}
 		}

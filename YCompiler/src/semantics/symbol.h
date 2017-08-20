@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common.h"
+#include "../syntax/position.h"
 
 enum class symbol_t {
 	Constant,
@@ -12,8 +13,9 @@ struct type;
 
 struct symbol {
 public:
-	symbol_t	Ty;
-	ystr		Name;
+	symbol_t		Ty;
+	ystr			Name;
+	yopt<interval>	DefPos;
 
 protected:
 	symbol(symbol_t t, ystr const& name);

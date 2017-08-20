@@ -45,4 +45,7 @@ struct type_cons : public type {
 	virtual ~type_cons();
 
 	void add(type* t);
+
+	static type_cons* fn(type* params, type* ret);
+	static type_cons* generic_fn();
 };
