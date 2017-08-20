@@ -13,7 +13,7 @@ struct symbol_table {
 	~symbol_table();
 
 	scope* push_scope(bool ret);
-	void set_scope(scope* sc);
+	void push_scope(scope* sc);
 	void pop_scope();
 
 	void decl(type_cons* tc);

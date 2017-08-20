@@ -14,4 +14,5 @@ namespace checker_phase1 {
 
 	void init(symbol_table& symt);
 	result_t check(AST_stmt* st);
+	result_t check(AST_expr* ex);
 }

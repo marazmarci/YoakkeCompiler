@@ -17,7 +17,8 @@ scope* symbol_table::push_scope(bool ret) {
 	return Current;
 }
 
-void symbol_table::set_scope(scope* sc) {
+void symbol_table::push_scope(scope* sc) {
+	assert(sc->Parent == Current && "Scope corruption!");
 	Current = sc;
 }
 
