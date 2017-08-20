@@ -24,6 +24,10 @@ namespace checker_phase1 {
 		case AST_stmt_t::Decl: {
 			auto stmt = (AST_decl_stmt*)st;
 			ystr const& name = stmt->Name.Value;
+			if (stmt->DeclType == AST_decl_t::Fn) {
+				auto expr = (AST_fn_expr*)stmt->Expression;
+				expr->DeclType = type_cons::generic_fn();
+			}
 			if (auto err = check(stmt->Expression)) {
 				return *err;
 			}
@@ -49,8 +53,9 @@ namespace checker_phase1 {
 							return type_unify_err(*err, stmt->Pos);
 						}
 
+						auto expr = (AST_fn_expr*)stmt->Expression;
 						auto tyc = new typeclass_symbol(name);
-						type* ty = type_cons::generic_fn();
+						type* ty = expr->DeclType;
 						tyc->add(fn_ty);	// Already existing
 						tyc->add(ty);		// Current
 						stmt->TypeSym = ty;

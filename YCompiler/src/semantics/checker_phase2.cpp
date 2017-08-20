@@ -165,6 +165,10 @@ namespace checker_phase2 {
 					std::cout << "todo: Warning unnamed param" << std::endl;
 				}
 			}
+			if (auto err = unifier::unify(expr->DeclType, 
+				type_cons::fn(params_t, new type_var()))) {
+				return result_t(type_unify_err(*err, expr->Pos));
+			}
 			type* body_t = nullptr;
 			{
 				auto res = check(expr->Body);
@@ -184,11 +188,15 @@ namespace checker_phase2 {
 			if (auto err = unifier::unify(rett, body_t)) {
 				return result_t(type_unify_err(*err, expr->Pos));
 			}
+			type* fnty = type_cons::fn(params_t, rett);
 			expr->Scope->ReturnType = rett;
 			expr->Scope->ReturnPos = expr->Body->Scope->ReturnPos;
+			if (auto err = unifier::unify(fnty, expr->DeclType)) {
+				return result_t(type_unify_err(*err, expr->Pos));
+			}
 			SymTab.pop_scope();
 
-			return type_cons::fn(params_t, rett);
+			return fnty;
 		}
 
 		case AST_expr_t::Block: {
