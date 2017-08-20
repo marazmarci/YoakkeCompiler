@@ -236,9 +236,9 @@ namespace parser {
 				};
 
 			const auto IfExpr =
-				(IF >= !(ExprList / "condition") >= !(BlockExpr)
-					>= *(ELSE > IF >= !(ExprList / "condition") >= !(BlockExpr))
-					>= &(ELSE > !BlockExpr))
+						   (IF >= !(ExprList / "condition") >= !(BlockExpr)
+				>= *(ELSE > IF >= !(ExprList / "condition") >= !(BlockExpr))
+				>= &(ELSE > !BlockExpr))
 				^ [](auto& beg, auto& cond, auto& then, auto& elifs, auto& el) -> AST_if_expr* {
 					yopt<AST_block_expr*> elbody =
 						fnl::fold(elifs.rbegin(), elifs.rend(), el,

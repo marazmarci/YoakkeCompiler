@@ -39,7 +39,7 @@ struct type_cons : public type {
 	ystr		Name;
 	yvec<type*>	Params;
 
-	type_cons(ystr const& name, yvec<type*> const& params);
+	type_cons(ystr const& name, yvec<type*> const& params = {});
 	virtual ~type_cons();
 
 	void add(type* t);

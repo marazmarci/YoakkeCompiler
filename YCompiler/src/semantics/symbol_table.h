@@ -2,6 +2,7 @@
 
 struct scope;
 struct type_cons;
+struct symbol;
 
 struct symbol_table {
 	scope* Current;

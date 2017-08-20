@@ -121,6 +121,10 @@
     <ClInclude Include="src\io\file_hnd.h" />
     <ClInclude Include="src\io\fmt_code.h" />
     <ClInclude Include="src\math.h" />
+    <ClInclude Include="src\semantics\checker.h" />
+    <ClInclude Include="src\semantics\checker_phase1.h" />
+    <ClInclude Include="src\semantics\checker_phase2.h" />
+    <ClInclude Include="src\semantics\checker_phase3.h" />
     <ClInclude Include="src\semantics\scope.h" />
     <ClInclude Include="src\semantics\symbol.h" />
     <ClInclude Include="src\semantics\symbol_table.h" />
@@ -145,6 +149,10 @@
     <ClCompile Include="src\io\fmt_code.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\io\file_hnd.cpp" />
+    <ClCompile Include="src\semantics\checker.cpp" />
+    <ClCompile Include="src\semantics\checker_phase1.cpp" />
+    <ClCompile Include="src\semantics\checker_phase2.cpp" />
+    <ClCompile Include="src\semantics\checker_phase3.cpp" />
     <ClCompile Include="src\semantics\scope.cpp" />
     <ClCompile Include="src\semantics\symbol.cpp" />
     <ClCompile Include="src\semantics\symbol_table.cpp" />
