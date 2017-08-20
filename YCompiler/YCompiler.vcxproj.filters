@@ -143,8 +143,5 @@
     <ClInclude Include="src\semantics\symbol_table.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\semantics\decl_checker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

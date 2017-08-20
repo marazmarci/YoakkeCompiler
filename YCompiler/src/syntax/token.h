@@ -83,6 +83,13 @@ struct token {
 	 * @return The string representing the token.
 	 */
 	ystr fmt() const;
+
+	/**
+	 * Gets a general description of a token based on only a token type.
+	 * Used by error reporting.
+	 * @return A descriptor string.
+	 */
+	static const char* static_desc(token_t tt);
 };
 
 std::ostream& operator<<(std::ostream& os, token const& tok);

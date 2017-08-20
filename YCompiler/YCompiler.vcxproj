@@ -122,7 +122,6 @@
     <ClInclude Include="src\io\fmt_code.h" />
     <ClInclude Include="src\math.h" />
     <ClInclude Include="src\semantics\scope.h" />
-    <ClInclude Include="src\semantics\decl_checker.h" />
     <ClInclude Include="src\semantics\symbol.h" />
     <ClInclude Include="src\semantics\symbol_table.h" />
     <ClInclude Include="src\semantics\type.h" />

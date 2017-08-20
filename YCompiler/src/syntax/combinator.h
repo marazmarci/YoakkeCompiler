@@ -436,4 +436,9 @@ namespace combinator {
 			}
 		};
 	}
+
+	template <token_t TokT>
+	parser_t<token> term() {
+		return terminal<TokT>(token::static_desc(TokT));
+	}
 }
