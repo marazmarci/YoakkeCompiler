@@ -245,13 +245,13 @@ namespace parser {
 				^ [](auto& beg, auto& cond, auto& then, auto& elifs, auto& el) -> AST_if_expr* {
 					yopt<AST_block_expr*> elbody =
 						fnl::fold(elifs.rbegin(), elifs.rend(), el,
-							[](auto& curr, auto& elem) -> AST_block_expr* {
-						auto& e_tok = std::get<0>(elem);
-						auto& e_cond = std::get<1>(elem);
-						auto& e_block = std::get<2>(elem);
-						AST_if_expr* eif = new AST_if_expr(e_tok, e_cond, e_block, curr);
-						return new AST_block_expr(new AST_expr_stmt(eif));
-					});
+						[](auto& curr, auto& elem) -> AST_block_expr* {
+							auto& e_tok = std::get<0>(elem);
+							auto& e_cond = std::get<1>(elem);
+							auto& e_block = std::get<2>(elem);
+							AST_if_expr* eif = new AST_if_expr(e_tok, e_cond, e_block, curr);
+							return new AST_block_expr(new AST_expr_stmt(eif));
+						});
 					return new AST_if_expr(beg, cond, then, elbody);
 				};
 
@@ -279,18 +279,18 @@ namespace parser {
 				^ [](auto& fn, auto& params) -> AST_expr* {
 					return fnl::fold(params.begin(), params.end(), fn,
 						[](auto& fn, auto& param_ls) -> AST_expr* {
-						auto& param_pack = std::get<0>(param_ls);
-						auto& rparen = std::get<1>(param_ls);
-						if (param_pack) {
-							auto& fpar = std::get<0>(*param_pack);
-							auto& restpars = std::get<1>(*param_pack);
-							restpars.insert(restpars.begin(), fpar);
-							return new AST_call_expr(fn, restpars, rparen);
-						}
-						else {
-							return new AST_call_expr(fn, yvec<AST_expr*>{}, rparen);
-						}
-					});
+							auto& param_pack = std::get<0>(param_ls);
+							auto& rparen = std::get<1>(param_ls);
+							if (param_pack) {
+								auto& fpar = std::get<0>(*param_pack);
+								auto& restpars = std::get<1>(*param_pack);
+								restpars.insert(restpars.begin(), fpar);
+								return new AST_call_expr(fn, restpars, rparen);
+							}
+							else {
+								return new AST_call_expr(fn, yvec<AST_expr*>{}, rparen);
+							}
+						});
 				};
 
 			const auto lvl2 =
@@ -298,8 +298,8 @@ namespace parser {
 				^ [](auto& ops, auto& exp) {
 					return fnl::fold(ops.begin(), ops.end(), exp,
 						[](auto& exp, auto& op) -> AST_expr* {
-						return new AST_pre_expr(op, exp);
-					});
+							return new AST_pre_expr(op, exp);
+						});
 				};
 
 			const auto lvl3 =
@@ -360,7 +360,7 @@ namespace parser {
 
 			static auto Decl =
 				  ((FN >= !IDENT < !ASGN >= !(FnExpr / "function expression"))
-				  ^ make_as<AST_decl_stmt, AST_stmt>())
+				  ^ make_as<AST_fn_decl_stmt, AST_stmt>())
 				| ((TYPE >= !IDENT < !ASGN >= !(TypeList / "type"))
 				  ^ make_as<AST_ty_decl_stmt, AST_stmt>())
 				;
@@ -375,7 +375,7 @@ namespace parser {
 		}
 
 		const auto Program =
-			*Decl;
+			*Decl < !END_OF_F;
 	}
 
 	result_t<yvec<AST_stmt*>> parse_program(token_input& in) {

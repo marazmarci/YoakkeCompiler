@@ -5,19 +5,14 @@
 
 struct AST_expr;
 struct AST_ty;
-struct type;
-struct const_symbol;
+struct AST_fn_expr;
 
 enum class AST_stmt_t {
-	Decl,
-	Expr,
+	FnDecl,
+	ConstDecl,
 	TyDecl,
+	Expr,
 	DbgWriteTy,
-};
-
-enum class AST_decl_t {
-	Fn,
-	Const
 };
 
 struct AST_stmt : public AST_node {
@@ -29,20 +24,25 @@ protected:
 	AST_stmt(interval const& pos, AST_stmt_t ty);
 };
 
-struct AST_decl_stmt : public AST_stmt {
+struct AST_fn_decl_stmt : public AST_stmt {
 	token			Name;
-	AST_expr*		Expression;
-	AST_decl_t		DeclType;
-	type*			TypeSym;
+	AST_fn_expr*	Expression;
 
-	AST_decl_stmt(token const& beg, token const& n, AST_expr* exp);
-	virtual ~AST_decl_stmt();
+	AST_fn_decl_stmt(token const& beg, token const& n, AST_fn_expr* exp);
+	virtual ~AST_fn_decl_stmt();
+};
+
+struct AST_const_decl_stmt : public AST_stmt {
+	token		Name;
+	AST_expr*	Expression;
+
+	AST_const_decl_stmt(token const& beg, token const& n, AST_expr* exp);
+	virtual ~AST_const_decl_stmt();
 };
 
 struct AST_ty_decl_stmt : public AST_stmt {
 	token		Name;
 	AST_ty*		Type;
-	type*		TypeSym;
 
 	AST_ty_decl_stmt(token const& beg, token const& n, AST_ty* ty);
 	virtual ~AST_ty_decl_stmt();

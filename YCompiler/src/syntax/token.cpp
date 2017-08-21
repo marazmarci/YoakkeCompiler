@@ -67,6 +67,7 @@ const char* token::static_desc(token_t tt) {
 	case token_t::Semicol:		return "';'";
 	case token_t::Sub:			return "'-'";
 	case token_t::Type:			return "'type'";
+	case token_t::Const:		return "'const'";
 
 	case token_t::DbgWriteTy:	return "<debug>";
 

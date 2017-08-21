@@ -46,6 +46,7 @@ enum class token_t {
 	Semicol,	// Semicolon			';'
 	Arrow,		// Arrow sign			'->'
 	Fn,			// Function def			'fn'
+	Const,		// Constant def			'const'
 	If,			// If expression		'if'
 	Else,		// Else					'else'
 	Let,		// Let					'let'

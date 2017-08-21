@@ -10,14 +10,23 @@ AST_stmt::~AST_stmt() { }
 
 /*****************************************************************************/
 
-AST_decl_stmt::AST_decl_stmt(token const& beg, token const& n, AST_expr* exp)
-	: AST_stmt(interval(beg.Pos, exp->Pos), AST_stmt_t::Decl),
-	Name(n), Expression(exp), 
-	DeclType(beg.Value == "fn" ? AST_decl_t::Fn : AST_decl_t::Const),
-	TypeSym(nullptr) {
+AST_fn_decl_stmt::AST_fn_decl_stmt(token const& beg, token const& n, AST_fn_expr* exp)
+	: AST_stmt(interval(beg.Pos, exp->Pos), AST_stmt_t::FnDecl),
+	Name(n), Expression(exp) {
 }
 
-AST_decl_stmt::~AST_decl_stmt() {
+AST_fn_decl_stmt::~AST_fn_decl_stmt() {
+	delete Expression;
+}
+
+/*****************************************************************************/
+
+AST_const_decl_stmt::AST_const_decl_stmt(token const& beg, token const& n, AST_expr* exp)
+	: AST_stmt(interval(beg.Pos, exp->Pos), AST_stmt_t::ConstDecl),
+	Name(n), Expression(exp) {
+}
+
+AST_const_decl_stmt::~AST_const_decl_stmt() {
 	delete Expression;
 }
 
@@ -25,7 +34,7 @@ AST_decl_stmt::~AST_decl_stmt() {
 
 AST_ty_decl_stmt::AST_ty_decl_stmt(token const& beg, token const& n, AST_ty* ty)
 	: AST_stmt(interval(beg.Pos, ty->Pos), AST_stmt_t::TyDecl),
-	Name(n), Type(ty), TypeSym(nullptr) {
+	Name(n), Type(ty) {
 }
 
 AST_ty_decl_stmt::~AST_ty_decl_stmt() {

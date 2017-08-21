@@ -47,12 +47,13 @@ lexer::lexer(file_hnd const& src)
 	add_symbol("->", token_t::Arrow);	// '->'
 
 	// Initialize keywords
-	add_keyword("fn", token_t::Fn);		// 'fn'
-	add_keyword("if", token_t::If);		// 'if'
-	add_keyword("else", token_t::Else);	// 'else'
-	add_keyword("let", token_t::Let);	// 'let'
-	add_keyword("mut", token_t::Mut);	// 'mut'
-	add_keyword("type", token_t::Type);	// 'type'
+	add_keyword("fn", token_t::Fn);			// 'fn'
+	add_keyword("type", token_t::Type);		// 'type'
+	add_keyword("const", token_t::Const);	// 'const'
+	add_keyword("if", token_t::If);			// 'if'
+	add_keyword("else", token_t::Else);		// 'else'
+	add_keyword("let", token_t::Let);		// 'let'
+	add_keyword("mut", token_t::Mut);		// 'mut'
 	
 	// Debug keyword
 	add_keyword("write_ty", token_t::DbgWriteTy);	// 'write_ty'

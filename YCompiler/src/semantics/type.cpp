@@ -37,9 +37,3 @@ type_cons* type_cons::generic_fn() {
 }
 
 /*****************************************************************************/
-
-type_set::type_set(yvec<type*>& ts) 
-	: type(type_t::Set), Types(ts) {
-}
-
-type_set::~type_set() { }

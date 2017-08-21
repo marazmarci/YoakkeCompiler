@@ -39,7 +39,7 @@ AST_fn_expr::AST_fn_expr(yopt<token> beg, yvec<param_t> const& params,
 	: AST_expr(
 		beg ? interval(beg->Pos, body->Pos) : body->Pos,
 		AST_expr_t::Fn),
-	Params(params), Return(std::move(ret)), Body(body), Scope(nullptr), DeclType(nullptr) {
+	Params(params), Return(std::move(ret)), Body(body), Scope(nullptr) {
 }
 
 AST_fn_expr::~AST_fn_expr() {

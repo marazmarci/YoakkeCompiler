@@ -72,15 +72,6 @@
     <ClCompile Include="src\semantics\symbol_table.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\semantics\checker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\semantics\checker_phase1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\semantics\checker_phase2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h">
@@ -150,15 +141,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\semantics\symbol_table.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\semantics\checker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\semantics\checker_phase1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\semantics\checker_phase2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

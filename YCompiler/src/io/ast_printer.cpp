@@ -29,9 +29,17 @@ namespace AST_printer {
 
 		void print(AST_stmt* stmt, ysize indent) {
 			switch (stmt->Ty) {
-			case AST_stmt_t::Decl: {
-				auto st = (AST_decl_stmt*)stmt;
-				block(indent, "Decl: " + st->Name.Value, [&]() {
+			case AST_stmt_t::FnDecl: {
+				auto st = (AST_fn_decl_stmt*)stmt;
+				block(indent, "Fn_Decl: " + st->Name.Value, [&]() {
+					print(st->Expression, indent + 1);
+				});
+			}
+			break;
+
+			case AST_stmt_t::ConstDecl: {
+				auto st = (AST_const_decl_stmt*)stmt;
+				block(indent, "Const_Decl: " + st->Name.Value, [&]() {
 					print(st->Expression, indent + 1);
 				});
 			}

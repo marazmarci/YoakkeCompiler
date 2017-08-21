@@ -14,7 +14,6 @@
 #include "syntax/ast_pat.h"
 #include "semantics/type.h"
 #include "semantics/unifier.h"
-#include "semantics/checker.h"
 
 template <typename T>
 void write_t(T const& t) {
@@ -39,11 +38,6 @@ int main(void) {
 	auto& st_list = std::get<0>(res_ok);
 	for (auto& decl : st_list) {
 		AST_printer::print(decl);
-	}
-	if (auto err = checker::check_program(file, st_list)) {
-		checker::handle_error(*err);
-		std::cin.get();
-		return 0;
 	}
 	std::cout << "OK!" << std::endl;
 

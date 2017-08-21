@@ -12,7 +12,6 @@ namespace type_prefixes {
 enum class type_t {
 	Variable,
 	Constructor,
-	Set,
 };
 
 struct type {
@@ -49,11 +48,4 @@ struct type_cons : public type {
 
 	static type_cons* fn(type* params, type* ret);
 	static type_cons* generic_fn();
-};
-
-struct type_set : public type {
-	yvec<type*>& Types;
-
-	type_set(yvec<type*>& ts);
-	virtual ~type_set();
 };
