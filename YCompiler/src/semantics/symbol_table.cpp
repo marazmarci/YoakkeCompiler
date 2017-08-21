@@ -28,10 +28,6 @@ void symbol_table::pop_scope() {
 	Current = Current->Parent;
 }
 
-void symbol_table::decl(type_cons* tc) {
-	Current->decl_type(unifier::to_str(tc), tc);
-}
-
 void symbol_table::decl(ystr const& name, type* ty) {
 	Current->decl_type(name, ty);
 }

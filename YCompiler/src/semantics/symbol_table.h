@@ -16,7 +16,6 @@ struct symbol_table {
 	void push_scope(scope* sc);
 	void pop_scope();
 
-	void decl(type_cons* tc);
 	void decl(ystr const& name, type* ty);
 	void decl(symbol* sym);
 

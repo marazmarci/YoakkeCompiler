@@ -4,9 +4,8 @@
 #include "../syntax/position.h"
 
 namespace type_prefixes {
-	constexpr auto Tuple = "@tup";
+	constexpr auto Tuple	= "@tup";
 	constexpr auto Function = "@fn";
-	constexpr auto Params = "@params";
 }
 
 enum class type_t {
@@ -47,4 +46,9 @@ struct type_cons : public type {
 
 	static type_cons* fn(type* params, type* ret);
 	static type_cons* generic_fn();
+
+	template <typename... Ts>
+	static type_cons* tuple(Ts&... tys) {
+		return new type_cons(type_prefixes::Tuple, { tys... });
+	}
 };

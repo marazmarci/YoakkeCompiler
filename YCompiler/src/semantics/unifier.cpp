@@ -15,15 +15,34 @@ namespace unifier {
 
 		case type_t::Constructor: {
 			type_cons* tc = (type_cons*)ty;
-			ystr res = tc->Name;
-			if (tc->Params.size()) {
-				res += '<' + to_str(tc->Params[0]);
-				for (ysize i = 1; i < tc->Params.size(); i++) {
-					res += ", " + to_str(tc->Params[i]);
-				}
-				res += '>';
+			if (tc->Name == type_prefixes::Function) {
+				assert(tc->Params.size() == 2);
+				return to_str(tc->Params[0]) + " -> " + to_str(tc->Params[1]);
 			}
-			return res;
+			else if (tc->Name == type_prefixes::Tuple) {
+				ystr res = "(";
+				if (tc->Params.size()) {
+					res += to_str(tc->Params[0]);
+					for (ysize i = 1; i < tc->Params.size(); i++) {
+						res += ", " + to_str(tc->Params[i]);
+					}
+				}
+				res += ')';
+				return res;
+			}
+			else {
+				ystr res = tc->Name;
+				if (tc->Params.size()) {
+					res += '<' + to_str(tc->Params[0]);
+					for (ysize i = 1; i < tc->Params.size(); i++) {
+						res += ", " + to_str(tc->Params[i]);
+					}
+					res += '>';
+				}
+				return res;
+			}
+
+			UNREACHABLE;
 		}
 
 		default: UNIMPLEMENTED;

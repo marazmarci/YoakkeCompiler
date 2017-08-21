@@ -39,7 +39,6 @@ int main(void) {
 	for (auto& decl : st_list) {
 		AST_printer::print(decl);
 	}
-	std::cout << "OK!" << std::endl;
 
 	std::cin.get();
 	return 0;
