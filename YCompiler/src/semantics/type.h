@@ -17,7 +17,6 @@ enum class type_t {
 struct type {
 public:
 	type_t Ty;
-	yopt<interval> DefPos;
 
 protected:
 	type(type_t tt);
