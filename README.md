@@ -12,20 +12,33 @@ Yoakke is a general-purpose, system-level programming language aiming for perfor
  * Compilation: in progress
 
 ___
-# Getting started
+# Basics
 
 ## Hello, World!
 ```
 #import "io"
 
-main :: () {
-    io:println("Hello, World!");
+fn main = {
+    io::println("Hello, World!");
 }
 ```
-The syntax is not your usual, but pretty simple. #import is a compiler directive that loads a module (in this case a module called 'io'). The double colon means static assignment. In this example, we assign a function to the symbol 'main'. The function body contains a single statement, which is to call println from the namespace/module 'io'.
+The syntax is not your usual, but pretty simple. #import is a compiler directive that loads a module (in this case a module called 'io'). 
 
 Main is a function that returns a type 'unit', which is the equvivalent to the type 'void' in some languages. It can be noted with the keyword 'unit', or empty parenthesis. If you don't specify the return type explicitly, it will default to unit. You can explicitly specify the return type after the arrow:
 ```
-main :: () -> () {
+fn main = -> () {
 }
 ```
+
+## Variables
+You can define variables using the 'let' keyword.
+```
+fn main = {
+    let x: i32 = 4;  // Explicit type
+    let x = 4u32;    // Implicit type with literal operator
+    // let z = 4;    ERROR: 4 is not a specific type
+}
+```
+As you can see, integers must have a specific type, as integer literals are always painful with type inference. Given literal operators and explicit type annotations hope to solve the problem.
+
+TODO: Continue
