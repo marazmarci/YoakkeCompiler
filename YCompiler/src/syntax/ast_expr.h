@@ -7,6 +7,7 @@ struct AST_stmt;
 struct AST_ty;
 struct AST_pat;
 struct scope;
+struct type_cons;
 
 enum class AST_expr_t {
 	Block, 

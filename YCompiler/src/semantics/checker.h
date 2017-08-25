@@ -32,7 +32,7 @@ struct semantics_point_err {
 	}
 };
 
-using semantic_err = yvar<semantics_def_err, semantic_point_err>;
+using semantic_err = yvar<semantics_def_err, semantics_point_err>;
 
 struct checker {
 	static type_cons* UNIT;
@@ -53,10 +53,9 @@ private:
 	yopt<semantic_err> phase2(AST_stmt* st);
 	yopt<semantic_err> phase2(AST_expr* ex);
 
-	yopt<semantic_err> phase3(AST_stmt* st);
-	yresult<type*, semantic_err> phase3(AST_expr* ex);
-
 	yresult<type*, semantic_err> check_ty(AST_ty* typ);
+
+	static type* single_or(yvec<type*>& ts);
 
 	static void print_def_msg(const char* fmt, const char* kind, ystr const& name,
 		yopt<semantic_pos> defpos, semantic_pos const& redefpos);
