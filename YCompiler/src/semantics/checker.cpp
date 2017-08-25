@@ -30,6 +30,12 @@ yopt<semantic_err> checker::check_program(yvec<AST_stmt*>& prg) {
 		}
 	}
 
+	for (auto& stmt : prg) {
+		if (auto err = phase2(stmt)) {
+			return err;
+		}
+	}
+
 	return {};
 }
 
@@ -301,6 +307,109 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 
 yopt<semantic_err> checker::phase2(AST_expr* ex) {
 	switch (ex->Ty) {
+	case AST_expr_t::Block: {
+		auto expr = (AST_block_expr*)ex;
+		SymTab.push_scope(expr->Scope);
+		for (auto& st : expr->Statements) {
+			if (auto err = phase2(st)) {
+				return err;
+			}
+		}
+		if (expr->Value) {
+			if (auto err = phase2(*expr->Value)) {
+				return err;
+			}
+		}
+		SymTab.pop_scope();
+		return {};
+	}
+
+	case AST_expr_t::Call: {
+		auto expr = (AST_call_expr*)ex;
+		if (auto err = phase2(expr->Func)) {
+			return err;
+		}
+		for (auto& param : expr->Params) {
+			if (auto err = phase2(param)) {
+				return err;
+			}
+		}
+		return {};
+	}
+
+	case AST_expr_t::Fn: {
+		auto expr = (AST_fn_expr*)ex;
+		SymTab.push_scope(expr->Scope);
+		if (auto err = phase2(expr->Body)) {
+			return err;
+		}
+		SymTab.pop_scope();
+		return {};
+	}
+
+	case AST_expr_t::If: {
+		auto expr = (AST_if_expr*)ex;
+		if (auto err = phase2(expr->Condition)) {
+			return err;
+		}
+		if (auto err = phase2(expr->Then)) {
+			return err;
+		}
+		if (expr->Else) {
+			if (auto err = phase2(*expr->Else)) {
+				return err;
+			}
+		}
+		return {};
+	}
+
+	case AST_expr_t::Let: {
+		auto expr = (AST_let_expr*)ex;
+		if (expr->Value) {
+			if (auto err = phase2(*expr->Value)) {
+				return err;
+			}
+		}
+		return {};
+	}
+
+	case AST_expr_t::List: {
+		auto expr = (AST_list_expr*)ex;
+		for (auto& exp : expr->Elements) {
+			if (auto err = phase2(exp)) {
+				return err;
+			}
+		}
+		return {};
+	}
+
+	case AST_expr_t::Pre: {
+		auto expr = (AST_pre_expr*)ex;
+		if (auto err = phase2(expr->Subexpr)) {
+			return err;
+		}
+		return {};
+	}
+
+	case AST_expr_t::Bin: {
+		auto expr = (AST_bin_expr*)ex;
+		if (auto err = phase2(expr->Left)) {
+			return err;
+		}
+		if (auto err = phase2(expr->Right)) {
+			return err;
+		}
+		return {};
+	}
+
+	case AST_expr_t::Post: {
+		auto expr = (AST_post_expr*)ex;
+		if (auto err = phase2(expr->Subexpr)) {
+			return err;
+		}
+		return {};
+	}
+
 	case AST_expr_t::Ident:
 	case AST_expr_t::IntLit:
 	case AST_expr_t::RealLit: {
