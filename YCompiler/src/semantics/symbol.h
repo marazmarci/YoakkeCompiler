@@ -6,6 +6,7 @@
 enum class symbol_t {
 	Constant,
 	Variable,
+	Typeclass,
 };
 
 struct type;
@@ -16,7 +17,7 @@ public:
 	ystr		Name;
 
 protected:
-	symbol(symbol_t t, type* ty, ystr const& name);
+	symbol(symbol_t t, ystr const& name);
 
 public:
 	virtual ~symbol();
@@ -36,3 +37,9 @@ struct var_symbol : public symbol {
 	virtual ~var_symbol();
 };
 
+struct typeclass_symbol : public symbol {
+	yvec<type*> Types;
+
+	typeclass_symbol(ystr const& name, type* typ1, type* typ2);
+	virtual ~typeclass_symbol();
+};

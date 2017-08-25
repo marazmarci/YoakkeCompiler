@@ -1,5 +1,6 @@
 #pragma once
 
+#include "semantic_pos.h"
 #include "../common.h"
 #include "../syntax/position.h"
 
@@ -15,7 +16,8 @@ enum class type_t {
 
 struct type {
 public:
-	type_t Ty;
+	type_t				Ty;
+	yopt<semantic_pos>	DefPos;
 
 protected:
 	type(type_t tt);

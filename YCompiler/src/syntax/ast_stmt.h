@@ -7,6 +7,8 @@ struct AST_expr;
 struct AST_ty;
 struct AST_fn_expr;
 
+struct type;
+
 enum class AST_stmt_t {
 	FnDecl,
 	ConstDecl,
@@ -43,6 +45,7 @@ struct AST_const_decl_stmt : public AST_stmt {
 struct AST_ty_decl_stmt : public AST_stmt {
 	token		Name;
 	AST_ty*		Type;
+	type*		Symbol;
 
 	AST_ty_decl_stmt(token const& beg, token const& n, AST_ty* ty);
 	virtual ~AST_ty_decl_stmt();
