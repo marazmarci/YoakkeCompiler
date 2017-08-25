@@ -423,7 +423,52 @@ yopt<semantic_err> checker::phase2(AST_expr* ex) {
 }
 
 yresult<type*, semantic_err> checker::check_ty(AST_ty* typ) {
+	switch (typ->Ty) {
+	case AST_ty_t::Ident: {
+		auto ty = (AST_ident_ty*)typ;
+		if (auto t = SymTab.ref_type(ty->Value)) {
+			return *t;
+		}
+		return semantic_err(semantics_def_err(
+			"Semantic error: Undefined %k %n %f!",
+			"type", ty->Value, {}, semantic_pos(File, ty->Pos)
+		));
+	}
 
+	case AST_ty_t::List: {
+		auto ty = (AST_list_ty*)typ;
+		auto ty_sym = type_cons::tuple();
+		for (auto& t : ty->Elements) {
+			auto res = check_ty(t);
+			if (res.is_err()) {
+				return res.get_err();
+			}
+			ty_sym->add(res.get_ok());
+		}
+		return ty_sym;
+	}
+
+	case AST_ty_t::Bin: {
+		auto ty = (AST_bin_ty*)typ;
+		assert(ty->Oper.Type == token_t::Arrow);
+		auto res_l = check_ty(ty->Left);
+		if (res_l.is_err()) {
+			return res_l.get_err();
+		}
+		auto res_r = check_ty(ty->Right);
+		if (res_r.is_err()) {
+			return res_r.get_err();
+		}
+		return type_cons::fn(res_l.get_ok(), res_r.get_ok());
+	}
+
+	case AST_ty_t::Pre:
+	case AST_ty_t::Post: UNIMPLEMENTED;
+
+	default: UNIMPLEMENTED;
+	}
+
+	UNREACHABLE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
