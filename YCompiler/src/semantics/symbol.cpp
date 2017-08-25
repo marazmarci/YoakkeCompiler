@@ -2,7 +2,7 @@
 #include "type.h"
 
 symbol::symbol(symbol_t t, ystr const& name)
-	: Ty(t), Name(name) {
+	: Ty(t), Name(name), DefPos({}) {
 }
 
 symbol::~symbol() { }

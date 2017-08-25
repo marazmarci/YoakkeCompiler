@@ -26,20 +26,21 @@ protected:
 	AST_stmt(interval const& pos, AST_stmt_t ty);
 };
 
-struct AST_fn_decl_stmt : public AST_stmt {
-	token			Name;
-	AST_fn_expr*	Expression;
-
-	AST_fn_decl_stmt(token const& beg, token const& n, AST_fn_expr* exp);
-	virtual ~AST_fn_decl_stmt();
-};
-
 struct AST_const_decl_stmt : public AST_stmt {
 	token		Name;
 	AST_expr*	Expression;
 
 	AST_const_decl_stmt(token const& beg, token const& n, AST_expr* exp);
 	virtual ~AST_const_decl_stmt();
+};
+
+struct AST_fn_decl_stmt : public AST_stmt {
+	token			Name;
+	AST_fn_expr*	Expression;
+	type*			Symbol;
+
+	AST_fn_decl_stmt(token const& beg, token const& n, AST_fn_expr* exp);
+	virtual ~AST_fn_decl_stmt();
 };
 
 struct AST_ty_decl_stmt : public AST_stmt {

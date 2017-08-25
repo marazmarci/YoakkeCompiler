@@ -1,5 +1,6 @@
 #include <iostream>
 #include "checker.h"
+#include "symbol.h"
 #include "symbol_table.h"
 #include "type.h"
 #include "../syntax/ast_stmt.h"
@@ -58,14 +59,15 @@ yopt<semantic_err> checker::phase1(AST_stmt* st) {
 		ystr const& name = stmt->Name.Value;
 		if (auto m_def = SymTab.local_ref_type(name)) {
 			auto def = *m_def;
-			return semantics_already_def_err(
+			return semantics_def_err(
+				"Semantic error: %k %n already defined %f!",
 				"type", name, def->DefPos, semantic_pos(File, stmt->Name.Pos)
 			);
 		}
 		if (auto m_def = SymTab.upper_ref_type(name)) {
 			auto def = *m_def;
-			print_shadow(
-				"Warning: shadowing",
+			print_def_msg(
+				"Warning: shadowing %k %n %f!",
 				"type", name, def->DefPos, semantic_pos(File, stmt->Name.Pos)
 			);
 		}
@@ -211,16 +213,92 @@ yopt<semantic_err> checker::phase1(AST_expr* ex) {
 
 // PHASE 2 ////////////////////////////////////////////////////////////////////
 
-void checker::print_shadow(ystr const& report, ystr const& kind, ystr const& name,
+yopt<semantic_err> checker::phase2(AST_stmt* st) {
+	switch (st->Ty) {
+	case AST_stmt_t::ConstDecl: UNIMPLEMENTED;
+
+	case AST_stmt_t::Expr: {
+		auto stmt = (AST_expr_stmt*)st;
+		if (auto err = phase2(stmt->Expression)) {
+			return err;
+		}
+		return {};
+	}
+
+	case AST_stmt_t::FnDecl: {
+		auto stmt = (AST_fn_decl_stmt*)st;
+		ystr const& name = stmt->Name.Value;
+		stmt->Symbol = type_cons::generic_fn();
+		if (auto n_ref = SymTab.local_ref_sym(name)) {
+			auto& ref = *n_ref;
+			if (ref->Ty == symbol_t::Variable) {
+				return semantics_def_err(
+					"Semantic error: %k %n shadows a variable %f!",
+					"function", name, ref->DefPos, semantic_pos(File, stmt->Name.Pos)
+				);
+			}
+		}
+	}
+
+	case AST_stmt_t::DbgWriteTy: {
+		return {};
+	}
+
+	default: UNIMPLEMENTED;
+	}
+
+	UNREACHABLE;
+}
+
+yopt<semantic_err> checker::phase2(AST_expr* ex) {
+
+}
+
+yopt<semantic_err> checker::phase2(AST_ty* typ) {
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void checker::print_def_msg(const char* fmt, const char* kind, ystr const& name,
 	yopt<semantic_pos> defpos, semantic_pos const& redefpos) {
 	auto& start = redefpos.Pos.Start;
-	std::cout
-		<< report << ' '
-		<< kind << " '" << name << "' in file: '"
-		<< redefpos.File->path()
-		<< "', line " << start.Row
-		<< ", character " << start.Column << '!'
-		<< std::endl;
+	const char* ptr = fmt;
+	while (char c = *ptr++) {
+		if (c == '%') {
+			c = *ptr++;
+			switch (c) {
+			case '%': {
+				std::cout << '%';
+				break;
+			}
+
+			case 'f': {
+				std::cout << "in file: '"
+					<< redefpos.File->path()
+					<< "', line " << start.Row
+					<< ", character " << start.Column;
+				break;
+			}
+
+			case 'k': {
+				std::cout << kind;
+				break;
+			}
+
+			case 'n': {
+				std::cout << '\'' << name << '\'';
+				break;
+			}
+
+			default: UNIMPLEMENTED;
+			}
+		}
+		else {
+			std::cout << c;
+		}
+	}
+	std::cout << std::endl;
 	if (defpos) {
 		auto& ddefpos = *defpos;
 		auto& defstart = ddefpos.Pos.Start;
@@ -232,7 +310,7 @@ void checker::print_shadow(ystr const& report, ystr const& kind, ystr const& nam
 			std::cout
 				<< "Note: Previous definition is in file: '"
 				<< ddefpos.File->path()
-				<< "', line " << defstart.Row
+				<< "' at line " << defstart.Row
 				<< ", character " << defstart.Column << '.'
 				<< std::endl;
 			fmt_code::print(*ddefpos.File, ddefpos.Pos);
@@ -245,11 +323,8 @@ void checker::print_shadow(ystr const& report, ystr const& kind, ystr const& nam
 
 void checker::handle_error(semantic_err& err) {
 	fnl::match(err)(
-		[](semantics_already_def_err& err) {
-			print_shadow(
-				"Semantic error: already defined",
-				err.Kind, err.Name, err.DefPos, err.RedefPos
-			);
+		[](semantics_def_err& err) {
+			print_def_msg(err.Fmt, err.Kind, err.Name, err.DefPos, err.RedefPos);
 		}
 	);
 }
