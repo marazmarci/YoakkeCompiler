@@ -121,7 +121,9 @@
     <ClInclude Include="src\io\file_hnd.h" />
     <ClInclude Include="src\io\fmt_code.h" />
     <ClInclude Include="src\math.h" />
+    <ClInclude Include="src\semantics\checker.h" />
     <ClInclude Include="src\semantics\scope.h" />
+    <ClInclude Include="src\semantics\semantic_pos.h" />
     <ClInclude Include="src\semantics\symbol.h" />
     <ClInclude Include="src\semantics\symbol_table.h" />
     <ClInclude Include="src\semantics\type.h" />
@@ -145,6 +147,7 @@
     <ClCompile Include="src\io\fmt_code.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\io\file_hnd.cpp" />
+    <ClCompile Include="src\semantics\checker.cpp" />
     <ClCompile Include="src\semantics\scope.cpp" />
     <ClCompile Include="src\semantics\symbol.cpp" />
     <ClCompile Include="src\semantics\symbol_table.cpp" />

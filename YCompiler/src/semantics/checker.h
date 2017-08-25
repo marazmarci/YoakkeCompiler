@@ -43,5 +43,6 @@ private:
 	static void print_shadow(ystr const& report, ystr const& kind, ystr const& name,
 		yopt<semantic_pos> defpos, semantic_pos const& redefpos);
 
+public:
 	static void handle_error(semantic_err& err);
 };

@@ -27,6 +27,8 @@ yopt<semantic_err> checker::check_program(yvec<AST_stmt*>& prg) {
 			return err;
 		}
 	}
+
+	return {};
 }
 
 // PHASE 1 ////////////////////////////////////////////////////////////////////
@@ -37,7 +39,7 @@ yopt<semantic_err> checker::phase1(AST_stmt* st) {
 
 	case AST_stmt_t::Expr: {
 		auto stmt = (AST_expr_stmt*)st;
-		if (auto err = phase1(st)) {
+		if (auto err = phase1(stmt->Expression)) {
 			return err;
 		}
 		return {};
@@ -68,12 +70,13 @@ yopt<semantic_err> checker::phase1(AST_stmt* st) {
 			);
 		}
 		stmt->Symbol = new type_var();
+		stmt->Symbol->DefPos = semantic_pos(File, stmt->Name.Pos);
 		SymTab.decl(name, stmt->Symbol);
 		return {};
 	}
 
 	case AST_stmt_t::DbgWriteTy: {
-		return;
+		return {};
 	}
 
 	default: UNIMPLEMENTED;
@@ -214,7 +217,7 @@ void checker::print_shadow(ystr const& report, ystr const& kind, ystr const& nam
 	std::cout
 		<< report << ' '
 		<< kind << " '" << name << "' in file: '"
-		<< redefpos.File.path()
+		<< redefpos.File->path()
 		<< "', line " << start.Row
 		<< ", character " << start.Column << '!'
 		<< std::endl;
@@ -222,18 +225,21 @@ void checker::print_shadow(ystr const& report, ystr const& kind, ystr const& nam
 		auto& ddefpos = *defpos;
 		auto& defstart = ddefpos.Pos.Start;
 		if (semantic_pos::same_file(ddefpos, redefpos)) {
-			fmt_code::print(ddefpos.File, ddefpos.Pos, redefpos.Pos);
+			fmt_code::print(*ddefpos.File, ddefpos.Pos, redefpos.Pos);
 		}
 		else {
-			fmt_code::print(redefpos.File, redefpos.Pos);
+			fmt_code::print(*redefpos.File, redefpos.Pos);
 			std::cout
 				<< "Note: Previous definition is in file: '"
-				<< ddefpos.File.path()
+				<< ddefpos.File->path()
 				<< "', line " << defstart.Row
 				<< ", character " << defstart.Column << '.'
 				<< std::endl;
-			fmt_code::print(ddefpos.File, ddefpos.Pos);
+			fmt_code::print(*ddefpos.File, ddefpos.Pos);
 		}
+	}
+	else {
+		fmt_code::print(*redefpos.File, redefpos.Pos);
 	}
 }
 
