@@ -26,7 +26,8 @@ var_symbol::~var_symbol() { }
 /*****************************************************************************/
 
 typeclass_symbol::typeclass_symbol(ystr const& name, type_cons* typ1, type_cons* typ2)
-	: symbol(symbol_t::Typeclass, name), Instances({ typ1, typ2 }) {
+	: symbol(symbol_t::Typeclass, name), Instances({ typ1, typ2 }),
+	Type(new type_set(Instances)) {
 }
 
 typeclass_symbol::~typeclass_symbol() { }

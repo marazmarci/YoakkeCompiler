@@ -12,6 +12,7 @@ namespace type_prefixes {
 enum class type_t {
 	Variable,
 	Constructor,
+	Set,
 };
 
 struct type {
@@ -53,4 +54,11 @@ struct type_cons : public type {
 	static type_cons* tuple(Ts&... tys) {
 		return new type_cons(type_prefixes::Tuple, { tys... });
 	}
+};
+
+struct type_set : public type {
+	yvec<type_cons*>& Types;
+
+	type_set(yvec<type_cons*>& ts);
+	virtual ~type_set();
 };

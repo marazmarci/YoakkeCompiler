@@ -51,6 +51,7 @@ struct AST_fn_expr : public AST_expr {
 	yvec<param_t> Params;
 	yopt<AST_ty*> Return;
 	AST_block_expr* Body;
+	type_cons* Symbol;
 	scope* Scope;
 
 	AST_fn_expr(yopt<token> beg, yvec<param_t> const& params, 
