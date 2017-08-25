@@ -10,6 +10,7 @@ enum class symbol_t {
 };
 
 struct type;
+struct type_cons;
 
 struct symbol {
 public:
@@ -39,8 +40,10 @@ struct var_symbol : public symbol {
 };
 
 struct typeclass_symbol : public symbol {
-	yvec<type*> Types;
+	yvec<type_cons*> Types;
 
-	typeclass_symbol(ystr const& name, type* typ1, type* typ2);
+	typeclass_symbol(ystr const& name, type_cons* typ1, type_cons* typ2);
 	virtual ~typeclass_symbol();
+
+	void add(type_cons* t);
 };

@@ -25,8 +25,12 @@ var_symbol::~var_symbol() { }
 
 /*****************************************************************************/
 
-typeclass_symbol::typeclass_symbol(ystr const& name, type* typ1, type* typ2)
+typeclass_symbol::typeclass_symbol(ystr const& name, type_cons* typ1, type_cons* typ2)
 	: symbol(symbol_t::Typeclass, name), Types({ typ1, typ2 }) {
 }
 
 typeclass_symbol::~typeclass_symbol() { }
+
+void typeclass_symbol::add(type_cons* t) {
+	Types.push_back(t);
+}

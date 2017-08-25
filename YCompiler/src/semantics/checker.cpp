@@ -3,6 +3,7 @@
 #include "symbol.h"
 #include "symbol_table.h"
 #include "type.h"
+#include "unifier.h"
 #include "../syntax/ast_stmt.h"
 #include "../syntax/ast_expr.h"
 #include "../syntax/ast_ty.h"
@@ -229,6 +230,10 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 		auto stmt = (AST_fn_decl_stmt*)st;
 		ystr const& name = stmt->Name.Value;
 		stmt->Symbol = type_cons::generic_fn();
+
+		if (auto err = phase2(stmt->Expression)) {
+			return err;
+		}
 		if (auto n_ref = SymTab.local_ref_sym(name)) {
 			auto& ref = *n_ref;
 			if (ref->Ty == symbol_t::Variable) {
@@ -237,6 +242,38 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 					"function", name, ref->DefPos, semantic_pos(File, stmt->Name.Pos)
 				);
 			}
+			else if (ref->Ty == symbol_t::Constant) {
+				auto cons = (const_symbol*)ref;
+				type* cons_t = cons->Type;
+				if (auto err = unifier::unify(cons_t, type_cons::generic_fn())) {
+					return semantics_def_err(
+						"Semantic error: %k %n tries to overload a non-function constant %f!",
+						"function", name, ref->DefPos, semantic_pos(File, stmt->Name.Pos)
+					);
+				}
+				assert(SymTab.remove_symbol(name));
+				assert(!SymTab.local_ref_sym(name));
+
+				type_cons* cons_tt = (type_cons*)cons_t;
+				SymTab.decl(new typeclass_symbol(name, stmt->Symbol, cons_tt));
+			}
+			else if (ref->Ty == symbol_t::Typeclass) {
+				auto tc = (typeclass_symbol*)ref;
+				tc->add(stmt->Symbol);
+			}
+			else {
+				UNREACHABLE;
+			}
+		}
+		else {
+			if (auto n_ref = SymTab.upper_ref_sym(name)) {
+				auto& ref = *n_ref;
+				print_def_msg(
+					"Warning: %k %n is shadowing other functions or constants %f!",
+					"function", name, ref->DefPos, stmt->Pos
+				);
+			}
+			SymTab.decl(new const_symbol(name, stmt->Symbol));
 		}
 	}
 
