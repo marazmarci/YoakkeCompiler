@@ -251,7 +251,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 						"function", name, ref->DefPos, semantic_pos(File, stmt->Name.Pos)
 					);
 				}
-				assert(SymTab.remove_symbol(name));
+				SymTab.remove_symbol(name);
 				assert(!SymTab.local_ref_sym(name));
 
 				type_cons* cons_tt = (type_cons*)cons_t;
@@ -275,6 +275,18 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 			}
 			SymTab.decl(new const_symbol(name, stmt->Symbol));
 		}
+		return {};
+	}
+
+	case AST_stmt_t::TyDecl: {
+		auto stmt = (AST_ty_decl_stmt*)st;
+		auto res = check_ty(stmt->Type);
+		if (res.is_err()) {
+			return res.get_err();
+		}
+		auto ty = res.get_ok();
+		unifier::unify(stmt->Symbol, ty);
+		return {};
 	}
 
 	case AST_stmt_t::DbgWriteTy: {
@@ -288,10 +300,20 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 }
 
 yopt<semantic_err> checker::phase2(AST_expr* ex) {
+	switch (ex->Ty) {
+	case AST_expr_t::Ident:
+	case AST_expr_t::IntLit:
+	case AST_expr_t::RealLit: {
+		return {};
+	}
 
+	default: UNIMPLEMENTED;
+	}
+
+	UNREACHABLE;
 }
 
-yopt<semantic_err> checker::phase2(AST_ty* typ) {
+yresult<type*, semantic_err> checker::check_ty(AST_ty* typ) {
 
 }
 

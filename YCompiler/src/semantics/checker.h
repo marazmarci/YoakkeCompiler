@@ -43,7 +43,8 @@ private:
 
 	yopt<semantic_err> phase2(AST_stmt* st);
 	yopt<semantic_err> phase2(AST_expr* ex);
-	yopt<semantic_err> phase2(AST_ty* typ);
+
+	yresult<type*, semantic_err> check_ty(AST_ty* typ);
 
 	static void print_def_msg(const char* fmt, const char* kind, ystr const& name,
 		yopt<semantic_pos> defpos, semantic_pos const& redefpos);
