@@ -270,7 +270,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 				auto& ref = *n_ref;
 				print_def_msg(
 					"Warning: %k %n is shadowing other functions or constants %f!",
-					"function", name, ref->DefPos, stmt->Pos
+					"function", name, ref->DefPos, semantic_pos(File, stmt->Name.Pos)
 				);
 			}
 			SymTab.decl(new const_symbol(name, stmt->Symbol));
