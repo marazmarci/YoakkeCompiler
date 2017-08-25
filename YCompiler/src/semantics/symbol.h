@@ -40,7 +40,7 @@ struct var_symbol : public symbol {
 };
 
 struct typeclass_symbol : public symbol {
-	yvec<type_cons*> Types;
+	yvec<type_cons*> Instances;
 
 	typeclass_symbol(ystr const& name, type_cons* typ1, type_cons* typ2);
 	virtual ~typeclass_symbol();
