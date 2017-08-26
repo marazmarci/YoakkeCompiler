@@ -1,5 +1,7 @@
 #pragma once
 
+// TODO: unable to reference variables outside functions
+
 #include <cassert>
 #include "type.h"
 #include "symbol.h"
@@ -15,9 +17,8 @@ struct scope {
 	bool				ReturnDest;
 	type*				ReturnType;
 	yopt<interval>		ReturnPos;
-	bool				Free;
 
-	scope(bool retDest, bool free);
+	scope(bool retDest);
 	~scope();
 
 	yopt<type*> ref_type(ystr const& name);

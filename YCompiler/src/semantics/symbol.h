@@ -17,7 +17,7 @@ public:
 	symbol_t			Ty;
 	ystr				Name;
 	yopt<semantic_pos>	DefPos;
-
+	
 protected:
 	symbol(symbol_t t, ystr const& name);
 
@@ -26,24 +26,24 @@ public:
 };
 
 struct const_symbol : public symbol {
-	type*	Type;
+	type* Type;
 
 	const_symbol(ystr const& name, type* typ);
 	virtual ~const_symbol();
 };
 
 struct var_symbol : public symbol {
-	type*	Type;
+	type* Type;
 
 	var_symbol(ystr const& name, type* typ);
 	virtual ~var_symbol();
 };
 
 struct typeclass_symbol : public symbol {
-	yvec<type_cons*> Instances;
+	yvec<const_symbol*> Instances;
 
-	typeclass_symbol(ystr const& name, type_cons* typ1, type_cons* typ2);
+	typeclass_symbol(ystr const& name, const_symbol* ins1, const_symbol* ins2);
 	virtual ~typeclass_symbol();
 
-	void add(type_cons* t);
+	yopt<const_symbol*> add(const_symbol* t);
 };

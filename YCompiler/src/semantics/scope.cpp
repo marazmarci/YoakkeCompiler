@@ -1,9 +1,9 @@
 #include "scope.h"
 
-scope::scope(bool retDest, bool free)
+scope::scope(bool retDest)
 	: Parent(nullptr), 
 	ReturnDest(retDest), ReturnType(retDest ? new type_var() : nullptr), 
-	ReturnPos({}), Free(free) {
+	ReturnPos({}) {
 }
 
 scope::~scope() { }
@@ -21,9 +21,6 @@ yopt<type*> scope::ref_type(ystr const& name) {
 yopt<symbol*> scope::ref_sym(ystr const& name) {
 	if (auto r = local_ref_sym(name)) {
 		return r;
-	}
-	if (Free) {
-		return {};
 	}
 	if (Parent) {
 		return Parent->ref_sym(name);

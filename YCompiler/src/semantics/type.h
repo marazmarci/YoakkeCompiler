@@ -16,7 +16,7 @@ enum class type_t {
 
 struct type {
 public:
-	type_t				Ty;
+	type_t Ty;
 	yopt<semantic_pos>	DefPos;
 
 protected:
@@ -27,8 +27,8 @@ public:
 };
 
 struct type_var : public type {
-	ysize ID;
-	type* Instance;
+	ysize				ID;
+	type*				Instance;
 
 	type_var();
 	virtual ~type_var();
@@ -40,7 +40,7 @@ private:
 struct type_cons : public type {
 	ystr		Name;
 	yvec<type*>	Params;
-
+	
 	type_cons(ystr const& name, yvec<type*> const& params = {});
 	virtual ~type_cons();
 

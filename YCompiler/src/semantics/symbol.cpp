@@ -1,5 +1,6 @@
 #include "symbol.h"
 #include "type.h"
+#include "unifier.h"
 
 symbol::symbol(symbol_t t, ystr const& name)
 	: Ty(t), Name(name), DefPos({}) {
@@ -25,12 +26,18 @@ var_symbol::~var_symbol() { }
 
 /*****************************************************************************/
 
-typeclass_symbol::typeclass_symbol(ystr const& name, type_cons* typ1, type_cons* typ2)
-	: symbol(symbol_t::Typeclass, name), Instances({ typ1, typ2 }) {
+typeclass_symbol::typeclass_symbol(ystr const& name, const_symbol* ins1, const_symbol* ins2)
+	: symbol(symbol_t::Typeclass, name), Instances({ ins1, ins2 }) {
 }
 
 typeclass_symbol::~typeclass_symbol() { }
 
-void typeclass_symbol::add(type_cons* t) {
+yopt<const_symbol*> typeclass_symbol::add(const_symbol* t) {
+	for (auto& ins : Instances) {
+		if (unifier::matches_fn_fn(ins->Type, t->Type)) {
+			return ins;
+		}
+	}
 	Instances.push_back(t);
+	return {};
 }

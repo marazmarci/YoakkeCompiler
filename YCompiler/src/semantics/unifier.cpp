@@ -138,6 +138,64 @@ namespace unifier {
 		return false;
 	}
 
+	bool matches_fn_fn(type* aa, type* bb) {
+		type* a = prune(aa);
+		type* b = prune(bb);
+
+		assert(a->Ty == type_t::Constructor);
+		assert(b->Ty == type_t::Constructor);
+
+		type_cons* t1 = (type_cons*)a;
+		type_cons* t2 = (type_cons*)b;
+
+		assert(t1->Name == type_prefixes::Function);
+		assert(t1->Params.size() == 2);
+		assert(t2->Name == type_prefixes::Function);
+		assert(t2->Params.size() == 2);
+
+		return matches(t1->Params[0], t2->Params[0]);
+	}
+
+	bool matches(type* a, type* b) {
+		type* t1 = prune(a);
+		type* t2 = prune(b);
+
+		if (t1->Ty == type_t::Variable) {
+			return true;
+		}
+		else if (t1->Ty == type_t::Constructor) {
+			type_cons* tt1 = (type_cons*)t1;
+
+			if (t2->Ty == type_t::Variable) {
+				return true;
+			}
+			else if (t2->Ty == type_t::Constructor) {
+				type_cons* tt2 = (type_cons*)t2;
+				
+				if (tt1->Name != tt2->Name) {
+					return false;
+				}
+				if (tt1->Params.size() != tt2->Params.size()) {
+					return false;
+				}
+				for (ysize i = 0; i < tt1->Params.size(); i++) {
+					if (!matches(tt1->Params[i], tt2->Params[i])) {
+						return false;
+					}
+				}
+				return true;
+			}
+			else {
+				UNREACHABLE;
+			}
+		}
+		else {
+			UNREACHABLE;
+		}
+
+		UNREACHABLE;
+	}
+
 	namespace {
 		yopt<ystr> unify_var_var(type_var* tv1, type_var* tv2) {
 			if (tv1->ID != tv2->ID) {

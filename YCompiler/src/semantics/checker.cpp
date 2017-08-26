@@ -98,7 +98,7 @@ yopt<semantic_err> checker::phase1(AST_expr* ex) {
 	switch (ex->Ty) {
 	case AST_expr_t::Block: {
 		auto expr = (AST_block_expr*)ex;
-		expr->Scope = SymTab.push_scope(!expr->AsStatement, false);
+		expr->Scope = SymTab.push_scope(!expr->AsStatement);
 		for (auto& st : expr->Statements) {
 			if (auto err = phase1(st)) {
 				return err;
@@ -128,7 +128,7 @@ yopt<semantic_err> checker::phase1(AST_expr* ex) {
 
 	case AST_expr_t::Fn: {
 		auto expr = (AST_fn_expr*)ex;
-		expr->Scope = SymTab.push_scope(true, true);
+		expr->Scope = SymTab.push_scope(true);
 		if (auto err = phase1(expr->Body)) {
 			return err;
 		}
@@ -240,6 +240,8 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 			return err;
 		}
 		auto& sym_t = stmt->Expression->Symbol;
+		auto sym = new const_symbol(name, sym_t);
+		sym->DefPos = semantic_pos(File, stmt->Name.Pos);
 		if (auto n_ref = SymTab.local_ref_sym(name)) {
 			auto& ref = *n_ref;
 			if (ref->Ty == symbol_t::Variable) {
@@ -260,12 +262,17 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 				SymTab.remove_symbol(name);
 				assert(!SymTab.local_ref_sym(name));
 
-				type_cons* cons_tt = (type_cons*)cons_t;
-				SymTab.decl(new typeclass_symbol(name, sym_t, cons_tt));
+				SymTab.decl(new typeclass_symbol(name, sym, cons));
 			}
 			else if (ref->Ty == symbol_t::Typeclass) {
 				auto tc = (typeclass_symbol*)ref;
-				tc->add(sym_t);
+				if (auto n_other = tc->add(sym)) {
+					auto& other = *n_other;
+					return semantics_def_err(
+						"Semamtic error: %k %n cannot overload a matching function %f!",
+						"function", name, other->DefPos, semantic_pos(File, stmt->Name.Pos)
+					);
+				}
 			}
 			else {
 				UNREACHABLE;
@@ -279,7 +286,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 					"function", name, ref->DefPos, semantic_pos(File, stmt->Name.Pos)
 				);
 			}
-			SymTab.decl(new const_symbol(name, sym_t));
+			SymTab.decl(sym);
 		}
 		return {};
 	}
