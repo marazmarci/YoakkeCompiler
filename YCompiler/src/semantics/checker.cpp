@@ -1,5 +1,6 @@
 #include <iostream>
 #include "checker.h"
+#include "scope.h"
 #include "symbol.h"
 #include "symbol_table.h"
 #include "type.h"
@@ -29,11 +30,30 @@ yopt<semantic_err> checker::check_program(yvec<AST_stmt*>& prg) {
 			return err;
 		}
 	}
-
 	for (auto& stmt : prg) {
 		if (auto err = phase2(stmt)) {
 			return err;
 		}
+	}
+	for (auto& stmt : prg) {
+		if (auto err = phase3(stmt)) {
+			return err;
+		}
+	}
+
+	auto write_clist = [](yvec<class_constraint>& clist) {
+		std::cout << "CONSTRAINTS:" << std::endl;
+		for (auto& cc : clist) {
+			std::cout << unifier::to_str(cc) << std::endl;
+		}
+		std::cout << "------------" << std::endl;
+	};
+	write_clist(Constraints);
+	while (unifier::process_class_constraint_list(Constraints)) {
+		write_clist(Constraints);
+	}
+	if (Constraints.size()) {
+		std::cout << "Could not infer type TODO" << std::endl;
 	}
 
 	return {};
@@ -469,6 +489,212 @@ yopt<semantic_err> checker::phase2(AST_expr* ex) {
 }
 
 // PHASE 3 ////////////////////////////////////////////////////////////////////
+
+yopt<semantic_err> checker::phase3(AST_stmt* st) {
+	switch (st->Ty) {
+	case AST_stmt_t::ConstDecl: UNIMPLEMENTED;
+
+	case AST_stmt_t::FnDecl: {
+		auto stmt = (AST_fn_decl_stmt*)st;
+		auto res = phase3(stmt->Expression);
+		if (res.is_err()) {
+			return res.get_err();
+		}
+		return {};
+	}
+
+	case AST_stmt_t::TyDecl: {
+		return {};
+	}
+
+	case AST_stmt_t::Expr: {
+		auto stmt = (AST_expr_stmt*)st;
+		auto res = phase3(stmt->Expression);
+		if (res.is_err()) {
+			return res.get_err();
+		}
+		auto& ty = res.get_ok();
+		if (unifier::same(ty, UNIT)) {
+			print_pointed_msg(
+				"Warning: ignoring return value!",
+				semantic_pos(File, stmt->Pos)
+			);
+		}
+		return {};
+	}
+
+	case AST_stmt_t::DbgWriteTy: {
+		auto stmt = (AST_dbg_write_ty_stmt*)st;
+		auto res = phase3(stmt->Expression);
+		if (res.is_err()) {
+			return res.get_err();
+		}
+		auto& ty = res.get_ok();
+		std::cout << "DBG TY: " << unifier::to_str(ty) << std::endl;
+		return {};
+	}
+
+	default: UNIMPLEMENTED;
+	}
+
+	UNREACHABLE;
+}
+
+yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
+	switch (ex->Ty) {
+	case AST_expr_t::Block: {
+		auto expr = (AST_block_expr*)ex;
+		SymTab.push_scope(expr->Scope);
+		for (auto& st : expr->Statements) {
+			if (auto err = phase3(st)) {
+				return *err;
+			}
+		}
+		type* ret_t = UNIT;
+		if (expr->Value) {
+			auto res = phase3(*expr->Value);
+			if (res.is_err()) {
+				return res.get_err();
+			}
+			ret_t = res.get_ok();
+		}
+		auto n_ret_scope = SymTab.nearest_ret_dest();
+		assert(n_ret_scope);
+		auto ret_scope = *n_ret_scope;
+		if (ret_scope->ReturnType) {
+			if (auto err = unifier::unify(ret_scope->ReturnType, ret_t)) {
+				// TODO
+				std::cout << "TODO err" << std::endl;
+				return UNIT;
+			}
+		}
+		else {
+			ret_scope->ReturnType = ret_t;
+			if (expr->Value) {
+				auto& val = *expr->Value;
+				ret_scope->ReturnPos = semantic_pos(File, val->Pos);
+			}
+		}
+		SymTab.pop_scope();
+		return ret_t;
+	}
+
+	case AST_expr_t::Call: {
+		auto expr = (AST_call_expr*)ex;
+		auto res = phase3(expr->Func);
+		if (res.is_err()) {
+			return res.get_err();
+		}
+		auto& left_ty = res.get_ok();
+		if (auto err = unifier::unify(left_ty, type_cons::generic_fn())) {
+			// TODO: tried to call non-function
+			std::cout << "TODO err2" << std::endl;
+			return UNIT;
+		}
+		yvec<type*> param_list;
+		for (auto& param : expr->Params) {
+			auto res = phase3(param);
+			if (res.is_err()) {
+				return res.get_err();
+			}
+			param_list.push_back(res.get_ok());
+		}
+		type* param_t = single_or(param_list);
+		type* ret_t = new type_var();
+		type* exp_func = type_cons::fn(param_t, ret_t);
+		if (auto err = unifier::unify(left_ty, exp_func)) {
+			// TODO: Wrong args, wrong no. args, ...
+			std::cout << "TODO err3" << std::endl;
+			return UNIT;
+		}
+		return ret_t;
+	}
+
+	case AST_expr_t::Fn: {
+		auto expr = (AST_fn_expr*)ex;
+		SymTab.push_scope(expr->Scope);
+		auto res = phase3(expr->Body);
+		if (res.is_err()) {
+			return res.get_err();
+		}
+		auto& body_t = res.get_ok();
+		SymTab.pop_scope();
+		type* exp_ty = type_cons::fn(new type_var(), body_t);
+		if (auto err = unifier::unify(exp_ty, expr->Symbol)) {
+			// TODO: Return type mismatch
+			std::cout << "TODO err4" << std::endl;
+			return UNIT;
+		}
+		// TODO: set scope's return stuff to body's
+		return expr->Symbol;
+	}
+
+	case AST_expr_t::If: UNIMPLEMENTED;
+
+	case AST_expr_t::Let: UNIMPLEMENTED;
+
+	case AST_expr_t::List: {
+		auto expr = (AST_list_expr*)ex;
+		yvec<type*> type_list;
+		for (auto& elem : expr->Elements) {
+			auto res = phase3(elem);
+			if (res.is_err()) {
+				return res.get_err();
+			}
+			type_list.push_back(res.get_ok());
+		}
+		return single_or(type_list);
+	}
+
+	case AST_expr_t::Ident: {
+		auto expr = (AST_ident_expr*)ex;
+		if (auto n_sym = SymTab.ref_sym(expr->Value)) {
+			auto& sym = *n_sym;
+			if (sym->Ty == symbol_t::Constant) {
+				auto csym = (const_symbol*)sym;
+				return csym->Type;
+			}
+			else if (sym->Ty == symbol_t::Variable) {
+				auto vsym = (var_symbol*)sym;
+				return vsym->Type;
+			}
+			else if (sym->Ty == symbol_t::Typeclass) {
+				auto tsym = (typeclass_symbol*)sym;
+				auto entry = unifier::add_class_constraint(Constraints, tsym);
+				return entry;
+			}
+		}
+		else {
+			// TODO: undefined symbol
+			std::cout << "TODO err5" << std::endl;
+			return UNIT;
+		}
+	}
+
+	case AST_expr_t::Pre:
+	case AST_expr_t::Bin:
+	case AST_expr_t::Post: {
+		// TODO
+		UNIMPLEMENTED;
+	}
+
+	case AST_expr_t::IntLit: {
+		// TODO: Better literals
+		return I32;
+	}
+
+	case AST_expr_t::RealLit: {
+		// TODO: Better literals
+		return F32;
+	}
+
+	default: UNIMPLEMENTED;
+	}
+
+	UNREACHABLE;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 yresult<type*, semantic_err> checker::check_ty(AST_ty* typ) {
 	switch (typ->Ty) {

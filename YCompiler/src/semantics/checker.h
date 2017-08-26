@@ -1,8 +1,9 @@
 #pragma once
 
-#include "../common.h"
+#include "class_constraint.h"
 #include "semantic_pos.h"
 #include "symbol_table.h"
+#include "../common.h"
 
 struct AST_stmt;
 struct AST_expr;
@@ -39,8 +40,9 @@ struct checker {
 	static type_cons* I32;
 	static type_cons* F32;
 
-	symbol_table	SymTab;
-	file_hnd const& File;
+	symbol_table			SymTab;
+	file_hnd const&			File;
+	yvec<class_constraint>	Constraints;
 
 	checker(file_hnd const& f);
 
@@ -52,6 +54,9 @@ private:
 
 	yopt<semantic_err> phase2(AST_stmt* st);
 	yopt<semantic_err> phase2(AST_expr* ex);
+
+	yopt<semantic_err> phase3(AST_stmt* st);
+	yresult<type*, semantic_err> phase3(AST_expr* ex);
 
 	yresult<type*, semantic_err> check_ty(AST_ty* typ);
 

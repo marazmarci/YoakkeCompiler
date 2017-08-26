@@ -152,5 +152,8 @@
     <ClInclude Include="src\semantics\semantic_pos.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\semantics\class_constraint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,4 +1,6 @@
 #include <cassert>
+#include <iostream>
+#include "symbol.h"
 #include "type.h"
 #include "unifier.h"
 
@@ -49,6 +51,15 @@ namespace unifier {
 		}
 
 		UNREACHABLE;
+	}
+
+	ystr to_str(class_constraint const& cc) {
+		auto& tc = cc.Typeclass;
+		auto& ty = cc.ToMatch;
+
+		return 
+			tc->Name + '(' + to_str(ty->Params[0]) + ") => " 
+			+ to_str(ty->Params[1]);
 	}
 
 	type* prune(type* ty) {
@@ -148,6 +159,10 @@ namespace unifier {
 		type_cons* t1 = (type_cons*)a;
 		type_cons* t2 = (type_cons*)b;
 
+		return matches_fn_fn_c(t1, t2);
+	}
+
+	bool matches_fn_fn_c(type_cons* t1, type_cons* t2) {
 		assert(t1->Name == type_prefixes::Function);
 		assert(t1->Params.size() == 2);
 		assert(t2->Name == type_prefixes::Function);
@@ -267,5 +282,54 @@ namespace unifier {
 		}
 
 		UNREACHABLE;
+	}
+
+	type_cons* add_class_constraint(yvec<class_constraint>& ls, typeclass_symbol* tc) {
+		type_cons* ty = type_cons::generic_fn();
+		ls.push_back(class_constraint(tc, ty));
+		return ty;
+	}
+
+	bool process_class_constraint_list(yvec<class_constraint>& ls) {
+		bool flag = false;
+		for (ysize i = 0; i < ls.size();) {
+			auto& cc = ls[i];
+			if (process_class_constraint(cc)) {
+				ls.erase(ls.begin() + i);
+				flag = true;
+			}
+			else {
+				i++;
+			}
+		}
+		return flag;
+	}
+
+	bool process_class_constraint(class_constraint& cc) {
+		auto& tclass = cc.Typeclass;
+		auto& ty = cc.ToMatch;
+
+		bool found = false;
+		const_symbol* sym = nullptr;
+		for (auto& inst : tclass->Instances) {
+			if (matches_fn_fn(ty, inst->Type)) {
+				if (!found) {
+					found = true;
+					sym = inst;
+				}
+				else {
+					return false;
+				}
+			}
+		}
+		if (found) {
+			auto res = unify(sym->Type, ty);
+			assert(!res);
+			return true;
+		}
+		else {
+			std::cout << "TODO: no matching..." << std::endl;
+			return false;
+		}
 	}
 }

@@ -3,8 +3,9 @@
 // TODO: unable to reference variables outside functions
 
 #include <cassert>
-#include "type.h"
+#include "semantic_pos.h"
 #include "symbol.h"
+#include "type.h"
 #include "../common.h"
 
 struct type;
@@ -16,7 +17,7 @@ struct scope {
 	ymap<ystr, symbol*>	Symbols;
 	bool				ReturnDest;
 	type*				ReturnType;
-	yopt<interval>		ReturnPos;
+	yopt<semantic_pos>	ReturnPos;
 
 	scope(bool retDest);
 	~scope();

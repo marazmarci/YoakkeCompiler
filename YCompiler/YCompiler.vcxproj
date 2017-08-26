@@ -122,6 +122,7 @@
     <ClInclude Include="src\io\fmt_code.h" />
     <ClInclude Include="src\math.h" />
     <ClInclude Include="src\semantics\checker.h" />
+    <ClInclude Include="src\semantics\class_constraint.h" />
     <ClInclude Include="src\semantics\scope.h" />
     <ClInclude Include="src\semantics\semantic_pos.h" />
     <ClInclude Include="src\semantics\symbol.h" />
