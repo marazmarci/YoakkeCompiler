@@ -14,9 +14,10 @@ struct scope {
 	ymap<ystr, symbol*>	Symbols;
 	bool				ReturnDest;
 	type*				ReturnType;
-	interval			ReturnPos;
+	yopt<interval>		ReturnPos;
+	bool				Free;
 
-	scope(bool retDest);
+	scope(bool retDest, bool free);
 	~scope();
 
 	yopt<type*> ref_type(ystr const& name);

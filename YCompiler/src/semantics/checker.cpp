@@ -12,8 +12,8 @@
 #include "../functions.h"
 
 type_cons* checker::UNIT = type_cons::tuple();
-type_cons* checker::I32 = new type_cons("i32");
-type_cons* checker::F32 = new type_cons("f32");
+type_cons* checker::I32	 = new type_cons("i32");
+type_cons* checker::F32	 = new type_cons("f32");
 
 checker::checker(file_hnd const& f)
 	: File(f) {
@@ -98,7 +98,7 @@ yopt<semantic_err> checker::phase1(AST_expr* ex) {
 	switch (ex->Ty) {
 	case AST_expr_t::Block: {
 		auto expr = (AST_block_expr*)ex;
-		expr->Scope = SymTab.push_scope(!expr->AsStatement);
+		expr->Scope = SymTab.push_scope(!expr->AsStatement, false);
 		for (auto& st : expr->Statements) {
 			if (auto err = phase1(st)) {
 				return err;
@@ -128,7 +128,7 @@ yopt<semantic_err> checker::phase1(AST_expr* ex) {
 
 	case AST_expr_t::Fn: {
 		auto expr = (AST_fn_expr*)ex;
-		expr->Scope = SymTab.push_scope(true);
+		expr->Scope = SymTab.push_scope(true, true);
 		if (auto err = phase1(expr->Body)) {
 			return err;
 		}
@@ -142,6 +142,7 @@ yopt<semantic_err> checker::phase1(AST_expr* ex) {
 			return err;
 		}
 		// Set up blocks
+		// TODO: Need to mark everything recursively!
 		if (expr->AsStatement) {
 			expr->Then->AsStatement = true;
 			if (expr->Else) {
@@ -235,11 +236,10 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 	case AST_stmt_t::FnDecl: {
 		auto stmt = (AST_fn_decl_stmt*)st;
 		ystr const& name = stmt->Name.Value;
-		stmt->Symbol = type_cons::generic_fn();
-
 		if (auto err = phase2(stmt->Expression)) {
 			return err;
 		}
+		auto& sym_t = stmt->Expression->Symbol;
 		if (auto n_ref = SymTab.local_ref_sym(name)) {
 			auto& ref = *n_ref;
 			if (ref->Ty == symbol_t::Variable) {
@@ -261,11 +261,11 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 				assert(!SymTab.local_ref_sym(name));
 
 				type_cons* cons_tt = (type_cons*)cons_t;
-				SymTab.decl(new typeclass_symbol(name, stmt->Symbol, cons_tt));
+				SymTab.decl(new typeclass_symbol(name, sym_t, cons_tt));
 			}
 			else if (ref->Ty == symbol_t::Typeclass) {
 				auto tc = (typeclass_symbol*)ref;
-				tc->add(stmt->Symbol);
+				tc->add(sym_t);
 			}
 			else {
 				UNREACHABLE;
@@ -279,7 +279,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 					"function", name, ref->DefPos, semantic_pos(File, stmt->Name.Pos)
 				);
 			}
-			SymTab.decl(new const_symbol(name, stmt->Symbol));
+			SymTab.decl(new const_symbol(name, sym_t));
 		}
 		return {};
 	}
@@ -341,10 +341,48 @@ yopt<semantic_err> checker::phase2(AST_expr* ex) {
 	case AST_expr_t::Fn: {
 		auto expr = (AST_fn_expr*)ex;
 		SymTab.push_scope(expr->Scope);
+		yvec<type*> param_list;
+		for (auto& param_tup : expr->Params) {
+			auto& m_name = std::get<0>(param_tup);
+			auto& ty_exp = std::get<1>(param_tup);
+
+			auto res = check_ty(ty_exp);
+			if (res.is_err()) {
+				return res.get_err();
+			}
+			type* param_t = res.get_ok();
+			param_list.push_back(param_t);
+			if (m_name) {
+				auto& name = *m_name;
+				if (auto m_def = SymTab.local_ref_sym(name.Value)) {
+					auto& def = *m_def;
+					return semantics_def_err(
+						"Semantic error: %k %n already defined %f!",
+						"parameter", name.Value, def->DefPos, semantic_pos(File, name.Pos)
+					);
+				}
+				var_symbol* param = new var_symbol(name.Value, param_t);
+				param->DefPos = semantic_pos(File, name.Pos);
+			}
+			else {
+				print_pointed_msg(
+					"Warning: Unnamed parameter", semantic_pos(File, ty_exp->Pos)
+				);
+			}
+		}
+		type* ret_t = UNIT;
+		if (expr->Return) {
+			auto res = check_ty(*expr->Return);
+			if (res.is_err()) {
+				return res.get_err();
+			}
+			ret_t = res.get_ok();
+		}
 		if (auto err = phase2(expr->Body)) {
 			return err;
 		}
 		SymTab.pop_scope();
+		expr->Symbol = type_cons::fn(single_or(param_list), ret_t);
 		return {};
 	}
 
@@ -483,6 +521,7 @@ type* checker::single_or(yvec<type*>& ts) {
 	return new type_cons(type_prefixes::Tuple, ts);
 }
 
+// TODO: Unifier formatting
 void checker::print_def_msg(const char* fmt, const char* kind, ystr const& name,
 	yopt<semantic_pos> defpos, semantic_pos const& redefpos) {
 	auto& start = redefpos.Pos.Start;
@@ -545,7 +584,14 @@ void checker::print_def_msg(const char* fmt, const char* kind, ystr const& name,
 }
 
 void checker::print_pointed_msg(const char* msg, semantic_pos const& pos) {
-	std::cout << msg << std::endl;
+	auto& start = pos.Pos.Start;
+	std::cout 
+		<< msg 
+		<< " in file: '"
+		<< pos.File->path()
+		<< "', line " << start.Row
+		<< ", character " << start.Column
+		<< '!';
 	fmt_code::print(*pos.File, pos.Pos);
 }
 

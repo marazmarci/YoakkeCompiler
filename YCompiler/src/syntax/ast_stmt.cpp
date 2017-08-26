@@ -23,7 +23,7 @@ AST_const_decl_stmt::~AST_const_decl_stmt() {
 
 AST_fn_decl_stmt::AST_fn_decl_stmt(token const& beg, token const& n, AST_fn_expr* exp)
 	: AST_stmt(interval(beg.Pos, exp->Pos), AST_stmt_t::FnDecl),
-	Name(n), Expression(exp), Symbol(nullptr) {
+	Name(n), Expression(exp) {
 }
 
 AST_fn_decl_stmt::~AST_fn_decl_stmt() {

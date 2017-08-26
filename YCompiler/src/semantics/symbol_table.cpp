@@ -4,14 +4,14 @@
 
 symbol_table::symbol_table()
 	: Current(nullptr), Global(nullptr) {
-	Global = new scope(false);
+	Global = new scope(false, true);
 	Current = Global;
 }
 
 symbol_table::~symbol_table() { }
 
-scope* symbol_table::push_scope(bool ret) {
-	scope* sc = new scope(ret);
+scope* symbol_table::push_scope(bool ret, bool free) {
+	scope* sc = new scope(ret, free);
 	sc->Parent = Current;
 	Current = sc;
 	return Current;
