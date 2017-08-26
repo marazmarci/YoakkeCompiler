@@ -230,6 +230,13 @@ namespace AST_printer {
 			}
 			break;
 
+			case AST_expr_t::RealLit: {
+				auto ex = (AST_real_lit_expr*)expr;
+				do_indent(indent);
+				std::cout << "real: " << ex->Value << std::endl;
+			}
+			break;
+
 			default:
 				UNIMPLEMENTED;
 			}

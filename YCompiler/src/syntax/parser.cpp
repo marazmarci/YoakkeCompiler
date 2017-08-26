@@ -265,7 +265,7 @@ namespace parser {
 
 			const auto lvl0 =
 				  (INT_LIT ^ make_as<AST_int_lit_expr, AST_expr>())
-				| (REAL_LIT ^ make_as<AST_int_lit_expr, AST_expr>())
+				| (REAL_LIT ^ make_as<AST_real_lit_expr, AST_expr>())
 				| (IDENT ^ make_as<AST_ident_expr, AST_expr>())
 				| (IfExpr ^ cast<AST_expr>())
 				| LetExpr
