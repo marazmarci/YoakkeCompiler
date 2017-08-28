@@ -506,12 +506,12 @@ yopt<semantic_err> checker::phase3(AST_stmt* st) {
 			return res.get_err();
 		}
 		auto& ty = res.get_ok();
-		if (!unifier::same(ty, UNIT)) {
-			print_pointed_msg(
-				"Warning: ignoring return value!",
-				semantic_pos(File, stmt->Pos)
-			);
-		}
+		//if (!unifier::same(ty, UNIT)) {
+		//	print_pointed_msg(
+		//		"Warning: ignoring return value",
+		//		semantic_pos(File, stmt->Pos)
+		//	);
+		//}
 		return {};
 	}
 
@@ -555,9 +555,13 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		auto ret_scope = *n_ret_scope;
 		if (ret_scope->ReturnType) {
 			if (auto err = unifier::unify(ret_scope->ReturnType, ret_t)) {
-				// TODO
-				std::cout << "TODO err" << std::endl;
-				return UNIT;
+				// TODO: WRONG
+				return semantic_err(semantics_ty_err(
+					"Type %a is not compatible with type %b %f!",
+					unifier::to_str(ret_scope->ReturnType),
+					unifier::to_str(ret_t),
+					semantic_pos(File, (*expr->Value)->Pos),
+					*ret_scope->ReturnPos));
 			}
 		}
 		else {
@@ -808,15 +812,62 @@ void checker::print_def_msg(const char* fmt, const char* kind, ystr const& name,
 	}
 }
 
+void checker::print_ty_msg(const char* fmt, ystr const& name1,
+	ystr const& name2, semantic_pos const& pos1, semantic_pos const& pos2) {
+	auto& start = pos2.Pos.Start;
+	const char* ptr = fmt;
+	while (char c = *ptr++) {
+		if (c == '%') {
+			c = *ptr++;
+			switch (c) {
+			case '%': {
+				std::cout << '%';
+				break;
+			}
+
+			case 'f': {
+				std::cout << "in file: '"
+					<< pos2.File->path()
+					<< "', line " << start.Row
+					<< ", character " << start.Column;
+				break;
+			}
+
+			case 'a': {
+				std::cout << '\'' << name1 << '\'';
+				break;
+			}
+
+			case 'b': {
+				std::cout << '\'' << name2 << '\'';
+				break;
+			}
+
+			default: UNIMPLEMENTED;
+			}
+		}
+		else {
+			std::cout << c;
+		}
+	}
+	std::cout << std::endl;
+	if (semantic_pos::same_file(pos1, pos2)) {
+		fmt_code::print(*pos1.File, pos1.Pos, pos2.Pos);
+	}
+	else {
+		fmt_code::print(*pos2.File, pos2.Pos);
+	}
+}
+
 void checker::print_pointed_msg(const char* msg, semantic_pos const& pos) {
 	auto& start = pos.Pos.Start;
-	std::cout 
-		<< msg 
+	std::cout
+		<< msg
 		<< " in file: '"
 		<< pos.File->path()
 		<< "', line " << start.Row
 		<< ", character " << start.Column
-		<< '!';
+		<< '!' << std::endl;
 	fmt_code::print(*pos.File, pos.Pos);
 }
 
@@ -825,8 +876,8 @@ void checker::handle_error(semantic_err& err) {
 		[](semantics_def_err& err) {
 			print_def_msg(err.Fmt, err.Kind, err.Name, err.DefPos, err.RedefPos);
 		},
-		[](semantics_point_err& err) {
-			print_pointed_msg(err.Msg, err.Pos);
+		[](semantics_ty_err& err) {
+			print_ty_msg(err.Fmt, err.Name1, err.Name2, err.FirstPos, err.SecondPos);
 		}
 	);
 }

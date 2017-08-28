@@ -24,16 +24,20 @@ struct semantics_def_err {
 	}
 };
 
-struct semantics_point_err {
-	const char*		Msg;
-	semantic_pos	Pos;
+struct semantics_ty_err {
+	const char*			Fmt;
+	ystr				Name1;
+	ystr				Name2;
+	semantic_pos		FirstPos;
+	semantic_pos		SecondPos;
 
-	semantics_point_err(const char* msg, semantic_pos const& pos)
-		: Msg(msg), Pos(pos) {
+	semantics_ty_err(const char* fmt, ystr const& n1, ystr const& n2,
+		semantic_pos const& p1, semantic_pos const& p2)
+		: Fmt(fmt), Name1(n1), Name2(n2), FirstPos(p1), SecondPos(p2) {
 	}
 };
 
-using semantic_err = yvar<semantics_def_err, semantics_point_err>;
+using semantic_err = yvar<semantics_def_err, semantics_ty_err>;
 
 struct checker {
 	static type_cons* UNIT;
@@ -64,7 +68,8 @@ private:
 
 	static void print_def_msg(const char* fmt, const char* kind, ystr const& name,
 		yopt<semantic_pos> defpos, semantic_pos const& redefpos);
-
+	static void print_ty_msg(const char* fmt, ystr const& name1,
+		ystr const& name2, semantic_pos const& pos1, semantic_pos const& pos2);
 	static void print_pointed_msg(const char* msg, semantic_pos const& pos);
 
 public:
