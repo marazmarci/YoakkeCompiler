@@ -22,8 +22,8 @@ checker::checker(file_hnd const& f)
 
 yopt<semantic_err> checker::check_program(yvec<AST_stmt*>& prg) {
 	SymTab.decl("unit", UNIT);
-	SymTab.decl("i32", I32);
-	SymTab.decl("f32", F32);
+	SymTab.decl("i32",	I32);
+	SymTab.decl("f32",	F32);
 
 	for (auto& stmt : prg) {
 		if (auto err = phase1(stmt)) {
@@ -160,14 +160,6 @@ yopt<semantic_err> checker::phase1(AST_expr* ex) {
 		auto expr = (AST_if_expr*)ex;
 		if (auto err = phase1(expr->Condition)) {
 			return err;
-		}
-		// Set up blocks
-		// TODO: Need to mark everything recursively!
-		if (expr->AsStatement) {
-			expr->Then->AsStatement = true;
-			if (expr->Else) {
-				(*expr->Else)->AsStatement = true;
-			}
 		}
 		if (auto err = phase1(expr->Then)) {
 			return err;
@@ -514,7 +506,7 @@ yopt<semantic_err> checker::phase3(AST_stmt* st) {
 			return res.get_err();
 		}
 		auto& ty = res.get_ok();
-		if (unifier::same(ty, UNIT)) {
+		if (!unifier::same(ty, UNIT)) {
 			print_pointed_msg(
 				"Warning: ignoring return value!",
 				semantic_pos(File, stmt->Pos)

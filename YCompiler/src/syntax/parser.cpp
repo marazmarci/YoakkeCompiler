@@ -116,6 +116,46 @@ namespace parser {
 			};
 		}
 
+		auto make_if() {
+			return [](auto& beg, auto& cond, auto& then, auto& elifs, auto& el) -> AST_if_expr* {
+				yopt<AST_block_expr*> elbody =
+					fnl::fold(elifs.rbegin(), elifs.rend(), el,
+					[=](auto& curr, auto& elem) -> AST_block_expr* {
+						return new AST_block_expr(
+							new AST_expr_stmt(new AST_if_expr(
+								std::get<0>(elem),
+								std::get<1>(elem),
+								std::get<2>(elem),
+								curr)));
+					});
+				return new AST_if_expr(beg, cond, then, elbody);
+			};
+		}
+
+		auto make_if_stmt() {
+			return [](auto& beg, auto& cond, auto& then, auto& elifs, auto& el) -> AST_stmt* {
+				then->AsStatement = true;
+				if (el) {
+					(*el)->AsStatement = true;
+				}
+				yopt<AST_block_expr*> elbody =
+					fnl::fold(elifs.rbegin(), elifs.rend(), el,
+					[=](auto& curr, auto& elem) -> AST_block_expr* {
+						auto& thenBody = std::get<2>(elem);
+						thenBody->AsStatement = true;
+						AST_block_expr* blck = new AST_block_expr(
+							new AST_expr_stmt(new AST_if_expr(
+								std::get<0>(elem),
+								std::get<1>(elem),
+								thenBody,
+								curr)));
+						blck->AsStatement = true;
+						return blck;
+					});
+				return new AST_expr_stmt(new AST_if_expr(beg, cond, then, elbody));
+			};
+		}
+
 		result_t<AST_stmt*> parse_stmt(token_input& in);
 		result_t<AST_stmt*> parse_decl(token_input& in);
 		
@@ -165,7 +205,7 @@ namespace parser {
 			const parser_t<AST_pat*> Pattern = parse_pat;
 
 			const auto lvl0 =
-				(IDENT ^ make_as<AST_ident_pat, AST_pat>())
+				  (IDENT ^ make_as<AST_ident_pat, AST_pat>())
 				| ((LPAREN >= RPAREN) ^ make_as<AST_list_pat, AST_pat>())
 				| (LPAREN > Pattern < !RPAREN)
 				;
@@ -192,6 +232,11 @@ namespace parser {
 
 			const auto BlockExpr =
 				(LBRACE >= *Stmt >= &ExprList >= !RBRACE) ^ make<AST_block_expr>();
+
+			const auto IfGrammar =
+				(IF >= !(ExprList / "condition") >= !BlockExpr
+					>= *(ELSE > IF >= !(ExprList / "condition") >= !BlockExpr)
+					>= &(ELSE > !BlockExpr));
 
 			const auto FnParam =
 				&IDENT < COLON >= !(Type / "parameter type");
@@ -239,21 +284,7 @@ namespace parser {
 				};
 
 			const auto IfExpr =
-						   (IF >= !(ExprList / "condition") >= !(BlockExpr)
-				>= *(ELSE > IF >= !(ExprList / "condition") >= !(BlockExpr))
-				>= &(ELSE > !BlockExpr))
-				^ [](auto& beg, auto& cond, auto& then, auto& elifs, auto& el) -> AST_if_expr* {
-					yopt<AST_block_expr*> elbody =
-						fnl::fold(elifs.rbegin(), elifs.rend(), el,
-						[](auto& curr, auto& elem) -> AST_block_expr* {
-							auto& e_tok = std::get<0>(elem);
-							auto& e_cond = std::get<1>(elem);
-							auto& e_block = std::get<2>(elem);
-							AST_if_expr* eif = new AST_if_expr(e_tok, e_cond, e_block, curr);
-							return new AST_block_expr(new AST_expr_stmt(eif));
-						});
-					return new AST_if_expr(beg, cond, then, elbody);
-				};
+				IfGrammar ^ make_if();
 
 			const auto LetExpr = (LET >= !(Pattern / "pattern")
 				>= &(COLON > !(TypeList / "type"))
@@ -353,7 +384,7 @@ namespace parser {
 			static auto Stmt =
 				  ((DBG_WR_T >= ExprList) ^ make_as<AST_dbg_write_ty_stmt, AST_stmt>())
 				| Decl
-				| (IfExpr ^ mark_expr_as_stmt())
+				| (expr_detail::IfGrammar ^ make_if_stmt())
 				| (BlockExpr ^ mark_expr_as_stmt())
 				| ((ExprList >= SEMICOL) ^ make_as<AST_expr_stmt, AST_stmt>())
 				;

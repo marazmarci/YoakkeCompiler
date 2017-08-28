@@ -50,4 +50,20 @@ namespace fnl {
 			return std::visit(visitor, std::forward<TVariants>(vs)...);
 		};
 	}
+
+	namespace internal__ {
+		template <typename Tup, typename F, ysize... I>
+		constexpr decltype(auto) bind_impl(Tup& tup, F&& f, std::index_sequence<I...>) {
+			return std::invoke(std::forward<F>(f), std::get<I>(tup)...);
+		}
+	}
+
+	template <typename Tup, typename F>
+	constexpr decltype(auto) bind(Tup& t, F&& f) {
+		return internal__::bind_impl(
+			t,
+			std::forward<F>(f),
+			std::make_index_sequence<std::tuple_size_v<std::decay_t<Tup>>>{}
+		);
+	}
 }
