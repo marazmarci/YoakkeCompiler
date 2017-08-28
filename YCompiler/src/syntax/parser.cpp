@@ -143,16 +143,20 @@ namespace parser {
 					[=](auto& curr, auto& elem) -> AST_block_expr* {
 						auto& thenBody = std::get<2>(elem);
 						thenBody->AsStatement = true;
+						AST_if_expr* ii = new AST_if_expr(
+							std::get<0>(elem),
+							std::get<1>(elem),
+							thenBody,
+							curr);
+						ii->AsStatement = true;
 						AST_block_expr* blck = new AST_block_expr(
-							new AST_expr_stmt(new AST_if_expr(
-								std::get<0>(elem),
-								std::get<1>(elem),
-								thenBody,
-								curr)));
+							new AST_expr_stmt(ii));
 						blck->AsStatement = true;
 						return blck;
 					});
-				return new AST_expr_stmt(new AST_if_expr(beg, cond, then, elbody));
+				AST_if_expr* ii = new AST_if_expr(beg, cond, then, elbody);
+				ii->AsStatement = true;
+				return new AST_expr_stmt(ii);
 			};
 		}
 
