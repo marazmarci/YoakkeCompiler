@@ -209,6 +209,7 @@ namespace unifier {
 		}
 
 		UNREACHABLE;
+		return false;
 	}
 
 	namespace {
@@ -282,6 +283,7 @@ namespace unifier {
 		}
 
 		UNREACHABLE;
+		return {};
 	}
 
 	type_cons* add_class_constraint(yvec<class_constraint>& ls, typeclass_symbol* tc) {

@@ -88,18 +88,18 @@ yopt<semantic_err> checker::phase1(AST_stmt* st) {
 			auto def = *m_def;
 			return semantics_def_err(
 				"Semantic error: %k %n already defined %f!",
-				"type", name, def->DefPos, semantic_pos(File, stmt->Name.Pos)
+				"type", name, def->DefPos, to_sem_pos(stmt->Name.Pos)
 			);
 		}
 		if (auto m_def = SymTab.upper_ref_type(name)) {
 			auto def = *m_def;
 			print_def_msg(
 				"Warning: shadowing %k %n %f!",
-				"type", name, def->DefPos, semantic_pos(File, stmt->Name.Pos)
+				"type", name, def->DefPos, to_sem_pos(stmt->Name.Pos)
 			);
 		}
 		stmt->Symbol = new type_var();
-		stmt->Symbol->DefPos = semantic_pos(File, stmt->Name.Pos);
+		stmt->Symbol->DefPos = to_sem_pos(stmt->Name.Pos);
 		SymTab.decl(name, stmt->Symbol);
 		return {};
 	}
@@ -112,6 +112,7 @@ yopt<semantic_err> checker::phase1(AST_stmt* st) {
 	}
 
 	UNREACHABLE;
+	return {};
 }
 
 yopt<semantic_err> checker::phase1(AST_expr* ex) {
@@ -229,6 +230,7 @@ yopt<semantic_err> checker::phase1(AST_expr* ex) {
 	}
 
 	UNREACHABLE;
+	return {};
 }
 
 // PHASE 2 ////////////////////////////////////////////////////////////////////
@@ -253,13 +255,13 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 		}
 		auto& sym_t = stmt->Expression->Symbol;
 		auto sym = new const_symbol(name, sym_t);
-		sym->DefPos = semantic_pos(File, stmt->Name.Pos);
+		sym->DefPos = to_sem_pos(stmt->Name.Pos);
 		if (auto n_ref = SymTab.local_ref_sym(name)) {
 			auto& ref = *n_ref;
 			if (ref->Ty == symbol_t::Variable) {
 				return semantics_def_err(
 					"Semantic error: %k %n shadows a variable %f!",
-					"function", name, ref->DefPos, semantic_pos(File, stmt->Name.Pos)
+					"function", name, ref->DefPos, to_sem_pos(stmt->Name.Pos)
 				);
 			}
 			else if (ref->Ty == symbol_t::Constant) {
@@ -268,7 +270,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 				if (auto err = unifier::unify(cons_t, type_cons::generic_fn())) {
 					return semantics_def_err(
 						"Semantic error: %k %n tries to overload a non-function constant %f!",
-						"function", name, ref->DefPos, semantic_pos(File, stmt->Name.Pos)
+						"function", name, ref->DefPos, to_sem_pos(stmt->Name.Pos)
 					);
 				}
 				SymTab.remove_symbol(name);
@@ -282,7 +284,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 					auto& other = *n_other;
 					return semantics_def_err(
 						"Semamtic error: %k %n cannot overload a matching function %f!",
-						"function", name, other->DefPos, semantic_pos(File, stmt->Name.Pos)
+						"function", name, other->DefPos, to_sem_pos(stmt->Name.Pos)
 					);
 				}
 			}
@@ -295,7 +297,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 				auto& ref = *n_ref;
 				print_def_msg(
 					"Warning: %k %n is shadowing other functions or constants %f!",
-					"function", name, ref->DefPos, semantic_pos(File, stmt->Name.Pos)
+					"function", name, ref->DefPos, to_sem_pos(stmt->Name.Pos)
 				);
 			}
 			SymTab.decl(sym);
@@ -323,6 +325,33 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 	}
 
 	UNREACHABLE;
+	return {};
+}
+
+yresult<type*, semantic_err> checker::check_parameter(yopt<token>& m_name, AST_ty* ty_exp) {
+	auto res = check_ty(ty_exp);
+	if (res.is_err()) {
+		return res.get_err();
+	}
+	type* param_t = res.get_ok();
+	if (m_name) {
+		auto& name = *m_name;
+		if (auto m_def = SymTab.local_ref_sym(name.Value)) {
+			auto& def = *m_def;
+			return semantic_err(semantics_def_err(
+				"Semantic error: %k %n already defined %f!",
+				"parameter", name.Value, def->DefPos, to_sem_pos(name.Pos)
+			));
+		}
+		var_symbol* param = new var_symbol(name.Value, param_t);
+		param->DefPos = to_sem_pos(name.Pos);
+	}
+	else {
+		print_pointed_msg(
+			"Warning: Unnamed parameter", to_sem_pos(ty_exp->Pos)
+		);
+	}
+	return param_t;
 }
 
 yopt<semantic_err> checker::phase2(AST_expr* ex) {
@@ -365,38 +394,24 @@ yopt<semantic_err> checker::phase2(AST_expr* ex) {
 			auto& m_name = std::get<0>(param_tup);
 			auto& ty_exp = std::get<1>(param_tup);
 
-			auto res = check_ty(ty_exp);
+			auto res = check_parameter(m_name, ty_exp);
 			if (res.is_err()) {
 				return res.get_err();
 			}
-			type* param_t = res.get_ok();
-			param_list.push_back(param_t);
-			if (m_name) {
-				auto& name = *m_name;
-				if (auto m_def = SymTab.local_ref_sym(name.Value)) {
-					auto& def = *m_def;
-					return semantics_def_err(
-						"Semantic error: %k %n already defined %f!",
-						"parameter", name.Value, def->DefPos, semantic_pos(File, name.Pos)
-					);
-				}
-				var_symbol* param = new var_symbol(name.Value, param_t);
-				param->DefPos = semantic_pos(File, name.Pos);
-			}
-			else {
-				print_pointed_msg(
-					"Warning: Unnamed parameter", semantic_pos(File, ty_exp->Pos)
-				);
-			}
+			param_list.push_back(res.get_ok());
 		}
 		type* ret_t = UNIT;
 		if (expr->Return) {
-			auto res = check_ty(*expr->Return);
+			auto& ret_node = *expr->Return;
+			auto res = check_ty(ret_node);
 			if (res.is_err()) {
 				return res.get_err();
 			}
 			ret_t = res.get_ok();
+			expr->Scope->ReturnPos = to_sem_pos(ret_node->Pos);
+			expr->Body->Scope->ReturnPos = to_sem_pos(ret_node->Pos);
 		}
+		expr->Scope->ReturnType = ret_t;
 		if (auto err = phase2(expr->Body)) {
 			return err;
 		}
@@ -478,6 +493,7 @@ yopt<semantic_err> checker::phase2(AST_expr* ex) {
 	}
 
 	UNREACHABLE;
+	return {};
 }
 
 // PHASE 3 ////////////////////////////////////////////////////////////////////
@@ -505,11 +521,11 @@ yopt<semantic_err> checker::phase3(AST_stmt* st) {
 		if (res.is_err()) {
 			return res.get_err();
 		}
-		auto& ty = res.get_ok();
+		//auto& ty = res.get_ok();
 		//if (!unifier::same(ty, UNIT)) {
 		//	print_pointed_msg(
 		//		"Warning: ignoring return value",
-		//		semantic_pos(File, stmt->Pos)
+		//		to_sem_pos(stmt->Pos)
 		//	);
 		//}
 		return {};
@@ -530,13 +546,14 @@ yopt<semantic_err> checker::phase3(AST_stmt* st) {
 	}
 
 	UNREACHABLE;
+	return {};
 }
 
 yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 	switch (ex->Ty) {
 	case AST_expr_t::Block: {
 		auto expr = (AST_block_expr*)ex;
-		SymTab.push_scope(expr->Scope);
+		SymTab.push_scope(expr->Scope);	// ----------------------------
 		for (auto& st : expr->Statements) {
 			if (auto err = phase3(st)) {
 				return *err;
@@ -560,18 +577,18 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 					"Type %a is not compatible with type %b %f!",
 					unifier::to_str(ret_scope->ReturnType),
 					unifier::to_str(ret_t),
-					semantic_pos(File, (*expr->Value)->Pos),
-					*ret_scope->ReturnPos));
+					ret_scope->ReturnPos,
+					to_sem_pos((*expr->Value)->Pos)));
 			}
 		}
 		else {
 			ret_scope->ReturnType = ret_t;
 			if (expr->Value) {
 				auto& val = *expr->Value;
-				ret_scope->ReturnPos = semantic_pos(File, val->Pos);
+				ret_scope->ReturnPos = to_sem_pos(val->Pos);
 			}
 		}
-		SymTab.pop_scope();
+		SymTab.pop_scope();	// ----------------------------------------
 		return ret_t;
 	}
 
@@ -688,6 +705,7 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 	}
 
 	UNREACHABLE;
+	return UNIT;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -701,7 +719,7 @@ yresult<type*, semantic_err> checker::check_ty(AST_ty* typ) {
 		}
 		return semantic_err(semantics_def_err(
 			"Semantic error: Undefined %k %n %f!",
-			"type", ty->Value, {}, semantic_pos(File, ty->Pos)
+			"type", ty->Value, {}, to_sem_pos(ty->Pos)
 		));
 	}
 
@@ -739,9 +757,14 @@ yresult<type*, semantic_err> checker::check_ty(AST_ty* typ) {
 	}
 
 	UNREACHABLE;
+	return UNIT;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+semantic_pos checker::to_sem_pos(interval const& pos) {
+	return semantic_pos(File, pos);
+}
 
 type* checker::single_or(yvec<type*>& ts) {
 	if (ts.size() == 1) {
@@ -812,8 +835,8 @@ void checker::print_def_msg(const char* fmt, const char* kind, ystr const& name,
 	}
 }
 
-void checker::print_ty_msg(const char* fmt, ystr const& name1,
-	ystr const& name2, semantic_pos const& pos1, semantic_pos const& pos2) {
+void checker::print_ty_msg(const char* fmt, ystr const& name1, ystr const& name2, 
+	yopt<semantic_pos> const& pos1, semantic_pos const& pos2) {
 	auto& start = pos2.Pos.Start;
 	const char* ptr = fmt;
 	while (char c = *ptr++) {
@@ -851,8 +874,14 @@ void checker::print_ty_msg(const char* fmt, ystr const& name1,
 		}
 	}
 	std::cout << std::endl;
-	if (semantic_pos::same_file(pos1, pos2)) {
-		fmt_code::print(*pos1.File, pos1.Pos, pos2.Pos);
+	if (pos1) {
+		auto& ppos1 = *pos1;
+		if (semantic_pos::same_file(ppos1, pos2)) {
+			fmt_code::print(*ppos1.File, ppos1.Pos, pos2.Pos);
+		}
+		else {
+			fmt_code::print(*pos2.File, pos2.Pos);
+		}
 	}
 	else {
 		fmt_code::print(*pos2.File, pos2.Pos);
@@ -877,7 +906,7 @@ void checker::handle_error(semantic_err& err) {
 			print_def_msg(err.Fmt, err.Kind, err.Name, err.DefPos, err.RedefPos);
 		},
 		[](semantics_ty_err& err) {
-			print_ty_msg(err.Fmt, err.Name1, err.Name2, err.FirstPos, err.SecondPos);
+			print_ty_msg(err.Fmt, err.PrevName, err.CurrName, err.PrevPos, err.CurrPos);
 		}
 	);
 }

@@ -3,6 +3,7 @@
 #include "class_constraint.h"
 #include "semantic_pos.h"
 #include "symbol_table.h"
+#include "../syntax/token.h"
 #include "../common.h"
 
 struct AST_stmt;
@@ -20,20 +21,22 @@ struct semantics_def_err {
 
 	semantics_def_err(const char* fmt, const char* kind, ystr const& name,
 		yopt<semantic_pos> defpos, semantic_pos const& redefpos)
-		: Fmt(fmt), Kind(kind), Name(name), DefPos(std::move(defpos)), RedefPos(redefpos) {
+		: Fmt(fmt), Kind(kind), Name(name), 
+		DefPos(std::move(defpos)), RedefPos(redefpos) {
 	}
 };
 
 struct semantics_ty_err {
 	const char*			Fmt;
-	ystr				Name1;
-	ystr				Name2;
-	semantic_pos		FirstPos;
-	semantic_pos		SecondPos;
+	ystr				PrevName;
+	ystr				CurrName;
+	yopt<semantic_pos>	PrevPos;
+	semantic_pos		CurrPos;
 
-	semantics_ty_err(const char* fmt, ystr const& n1, ystr const& n2,
-		semantic_pos const& p1, semantic_pos const& p2)
-		: Fmt(fmt), Name1(n1), Name2(n2), FirstPos(p1), SecondPos(p2) {
+	semantics_ty_err(const char* fmt, ystr const& prn, ystr const& currn,
+		yopt<semantic_pos> prevp, semantic_pos const& currp)
+		: Fmt(fmt), PrevName(prn), CurrName(currn), 
+		PrevPos(std::move(prevp)), CurrPos(currp) {
 	}
 };
 
@@ -64,12 +67,16 @@ private:
 
 	yresult<type*, semantic_err> check_ty(AST_ty* typ);
 
+	yresult<type*, semantic_err> check_parameter(yopt<token>& m_name, AST_ty* ty_exp);
+
+	semantic_pos to_sem_pos(interval const& pos);
+
 	static type* single_or(yvec<type*>& ts);
 
 	static void print_def_msg(const char* fmt, const char* kind, ystr const& name,
 		yopt<semantic_pos> defpos, semantic_pos const& redefpos);
-	static void print_ty_msg(const char* fmt, ystr const& name1,
-		ystr const& name2, semantic_pos const& pos1, semantic_pos const& pos2);
+	static void print_ty_msg(const char* fmt, ystr const& name1, ystr const& name2, 
+		yopt<semantic_pos> const& pos1, semantic_pos const& pos2);
 	static void print_pointed_msg(const char* msg, semantic_pos const& pos);
 
 public:
