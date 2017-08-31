@@ -558,33 +558,50 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 				return *err;
 			}
 		}
-		type* ret_t = UNIT;
+		type* ret_t = nullptr;
 		if (expr->Value) {
 			auto res = phase3(*expr->Value);
 			if (res.is_err()) {
 				return res.get_err();
 			}
 			ret_t = res.get_ok();
-		}
-		auto n_ret_scope = SymTab.nearest_ret_dest();
-		assert(n_ret_scope);
-		auto ret_scope = *n_ret_scope;
-		if (ret_scope->ReturnType) {
-			if (auto err = unifier::unify(ret_scope->ReturnType, ret_t)) {
-				// TODO: WRONG
-				return semantic_err(semantics_ty_err(
-					"Type %a is not compatible with type %b %f!",
-					unifier::to_str(ret_scope->ReturnType),
-					unifier::to_str(ret_t),
-					ret_scope->ReturnPos,
-					to_sem_pos((*expr->Value)->Pos)));
+			auto n_ret_scope = SymTab.nearest_ret_dest();
+			assert(n_ret_scope);
+			auto ret_scope = *n_ret_scope;
+			if (ret_scope->ReturnType) {
+				if (auto err = unifier::unify(ret_scope->ReturnType, ret_t)) {
+					// TODO: WRONG
+					if (expr->Value) {
+						return semantic_err(semantics_ty_err(
+							"Type %a is not compatible with type %b %f!",
+							unifier::to_str(ret_scope->ReturnType),
+							unifier::to_str(ret_t),
+							ret_scope->ReturnPos,
+							to_sem_pos((*expr->Value)->Pos)));
+					}
+				}
+			}
+			else {
+				ret_scope->ReturnType = ret_t;
+				if (expr->Value) {
+					auto& val = *expr->Value;
+					ret_scope->ReturnPos = to_sem_pos(val->Pos);
+				}
 			}
 		}
 		else {
-			ret_scope->ReturnType = ret_t;
-			if (expr->Value) {
-				auto& val = *expr->Value;
-				ret_scope->ReturnPos = to_sem_pos(val->Pos);
+			auto n_ret_scope = SymTab.nearest_ret_dest();
+			if (n_ret_scope) {
+				auto ret_scope = *n_ret_scope;
+				if (ret_scope->ReturnType) {
+					ret_t = ret_scope->ReturnType;
+				}
+				else {
+					ret_t = UNIT;
+				}
+			}
+			else {
+				ret_t = UNIT;
 			}
 		}
 		SymTab.pop_scope();	// ----------------------------------------
