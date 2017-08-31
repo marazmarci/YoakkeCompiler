@@ -706,7 +706,50 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		return UNIT;
 	}
 
-	case AST_expr_t::Let: UNIMPLEMENTED;
+	case AST_expr_t::Let: {
+		auto expr = (AST_let_expr*)ex;
+		type* left_t;
+		yvec<ytup<ystr, type*>> entries;
+		std::tie(entries, left_t) = generate_let_pattern(expr->Pattern);
+		if (expr->Type) {
+			auto& typ = *expr->Type;
+			auto res = check_ty(typ);
+			if (res.is_err()) {
+				return res.get_err();
+			}
+			auto& ty_t = res.get_ok();
+			if (auto err = unifier::unify(left_t, ty_t)) {
+				return semantic_err(semantics_ty_err(
+					"Let type is not matching the pattern %f!",
+					"",
+					"",
+					to_sem_pos(expr->Pattern->Pos),
+					to_sem_pos(typ->Pos)
+				));
+			}
+		}
+		if (expr->Value) {
+			auto& typ = *expr->Value;
+			auto res = phase3(typ);
+			if (res.is_err()) {
+				return res.get_err();
+			}
+			auto& ty_t = res.get_ok();
+			if (auto err = unifier::unify(left_t, ty_t)) {
+				return semantic_err(semantics_ty_err(
+					"Let value is not matching the type %f!",
+					"",
+					"",
+					to_sem_pos(expr->Pattern->Pos),
+					to_sem_pos(typ->Pos)
+				));
+			}
+		}
+		for (auto& entry : entries) {
+			
+		}
+		return UNIT;
+	}
 
 	case AST_expr_t::List: {
 		auto expr = (AST_list_expr*)ex;
@@ -824,6 +867,43 @@ yresult<type*, semantic_err> checker::check_ty(AST_ty* typ) {
 
 	UNREACHABLE;
 	return UNIT;
+}
+
+type* checker::generate_let_pattern(AST_pat* pat, yvec<ytup<ystr, type*>>& buff) {
+	switch (pat->Ty) {
+	case AST_pat_t::List: {
+		auto pt = (AST_list_pat*)pat;
+		type_cons* tlist = new type_cons(type_prefixes::Tuple);
+		for (auto& elem : pt->Elements) {
+			tlist->add(generate_let_pattern(elem, buff));
+		}
+		return tlist;
+	}
+
+	case AST_pat_t::Ident: {
+		auto pt = (AST_ident_pat*)pat;
+		type_var* tv = new type_var();
+		buff.push_back({ pt->Value, tv });
+		return tv;
+	}
+
+	case AST_pat_t::Bin:
+	case AST_pat_t::Pre:
+	case AST_pat_t::Post: {
+		UNIMPLEMENTED;
+	}
+
+	default: UNIMPLEMENTED;
+	}
+
+	UNREACHABLE;
+	return nullptr;
+}
+
+ytup<yvec<ytup<ystr, type*>>, type*> checker::generate_let_pattern(AST_pat* pat) {
+	yvec<ytup<ystr, type*>> buff;
+	type* ty = generate_let_pattern(pat, buff);
+	return { buff, ty };
 }
 
 ///////////////////////////////////////////////////////////////////////////////
