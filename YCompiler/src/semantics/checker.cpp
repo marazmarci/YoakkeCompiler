@@ -409,7 +409,6 @@ yopt<semantic_err> checker::phase2(AST_expr* ex) {
 			}
 			ret_t = res.get_ok();
 			expr->Scope->ReturnPos = to_sem_pos(ret_node->Pos);
-			expr->Body->Scope->ReturnPos = to_sem_pos(ret_node->Pos);
 		}
 		expr->Scope->ReturnType = ret_t;
 		if (auto err = phase2(expr->Body)) {

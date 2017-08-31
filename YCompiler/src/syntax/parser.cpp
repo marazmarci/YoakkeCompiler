@@ -270,6 +270,7 @@ namespace parser {
 					yopt<token> beg = {};
 					yopt<AST_ty*> rett_r = {};
 					yvec<AST_fn_expr::param_t> param_ls;
+					body->AsStatement = true;
 					if (params) {
 						beg = std::get<0>(*params);
 						auto& params_ok = std::get<1>(*params);
