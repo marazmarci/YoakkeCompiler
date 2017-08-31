@@ -1,19 +1,14 @@
 #include <cstdlib>
 #include <iostream>
 #include "syntax/ast.h"
+#include "syntax/ast_stmt.h"
 #include "io/file_hnd.h"
-#include "io/fmt_code.h"
-#include "syntax/lexer.h"
 #include "syntax/token_input.h"
-#include "functions.h"
 #include "syntax/parser.h"
 #include "io/ast_printer.h"
-#include "syntax/ast_expr.h"
-#include "syntax/ast_stmt.h"
-#include "syntax/ast_ty.h"
-#include "syntax/ast_pat.h"
-#include "semantics/type.h"
 #include "semantics/checker.h"
+#include "tests/framework.h"
+#include "tests/parser_tests.h"
 
 template <typename T>
 void write_t(T const& t) {
@@ -21,6 +16,9 @@ void write_t(T const& t) {
 }
 
 int main(void) {
+	add_parser_tests();
+	unit_test::run();
+
 	file_hnd file("C:/TMP/YoakkeTest/tokenizer.txt");
 	if (!file.good()) {
 		std::cout << "Could not open file: " << file.path() << '!' << std::endl;

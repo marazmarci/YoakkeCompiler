@@ -142,6 +142,8 @@
     <ClInclude Include="src\syntax\result_list.h" />
     <ClInclude Include="src\syntax\token.h" />
     <ClInclude Include="src\syntax\token_input.h" />
+    <ClInclude Include="src\tests\framework.h" />
+    <ClInclude Include="src\tests\parser_tests.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\io\ast_printer.cpp" />
@@ -164,6 +166,8 @@
     <ClCompile Include="src\syntax\position.cpp" />
     <ClCompile Include="src\syntax\token.cpp" />
     <ClCompile Include="src\syntax\token_input.cpp" />
+    <ClCompile Include="src\tests\framework.cpp" />
+    <ClCompile Include="src\tests\parser_tests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

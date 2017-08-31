@@ -17,6 +17,7 @@ namespace parser {
 	using namespace combinator;
 
 	result_t<yvec<AST_stmt*>> parse_program(token_input& in);
+	result_t<AST_expr*> parse_expr(token_input& in);
 
 	void handle_error(fail_info& err);
 }

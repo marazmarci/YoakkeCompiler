@@ -59,6 +59,28 @@ file_hnd::file_hnd(ystr const& path)
 	: file_hnd(path.c_str()) {
 }
 
+file_hnd::file_hnd(ystr const& alias, ystr const& src)
+	: m_Path(alias), m_Buffer(nullptr) {
+	// Get the length of contents
+	ysize size = src.length();
+	// Create the buffer
+	m_Buffer = new char[size + 1];
+	// Copy the contents to the buffer
+	std::strcpy(m_Buffer, src.c_str());
+	// NULL terminate
+	m_Buffer[size] = '\0';
+
+	// Go throught the content and add line descriptions
+	for (ysize offs = 0; offs < size;) {
+		// Get the length of the line
+		ysize llen = line_len(m_Buffer + offs);
+		// Add it and the pointer to the line descriptors
+		m_Lines.push_back({ m_Buffer + offs, llen ? llen - 1 : 0 });
+		// Advance to the next line
+		offs += llen;
+	}
+}
+
 file_hnd::~file_hnd() {
 	delete[] m_Buffer;
 }

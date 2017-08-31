@@ -45,6 +45,13 @@ public:
 	file_hnd(ystr const& path);
 
 	/**
+	 * Creates a fake file handle to simulate files used for testing.
+	 * @param alias The name of the fake file.
+	 * @param src The file contents.
+	 */
+	file_hnd(ystr const& alias, ystr const& src);
+
+	/**
 	 * Deallocates the buffer with the file contents.
 	 */
 	~file_hnd();

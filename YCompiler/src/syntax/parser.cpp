@@ -425,6 +425,10 @@ namespace parser {
 		return Program(in);
 	}
 
+	result_t<AST_expr*> parse_expr(token_input& in) {
+		return ExprList(in);
+	}
+
 	/*************************************************************************/
 
 	namespace {
