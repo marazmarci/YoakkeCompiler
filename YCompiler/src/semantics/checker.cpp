@@ -560,7 +560,8 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		}
 		type* ret_t = nullptr;
 		if (expr->Value) {
-			auto res = phase3(*expr->Value);
+			auto& expr_val = *expr->Value;
+			auto res = phase3(expr_val);
 			if (res.is_err()) {
 				return res.get_err();
 			}
@@ -571,14 +572,12 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 			if (ret_scope->ReturnType) {
 				if (auto err = unifier::unify(ret_scope->ReturnType, ret_t)) {
 					// TODO: WRONG
-					if (expr->Value) {
-						return semantic_err(semantics_ty_err(
-							"Type %a is not compatible with type %b %f!",
-							unifier::to_str(ret_scope->ReturnType),
-							unifier::to_str(ret_t),
-							ret_scope->ReturnPos,
-							to_sem_pos((*expr->Value)->Pos)));
-					}
+					return semantic_err(semantics_ty_err(
+						"Type %a is not compatible with type %b %f!",
+						unifier::to_str(ret_scope->ReturnType),
+						unifier::to_str(ret_t),
+						ret_scope->ReturnPos,
+						to_sem_pos(expr_val->Pos)));
 				}
 			}
 			else {
