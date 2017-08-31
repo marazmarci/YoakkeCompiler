@@ -213,7 +213,9 @@ namespace parser {
 									std::get<2>(elem),
 									curr);
 								res->AsStatement = true;
-								return new AST_block_expr(new AST_expr_stmt(res));
+								auto blck = new AST_block_expr(new AST_expr_stmt(res));
+								blck->AsStatement = true;
+								return blck;
 							});
 					return new AST_if_expr(beg, cond, then, elbody);
 				};
@@ -378,7 +380,9 @@ namespace parser {
 									std::get<2>(elem),
 									curr);
 								res->AsStatement = true;
-								return new AST_block_expr(new AST_expr_stmt(res));
+								auto blck = new AST_block_expr(new AST_expr_stmt(res));
+								blck->AsStatement = true;
+								return blck;
 							});
 					auto res = new AST_if_expr(beg, cond, then, elbody);
 					res->AsStatement = true;

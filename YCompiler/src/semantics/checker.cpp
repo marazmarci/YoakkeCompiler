@@ -604,23 +604,14 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 				}
 			}
 			else {
+				auto& val = *expr->Value;
+				ret_scope->ReturnPos = to_sem_pos(val->Pos);
 				ret_scope->ReturnType = ret_t;
-				if (expr->Value) {
-					auto& val = *expr->Value;
-					ret_scope->ReturnPos = to_sem_pos(val->Pos);
-				}
 			}
 		}
 		else {
-			auto n_ret_scope = SymTab.nearest_ret_dest();
-			if (n_ret_scope) {
-				auto ret_scope = *n_ret_scope;
-				if (ret_scope->ReturnType) {
-					ret_t = ret_scope->ReturnType;
-				}
-				else {
-					ret_t = UNIT;
-				}
+			if (expr->Scope->ReturnType) {
+				ret_t = expr->Scope->ReturnType;
 			}
 			else {
 				ret_t = UNIT;
@@ -718,10 +709,7 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		else {
 			assert(expr->Else);
 			if (!expr->Scope->ReturnType) {
-				return semantic_err(semantics_pos_err(
-					"Semantic error: No return value provided for if expression",
-					to_sem_pos(expr->Pos)
-				));
+				return UNIT;
 			}
 			return expr->Scope->ReturnType;
 		}

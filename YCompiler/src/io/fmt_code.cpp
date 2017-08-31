@@ -493,8 +493,14 @@ namespace fmt_code {
 					print_line_in(file, i, max_digs);
 				}
 			}
-			print_line_end(file, last_annot, max_digs,
-			{ { pos2.Start.Column, pos2.End.Column } });
+			if (pos2.Start.Row == pos2.End.Row) {
+				print_line_end(file, last_annot, max_digs,
+				{ { pos2.Start.Column, pos2.End.Column } });
+			}
+			else {
+				print_line_end(file, last_annot, max_digs,
+				{ { pos2.End.Column - 1, pos2.End.Column } });
+			}
 		}
 
 		for (ysize i = last_annot + 1; i <= last; i++) {
