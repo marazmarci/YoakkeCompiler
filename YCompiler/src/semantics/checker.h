@@ -55,6 +55,7 @@ struct checker {
 	static type_cons* UNIT;
 	static type_cons* I32;
 	static type_cons* F32;
+	static type_cons* BOOL;
 
 	symbol_table			SymTab;
 	file_hnd const&			File;

@@ -15,6 +15,7 @@
 type_cons* checker::UNIT = type_cons::tuple();
 type_cons* checker::I32	 = new type_cons("i32");
 type_cons* checker::F32	 = new type_cons("f32");
+type_cons* checker::BOOL = new type_cons("bool");
 
 checker::checker(file_hnd const& f)
 	: File(f) {
@@ -24,6 +25,7 @@ yopt<semantic_err> checker::check_program(yvec<AST_stmt*>& prg) {
 	SymTab.decl("unit", UNIT);
 	SymTab.decl("i32",	I32);
 	SymTab.decl("f32",	F32);
+	SymTab.decl("bool", BOOL);
 
 	for (auto& stmt : prg) {
 		if (auto err = phase1(stmt)) {
@@ -675,14 +677,34 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		}
 		auto& body_t = res.get_ok();
 		SymTab.pop_scope();
-		//type* exp_ty = type_cons::fn(new type_var(), body_t);
-		//if (auto err = unifier::unify(exp_ty, expr->Symbol)) {
-		//	UNREACHABLE;
-		//}
 		return expr->Symbol;
 	}
 
-	case AST_expr_t::If: UNIMPLEMENTED;
+	case AST_expr_t::If: {
+		auto expr = (AST_if_expr*)ex;
+		auto res = phase3(expr->Condition);
+		if (res.is_err()) {
+			return res.get_err();
+		}
+		auto& cond_ty = res.get_ok();
+		if (auto err = unifier::unify(cond_ty, BOOL)) {
+			return semantic_err(semantics_pos_err(
+				"Semantic error: if condition is not evaluated to a boolean",
+				to_sem_pos(expr->Condition->Pos)
+			));
+		}
+		auto res2 = phase3(expr->Then);
+		if (res2.is_err()) {
+			return res2.get_err();
+		}
+		if (expr->Else) {
+			auto res3 = phase3(*expr->Else);
+			if (res3.is_err()) {
+				return res3.get_err();
+			}
+		}
+		return UNIT;
+	}
 
 	case AST_expr_t::Let: UNIMPLEMENTED;
 
