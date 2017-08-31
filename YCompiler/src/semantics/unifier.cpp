@@ -286,17 +286,23 @@ namespace unifier {
 		return {};
 	}
 
-	type_cons* add_class_constraint(yvec<class_constraint>& ls, typeclass_symbol* tc) {
+	type_cons* add_class_constraint(yvec<class_constraint>& ls, typeclass_symbol* tc,
+		semantic_pos const& pos) {
 		type_cons* ty = type_cons::generic_fn();
-		ls.push_back(class_constraint(tc, ty));
+		ls.push_back(class_constraint(tc, ty, pos));
 		return ty;
 	}
 
-	bool process_class_constraint_list(yvec<class_constraint>& ls) {
+	constraint_res_t process_class_constraint_list(yvec<class_constraint>& ls) {
 		bool flag = false;
 		for (ysize i = 0; i < ls.size();) {
 			auto& cc = ls[i];
-			if (process_class_constraint(cc)) {
+			auto res = process_class_constraint(cc);
+			if (res.is_err()) {
+				return res.get_err();
+			}
+			auto& ok = res.get_ok();
+			if (ok) {
 				ls.erase(ls.begin() + i);
 				flag = true;
 			}
@@ -307,7 +313,10 @@ namespace unifier {
 		return flag;
 	}
 
-	bool process_class_constraint(class_constraint& cc) {
+	// TODO:
+	// Could implement faster matching by remembering only the potential matches
+	// And not trying every variant every time
+	constraint_res_t process_class_constraint(class_constraint& cc) {
 		auto& tclass = cc.Typeclass;
 		auto& ty = cc.ToMatch;
 
@@ -330,8 +339,7 @@ namespace unifier {
 			return true;
 		}
 		else {
-			std::cout << "TODO: no matching..." << std::endl;
-			return false;
+			return no_match_constraint_err(cc.Position);
 		}
 	}
 }

@@ -41,19 +41,26 @@ yopt<semantic_err> checker::check_program(yvec<AST_stmt*>& prg) {
 		}
 	}
 
-	auto write_clist = [](yvec<class_constraint>& clist) {
-		std::cout << "CONSTRAINTS:" << std::endl;
-		for (auto& cc : clist) {
-			std::cout << unifier::to_str(cc) << std::endl;
+	while (true) {
+		auto res = unifier::process_class_constraint_list(Constraints);
+		if (res.is_err()) {
+			auto& err = res.get_err();
+			return semantics_pos_err(
+				"No matching overload found",
+				err.Position
+			);
 		}
-		std::cout << "------------" << std::endl;
-	};
-	write_clist(Constraints);
-	while (unifier::process_class_constraint_list(Constraints)) {
-		write_clist(Constraints);
+		auto& ok = res.get_ok();
+		if (!ok) {
+			break;
+		}
 	}
 	if (Constraints.size()) {
-		std::cout << "Could not infer type TODO" << std::endl;
+		// TODO: Could report all, just report first for now
+		return semantic_err(semantics_pos_err(
+			"Could not choose corresponding overload",
+			Constraints[0].Position
+		));
 	}
 
 	return {};
@@ -276,7 +283,15 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 				SymTab.remove_symbol(name);
 				assert(!SymTab.local_ref_sym(name));
 
-				SymTab.decl(new typeclass_symbol(name, sym, cons));
+				auto tc_sym = new typeclass_symbol(name, cons);
+				if (auto n_other = tc_sym->add(sym)) {
+					auto& other = *n_other;
+					return semantics_def_err(
+						"Semamtic error: %k %n cannot overload a matching function %f!",
+						"function", name, other->DefPos, to_sem_pos(stmt->Name.Pos)
+					);
+				}
+				SymTab.decl(tc_sym);
 			}
 			else if (ref->Ty == symbol_t::Typeclass) {
 				auto tc = (typeclass_symbol*)ref;
@@ -345,6 +360,7 @@ yresult<type*, semantic_err> checker::check_parameter(yopt<token>& m_name, AST_t
 		}
 		var_symbol* param = new var_symbol(name.Value, param_t);
 		param->DefPos = to_sem_pos(name.Pos);
+		SymTab.decl(param);
 	}
 	else {
 		print_pointed_msg(
@@ -631,9 +647,21 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		type* ret_t = new type_var();
 		type* exp_func = type_cons::fn(param_t, ret_t);
 		if (auto err = unifier::unify(left_ty, exp_func)) {
-			// TODO: Wrong args, wrong no. args, ...
-			std::cout << "TODO err3" << std::endl;
-			return UNIT;
+			type_cons* left_c = (type_cons*)left_ty;
+			auto left_par_t = left_c->Params[0];
+			if (left_par_t->Ty == type_t::Constructor) {
+				type_cons* par_t = (type_cons*)left_par_t;
+				if (par_t->Params.size() != param_list.size()) {
+					return semantic_err(semantics_pos_err(
+						"Semantic error: Wrong number of arguments provided for call",
+						to_sem_pos(expr->Func->Pos)
+					));
+				}
+			}
+			return semantic_err(semantics_pos_err(
+				"Semantic error: Wrong arguments provided for call",
+				to_sem_pos(expr->Func->Pos)
+			));
 		}
 		return ret_t;
 	}
@@ -647,13 +675,10 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		}
 		auto& body_t = res.get_ok();
 		SymTab.pop_scope();
-		type* exp_ty = type_cons::fn(new type_var(), body_t);
-		if (auto err = unifier::unify(exp_ty, expr->Symbol)) {
-			// TODO: Return type mismatch
-			std::cout << "TODO err4" << std::endl;
-			return UNIT;
-		}
-		// TODO: set scope's return stuff to body's
+		//type* exp_ty = type_cons::fn(new type_var(), body_t);
+		//if (auto err = unifier::unify(exp_ty, expr->Symbol)) {
+		//	UNREACHABLE;
+		//}
 		return expr->Symbol;
 	}
 
@@ -688,14 +713,18 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 			}
 			else if (sym->Ty == symbol_t::Typeclass) {
 				auto tsym = (typeclass_symbol*)sym;
-				auto entry = unifier::add_class_constraint(Constraints, tsym);
+				auto entry = unifier::add_class_constraint(
+					Constraints, tsym, to_sem_pos(expr->Pos));
 				return entry;
 			}
 		}
 		else {
-			// TODO: undefined symbol
-			std::cout << "TODO err5" << std::endl;
-			return UNIT;
+			return semantic_err(semantics_def_err(
+				"Semantic error: Undefined %k %n %f!",
+				"symbol",
+				expr->Value,
+				{}, to_sem_pos(expr->Pos)
+			));
 		}
 	}
 

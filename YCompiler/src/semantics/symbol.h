@@ -42,7 +42,7 @@ struct var_symbol : public symbol {
 struct typeclass_symbol : public symbol {
 	yvec<const_symbol*> Instances;
 
-	typeclass_symbol(ystr const& name, const_symbol* ins1, const_symbol* ins2);
+	typeclass_symbol(ystr const& name, const_symbol* ins1);
 	virtual ~typeclass_symbol();
 
 	yopt<const_symbol*> add(const_symbol* t);
