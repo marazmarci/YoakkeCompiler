@@ -237,6 +237,13 @@ namespace AST_printer {
 			}
 			break;
 
+			case AST_expr_t::BoolLit: {
+				auto ex = (AST_bool_lit_expr*)expr;
+				do_indent(indent);
+				std::cout << "bool: " << (ex->Value ? "true" : "false") << std::endl;
+			}
+			break;
+
 			default:
 				UNIMPLEMENTED;
 			}

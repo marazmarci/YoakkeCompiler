@@ -2,7 +2,7 @@
 
 scope::scope(bool retDest)
 	: Parent(nullptr), 
-	ReturnDest(retDest), ReturnType(retDest ? new type_var() : nullptr), 
+	ReturnDest(retDest), ReturnType(nullptr), 
 	ReturnPos({}) {
 }
 

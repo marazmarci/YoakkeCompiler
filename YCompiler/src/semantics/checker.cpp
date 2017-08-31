@@ -168,6 +168,7 @@ yopt<semantic_err> checker::phase1(AST_expr* ex) {
 
 	case AST_expr_t::If: {
 		auto expr = (AST_if_expr*)ex;
+		expr->Scope = SymTab.push_scope(!expr->AsStatement);
 		if (auto err = phase1(expr->Condition)) {
 			return err;
 		}
@@ -179,6 +180,7 @@ yopt<semantic_err> checker::phase1(AST_expr* ex) {
 				return err;
 			}
 		}
+		SymTab.pop_scope();
 		return {};
 	}
 
@@ -231,7 +233,8 @@ yopt<semantic_err> checker::phase1(AST_expr* ex) {
 
 	case AST_expr_t::Ident:
 	case AST_expr_t::IntLit:
-	case AST_expr_t::RealLit: {
+	case AST_expr_t::RealLit:
+	case AST_expr_t::BoolLit: {
 		return {};
 	}
 
@@ -439,6 +442,7 @@ yopt<semantic_err> checker::phase2(AST_expr* ex) {
 
 	case AST_expr_t::If: {
 		auto expr = (AST_if_expr*)ex;
+		SymTab.push_scope(expr->Scope);
 		if (auto err = phase2(expr->Condition)) {
 			return err;
 		}
@@ -450,6 +454,7 @@ yopt<semantic_err> checker::phase2(AST_expr* ex) {
 				return err;
 			}
 		}
+		SymTab.pop_scope();
 		return {};
 	}
 
@@ -502,7 +507,8 @@ yopt<semantic_err> checker::phase2(AST_expr* ex) {
 
 	case AST_expr_t::Ident:
 	case AST_expr_t::IntLit:
-	case AST_expr_t::RealLit: {
+	case AST_expr_t::RealLit: 
+	case AST_expr_t::BoolLit: {
 		return {};
 	}
 
@@ -677,11 +683,13 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		}
 		auto& body_t = res.get_ok();
 		SymTab.pop_scope();
+		assert(expr->Scope->ReturnType);
 		return expr->Symbol;
 	}
 
 	case AST_expr_t::If: {
 		auto expr = (AST_if_expr*)ex;
+		SymTab.push_scope(expr->Scope);
 		auto res = phase3(expr->Condition);
 		if (res.is_err()) {
 			return res.get_err();
@@ -703,7 +711,20 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 				return res3.get_err();
 			}
 		}
-		return UNIT;
+		SymTab.pop_scope();
+		if (expr->AsStatement) {
+			return UNIT;
+		}
+		else {
+			assert(expr->Else);
+			if (!expr->Scope->ReturnType) {
+				return semantic_err(semantics_pos_err(
+					"Semantic error: No return value provided for if expression",
+					to_sem_pos(expr->Pos)
+				));
+			}
+			return expr->Scope->ReturnType;
+		}
 	}
 
 	case AST_expr_t::Let: {
@@ -822,6 +843,10 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 	case AST_expr_t::RealLit: {
 		// TODO: Better literals
 		return F32;
+	}
+
+	case AST_expr_t::BoolLit: {
+		return BOOL;
 	}
 
 	default: UNIMPLEMENTED;

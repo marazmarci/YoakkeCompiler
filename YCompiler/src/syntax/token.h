@@ -52,6 +52,8 @@ enum class token_t {
 	Let,		// Let					'let'
 	Mut,		// Mut					'mut'
 	Type,		// Type					'type'
+	True,		// True value			'true'
+	False,		// False value			'false'
 
 	// Debugging
 	DbgWriteTy	// Write Type			'write_ty'

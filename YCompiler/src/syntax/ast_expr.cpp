@@ -2,6 +2,7 @@
 #include "ast_stmt.h"
 #include "ast_ty.h"
 #include "ast_pat.h"
+#include "token.h"
 
 AST_expr::AST_expr(interval const& pos, AST_expr_t ty)
 	: AST_node(pos), Ty(ty) {
@@ -84,7 +85,8 @@ AST_let_expr::~AST_let_expr() {
 AST_if_expr::AST_if_expr(token const& beg,
 	AST_expr* cond, AST_block_expr* th, yopt<AST_block_expr*> el)
 	: AST_expr(interval(beg.Pos, (el ? (*el)->Pos : th->Pos)), AST_expr_t::If),
-	AsStatement(false), Condition(cond), Then(th), Else(std::move(el)) {
+	AsStatement(false), Condition(cond), Then(th), Else(std::move(el)),
+	Scope(nullptr) {
 }
 
 AST_if_expr::~AST_if_expr() {
@@ -175,4 +177,13 @@ AST_int_lit_expr::~AST_int_lit_expr() { }
 AST_real_lit_expr::AST_real_lit_expr(token const& tok)
 	: AST_expr(tok.Pos, AST_expr_t::RealLit), Value(std::atof(tok.Value.c_str())) {
 }
+
 AST_real_lit_expr::~AST_real_lit_expr() { }
+
+/*****************************************************************************/
+
+AST_bool_lit_expr::AST_bool_lit_expr(token const& tok)
+	: AST_expr(tok.Pos, AST_expr_t::BoolLit), Value(tok.Type == token_t::True) {
+}
+
+AST_bool_lit_expr::~AST_bool_lit_expr() { }

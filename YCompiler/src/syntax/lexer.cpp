@@ -54,6 +54,8 @@ lexer::lexer(file_hnd const& src)
 	add_keyword("else", token_t::Else);		// 'else'
 	add_keyword("let", token_t::Let);		// 'let'
 	add_keyword("mut", token_t::Mut);		// 'mut'
+	add_keyword("true", token_t::True);		// 'true'
+	add_keyword("false", token_t::False);	// 'false'
 	
 	// Debug keyword
 	add_keyword("write_ty", token_t::DbgWriteTy);	// 'write_ty'

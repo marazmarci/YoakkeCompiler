@@ -23,6 +23,7 @@ enum class AST_expr_t {
 	List,
 	IntLit,
 	RealLit,
+	BoolLit,
 };
 
 struct AST_expr : public AST_node {
@@ -82,6 +83,7 @@ struct AST_if_expr : public AST_expr {
 	AST_expr* Condition;
 	AST_block_expr* Then;
 	yopt<AST_block_expr*> Else;
+	scope* Scope;
 
 	AST_if_expr(token const& beg, 
 		AST_expr* cond, AST_block_expr* th, yopt<AST_block_expr*> el);
@@ -141,4 +143,11 @@ struct AST_real_lit_expr : public AST_expr {
 
 	AST_real_lit_expr(token const& tok);
 	virtual ~AST_real_lit_expr();
+};
+
+struct AST_bool_lit_expr : public AST_expr {
+	bool Value;
+
+	AST_bool_lit_expr(token const& tok);
+	virtual ~AST_bool_lit_expr();
 };

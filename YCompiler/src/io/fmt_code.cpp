@@ -442,7 +442,7 @@ namespace fmt_code {
 				}
 			}
 			print_line_end(file, last_annot, max_digs,
-			{ { pos.End.Column, pos.End.Column + 1 } });
+			{ { pos.End.Column - 1, pos.End.Column } });
 		}
 
 		for (ysize i = last_annot + 1; i <= last; i++) {
