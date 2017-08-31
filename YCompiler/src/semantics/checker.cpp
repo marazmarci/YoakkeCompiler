@@ -48,7 +48,7 @@ yopt<semantic_err> checker::check_program(yvec<AST_stmt*>& prg) {
 		if (res.is_err()) {
 			auto& err = res.get_err();
 			return semantics_pos_err(
-				"No matching overload found",
+				"Semantic error: No matching overload found",
 				err.Position
 			);
 		}
@@ -60,7 +60,7 @@ yopt<semantic_err> checker::check_program(yvec<AST_stmt*>& prg) {
 	if (Constraints.size()) {
 		// TODO: Could report all, just report first for now
 		return semantic_err(semantics_pos_err(
-			"Could not choose corresponding overload",
+			"Semantic error: Could not choose corresponding overload",
 			Constraints[0].Position
 		));
 	}
