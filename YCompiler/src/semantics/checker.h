@@ -40,7 +40,16 @@ struct semantics_ty_err {
 	}
 };
 
-using semantic_err = yvar<semantics_def_err, semantics_ty_err>;
+struct semantics_pos_err {
+	ystr			Msg;
+	semantic_pos	Pos;
+
+	semantics_pos_err(ystr const& msg, semantic_pos const& pos)
+		: Msg(msg), Pos(pos) {
+	}
+};
+
+using semantic_err = yvar<semantics_def_err, semantics_ty_err, semantics_pos_err>;
 
 struct checker {
 	static type_cons* UNIT;

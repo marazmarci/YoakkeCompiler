@@ -571,7 +571,6 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 			auto ret_scope = *n_ret_scope;
 			if (ret_scope->ReturnType) {
 				if (auto err = unifier::unify(ret_scope->ReturnType, ret_t)) {
-					// TODO: WRONG
 					return semantic_err(semantics_ty_err(
 						"Type %a is not compatible with type %b %f!",
 						unifier::to_str(ret_scope->ReturnType),
@@ -615,9 +614,10 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		}
 		auto& left_ty = res.get_ok();
 		if (auto err = unifier::unify(left_ty, type_cons::generic_fn())) {
-			// TODO: tried to call non-function
-			std::cout << "TODO err2" << std::endl;
-			return UNIT;
+			return semantic_err(semantics_pos_err(
+				"Semantic error: Tried to call non-callable expression",
+				to_sem_pos(expr->Func->Pos)
+			));
 		}
 		yvec<type*> param_list;
 		for (auto& param : expr->Params) {
@@ -922,6 +922,9 @@ void checker::handle_error(semantic_err& err) {
 		},
 		[](semantics_ty_err& err) {
 			print_ty_msg(err.Fmt, err.PrevName, err.CurrName, err.PrevPos, err.CurrPos);
+		},
+		[](semantics_pos_err& err) {
+			print_pointed_msg(err.Msg.c_str(), err.Pos);
 		}
 	);
 }
