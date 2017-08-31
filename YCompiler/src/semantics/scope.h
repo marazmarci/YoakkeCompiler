@@ -34,8 +34,8 @@ struct scope {
 	yopt<symbol*> remove_symbol(ystr const& name);
 	yopt<type*> remove_type(ystr const& name);
 
-	bool shadow_symbol(ystr const& name);
-	bool shadow_type(ystr const& name);
+	yopt<symbol*> shadow_symbol(ystr const& name);
+	yopt<type*> shadow_type(ystr const& name);
 
 private:
 	template <typename T>
@@ -66,7 +66,7 @@ private:
 	}
 
 	template <typename T>
-	bool shadow(ymap<ystr, T>& map, ystr const& name) {
+	yopt<T> shadow(ymap<ystr, T>& map, ystr const& name) {
 		static const char shadowChar = '$';
 
 		auto it = map.find(name);
@@ -76,8 +76,8 @@ private:
 			map.erase(it);
 			shadow(map, newName);
 			map.insert({ newName, t });
-			return true;
+			return t;
 		}
-		return false;
+		return {};
 	}
 };

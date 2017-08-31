@@ -52,10 +52,10 @@ yopt<type*> scope::remove_type(ystr const& name) {
 	return remove(Types, name);
 }
 
-bool scope::shadow_symbol(ystr const& name) {
+yopt<symbol*> scope::shadow_symbol(ystr const& name) {
 	return shadow(Symbols, name);
 }
 
-bool scope::shadow_type(ystr const& name) {
+yopt<type*> scope::shadow_type(ystr const& name) {
 	return shadow(Types, name);
 }

@@ -709,7 +709,7 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 	case AST_expr_t::Let: {
 		auto expr = (AST_let_expr*)ex;
 		type* left_t;
-		yvec<ytup<ystr, type*>> entries;
+		yvec<ytup<ystr, interval, type*>> entries;
 		std::tie(entries, left_t) = generate_let_pattern(expr->Pattern);
 		if (expr->Type) {
 			auto& typ = *expr->Type;
@@ -746,7 +746,21 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 			}
 		}
 		for (auto& entry : entries) {
-			
+			auto& name = std::get<0>(entry);
+			auto& pos = std::get<1>(entry);
+			auto& ty = std::get<2>(entry);
+
+			auto sem_p = to_sem_pos(pos);
+			var_symbol* sym = new var_symbol(name, ty);
+			sym->DefPos = sem_p;
+
+			if (auto n_other = SymTab.shadow_symbol(name)) {
+				auto& other = *n_other;
+				print_def_msg("Warning: shadowing %k %n %f!",
+					"symbol", name, other->DefPos, sem_p);
+			}
+
+			SymTab.decl(sym);
 		}
 		return UNIT;
 	}
@@ -869,7 +883,7 @@ yresult<type*, semantic_err> checker::check_ty(AST_ty* typ) {
 	return UNIT;
 }
 
-type* checker::generate_let_pattern(AST_pat* pat, yvec<ytup<ystr, type*>>& buff) {
+type* checker::generate_let_pattern(AST_pat* pat, yvec<ytup<ystr, interval, type*>>& buff) {
 	switch (pat->Ty) {
 	case AST_pat_t::List: {
 		auto pt = (AST_list_pat*)pat;
@@ -883,7 +897,7 @@ type* checker::generate_let_pattern(AST_pat* pat, yvec<ytup<ystr, type*>>& buff)
 	case AST_pat_t::Ident: {
 		auto pt = (AST_ident_pat*)pat;
 		type_var* tv = new type_var();
-		buff.push_back({ pt->Value, tv });
+		buff.push_back({ pt->Value, pt->Pos, tv });
 		return tv;
 	}
 
@@ -900,8 +914,8 @@ type* checker::generate_let_pattern(AST_pat* pat, yvec<ytup<ystr, type*>>& buff)
 	return nullptr;
 }
 
-ytup<yvec<ytup<ystr, type*>>, type*> checker::generate_let_pattern(AST_pat* pat) {
-	yvec<ytup<ystr, type*>> buff;
+ytup<yvec<ytup<ystr, interval, type*>>, type*> checker::generate_let_pattern(AST_pat* pat) {
+	yvec<ytup<ystr, interval, type*>> buff;
 	type* ty = generate_let_pattern(pat, buff);
 	return { buff, ty };
 }

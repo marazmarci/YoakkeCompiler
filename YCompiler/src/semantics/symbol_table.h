@@ -32,5 +32,5 @@ struct symbol_table {
 
 	yopt<symbol*> remove_symbol(ystr const& name);
 
-	bool shadow_symbol(ystr const& name);
+	yopt<symbol*> shadow_symbol(ystr const& name);
 };

@@ -79,8 +79,8 @@ private:
 
 	yresult<type*, semantic_err> check_parameter(yopt<token>& m_name, AST_ty* ty_exp);
 	
-	type* generate_let_pattern(AST_pat* pat, yvec<ytup<ystr, type*>>& buff);
-	ytup<yvec<ytup<ystr, type*>>, type*> generate_let_pattern(AST_pat* pat);
+	type* generate_let_pattern(AST_pat* pat, yvec<ytup<ystr, interval, type*>>& buff);
+	ytup<yvec<ytup<ystr, interval, type*>>, type*> generate_let_pattern(AST_pat* pat);
 
 	semantic_pos to_sem_pos(interval const& pos);
 
