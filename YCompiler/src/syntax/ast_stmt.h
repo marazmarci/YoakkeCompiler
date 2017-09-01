@@ -10,6 +10,7 @@ struct type;
 
 enum class AST_stmt_t {
 	FnDecl,
+	OpDecl,
 	ConstDecl,
 	TyDecl,
 	Expr,
@@ -39,6 +40,14 @@ struct AST_fn_decl_stmt : public AST_stmt {
 
 	AST_fn_decl_stmt(token const& beg, token const& n, AST_fn_expr* exp);
 	virtual ~AST_fn_decl_stmt();
+};
+
+struct AST_op_decl_stmt : public AST_stmt {
+	ystr			Operator;
+	AST_fn_expr*	Expression;
+
+	AST_op_decl_stmt(token const& beg, ystr const& op, AST_fn_expr* exp);
+	virtual ~AST_op_decl_stmt();
 };
 
 struct AST_ty_decl_stmt : public AST_stmt {

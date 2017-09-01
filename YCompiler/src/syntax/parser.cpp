@@ -40,6 +40,7 @@ namespace parser {
 		const auto TYPE		= term<token_t::Type>();	// 'type'
 		const auto TRUE		= term<token_t::True>();	// 'true'
 		const auto FALSE	= term<token_t::False>();	// 'false'
+		const auto OPERATOR = term<token_t::Operator>(); // 'operator'
 		const auto INT_LIT	= term<token_t::IntLit>();
 		const auto REAL_LIT = term<token_t::RealLit>();
 		const auto END_OF_F = term<token_t::EndOfFile>();
@@ -397,9 +398,20 @@ namespace parser {
 				| ((ExprList >= SEMICOL) ^ make_as<AST_expr_stmt, AST_stmt>())
 				;
 
+			const auto Oper =
+				(
+				  PLUS | MINUS | STAR | SLASH | PERCENT
+				| EQ | NEQ | GREATER | LESS | GREQ | LEEQ
+				| ASGN
+				) 
+				^ [](auto& tok) { return tok.Value; }
+				;
+
 			const auto Decl =
-				  ((FN >= !IDENT < !ASGN >= !(FnExpr / "function expression"))
+				  ((FN >= IDENT < !ASGN >= !(FnExpr / "function expression"))
 				  ^ make_as<AST_fn_decl_stmt, AST_stmt>())
+				| ((FN < OPERATOR >= Oper < !ASGN >= !(FnExpr / "function expression"))
+				  ^ make_as<AST_op_decl_stmt, AST_stmt>())
 				| ((TYPE >= !IDENT < !ASGN >= !(TypeList / "type"))
 				  ^ make_as<AST_ty_decl_stmt, AST_stmt>())
 				;

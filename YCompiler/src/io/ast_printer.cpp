@@ -37,6 +37,14 @@ namespace AST_printer {
 			}
 			break;
 
+			case AST_stmt_t::OpDecl: {
+				auto st = (AST_op_decl_stmt*)stmt;
+				block(indent, "Op_Decl: " + st->Operator, [&]() {
+					print(st->Expression, indent + 1);
+				});
+			}
+			break;
+
 			case AST_stmt_t::ConstDecl: {
 				auto st = (AST_const_decl_stmt*)stmt;
 				block(indent, "Const_Decl: " + st->Name.Value, [&]() {

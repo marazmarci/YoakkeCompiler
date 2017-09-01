@@ -54,6 +54,7 @@ enum class token_t {
 	Type,		// Type					'type'
 	True,		// True value			'true'
 	False,		// False value			'false'
+	Operator,	// Operator				'operator'
 
 	// Debugging
 	DbgWriteTy	// Write Type			'write_ty'

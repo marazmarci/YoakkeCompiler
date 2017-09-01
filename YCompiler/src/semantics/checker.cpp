@@ -90,6 +90,14 @@ yopt<semantic_err> checker::phase1(AST_stmt* st) {
 		return {};
 	}
 
+	case AST_stmt_t::OpDecl: {
+		auto stmt = (AST_op_decl_stmt*)st;
+		if (auto err = phase1(stmt->Expression)) {
+			return err;
+		}
+		return {};
+	}
+
 	case AST_stmt_t::TyDecl: {
 		auto stmt = (AST_ty_decl_stmt*)st;
 		ystr const& name = stmt->Name.Value;
@@ -325,6 +333,89 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 		return {};
 	}
 
+	// TODO: Common code with FnDecl
+	case AST_stmt_t::OpDecl: {
+		auto stmt = (AST_op_decl_stmt*)st;
+		ystr const& name = "@op" + stmt->Operator; // DIFFERENT
+		if (auto err = phase2(stmt->Expression)) {
+			return err;
+		}
+		auto& sym_t = stmt->Expression->Symbol;
+		// NEW ///////////////////////////////////////////
+		{
+			// TODO: Can speed up overloaded stuff by adding the no. operands to the name
+			//  Would also work with non-operators, like foo@2, foo@3, ...
+			// TODO: For now only 2 params, but need unary and others too
+			if (true) {	// Operator is binary
+				auto two_params = type_cons::tuple(new type_var(), new type_var());
+				if (auto err = unifier::unify(sym_t->Params[0], two_params)) {
+					return semantics_pos_err(
+						"Semantic error: Wrong number of arguments for binary operator " + stmt->Operator,
+						to_sem_pos(stmt->Pos)
+					);
+				}
+			}
+		}
+		//////////////////////////////////////////////////
+		auto sym = new const_symbol(name, sym_t);
+		sym->DefPos = to_sem_pos(stmt->Pos);		// DIFFERENT
+		if (auto n_ref = SymTab.local_ref_sym(name)) {
+			auto& ref = *n_ref;
+			if (ref->Ty == symbol_t::Variable) {
+				return semantics_def_err(
+					"Semantic error: %k %n shadows a variable %f!",
+					"function", name, ref->DefPos, to_sem_pos(stmt->Pos) // DIFFERENT
+				);
+			}
+			else if (ref->Ty == symbol_t::Constant) {
+				auto cons = (const_symbol*)ref;
+				type* cons_t = cons->Type;
+				if (auto err = unifier::unify(cons_t, type_cons::generic_fn())) {
+					return semantics_def_err(
+						"Semantic error: %k %n tries to overload a non-function constant %f!",
+						"function", name, ref->DefPos, to_sem_pos(stmt->Pos) // DIFFERENT
+					);
+				}
+				SymTab.remove_symbol(name);
+				assert(!SymTab.local_ref_sym(name));
+
+				auto tc_sym = new typeclass_symbol(name, cons);
+				if (auto n_other = tc_sym->add(sym)) {
+					auto& other = *n_other;
+					return semantics_def_err(
+						"Semamtic error: %k %n cannot overload a matching function %f!",
+						"function", name, other->DefPos, to_sem_pos(stmt->Pos) // DIFFERENT
+					);
+				}
+				SymTab.decl(tc_sym);
+			}
+			else if (ref->Ty == symbol_t::Typeclass) {
+				auto tc = (typeclass_symbol*)ref;
+				if (auto n_other = tc->add(sym)) {
+					auto& other = *n_other;
+					return semantics_def_err(
+						"Semamtic error: %k %n cannot overload a matching function %f!",
+						"function", name, other->DefPos, to_sem_pos(stmt->Pos) // DIFFERENT
+					);
+				}
+			}
+			else {
+				UNREACHABLE;
+			}
+		}
+		else {
+			if (auto n_ref = SymTab.upper_ref_sym(name)) {
+				auto& ref = *n_ref;
+				print_def_msg(
+					"Warning: %k %n is shadowing other functions or constants %f!",
+					"function", name, ref->DefPos, to_sem_pos(stmt->Pos) // DIFFERENT
+				);
+			}
+			SymTab.decl(sym);
+		}
+		return {};
+	}
+
 	case AST_stmt_t::TyDecl: {
 		auto stmt = (AST_ty_decl_stmt*)st;
 		auto res = check_ty(stmt->Type);
@@ -527,6 +618,15 @@ yopt<semantic_err> checker::phase3(AST_stmt* st) {
 
 	case AST_stmt_t::FnDecl: {
 		auto stmt = (AST_fn_decl_stmt*)st;
+		auto res = phase3(stmt->Expression);
+		if (res.is_err()) {
+			return res.get_err();
+		}
+		return {};
+	}
+
+	case AST_stmt_t::OpDecl: {
+		auto stmt = (AST_op_decl_stmt*)st;
 		auto res = phase3(stmt->Expression);
 		if (res.is_err()) {
 			return res.get_err();
@@ -805,6 +905,9 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 					Constraints, tsym, to_sem_pos(expr->Pos));
 				return entry;
 			}
+			else {
+				UNREACHABLE;
+			}
 		}
 		else {
 			return semantic_err(semantics_def_err(
@@ -817,10 +920,57 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 	}
 
 	case AST_expr_t::Pre:
-	case AST_expr_t::Bin:
 	case AST_expr_t::Post: {
 		// TODO
 		UNIMPLEMENTED;
+	}
+
+	// TODO: Common code with Ident
+	case AST_expr_t::Bin: {
+		auto expr = (AST_bin_expr*)ex;
+		auto res1 = phase3(expr->Left);
+		if (res1.is_err()) {
+			return res1.get_err();
+		}
+		auto res2 = phase3(expr->Right);
+		if (res2.is_err()) {
+			return res2.get_err();
+		}
+		auto& left_t = res1.get_ok();
+		auto& right_t = res2.get_ok();
+		auto param_t = type_cons::tuple(left_t, right_t);
+
+		auto n_op_sym = SymTab.ref_sym("@op" + expr->Oper.Value);
+		assert(n_op_sym);
+		auto& op_sym = *n_op_sym;
+
+		type* op_ty = nullptr;
+		if (op_sym->Ty == symbol_t::Constant) {
+			auto csym = (const_symbol*)op_sym;
+			op_ty = csym->Type;
+		}
+		else if (op_sym->Ty == symbol_t::Variable) {
+			UNREACHABLE;
+		}
+		else if (op_sym->Ty == symbol_t::Typeclass) {
+			auto tsym = (typeclass_symbol*)op_sym;
+			auto entry = unifier::add_class_constraint(
+				Constraints, tsym, to_sem_pos(expr->Pos));
+			op_ty = entry;
+		}
+		else {
+			UNREACHABLE;
+		}
+
+		type* ret_t = new type_var();
+		type* exp_func = type_cons::fn(param_t, ret_t);
+		if (auto err = unifier::unify(op_ty, exp_func)) {
+			return semantic_err(semantics_pos_err(
+				"Semantic error: Wrong arguments provided for call",
+				to_sem_pos(expr->Pos)
+			));
+		}
+		return ret_t;
 	}
 
 	case AST_expr_t::IntLit: {

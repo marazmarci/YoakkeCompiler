@@ -32,6 +32,17 @@ AST_fn_decl_stmt::~AST_fn_decl_stmt() {
 
 /*****************************************************************************/
 
+AST_op_decl_stmt::AST_op_decl_stmt(token const& beg, ystr const& op, AST_fn_expr* exp)
+	: AST_stmt(interval(beg.Pos, exp->Pos), AST_stmt_t::OpDecl),
+	Operator(op), Expression(exp) {
+}
+
+AST_op_decl_stmt::~AST_op_decl_stmt() {
+	delete Expression;
+}
+
+/*****************************************************************************/
+
 AST_ty_decl_stmt::AST_ty_decl_stmt(token const& beg, token const& n, AST_ty* ty)
 	: AST_stmt(interval(beg.Pos, ty->Pos), AST_stmt_t::TyDecl),
 	Name(n), Type(ty), Symbol(nullptr) {

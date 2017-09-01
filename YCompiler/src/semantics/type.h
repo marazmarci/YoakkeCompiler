@@ -50,7 +50,7 @@ struct type_cons : public type {
 	static type_cons* generic_fn();
 
 	template <typename... Ts>
-	static type_cons* tuple(Ts&... tys) {
+	static type_cons* tuple(Ts... tys) {
 		return new type_cons(type_prefixes::Tuple, { tys... });
 	}
 };
