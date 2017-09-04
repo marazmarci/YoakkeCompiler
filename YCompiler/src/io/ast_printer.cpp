@@ -39,7 +39,7 @@ namespace AST_printer {
 
 			case AST_stmt_t::OpDecl: {
 				auto st = (AST_op_decl_stmt*)stmt;
-				block(indent, "Op_Decl: " + st->Operator, [&]() {
+				block(indent, "Op_Decl: " + st->Operator.Value, [&]() {
 					print(st->Expression, indent + 1);
 				});
 			}

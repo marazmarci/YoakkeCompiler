@@ -49,6 +49,8 @@ struct type_cons : public type {
 	static type_cons* fn(type* params, type* ret);
 	static type_cons* generic_fn();
 
+	static type_cons* generic_tuple(ysize sz);
+
 	template <typename... Ts>
 	static type_cons* tuple(Ts... tys) {
 		return new type_cons(type_prefixes::Tuple, { tys... });

@@ -32,9 +32,9 @@ AST_fn_decl_stmt::~AST_fn_decl_stmt() {
 
 /*****************************************************************************/
 
-AST_op_decl_stmt::AST_op_decl_stmt(token const& beg, ystr const& op, AST_fn_expr* exp)
+AST_op_decl_stmt::AST_op_decl_stmt(token const& beg, token const& opkw, token const& op, AST_fn_expr* exp)
 	: AST_stmt(interval(beg.Pos, exp->Pos), AST_stmt_t::OpDecl),
-	Operator(op), Expression(exp) {
+	NamePos(interval(opkw.Pos, op.Pos)), Operator(op), Expression(exp) {
 }
 
 AST_op_decl_stmt::~AST_op_decl_stmt() {

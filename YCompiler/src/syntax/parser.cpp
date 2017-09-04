@@ -404,13 +404,13 @@ namespace parser {
 				| EQ | NEQ | GREATER | LESS | GREQ | LEEQ
 				| ASGN
 				) 
-				^ [](auto& tok) { return tok.Value; }
+				^ [](auto& tok) { return tok; }
 				;
 
 			const auto Decl =
 				  ((FN >= IDENT < !ASGN >= !(FnExpr / "function expression"))
 				  ^ make_as<AST_fn_decl_stmt, AST_stmt>())
-				| ((FN < OPERATOR >= Oper < !ASGN >= !(FnExpr / "function expression"))
+				| ((FN >= OPERATOR >= Oper < !ASGN >= !(FnExpr / "function expression"))
 				  ^ make_as<AST_op_decl_stmt, AST_stmt>())
 				| ((TYPE >= !IDENT < !ASGN >= !(TypeList / "type"))
 				  ^ make_as<AST_ty_decl_stmt, AST_stmt>())

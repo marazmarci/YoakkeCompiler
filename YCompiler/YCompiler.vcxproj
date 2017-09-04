@@ -137,6 +137,7 @@
     <ClInclude Include="src\syntax\ast_ty.h" />
     <ClInclude Include="src\syntax\combinator.h" />
     <ClInclude Include="src\syntax\lexer.h" />
+    <ClInclude Include="src\semantics\oper_desc.h" />
     <ClInclude Include="src\syntax\parser.h" />
     <ClInclude Include="src\syntax\position.h" />
     <ClInclude Include="src\syntax\result_list.h" />
@@ -162,6 +163,7 @@
     <ClCompile Include="src\syntax\ast_stmt.cpp" />
     <ClCompile Include="src\syntax\ast_ty.cpp" />
     <ClCompile Include="src\syntax\lexer.cpp" />
+    <ClCompile Include="src\semantics\oper_desc.cpp" />
     <ClCompile Include="src\syntax\parser.cpp" />
     <ClCompile Include="src\syntax\position.cpp" />
     <ClCompile Include="src\syntax\token.cpp" />

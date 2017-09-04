@@ -43,10 +43,11 @@ struct AST_fn_decl_stmt : public AST_stmt {
 };
 
 struct AST_op_decl_stmt : public AST_stmt {
-	ystr			Operator;
+	interval		NamePos;
+	token			Operator;
 	AST_fn_expr*	Expression;
 
-	AST_op_decl_stmt(token const& beg, ystr const& op, AST_fn_expr* exp);
+	AST_op_decl_stmt(token const& beg, token const& opkw, token const& op, AST_fn_expr* exp);
 	virtual ~AST_op_decl_stmt();
 };
 

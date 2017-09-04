@@ -1,5 +1,6 @@
 #include <iostream>
 #include "checker.h"
+#include "oper_desc.h"
 #include "scope.h"
 #include "symbol.h"
 #include "symbol_table.h"
@@ -336,7 +337,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 	// TODO: Common code with FnDecl
 	case AST_stmt_t::OpDecl: {
 		auto stmt = (AST_op_decl_stmt*)st;
-		ystr const& name = "@op" + stmt->Operator; // DIFFERENT
+		ystr const& name = "@op" + stmt->Operator.Value; // DIFFERENT
 		if (auto err = phase2(stmt->Expression)) {
 			return err;
 		}
@@ -345,15 +346,15 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 		{
 			// TODO: Can speed up overloaded stuff by adding the no. operands to the name
 			//  Would also work with non-operators, like foo@2, foo@3, ...
-			// TODO: For now only 2 params, but need unary and others too
-			if (true) {	// Operator is binary
-				auto two_params = type_cons::tuple(new type_var(), new type_var());
-				if (auto err = unifier::unify(sym_t->Params[0], two_params)) {
-					return semantics_pos_err(
-						"Semantic error: Wrong number of arguments for binary operator " + stmt->Operator,
-						to_sem_pos(stmt->Pos)
-					);
-				}
+			// TODO: Fix thest, first arg for T1 -> T2 cannot be generic
+			// Need something like a singleton tuple
+			// (T1) -> ...
+			if (!oper_desc::good_def(stmt->Operator.Type, sym_t->Params[0])) {
+				return semantics_pos_err(
+					"Semantic error: Wrong number of arguments for operator" + 
+					stmt->Operator.Value,
+					to_sem_pos(stmt->NamePos)
+				);
 			}
 		}
 		//////////////////////////////////////////////////
@@ -364,7 +365,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 			if (ref->Ty == symbol_t::Variable) {
 				return semantics_def_err(
 					"Semantic error: %k %n shadows a variable %f!",
-					"function", name, ref->DefPos, to_sem_pos(stmt->Pos) // DIFFERENT
+					"function", name, ref->DefPos, to_sem_pos(stmt->NamePos) // DIFFERENT
 				);
 			}
 			else if (ref->Ty == symbol_t::Constant) {
@@ -373,7 +374,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 				if (auto err = unifier::unify(cons_t, type_cons::generic_fn())) {
 					return semantics_def_err(
 						"Semantic error: %k %n tries to overload a non-function constant %f!",
-						"function", name, ref->DefPos, to_sem_pos(stmt->Pos) // DIFFERENT
+						"function", name, ref->DefPos, to_sem_pos(stmt->NamePos) // DIFFERENT
 					);
 				}
 				SymTab.remove_symbol(name);
@@ -384,7 +385,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 					auto& other = *n_other;
 					return semantics_def_err(
 						"Semamtic error: %k %n cannot overload a matching function %f!",
-						"function", name, other->DefPos, to_sem_pos(stmt->Pos) // DIFFERENT
+						"function", name, other->DefPos, to_sem_pos(stmt->NamePos) // DIFFERENT
 					);
 				}
 				SymTab.decl(tc_sym);
@@ -395,7 +396,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 					auto& other = *n_other;
 					return semantics_def_err(
 						"Semamtic error: %k %n cannot overload a matching function %f!",
-						"function", name, other->DefPos, to_sem_pos(stmt->Pos) // DIFFERENT
+						"function", name, other->DefPos, to_sem_pos(stmt->NamePos) // DIFFERENT
 					);
 				}
 			}
@@ -408,7 +409,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 				auto& ref = *n_ref;
 				print_def_msg(
 					"Warning: %k %n is shadowing other functions or constants %f!",
-					"function", name, ref->DefPos, to_sem_pos(stmt->Pos) // DIFFERENT
+					"function", name, ref->DefPos, to_sem_pos(stmt->NamePos) // DIFFERENT
 				);
 			}
 			SymTab.decl(sym);

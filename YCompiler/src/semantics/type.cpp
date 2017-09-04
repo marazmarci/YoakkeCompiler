@@ -36,4 +36,12 @@ type_cons* type_cons::generic_fn() {
 	return new type_cons(type_prefixes::Function, { new type_var(), new type_var() });
 }
 
+type_cons* type_cons::generic_tuple(ysize sz) {
+	yvec<type*> ts;
+	for (ysize i = 0; i < sz; i++) {
+		ts.push_back(new type_var());
+	}
+	return new type_cons(type_prefixes::Tuple, ts);
+}
+
 /*****************************************************************************/
