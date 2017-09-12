@@ -408,9 +408,9 @@ namespace parser {
 				;
 
 			const auto Decl =
-				  ((FN >= IDENT < !ASGN >= !(FnExpr / "function expression"))
+				  ((FN >= IDENT >= !(FnExpr / "function expression"))
 				  ^ make_as<AST_fn_decl_stmt, AST_stmt>())
-				| ((FN >= OPERATOR >= Oper < !ASGN >= !(FnExpr / "function expression"))
+				| ((FN >= OPERATOR >= Oper >= !(FnExpr / "function expression"))
 				  ^ make_as<AST_op_decl_stmt, AST_stmt>())
 				| ((TYPE >= !IDENT < !ASGN >= !(TypeList / "type"))
 				  ^ make_as<AST_ty_decl_stmt, AST_stmt>())

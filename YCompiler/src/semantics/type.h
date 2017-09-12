@@ -5,8 +5,9 @@
 #include "../syntax/position.h"
 
 namespace type_prefixes {
-	constexpr auto Tuple	= "@tup";
-	constexpr auto Function = "@fn";
+	constexpr auto Tuple	 = "@tup";
+	constexpr auto Function  = "@fn";
+	constexpr auto ParamList = "@params";
 }
 
 enum class type_t {
