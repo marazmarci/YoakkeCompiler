@@ -91,7 +91,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 		return {};
 	}
 
-							 // TODO: Common code with FnDecl
+	// TODO: Common code with FnDecl
 	case AST_stmt_t::OpDecl: {
 		auto stmt = (AST_op_decl_stmt*)st;
 		ystr const& name = "@op" + stmt->Operator.Value; // DIFFERENT
@@ -100,23 +100,22 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 		}
 		auto& sym_t = stmt->Expression->Symbol;
 		// NEW ///////////////////////////////////////////
-		{
-			// TODO: Can speed up overloaded stuff by adding the no. operands to the name
-			//  Would also work with non-operators, like foo@2, foo@3, ...
-			// TODO: Fix thest, first arg for T1 -> T2 cannot be generic
-			// Need something like a singleton tuple
-			// (T1) -> ...
-			if (!oper_desc::good_def(stmt->Operator.Type, sym_t->Params[0])) {
-				return semantics_pos_err(
-					"Semantic error: Wrong number of arguments for operator" +
-					stmt->Operator.Value,
-					to_sem_pos(stmt->NamePos)
-				);
-			}
+		
+		// TODO: Can speed up overloaded stuff by adding the no. operands to the name
+		//  Would also work with non-operators, like foo@2, foo@3, ...
+		// TODO: Fix thest, first arg for T1 -> T2 cannot be generic
+		// Need something like a singleton tuple
+		// (T1) -> ...
+		if (!oper_desc::good_def(stmt->Operator.Type, sym_t->Params[0])) {
+			return semantics_pos_err(
+				"Semantic error: Wrong number of arguments for operator" +
+				stmt->Operator.Value,
+				to_sem_pos(stmt->NamePos)
+			);
 		}
 		//////////////////////////////////////////////////
 		auto sym = new const_symbol(name, sym_t);
-		sym->DefPos = to_sem_pos(stmt->Pos);		// DIFFERENT
+		sym->DefPos = to_sem_pos(stmt->NamePos);		// DIFFERENT
 		if (auto n_ref = SymTab.local_ref_sym(name)) {
 			auto& ref = *n_ref;
 			if (ref->Ty == symbol_t::Variable) {
@@ -285,7 +284,7 @@ yopt<semantic_err> checker::phase2(AST_expr* ex) {
 			return err;
 		}
 		SymTab.pop_scope();
-		expr->Symbol = type_cons::fn(single_or(param_list), ret_t);
+		expr->Symbol = type_cons::fn(type_cons::params(param_list), ret_t);
 		return {};
 	}
 

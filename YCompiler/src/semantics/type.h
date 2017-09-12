@@ -50,6 +50,9 @@ struct type_cons : public type {
 	static type_cons* fn(type* params, type* ret);
 	static type_cons* generic_fn();
 
+	static type_cons* params(yvec<type*> const& params);
+	static type_cons* generic_params(ysize sz);
+
 	static type_cons* generic_tuple(ysize sz);
 
 	template <typename... Ts>

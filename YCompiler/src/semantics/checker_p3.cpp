@@ -144,7 +144,7 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 			}
 			param_list.push_back(res.get_ok());
 		}
-		type* param_t = single_or(param_list);
+		type* param_t = type_cons::params(param_list);
 		type* ret_t = new type_var();
 		type* exp_func = type_cons::fn(param_t, ret_t);
 		if (auto err = unifier::unify(left_ty, exp_func)) {
@@ -340,7 +340,7 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		}
 		auto& left_t = res1.get_ok();
 		auto& right_t = res2.get_ok();
-		auto param_t = type_cons::tuple(left_t, right_t);
+		auto param_t = type_cons::params({ left_t, right_t });
 
 		auto n_op_sym = SymTab.ref_sym("@op" + expr->Oper.Value);
 		assert(n_op_sym);

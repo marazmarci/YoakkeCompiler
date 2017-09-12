@@ -4,8 +4,8 @@
 
 namespace oper_desc {
 	namespace {
-		type* UNARY_ARGS = new type_var();
-		type_cons* BINARY_ARGS = type_cons::generic_tuple(2);
+		type_cons* UNARY_ARGS	= type_cons::generic_params(1);
+		type_cons* BINARY_ARGS	= type_cons::generic_params(2);
 
 		bool match1(type* def_arg_t) {
 			return unifier::matches(def_arg_t, UNARY_ARGS);

@@ -102,11 +102,21 @@ yresult<type*, semantic_err> checker::check_ty(AST_ty* typ) {
 		if (res_l.is_err()) {
 			return res_l.get_err();
 		}
+		auto left_t = res_l.get_ok();
+		if (left_t->Ty == type_t::Constructor) {
+			auto left_tc = (type_cons*)left_t;
+			if (left_tc->Name == type_prefixes::Tuple) {
+				left_t = type_cons::params(left_tc->Params);
+			}
+			else {
+				left_t = type_cons::params({ left_t });
+			}
+		}
 		auto res_r = check_ty(ty->Right);
 		if (res_r.is_err()) {
 			return res_r.get_err();
 		}
-		return type_cons::fn(res_l.get_ok(), res_r.get_ok());
+		return type_cons::fn(left_t, res_r.get_ok());
 	}
 
 	case AST_ty_t::Pre:
