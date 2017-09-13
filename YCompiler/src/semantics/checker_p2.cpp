@@ -13,6 +13,65 @@
 #include "../io/fmt_code.h"
 #include "../functions.h"
 
+yopt<semantic_err> checker::decl_function(ystr const& name, const_symbol* sym, 
+	semantic_pos const& name_pos) {
+	if (auto n_ref = SymTab.local_ref_sym(name)) {
+		auto& ref = *n_ref;
+		if (ref->Ty == symbol_t::Variable) {
+			return semantics_def_err(
+				"Semantic error: %k %n shadows a variable %f!",
+				"function", name, ref->DefPos, name_pos
+			);
+		}
+		else if (ref->Ty == symbol_t::Constant) {
+			auto cons = (const_symbol*)ref;
+			type* cons_t = cons->Type;
+			if (auto err = unifier::unify(cons_t, type_cons::generic_fn())) {
+				return semantics_def_err(
+					"Semantic error: %k %n tries to overload a non-function constant %f!",
+					"function", name, ref->DefPos, name_pos
+				);
+			}
+			SymTab.remove_symbol(name);
+			assert(!SymTab.local_ref_sym(name));
+
+			auto tc_sym = new typeclass_symbol(name, cons);
+			if (auto n_other = tc_sym->add(sym)) {
+				auto& other = *n_other;
+				return semantics_def_err(
+					"Semamtic error: %k %n cannot overload a matching function %f!",
+					"function", name, other->DefPos, name_pos
+				);
+			}
+			SymTab.decl(tc_sym);
+		}
+		else if (ref->Ty == symbol_t::Typeclass) {
+			auto tc = (typeclass_symbol*)ref;
+			if (auto n_other = tc->add(sym)) {
+				auto& other = *n_other;
+				return semantics_def_err(
+					"Semamtic error: %k %n cannot overload a matching function %f!",
+					"function", name, other->DefPos, name_pos
+				);
+			}
+		}
+		else {
+			UNREACHABLE;
+		}
+	}
+	else {
+		if (auto n_ref = SymTab.upper_ref_sym(name)) {
+			auto& ref = *n_ref;
+			print_def_msg(
+				"Warning: %k %n is shadowing other functions or constants %f!",
+				"function", name, ref->DefPos, name_pos
+			);
+		}
+		SymTab.decl(sym);
+	}
+	return {};
+}
+
 yopt<semantic_err> checker::phase2(AST_stmt* st) {
 	switch (st->Ty) {
 	case AST_stmt_t::ConstDecl: UNIMPLEMENTED;
@@ -33,79 +92,24 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 		}
 		auto& sym_t = stmt->Expression->Symbol;
 		auto sym = new const_symbol(name, sym_t);
-		sym->DefPos = to_sem_pos(stmt->Name.Pos);
-		if (auto n_ref = SymTab.local_ref_sym(name)) {
-			auto& ref = *n_ref;
-			if (ref->Ty == symbol_t::Variable) {
-				return semantics_def_err(
-					"Semantic error: %k %n shadows a variable %f!",
-					"function", name, ref->DefPos, to_sem_pos(stmt->Name.Pos)
-				);
-			}
-			else if (ref->Ty == symbol_t::Constant) {
-				auto cons = (const_symbol*)ref;
-				type* cons_t = cons->Type;
-				if (auto err = unifier::unify(cons_t, type_cons::generic_fn())) {
-					return semantics_def_err(
-						"Semantic error: %k %n tries to overload a non-function constant %f!",
-						"function", name, ref->DefPos, to_sem_pos(stmt->Name.Pos)
-					);
-				}
-				SymTab.remove_symbol(name);
-				assert(!SymTab.local_ref_sym(name));
-
-				auto tc_sym = new typeclass_symbol(name, cons);
-				if (auto n_other = tc_sym->add(sym)) {
-					auto& other = *n_other;
-					return semantics_def_err(
-						"Semamtic error: %k %n cannot overload a matching function %f!",
-						"function", name, other->DefPos, to_sem_pos(stmt->Name.Pos)
-					);
-				}
-				SymTab.decl(tc_sym);
-			}
-			else if (ref->Ty == symbol_t::Typeclass) {
-				auto tc = (typeclass_symbol*)ref;
-				if (auto n_other = tc->add(sym)) {
-					auto& other = *n_other;
-					return semantics_def_err(
-						"Semamtic error: %k %n cannot overload a matching function %f!",
-						"function", name, other->DefPos, to_sem_pos(stmt->Name.Pos)
-					);
-				}
-			}
-			else {
-				UNREACHABLE;
-			}
-		}
-		else {
-			if (auto n_ref = SymTab.upper_ref_sym(name)) {
-				auto& ref = *n_ref;
-				print_def_msg(
-					"Warning: %k %n is shadowing other functions or constants %f!",
-					"function", name, ref->DefPos, to_sem_pos(stmt->Name.Pos)
-				);
-			}
-			SymTab.decl(sym);
+		auto pos = to_sem_pos(stmt->Name.Pos);
+		sym->DefPos = pos;
+		if (auto err = decl_function(name, sym, pos)) {
+			return *err;
 		}
 		return {};
 	}
 
-	// TODO: Common code with FnDecl
 	case AST_stmt_t::OpDecl: {
 		auto stmt = (AST_op_decl_stmt*)st;
-		ystr const& name = "@op" + stmt->Operator.Value; // DIFFERENT
+		ystr name = "@op" + stmt->Operator.Value;
 		if (auto err = phase2(stmt->Expression)) {
 			return err;
 		}
 		auto& sym_t = stmt->Expression->Symbol;
 		// NEW ///////////////////////////////////////////
-		
 		// TODO: Can speed up overloaded stuff by adding the no. operands to the name
 		//  Would also work with non-operators, like foo@2, foo@3, ...
-		// TODO: Fix thest, first arg for T1 -> T2 cannot be generic
-		// Need something like a singleton tuple
-		// (T1) -> ...
 		if (!oper_desc::good_def(stmt->Operator.Type, sym_t->Params[0])) {
 			return semantics_pos_err(
 				"Semantic error: Wrong number of arguments for operator" +
@@ -115,60 +119,10 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 		}
 		//////////////////////////////////////////////////
 		auto sym = new const_symbol(name, sym_t);
-		sym->DefPos = to_sem_pos(stmt->NamePos);		// DIFFERENT
-		if (auto n_ref = SymTab.local_ref_sym(name)) {
-			auto& ref = *n_ref;
-			if (ref->Ty == symbol_t::Variable) {
-				return semantics_def_err(
-					"Semantic error: %k %n shadows a variable %f!",
-					"function", name, ref->DefPos, to_sem_pos(stmt->NamePos) // DIFFERENT
-				);
-			}
-			else if (ref->Ty == symbol_t::Constant) {
-				auto cons = (const_symbol*)ref;
-				type* cons_t = cons->Type;
-				if (auto err = unifier::unify(cons_t, type_cons::generic_fn())) {
-					return semantics_def_err(
-						"Semantic error: %k %n tries to overload a non-function constant %f!",
-						"function", name, ref->DefPos, to_sem_pos(stmt->NamePos) // DIFFERENT
-					);
-				}
-				SymTab.remove_symbol(name);
-				assert(!SymTab.local_ref_sym(name));
-
-				auto tc_sym = new typeclass_symbol(name, cons);
-				if (auto n_other = tc_sym->add(sym)) {
-					auto& other = *n_other;
-					return semantics_def_err(
-						"Semamtic error: %k %n cannot overload a matching function %f!",
-						"function", name, other->DefPos, to_sem_pos(stmt->NamePos) // DIFFERENT
-					);
-				}
-				SymTab.decl(tc_sym);
-			}
-			else if (ref->Ty == symbol_t::Typeclass) {
-				auto tc = (typeclass_symbol*)ref;
-				if (auto n_other = tc->add(sym)) {
-					auto& other = *n_other;
-					return semantics_def_err(
-						"Semamtic error: %k %n cannot overload a matching function %f!",
-						"function", name, other->DefPos, to_sem_pos(stmt->NamePos) // DIFFERENT
-					);
-				}
-			}
-			else {
-				UNREACHABLE;
-			}
-		}
-		else {
-			if (auto n_ref = SymTab.upper_ref_sym(name)) {
-				auto& ref = *n_ref;
-				print_def_msg(
-					"Warning: %k %n is shadowing other functions or constants %f!",
-					"function", name, ref->DefPos, to_sem_pos(stmt->NamePos) // DIFFERENT
-				);
-			}
-			SymTab.decl(sym);
+		auto pos = to_sem_pos(stmt->NamePos);
+		sym->DefPos = pos;
+		if (auto err = decl_function(name, sym, pos)) {
+			return *err;
 		}
 		return {};
 	}

@@ -11,6 +11,7 @@ struct AST_expr;
 struct AST_ty;
 struct AST_pat;
 struct type_cons;
+struct const_symbol;
 
 struct semantics_def_err {
 	const char*			Fmt;
@@ -78,7 +79,9 @@ private:
 	yresult<type*, semantic_err> check_ty(AST_ty* typ);
 
 	yresult<type*, semantic_err> check_parameter(yopt<token>& m_name, AST_ty* ty_exp);
-	
+	yopt<semantic_err> decl_function(ystr const& name, const_symbol* sym, 
+		semantic_pos const& name_pos);
+
 	type* generate_let_pattern(AST_pat* pat, yvec<ytup<ystr, interval, type*>>& buff);
 	ytup<yvec<ytup<ystr, interval, type*>>, type*> generate_let_pattern(AST_pat* pat);
 

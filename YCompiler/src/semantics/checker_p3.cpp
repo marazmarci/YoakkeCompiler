@@ -327,7 +327,7 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		UNIMPLEMENTED;
 	}
 
-						   // TODO: Common code with Ident
+	// TODO: Common code with Ident
 	case AST_expr_t::Bin: {
 		auto expr = (AST_bin_expr*)ex;
 		auto res1 = phase3(expr->Left);
