@@ -42,6 +42,31 @@ struct lexer_eof_err {
 };
 
 /**
+ * This error occurs when there is something that needs to be closed
+ * tokenwise, but the end of line was reached without closing it. This could
+ * be an unmatched string quote.
+ */
+struct lexer_eol_err {
+	file_hnd const& File;	// The file where the error happened
+	interval		Start;	// Where was the beginning of the token
+	interval		End;	// Where was the last visible character
+	ystr			Msg;	// What was not escaped
+	yopt<ystr>		Note;	// An optional note for the user
+
+	/**
+	 * Creates an unexpected EOF error at the given positions.
+	 * @param file The source file.
+	 * @param start The beginning of the token.
+	 * @param end The last visible character's place in the file.
+	 * @param msg A message telling what was unescaped.
+	 * @param note An optional note for the user for specific help.
+	 */
+	lexer_eol_err(file_hnd const& file,
+		interval const& start, interval const& end,
+		ystr const& msg, yopt<ystr> note = {});
+};
+
+/**
  * This occurs when an unknown token is encountered.
  */
 struct lexer_unk_tok_err {
@@ -63,7 +88,7 @@ public:
 /**
  * This is the lexer error type that can occur.
  */
-using lexer_err = yvar<lexer_eof_err, lexer_unk_tok_err>;
+using lexer_err = yvar<lexer_eof_err, lexer_eol_err, lexer_unk_tok_err>;
 
 /**
  * The lexer state can be used to go back to a previous state if needed.

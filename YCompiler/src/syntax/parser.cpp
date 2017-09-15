@@ -34,6 +34,7 @@ namespace parser {
 		const auto ASGN		= term<token_t::Asgn>();	// '='
 		const auto FN		= term<token_t::Fn>();		// 'fn'
 		const auto SEMICOL	= term<token_t::Semicol>();	// ';'
+		const auto HASHMARK = term<token_t::Hashmark>();// '#'
 		const auto LET		= term<token_t::Let>();		// 'let'
 		const auto IF		= term<token_t::If>();		// 'if'
 		const auto ELSE		= term<token_t::Else>();	// 'else'
@@ -126,6 +127,11 @@ namespace parser {
 		const parser_t<AST_stmt*> Decl = parse_decl;
 
 		/*********************************************************************/
+
+		namespace directive_detail {
+			const auto DBegin =
+				HASHMARK >= !IDENT;
+		}
 
 		namespace type_detail {
 			result_t<AST_ty*> parse_ty(token_input& in);
@@ -244,7 +250,7 @@ namespace parser {
 				};
 
 			const auto FnExpr =
-				(&FnParamList >= &(ARROW >= !(TypeList / "return type")) >= BlockExpr)
+				(&FnParamList >= &(ARROW >= !(TypeList / "return type")) >= !BlockExpr)
 				^ [](auto& params, auto& rett, auto& body) -> AST_fn_expr* {
 					yopt<token> beg = {};
 					yopt<AST_ty*> rett_r = {};
@@ -408,10 +414,10 @@ namespace parser {
 				;
 
 			const auto Decl =
-				  ((FN >= IDENT >= !(FnExpr / "function expression"))
-				  ^ make_as<AST_fn_decl_stmt, AST_stmt>())
-				| ((FN >= OPERATOR >= Oper >= !(FnExpr / "function expression"))
+				  ((FN >= OPERATOR >= Oper >= !(FnExpr / "function expression"))
 				  ^ make_as<AST_op_decl_stmt, AST_stmt>())
+				| ((FN >= !IDENT >= !(FnExpr / "function expression"))
+				  ^ make_as<AST_fn_decl_stmt, AST_stmt>())
 				| ((TYPE >= !IDENT < !ASGN >= !(TypeList / "type"))
 				  ^ make_as<AST_ty_decl_stmt, AST_stmt>())
 				;
@@ -453,6 +459,21 @@ namespace parser {
 					auto& end = err.End;
 					std::cout
 						<< "Unexpected end of file in file '"
+						<< err.File.path() << "' at line "
+						<< end.End.Row << ", character "
+						<< end.End.Column << "!"
+						<< std::endl;
+					fmt_code::print(err.File, start, end);
+					std::cout << err.Msg << std::endl;
+					if (err.Note) {
+						std::cout << "Note: " << *err.Note << std::endl;
+					}
+				},
+				[](lexer_eol_err& err) {
+					auto& start = err.Start;
+					auto& end = err.End;
+					std::cout
+						<< "Unexpected end of line in file '"
 						<< err.File.path() << "' at line "
 						<< end.End.Row << ", character "
 						<< end.End.Column << "!"

@@ -422,7 +422,7 @@ namespace combinator {
 				}
 				else {
 					return fail_info(
-						in.get_index(), 
+						in.get_index(),
 						parser_exp_tok_err(
 							in.get_lexer().file(),
 							expect,
@@ -432,7 +432,9 @@ namespace combinator {
 				}
 			}
 			else {
-				return fail_info(in.get_index(), result.get_err());
+				auto fail =  fail_info(in.get_index(), result.get_err());
+				fail.Fatal = true;
+				return fail;
 			}
 		};
 	}

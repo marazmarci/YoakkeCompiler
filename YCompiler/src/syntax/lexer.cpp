@@ -9,6 +9,12 @@ lexer_eof_err::lexer_eof_err(file_hnd const& file,
 	: File(file), Start(start), End(end), Msg(msg), Note(note) {
 }
 
+lexer_eol_err::lexer_eol_err(file_hnd const& file,
+	interval const& start, interval const& end,
+	ystr const& msg, yopt<ystr> note)
+	: File(file), Start(start), End(end), Msg(msg), Note(note) {
+}
+
 lexer_unk_tok_err::lexer_unk_tok_err(file_hnd const& file, 
 	interval const& pos, ystr const& val)
 	: File(file), Pos(pos), Tok(val) {
@@ -44,6 +50,7 @@ lexer::lexer(file_hnd const& src)
 	add_symbol(",", token_t::Comma);	// ','
 	add_symbol(":", token_t::Colon);	// ':'
 	add_symbol(";", token_t::Semicol);	// ';'
+	add_symbol("#", token_t::Hashmark);	// '#'
 	add_symbol("->", token_t::Arrow);	// '->'
 
 	// Initialize keywords
@@ -134,6 +141,83 @@ yresult<token, lexer_err> lexer::next() {
 				}
 			}
 			continue;
+		}
+
+		// String literals
+		if (*m_Ptr == '"') {
+			ysize str_len = 1;
+			advance();
+			ystr str = "";
+			interval str_beg = interval(std::get<0>(m_State), 1);
+			while (true) {
+				if (end()) {
+					return lexer_err(lexer_eof_err(
+						m_File,
+						str_beg, interval(m_Last, 1),
+						ystr("A string literal was not ended before the end-of-file!"),
+						{}));
+				}
+				char curr = *m_Ptr;
+				if (curr == '"') {
+					str_len++;
+					advance();
+					return token(interval(std::get<0>(m_State), str_len), token_t::StrLit, str);
+				}
+				else if (curr == '\r') {
+					advance();
+					return lexer_err(lexer_eof_err(
+						m_File,
+						str_beg, interval(m_Last, 1),
+						ystr("A string literal was not ended before the end-of-line!"),
+						ystr("Yoakke does not support multi-line string literals!")));
+				}
+				else if (curr == '\n') {
+					advance();
+					return lexer_err(lexer_eof_err(
+						m_File,
+						str_beg, interval(m_Last, 1),
+						ystr("A string literal was not ended before the end-of-line!"),
+						ystr("Yoakke does not support multi-line string literals!")));
+				}
+				else if (curr == '\\') {
+					// Escape sequence
+					str_len++;
+					advance();
+					if (curr == 'n') {
+						str += '\n';
+						str_len++;
+					}
+					else if (curr == '\\') {
+						str += '\\';
+						str_len++;
+					}
+					else if (curr == '0') {
+						str += '\0';
+						str_len++;
+					}
+					else if (curr == 't') {
+						str += '\t';
+						str_len++;
+					}
+					else if (curr == '"') {
+						str += '"';
+						str_len++;
+					}
+					else {
+						auto& pt = std::get<0>(m_State);
+						auto ret = lexer_err(lexer_unk_tok_err(m_File,
+							interval(point(pt.Column + 1, pt.Row), 1),
+							ystr{ *m_Ptr }));
+						advance();
+						return ret;
+					}
+				}
+				else {
+					str += curr;
+					str_len++;
+					advance();
+				}
+			}
 		}
 
 		// See if we have encountered a symbol

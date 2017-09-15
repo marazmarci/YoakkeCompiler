@@ -22,6 +22,7 @@ enum class token_t {
 	Ident,		// Identifier			[A-Za-z_][A-Za-z_0-9]*
 	IntLit,		// Integer literal		[0-9]+
 	RealLit,	// Real literal			[0-9]+\.[0-9]+
+	StrLit,		// String literal		"[^"]*"
 	LParen,		// Left parenthesis		'('
 	RParen,		// Right parenthesis	')'
 	LBrace,		// Left brace			'{'
@@ -44,6 +45,7 @@ enum class token_t {
 	Comma,		// Comma				','
 	Colon,		// Colon				':'
 	Semicol,	// Semicolon			';'
+	Hashmark,	// Hashmark				'#'
 	Arrow,		// Arrow sign			'->'
 	Fn,			// Function def			'fn'
 	Const,		// Constant def			'const'

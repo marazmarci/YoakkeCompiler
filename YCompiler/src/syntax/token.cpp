@@ -25,6 +25,9 @@ ystr token::fmt() const {
 	case token_t::RealLit:
 		return "real literal";
 
+	case token_t::StrLit:
+		return "string literal";
+
 	default:
 		return '\'' + Value + '\'';
 	}
@@ -37,6 +40,7 @@ const char* token::static_desc(token_t tt) {
 	case token_t::Arrow:		return "'->'";
 	case token_t::Asgn:			return "'='";
 	case token_t::Colon:		return "':'";
+	case token_t::Hashmark:		return "'#'";
 	case token_t::Comma:		return "','";
 	case token_t::Div:			return "'/'";
 	case token_t::Dot:			return "'.'";
