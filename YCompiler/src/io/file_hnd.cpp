@@ -12,10 +12,7 @@ namespace {
 		ysize len = 0;
 		for (; *src; src++) {
 			len++;
-			if (*src == '\r') {
-				len--;
-			}
-			else if (*src == '\n') {
+			if (*src == '\n') {
 				neg = 1;
 				return len + 1;
 			}
