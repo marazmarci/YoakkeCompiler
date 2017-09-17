@@ -8,14 +8,19 @@ namespace {
 	 * character is included in the size.
 	 * @see file_hnd
 	 */
-	ysize line_len(const char* src) {
+	ysize line_len(const char* src, ysize& neg) {
 		ysize len = 0;
 		for (; *src; src++) {
 			len++;
-			if (*src == '\n') {
-				break;
+			if (*src == '\r') {
+				len--;
+			}
+			else if (*src == '\n') {
+				neg = 1;
+				return len + 1;
 			}
 		}
+		neg = 0;
 		return len;
 	}
 }
@@ -42,14 +47,7 @@ file_hnd::file_hnd(const char* path)
 	m_Buffer[size] = '\0';
 
 	// Go throught the content and add line descriptions
-	for (ysize offs = 0; offs < size;) {
-		// Get the length of the line
-		ysize llen = line_len(m_Buffer + offs);
-		// Add it and the pointer to the line descriptors
-		m_Lines.push_back({ m_Buffer + offs, llen ? llen - 1 : 0 });
-		// Advance to the next line
-		offs += llen;
-	}
+	init_lines(size);
 
 	// Close the file
 	std::fclose(file);
@@ -71,18 +69,24 @@ file_hnd::file_hnd(ystr const& alias, ystr const& src)
 	m_Buffer[size] = '\0';
 
 	// Go throught the content and add line descriptions
-	for (ysize offs = 0; offs < size;) {
-		// Get the length of the line
-		ysize llen = line_len(m_Buffer + offs);
-		// Add it and the pointer to the line descriptors
-		m_Lines.push_back({ m_Buffer + offs, llen ? llen - 1 : 0 });
-		// Advance to the next line
-		offs += llen;
-	}
+	init_lines(size);
 }
 
 file_hnd::~file_hnd() {
 	delete[] m_Buffer;
+}
+
+void file_hnd::init_lines(ysize size) {
+	// Go throught the content and add line descriptions
+	ysize neg;
+	for (ysize offs = 0; offs < size;) {
+		// Get the length of the line
+		ysize llen = line_len(m_Buffer + offs, neg);
+		// Add it and the pointer to the line descriptors
+		m_Lines.push_back({ m_Buffer + offs, llen ? llen - neg : 0 });
+		// Advance to the next line
+		offs += llen;
+	}
 }
 
 bool file_hnd::good() const {

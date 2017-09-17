@@ -103,6 +103,14 @@ public:
 	line_it lines_end() const;
 
 private:
+	/**
+	 * Registers the lines based on the source buffer.
+	 * Used by constructors.
+	 * @param size The length of the buffer.
+	 */
+	void init_lines(ysize size);
+
+private:
 	ystr			m_Path;		// Original file path
 	char*			m_Buffer;	// Content buffer
 	yvec<line_info>	m_Lines;	// Line pointer-length pair
