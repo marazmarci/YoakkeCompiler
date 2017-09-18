@@ -28,6 +28,15 @@ yopt<semantic_err> checker::check_program(yvec<AST_stmt*>& prg) {
 	SymTab.decl("f32",	F32);
 	SymTab.decl("bool", BOOL);
 
+	auto i32_bin_fn = type_cons::fn(type_cons::params({ I32, I32 }), I32);
+
+	// Define builtins
+	SymTab.decl(new builtin_const_symbol("@op+", i32_bin_fn, ir_opcode::IAdd));
+	SymTab.decl(new builtin_const_symbol("@op-", i32_bin_fn, ir_opcode::ISub));
+	SymTab.decl(new builtin_const_symbol("@op*", i32_bin_fn, ir_opcode::IMul));
+	SymTab.decl(new builtin_const_symbol("@op/", i32_bin_fn, ir_opcode::IDiv));
+	SymTab.decl(new builtin_const_symbol("@op%", i32_bin_fn, ir_opcode::IMod));
+
 	for (auto& stmt : prg) {
 		if (auto err = phase1(stmt)) {
 			return err;

@@ -126,7 +126,14 @@
     <ClInclude Include="src\functions.h" />
     <ClInclude Include="src\io\file_hnd.h" />
     <ClInclude Include="src\io\fmt_code.h" />
+    <ClInclude Include="src\ir\ir_basic_block.h" />
+    <ClInclude Include="src\ir\ir_compiler.h" />
+    <ClInclude Include="src\ir\ir_context.h" />
+    <ClInclude Include="src\ir\ir_function.h" />
+    <ClInclude Include="src\ir\ir_instr.h" />
     <ClInclude Include="src\ir\ir_opcode.h" />
+    <ClInclude Include="src\ir\ir_type.h" />
+    <ClInclude Include="src\ir\ir_value.h" />
     <ClInclude Include="src\math.h" />
     <ClInclude Include="src\semantics\checker.h" />
     <ClInclude Include="src\semantics\class_constraint.h" />
@@ -157,6 +164,11 @@
   <ItemGroup>
     <ClCompile Include="src\io\ast_printer.cpp" />
     <ClCompile Include="src\io\fmt_code.cpp" />
+    <ClCompile Include="src\ir\ir_basic_block.cpp" />
+    <ClCompile Include="src\ir\ir_context.cpp" />
+    <ClCompile Include="src\ir\ir_function.cpp" />
+    <ClCompile Include="src\ir\ir_instr.cpp" />
+    <ClCompile Include="src\ir\ir_type.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\io\file_hnd.cpp" />
     <ClCompile Include="src\semantics\checker.cpp" />
