@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <type_traits>
 #include "ast.h"
 #include "ast_ty.h"
 #include "ast_expr.h"
@@ -44,6 +45,7 @@ namespace parser {
 		const auto OPERATOR = term<token_t::Operator>(); // 'operator'
 		const auto INT_LIT	= term<token_t::IntLit>();
 		const auto REAL_LIT = term<token_t::RealLit>();
+		const auto STR_LIT  = term<token_t::StrLit>();
 		const auto END_OF_F = term<token_t::EndOfFile>();
 
 		const auto DBG_WR_T = term<token_t::DbgWriteTy>();
@@ -131,6 +133,40 @@ namespace parser {
 		namespace directive_detail {
 			const auto DBegin =
 				HASHMARK >= !IDENT;
+
+			parser_t<result_list<token, token>> DirName(const char* name) {
+				return [=](token_input& in) -> result_t<result_list<token, token>> {
+					auto res = DBegin(in);
+					if (res.is_err()) {
+						return res.get_err();
+					}
+					else {
+						auto& ok = res.get_ok();
+						auto& ok_list = std::get<0>(ok);
+						auto& ident = std::get<1>(ok_list);
+						if (ident.Value == name) {
+							return res;
+						}
+						else {
+							return fail_info(
+								in.get_index(),
+								parser_exp_tok_err(
+									in.get_lexer().file(),
+									name,
+									ident
+								)
+							);
+						}
+					}
+				};
+			}
+
+			const auto InstrDir =
+				DirName("instr") >= STR_LIT;
+		}
+
+		namespace dir {
+			const auto Instr = directive_detail::InstrDir;
 		}
 
 		namespace type_detail {

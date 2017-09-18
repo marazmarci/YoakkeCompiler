@@ -75,6 +75,7 @@ const char* token::static_desc(token_t tt) {
 	case token_t::True:			return "'true'";
 	case token_t::False:		return "'false'";
 	case token_t::Operator:		return "'operator'";
+	case token_t::StrLit:		return "string literal";
 
 	case token_t::DbgWriteTy:	return "<debug>";
 
