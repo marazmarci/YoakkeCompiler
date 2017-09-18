@@ -14,7 +14,7 @@ namespace {
 			len++;
 			if (*src == '\n') {
 				neg = 1;
-				return len + 1;
+				return len;
 			}
 		}
 		neg = 0;
