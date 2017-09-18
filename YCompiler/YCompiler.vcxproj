@@ -126,6 +126,7 @@
     <ClInclude Include="src\functions.h" />
     <ClInclude Include="src\io\file_hnd.h" />
     <ClInclude Include="src\io\fmt_code.h" />
+    <ClInclude Include="src\ir\ir_opcode.h" />
     <ClInclude Include="src\math.h" />
     <ClInclude Include="src\semantics\checker.h" />
     <ClInclude Include="src\semantics\class_constraint.h" />

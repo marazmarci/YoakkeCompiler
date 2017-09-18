@@ -10,11 +10,27 @@ symbol::~symbol() { }
 
 /*****************************************************************************/
 
-const_symbol::const_symbol(ystr const& name, type* typ)
-	: symbol(symbol_t::Constant, name), Type(typ) {
+const_symbol::const_symbol(const_symbol_t ct, ystr const& name, type* typ)
+	: symbol(symbol_t::Constant, name), ConstTy(ct), Type(typ) {
 }
 
 const_symbol::~const_symbol() { }
+
+/*****************************************************************************/
+
+builtin_const_symbol::builtin_const_symbol(ystr const& name, type* typ, ir_opcode opc)
+	: const_symbol(const_symbol_t::Builtin, name, typ), Opcode(opc) {
+}
+
+builtin_const_symbol::~builtin_const_symbol() { }
+
+/*****************************************************************************/
+
+fn_const_symbol::fn_const_symbol(ystr const& name, type* typ)
+	: const_symbol(const_symbol_t::Function, name, typ) {
+}
+
+fn_const_symbol::~fn_const_symbol() { }
 
 /*****************************************************************************/
 

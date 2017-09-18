@@ -91,7 +91,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 			return err;
 		}
 		auto& sym_t = stmt->Expression->Symbol;
-		auto sym = new const_symbol(name, sym_t);
+		auto sym = new fn_const_symbol(name, sym_t);
 		auto pos = to_sem_pos(stmt->Name.Pos);
 		sym->DefPos = pos;
 		if (auto err = decl_function(name, sym, pos)) {
@@ -118,7 +118,7 @@ yopt<semantic_err> checker::phase2(AST_stmt* st) {
 			);
 		}
 		//////////////////////////////////////////////////
-		auto sym = new const_symbol(name, sym_t);
+		auto sym = new fn_const_symbol(name, sym_t);
 		auto pos = to_sem_pos(stmt->NamePos);
 		sym->DefPos = pos;
 		if (auto err = decl_function(name, sym, pos)) {

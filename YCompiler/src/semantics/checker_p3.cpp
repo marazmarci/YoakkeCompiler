@@ -342,9 +342,13 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		auto param_t = type_cons::params({ left_t, right_t });
 
 		auto n_op_sym = SymTab.ref_sym("@op" + expr->Oper.Value);
-		assert(n_op_sym);
+		if (!n_op_sym) {
+			return semantic_err(semantics_pos_err(
+				"Semantic error: Undefined binary operator",
+				to_sem_pos(expr->Pos)
+			));
+		}
 		auto& op_sym = *n_op_sym;
-
 		type* op_ty = nullptr;
 		if (op_sym->Ty == symbol_t::Constant) {
 			auto csym = (const_symbol*)op_sym;
@@ -367,7 +371,7 @@ yresult<type*, semantic_err> checker::phase3(AST_expr* ex) {
 		type* exp_func = type_cons::fn(param_t, ret_t);
 		if (auto err = unifier::unify(op_ty, exp_func)) {
 			return semantic_err(semantics_pos_err(
-				"Semantic error: Wrong arguments provided for call",
+				"Semantic error: Operator undefined with two parameters",
 				to_sem_pos(expr->Pos)
 			));
 		}
