@@ -169,6 +169,7 @@
     <ClCompile Include="src\ir\ir_function.cpp" />
     <ClCompile Include="src\ir\ir_instr.cpp" />
     <ClCompile Include="src\ir\ir_type.cpp" />
+    <ClCompile Include="src\ir\ir_value.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\io\file_hnd.cpp" />
     <ClCompile Include="src\semantics\checker.cpp" />
