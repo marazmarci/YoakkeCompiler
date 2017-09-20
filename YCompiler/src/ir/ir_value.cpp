@@ -1,7 +1,7 @@
 #include "ir_type.h"
 #include "ir_value.h"
 
-ir_value::ir_value(ir_sized_type* t)
+ir_value::ir_value(ir_type* t)
 	: Type(t) {
 }
 

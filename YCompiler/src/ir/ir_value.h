@@ -8,10 +8,10 @@ struct ir_integer_type;
 
 struct ir_value {
 public:
-	ir_sized_type* Type;
+	ir_type* Type;
 
 protected:
-	ir_value(ir_sized_type* t);
+	ir_value(ir_type* t);
 
 public:
 	virtual ~ir_value();
@@ -53,4 +53,3 @@ public:
 	static ir_fp_value* create(ysize bits, long double val);
 	static ir_fp_value* create_32(long long int val);
 };
-
