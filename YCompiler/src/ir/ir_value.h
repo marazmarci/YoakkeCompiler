@@ -39,4 +39,18 @@ public:
 	static ir_integer_value* create(ysize bits, bool sign, long long int val);
 	static ir_integer_value* create_32(bool sign, long long int val);
 	static ir_integer_value* create_i32(long long int val);
+	static ir_integer_value* create_i8(long long int val);
 };
+
+struct ir_fp_value : public ir_value {
+public:
+	long double Value;
+
+private:
+	ir_fp_value(ir_fp_type* ty, long double val);
+
+public:
+	static ir_fp_value* create(ysize bits, long double val);
+	static ir_fp_value* create_32(long long int val);
+};
+

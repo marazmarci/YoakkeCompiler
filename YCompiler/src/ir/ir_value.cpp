@@ -23,21 +23,48 @@ ir_integer_value::ir_integer_value(ir_integer_type* ty, long long int val)
 
 ir_integer_value* ir_integer_value::create(ysize bits, bool sign, long long int val) {
 	return new ir_integer_value(
-		new ir_integer_type(bits, sign),
+		ir_integer_type::get(bits, sign),
 		val
 	);
 }
 
 ir_integer_value* ir_integer_value::create_32(bool sign, long long int val) {
 	return new ir_integer_value(
-		new ir_integer_type(32, sign),
+		ir_integer_type::get(32, sign),
 		val
 	);
 }
 
 ir_integer_value* ir_integer_value::create_i32(long long int val) {
 	return new ir_integer_value(
-		new ir_integer_type(32, true),
+		ir_integer_type::I32,
+		val
+	);
+}
+
+ir_integer_value* ir_integer_value::create_i8(long long int val) {
+	return new ir_integer_value(
+		ir_integer_type::I8,
+		val
+	);
+}
+
+/*****************************************************************************/
+
+ir_fp_value::ir_fp_value(ir_fp_type* ty, long double val)
+	: ir_value(ty), Value(val) {
+}
+
+ir_fp_value* ir_fp_value::create(ysize bits, long double val) {
+	return new ir_fp_value(
+		ir_fp_type::get(bits),
+		val
+	);
+}
+
+ir_fp_value* ir_fp_value::create_32(long long int val) {
+	return new ir_fp_value(
+		ir_fp_type::F32,
 		val
 	);
 }
