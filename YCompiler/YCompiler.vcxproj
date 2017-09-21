@@ -130,6 +130,7 @@
     <ClInclude Include="src\ir\ir_compiler.h" />
     <ClInclude Include="src\ir\ir_context.h" />
     <ClInclude Include="src\ir\ir_function.h" />
+    <ClInclude Include="src\ir\ir_function_decl.h" />
     <ClInclude Include="src\ir\ir_instr.h" />
     <ClInclude Include="src\ir\ir_opcode.h" />
     <ClInclude Include="src\ir\ir_type.h" />
@@ -167,6 +168,7 @@
     <ClCompile Include="src\ir\ir_basic_block.cpp" />
     <ClCompile Include="src\ir\ir_context.cpp" />
     <ClCompile Include="src\ir\ir_function.cpp" />
+    <ClCompile Include="src\ir\ir_function_decl.cpp" />
     <ClCompile Include="src\ir\ir_instr.cpp" />
     <ClCompile Include="src\ir\ir_type.cpp" />
     <ClCompile Include="src\ir\ir_value.cpp" />

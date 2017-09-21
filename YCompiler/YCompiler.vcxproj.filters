@@ -114,6 +114,9 @@
     <ClCompile Include="src\ir\ir_value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ir\ir_function_decl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h">
@@ -228,6 +231,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ir\ir_value.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ir\ir_function_decl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
