@@ -1,7 +1,7 @@
 #include "ir_function.h"
 
-ir_function::ir_function(ystr const& name, yvec<ir_alloca_instr*> const& params, ir_type* rett)
-	: Name(name), Params(params), ReturnType(rett), Iter(0) {
+ir_function::ir_function(ir_function_decl* decl)
+	: Decl(decl), Iter(0) {
 }
 
 ir_function::~ir_function() {
